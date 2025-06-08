@@ -144,7 +144,7 @@ export function LuxuryNavigation() {
                 <img 
                   src={dominionEmblem} 
                   alt="Dominion Emblem" 
-                  className="w-10 h-10 object-cover rounded-full filter brightness-125 contrast-125"
+                  className="w-10 h-10 object-cover rounded-full filter brightness-125 contrast-125 ml-[0px] mr-[0px] pl-[-87px] pr-[-87px] pt-[-59px] pb-[-59px]"
                 />
               </div>
               <div>
@@ -178,12 +178,11 @@ export function LuxuryNavigation() {
           </div>
         )}
       </div>
-
       {/* Navigation Content */}
       <div className="flex-1 overflow-y-auto px-3 py-4">
         {isCollapsed ? (
           // Collapsed view - show only icons
-          <div className="space-y-2">
+          (<div className="space-y-2">
             {navigationSections.flatMap(section => section.items).map((item) => (
               <Link key={item.href} href={item.href}>
                 <Button
@@ -199,10 +198,10 @@ export function LuxuryNavigation() {
                 </Button>
               </Link>
             ))}
-          </div>
+          </div>)
         ) : (
           // Expanded view - show full navigation
-          <div className="space-y-6">
+          (<div className="space-y-6">
             {navigationSections.map((section) => (
               <div key={section.title}>
                 <Button
@@ -246,10 +245,9 @@ export function LuxuryNavigation() {
                 </div>
               </div>
             ))}
-          </div>
+          </div>)
         )}
       </div>
-
       <div className="flex-shrink-0 p-4 border-t border-gray-200 dark:border-gray-700">
         <div className="space-y-2">
           <Link href="/settings">
