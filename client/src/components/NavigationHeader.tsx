@@ -1,7 +1,8 @@
 import { useAuth } from "@/hooks/useAuth";
 import { Link, useLocation } from "wouter";
-import { ChevronDown, Trophy, Zap, Settings, User, LogOut } from "lucide-react";
+import { ChevronDown, Trophy, Zap, Settings, User, LogOut, Vote } from "lucide-react";
 import { useState } from "react";
+import { MobileNavigation } from "@/components/MobileNavigation";
 
 export function NavigationHeader() {
   const { user, isLoading } = useAuth();
@@ -69,9 +70,11 @@ export function NavigationHeader() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
-            <div className="flex-shrink-0">
+            <MobileNavigation />
+            <div className="flex-shrink-0 ml-3 md:ml-0">
               <Link href="/">
-                <a className="text-2xl font-bold text-civic-blue hover:text-civic-dark transition-colors">
+                <a className="flex items-center text-2xl font-bold text-civic-blue hover:text-civic-dark transition-colors">
+                  <Vote className="h-8 w-8 mr-2" />
                   CivicOS
                 </a>
               </Link>

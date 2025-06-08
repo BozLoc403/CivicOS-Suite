@@ -126,6 +126,43 @@
     font-weight: 500;
     letter-spacing: -0.015em;
   }
+
+  /* Consistent Typography Hierarchy */
+  h1 {
+    @apply text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight;
+  }
+
+  h2 {
+    @apply text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight;
+  }
+
+  h3 {
+    @apply text-2xl md:text-3xl lg:text-4xl font-semibold;
+  }
+
+  h4 {
+    @apply text-xl md:text-2xl lg:text-3xl font-medium;
+  }
+
+  h5 {
+    @apply text-lg md:text-xl lg:text-2xl font-medium;
+  }
+
+  h6 {
+    @apply text-base md:text-lg lg:text-xl font-medium;
+  }
+
+  p {
+    @apply text-base md:text-lg leading-relaxed;
+  }
+
+  .responsive-text-sm {
+    @apply text-sm md:text-base;
+  }
+
+  .responsive-text-xs {
+    @apply text-xs md:text-sm;
+  }
 }
 
 @layer utilities {
