@@ -589,13 +589,26 @@ export class RevolutionaryNewsAggregator {
         // Use description as fallback
       }
       
-      // Analyze content
-      const politicalTopics = this.extractPoliticalTopics(title + ' ' + content);
-      const mentionedPoliticians = this.extractMentionedPoliticians(title + ' ' + content);
+      // Enhanced AI analysis with OpenAI
+      let aiAnalysis: any = {};
+      try {
+        aiAnalysis = await openaiNewsAnalyzer.analyzeArticle({
+          title,
+          description: content,
+          source: source.name,
+          url
+        });
+      } catch (error) {
+        console.log('Using fallback analysis for', title.substring(0, 50));
+      }
+
+      // Combine AI analysis with basic extraction
+      const politicalTopics = aiAnalysis.key_themes || this.extractPoliticalTopics(title + ' ' + content);
+      const mentionedPoliticians = aiAnalysis.politicians_mentioned || this.extractMentionedPoliticians(title + ' ' + content);
       const mentionedBills = this.extractMentionedBills(title + ' ' + content);
-      const sentiment = this.analyzeSentiment(content);
-      const factualityScore = this.calculateFactualityScore(content, source);
-      const propagandaTechniques = this.detectPropagandaTechniques(content);
+      const sentiment = aiAnalysis.sentiment === 'positive' ? 0.5 : aiAnalysis.sentiment === 'negative' ? -0.5 : 0;
+      const factualityScore = aiAnalysis.credibility_score || this.calculateFactualityScore(content, source);
+      const propagandaTechniques = aiAnalysis.propaganda_techniques || this.detectPropagandaTechniques(content);
       
       return {
         title: this.cleanText(title),
