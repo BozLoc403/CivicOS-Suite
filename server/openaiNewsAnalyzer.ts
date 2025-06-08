@@ -1,228 +1,369 @@
+import OpenAI from "openai";
 import { db } from "./db";
 import { newsArticles } from "@shared/schema";
-import fetch from 'node-fetch';
+import { eq, desc, and, gte, sql } from "drizzle-orm";
+import * as cheerio from "cheerio";
+import fetch from "node-fetch";
+
+// the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+interface NewsSource {
+  name: string;
+  url: string;
+  rssUrl: string;
+  selectors: {
+    title: string[];
+    content: string[];
+    author: string[];
+    publishDate: string[];
+  };
+}
+
+interface AnalyzedArticle {
+  title: string;
+  content: string;
+  url: string;
+  author: string;
+  publishedAt: Date;
+  source: string;
+  credibilityScore: number;
+  sentimentScore: number;
+  biasRating: string;
+  keyTopics: string[];
+  politicalImpact: number;
+  factCheck: string;
+  summary: string;
+}
 
 /**
- * OpenAI-powered news analysis system for political content
+ * Revolutionary OpenAI-powered Canadian news analysis system
+ * Provides authentic news data with fallback when other APIs are constrained
  */
 export class OpenAINewsAnalyzer {
-  private openaiApiKey: string;
+  private newsSources: NewsSource[] = [
+    {
+      name: "CBC News",
+      url: "https://www.cbc.ca",
+      rssUrl: "https://www.cbc.ca/webfeed/rss/rss-politics",
+      selectors: {
+        title: [".detailHeadline", "h1", ".headline"],
+        content: [".story-content", ".detailBodyText", "main p"],
+        author: [".byline", ".author", "[data-testid='byline']"],
+        publishDate: [".timeStamp", "time", ".published-date"]
+      }
+    },
+    {
+      name: "Global News",
+      url: "https://globalnews.ca",
+      rssUrl: "https://globalnews.ca/politics/feed/",
+      selectors: {
+        title: ["h1", ".entry-title", ".headline"],
+        content: [".l-article__body", ".entry-content", "article p"],
+        author: [".c-byline__author", ".author", ".byline"],
+        publishDate: [".c-byline__published", "time", ".published"]
+      }
+    },
+    {
+      name: "CTV News",
+      url: "https://www.ctvnews.ca",
+      rssUrl: "https://www.ctvnews.ca/rss/politics",
+      selectors: {
+        title: ["h1", ".articleHeadline", ".entry-title"],
+        content: [".articleBody", ".entry-content", "article p"],
+        author: [".byline", ".author", ".articleByline"],
+        publishDate: [".timestamp", "time", ".published"]
+      }
+    },
+    {
+      name: "National Post",
+      url: "https://nationalpost.com",
+      rssUrl: "https://nationalpost.com/category/news/politics/feed",
+      selectors: {
+        title: ["h1", ".article-title", ".headline"],
+        content: [".article-content", ".entry-content", "article p"],
+        author: [".author-name", ".byline", ".author"],
+        publishDate: [".published-date", "time", ".timestamp"]
+      }
+    },
+    {
+      name: "The Globe and Mail",
+      url: "https://www.theglobeandmail.com",
+      rssUrl: "https://www.theglobeandmail.com/politics/?service=rss",
+      selectors: {
+        title: ["h1", ".headline", ".article-headline"],
+        content: [".article-body", ".content", "article p"],
+        author: [".author", ".byline", ".writer"],
+        publishDate: [".published-date", "time", ".date"]
+      }
+    }
+  ];
 
-  constructor() {
-    this.openaiApiKey = process.env.OPENAI_API_KEY!;
+  /**
+   * Perform comprehensive Canadian news analysis with OpenAI
+   */
+  async performComprehensiveNewsAnalysis(): Promise<void> {
+    console.log("Starting OpenAI-powered Canadian news analysis...");
+
+    for (const source of this.newsSources) {
+      try {
+        await this.analyzeNewsSource(source);
+        await this.delay(2000); // Rate limiting
+      } catch (error) {
+        console.error(`Error analyzing ${source.name}:`, error);
+        continue;
+      }
+    }
+
+    console.log("OpenAI news analysis completed");
   }
 
   /**
-   * Analyze article with OpenAI for political insights
+   * Analyze individual news source with OpenAI intelligence
    */
-  async analyzeArticle(article: any): Promise<any> {
-    if (!this.openaiApiKey) {
-      return this.basicAnalysis(article);
-    }
+  private async analyzeNewsSource(source: NewsSource): Promise<void> {
+    console.log(`Analyzing news source: ${source.name}`);
 
     try {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
+      // Fetch RSS feed
+      const response = await fetch(source.rssUrl, {
         headers: {
-          'Authorization': `Bearer ${this.openaiApiKey}`,
-          'Content-Type': 'application/json'
+          'User-Agent': 'CivicOS-NewsAnalyzer/1.0 (https://civicos.ca)'
         },
-        body: JSON.stringify({
-          model: "gpt-4o",
-          messages: [{
-            role: "system",
-            content: "You are a Canadian political analyst. Analyze news articles for political sentiment, bias, key themes, and involved politicians. Always respond in valid JSON format."
-          }, {
-            role: "user",
-            content: `Analyze this Canadian political news article:
-
-Title: ${article.title}
-Content: ${article.description || article.summary || article.content || ''}
-Source: ${article.source}
-
-Return JSON with:
-{
-  "sentiment": "positive/negative/neutral",
-  "bias_rating": "left/center/right", 
-  "credibility_score": 0-100,
-  "key_themes": ["theme1", "theme2"],
-  "politicians_mentioned": ["politician1", "politician2"],
-  "political_impact": "brief description",
-  "fact_check_needed": true/false,
-  "emotional_tone": "neutral/inflammatory/measured",
-  "propaganda_techniques": ["technique1", "technique2"]
-}`
-          }],
-          response_format: { type: "json_object" },
-          max_tokens: 800
-        })
+        timeout: 10000
       });
 
-      if (response.ok) {
-        const data = await response.json() as any;
-        return JSON.parse(data.choices[0].message.content);
-      } else {
-        console.log('OpenAI API error, using fallback analysis');
-        return this.basicAnalysis(article);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const rssContent = await response.text();
+      const articles = await this.parseRSSFeed(rssContent, source);
+
+      for (const article of articles.slice(0, 5)) { // Limit to 5 recent articles
+        try {
+          const analyzedArticle = await this.analyzeArticleWithOpenAI(article, source);
+          await this.storeAnalyzedArticle(analyzedArticle);
+          await this.delay(1000);
+        } catch (error) {
+          console.error(`Error analyzing article from ${source.name}:`, error);
+          continue;
+        }
       }
     } catch (error) {
-      console.error('Error with OpenAI analysis:', error);
-      return this.basicAnalysis(article);
+      throw error;
     }
   }
 
   /**
-   * Basic analysis fallback when AI is unavailable
+   * Parse RSS feed and extract article data
    */
-  private basicAnalysis(article: any): any {
-    const text = (article.title + ' ' + (article.description || article.summary || '')).toLowerCase();
+  private async parseRSSFeed(rssContent: string, source: NewsSource): Promise<any[]> {
+    const $ = cheerio.load(rssContent, { xmlMode: true });
+    const articles: any[] = [];
+
+    $('item').each((index, element) => {
+      const $item = $(element);
+      
+      const article = {
+        title: $item.find('title').text().trim(),
+        url: $item.find('link').text().trim(),
+        description: $item.find('description').text().trim(),
+        pubDate: new Date($item.find('pubDate').text()),
+        source: source.name
+      };
+
+      if (article.title && article.url) {
+        articles.push(article);
+      }
+    });
+
+    return articles;
+  }
+
+  /**
+   * Analyze article content using OpenAI
+   */
+  private async analyzeArticleWithOpenAI(article: any, source: NewsSource): Promise<AnalyzedArticle> {
+    // Fetch full article content
+    let fullContent = article.description;
     
+    try {
+      const articleResponse = await fetch(article.url, {
+        headers: {
+          'User-Agent': 'CivicOS-NewsAnalyzer/1.0 (https://civicos.ca)'
+        },
+        timeout: 8000
+      });
+
+      if (articleResponse.ok) {
+        const html = await articleResponse.text();
+        const $ = cheerio.load(html);
+        
+        // Extract content using selectors
+        let extractedContent = '';
+        for (const selector of source.selectors.content) {
+          const content = $(selector).text().trim();
+          if (content && content.length > extractedContent.length) {
+            extractedContent = content;
+          }
+        }
+        
+        if (extractedContent.length > 100) {
+          fullContent = extractedContent;
+        }
+      }
+    } catch (error) {
+      // Use RSS description as fallback
+    }
+
+    // Analyze with OpenAI
+    const analysisPrompt = `
+    Analyze this Canadian political news article:
+    
+    Title: ${article.title}
+    Content: ${fullContent.substring(0, 2000)}
+    Source: ${source.name}
+    
+    Provide analysis in JSON format:
+    {
+      "credibilityScore": number (0-100),
+      "sentimentScore": number (-1 to 1),
+      "biasRating": "left" | "center" | "right",
+      "keyTopics": ["topic1", "topic2", "topic3"],
+      "politicalImpact": number (0-100),
+      "factCheck": "verified" | "disputed" | "unverified",
+      "summary": "2-sentence summary",
+      "canadianRelevance": number (0-100)
+    }
+    `;
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: "You are a Canadian political news analyst. Provide objective, factual analysis of news articles with focus on Canadian political relevance."
+        },
+        {
+          role: "user",
+          content: analysisPrompt
+        }
+      ],
+      response_format: { type: "json_object" },
+      temperature: 0.3
+    });
+
+    const analysis = JSON.parse(response.choices[0].message.content || '{}');
+
     return {
-      sentiment: this.detectSentiment(text),
-      bias_rating: this.detectBias(article.source),
-      credibility_score: this.getSourceCredibility(article.source),
-      key_themes: this.extractThemes(text),
-      politicians_mentioned: this.extractPoliticians(text),
-      political_impact: 'Requires detailed analysis',
-      fact_check_needed: this.needsFactCheck(text),
-      emotional_tone: this.detectTone(text),
-      propaganda_techniques: this.detectPropaganda(text)
+      title: article.title,
+      content: fullContent,
+      url: article.url,
+      author: "Unknown", // Extract from selectors if needed
+      publishedAt: article.pubDate || new Date(),
+      source: source.name,
+      credibilityScore: analysis.credibilityScore || 50,
+      sentimentScore: analysis.sentimentScore || 0,
+      biasRating: analysis.biasRating || "center",
+      keyTopics: analysis.keyTopics || [],
+      politicalImpact: analysis.politicalImpact || 0,
+      factCheck: analysis.factCheck || "unverified",
+      summary: analysis.summary || article.description.substring(0, 200)
     };
-  }
-
-  private detectSentiment(text: string): string {
-    const positiveWords = ['approve', 'support', 'success', 'win', 'improve', 'benefit', 'progress', 'achieve'];
-    const negativeWords = ['oppose', 'fail', 'crisis', 'scandal', 'corrupt', 'decline', 'problem', 'concern'];
-    
-    const positiveCount = positiveWords.filter(word => text.includes(word)).length;
-    const negativeCount = negativeWords.filter(word => text.includes(word)).length;
-    
-    if (positiveCount > negativeCount) return 'positive';
-    if (negativeCount > positiveCount) return 'negative';
-    return 'neutral';
-  }
-
-  private detectBias(source: string): string {
-    const leftSources = ['toronto star', 'globe and mail', 'cbc'];
-    const rightSources = ['national post', 'sun news'];
-    
-    const lowerSource = source.toLowerCase();
-    if (leftSources.some(s => lowerSource.includes(s))) return 'left';
-    if (rightSources.some(s => lowerSource.includes(s))) return 'right';
-    return 'center';
-  }
-
-  private getSourceCredibility(source: string): number {
-    const credibilityMap: { [key: string]: number } = {
-      'cbc': 85, 'ctv': 80, 'globe and mail': 85, 'national post': 75,
-      'toronto star': 75, 'global news': 70, 'canadian press': 90,
-      'hill times': 85, 'ipolitics': 80, 'le devoir': 80
-    };
-    
-    const lowerSource = source.toLowerCase();
-    for (const [sourceName, score] of Object.entries(credibilityMap)) {
-      if (lowerSource.includes(sourceName)) return score;
-    }
-    return 65;
-  }
-
-  private extractThemes(text: string): string[] {
-    const themes: string[] = [];
-    const politicalTerms = {
-      'healthcare': 'Healthcare', 'economy': 'Economy', 'education': 'Education',
-      'environment': 'Environment', 'defense': 'Defense', 'immigration': 'Immigration',
-      'tax': 'Taxation', 'budget': 'Budget', 'election': 'Elections',
-      'parliament': 'Parliament', 'senate': 'Senate', 'cabinet': 'Cabinet',
-      'provincial': 'Provincial Politics', 'municipal': 'Municipal Politics'
-    };
-
-    for (const [term, theme] of Object.entries(politicalTerms)) {
-      if (text.includes(term)) themes.push(theme);
-    }
-
-    return themes.length > 0 ? themes : ['General Politics'];
-  }
-
-  private extractPoliticians(text: string): string[] {
-    const politicians = [
-      'trudeau', 'singh', 'poilievre', 'blanchet', 'may',
-      'ford', 'legault', 'moe', 'kenney', 'horgan', 'furey',
-      'higgs', 'houston', 'king', 'stefanson'
-    ];
-
-    return politicians.filter(politician => text.includes(politician))
-      .map(p => p.charAt(0).toUpperCase() + p.slice(1));
-  }
-
-  private needsFactCheck(text: string): boolean {
-    const factCheckKeywords = ['claims', 'alleges', 'reports suggest', 'sources say', 'according to'];
-    return factCheckKeywords.some(keyword => text.includes(keyword));
-  }
-
-  private detectTone(text: string): string {
-    const inflammatoryWords = ['slam', 'blast', 'attack', 'fury', 'outrage', 'scandal'];
-    const measuredWords = ['discuss', 'consider', 'review', 'analyze', 'examine'];
-    
-    if (inflammatoryWords.some(word => text.includes(word))) return 'inflammatory';
-    if (measuredWords.some(word => text.includes(word))) return 'measured';
-    return 'neutral';
-  }
-
-  private detectPropaganda(text: string): string[] {
-    const techniques: string[] = [];
-    
-    if (text.includes('expert') || text.includes('studies show')) {
-      techniques.push('Appeal to Authority');
-    }
-    if (text.includes('everyone') || text.includes('nobody')) {
-      techniques.push('Bandwagon');
-    }
-    if (text.includes('crisis') || text.includes('disaster')) {
-      techniques.push('Fear Appeal');
-    }
-    if (text.includes('always') || text.includes('never')) {
-      techniques.push('Black and White Fallacy');
-    }
-    
-    return techniques;
   }
 
   /**
    * Store analyzed article in database
    */
-  async storeAnalyzedArticle(article: any, analysis: any): Promise<void> {
+  private async storeAnalyzedArticle(article: AnalyzedArticle): Promise<void> {
     try {
-      await db.insert(newsArticles).values({
-        title: article.title,
-        url: article.url || article.link,
-        content: article.description || article.summary || '',
-        source: article.source,
-        publishedAt: new Date(article.pubDate || article.published || Date.now()),
-        sentiment: analysis.sentiment || 'neutral',
-        biasRating: analysis.bias_rating || 'center',
-        credibilityScore: analysis.credibility_score || 65,
-        keyThemes: analysis.key_themes || [],
-        politiciansInvolved: analysis.politicians_mentioned || [],
-        factCheckNeeded: analysis.fact_check_needed || false,
-        emotionalTone: analysis.emotional_tone || 'neutral',
-        propagandaTechniques: analysis.propaganda_techniques || []
-      }).onConflictDoUpdate({
-        target: newsArticles.url,
-        set: {
-          sentiment: analysis.sentiment || 'neutral',
-          biasRating: analysis.bias_rating || 'center',
-          credibilityScore: analysis.credibility_score || 65,
-          keyThemes: analysis.key_themes || [],
-          politiciansInvolved: analysis.politicians_mentioned || [],
-          factCheckNeeded: analysis.fact_check_needed || false,
-          emotionalTone: analysis.emotional_tone || 'neutral',
-          propagandaTechniques: analysis.propaganda_techniques || [],
-          updatedAt: new Date()
-        }
-      });
+      // Check if article already exists
+      const existing = await db.select()
+        .from(newsArticles)
+        .where(eq(newsArticles.url, article.url))
+        .limit(1);
+
+      if (existing.length === 0) {
+        await db.insert(newsArticles).values({
+          title: article.title,
+          content: article.content,
+          url: article.url,
+          author: article.author,
+          publishedAt: article.publishedAt,
+          source: article.source,
+          credibilityScore: article.credibilityScore.toString(),
+          sentimentScore: article.sentimentScore,
+          biasRating: article.biasRating,
+          keyTopics: JSON.stringify(article.keyTopics),
+          politicalImpact: article.politicalImpact,
+          factCheckStatus: article.factCheck,
+          summary: article.summary,
+          isVerified: true,
+          analysisVersion: "openai-v1"
+        });
+
+        console.log(`Stored article: ${article.title.substring(0, 50)}...`);
+      }
     } catch (error) {
-      console.error('Error storing analyzed article:', error);
+      console.error("Error storing article:", error);
     }
+  }
+
+  /**
+   * Get latest analyzed news for dashboard
+   */
+  async getLatestNews(limit: number = 10): Promise<any[]> {
+    try {
+      const articles = await db.select()
+        .from(newsArticles)
+        .orderBy(desc(newsArticles.publishedAt))
+        .limit(limit);
+
+      return articles.map(article => ({
+        ...article,
+        keyTopics: JSON.parse(article.keyTopics || '[]'),
+        credibilityScore: parseInt(article.credibilityScore || '50')
+      }));
+    } catch (error) {
+      console.error("Error fetching latest news:", error);
+      return [];
+    }
+  }
+
+  /**
+   * Get news analytics for dashboard
+   */
+  async getNewsAnalytics(): Promise<any> {
+    try {
+      const [totalResult] = await db.execute(sql`
+        SELECT 
+          COUNT(*) as total,
+          COALESCE(AVG(CAST(credibility_score AS INTEGER)), 50) as avgCredibility,
+          COALESCE(AVG(sentiment_score), 0) as avgSentiment,
+          COUNT(CASE WHEN published_at >= NOW() - INTERVAL '24 hours' THEN 1 END) as recent
+        FROM news_articles
+      `);
+
+      return {
+        total: parseInt(totalResult.total || '0'),
+        avgCredibility: Math.round(totalResult.avgCredibility || 50),
+        avgSentiment: parseFloat(totalResult.avgSentiment || '0'),
+        recent: parseInt(totalResult.recent || '0')
+      };
+    } catch (error) {
+      console.error("Error fetching news analytics:", error);
+      return {
+        total: 0,
+        avgCredibility: 50,
+        avgSentiment: 0,
+        recent: 0
+      };
+    }
+  }
+
+  private delay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 }
 

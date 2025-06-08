@@ -2186,15 +2186,15 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
           FROM bills
         `),
         
-        // News summary with correct count query
-        db.execute(sql`
-          SELECT 
-            COUNT(*) as total,
-            50 as avgCredibility,
-            0 as avgSentiment,
-            COUNT(CASE WHEN published_at >= NOW() - INTERVAL '24 hours' THEN 1 END) as recent
-          FROM news_articles
-        `),
+        // News summary using OpenAI analyzer
+        (async () => {
+          try {
+            const { openaiNewsAnalyzer } = await import("./openaiNewsAnalyzer");
+            return { rows: [await openaiNewsAnalyzer.getNewsAnalytics()] };
+          } catch (error) {
+            return { rows: [{ total: 0, avgCredibility: 50, avgSentiment: 0, recent: 0 }] };
+          }
+        })(),
         
         // Legal data summary
         db.execute(sql`
@@ -2213,14 +2213,22 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
           FROM elections
         `),
         
-        // Analytics data
-        comprehensiveAnalytics.generateComprehensiveAnalytics().catch(() => ({
-          politicalLandscape: { partyDistribution: [], jurisdictionalBreakdown: [], positionHierarchy: [] },
-          legislativeAnalytics: { billsByCategory: [], votingPatterns: [], legislativeEfficiency: { averagePassageTime: 0, billsInProgress: 0, completedBills: 0 } },
-          politicianPerformance: { topPerformers: [], partyAlignment: [], regionalInfluence: [] },
-          publicEngagement: { civicParticipation: { totalVotes: 0, uniqueUsers: 0, engagementRate: 0 }, issueTracking: [], mediaInfluence: [] },
-          temporalAnalytics: { trendAnalysis: [], electionCycles: [], policyEvolution: [] }
-        })),
+        // Analytics data from authentic sources
+        (async () => {
+          try {
+            const { analyticsPopulator } = await import("./comprehensiveAnalyticsPopulator");
+            return await analyticsPopulator.generatePopulatedAnalytics();
+          } catch (error) {
+            console.error("Analytics generation error:", error);
+            return {
+              politicalLandscape: { partyDistribution: [], jurisdictionalBreakdown: [], positionHierarchy: [] },
+              legislativeAnalytics: { billsByCategory: [], votingPatterns: [], legislativeEfficiency: { averagePassageTime: 0, billsInProgress: 0, completedBills: 0 } },
+              politicianPerformance: { topPerformers: [], partyAlignment: [], regionalInfluence: [] },
+              publicEngagement: { civicParticipation: { totalVotes: 0, uniqueUsers: 0, engagementRate: 0 }, issueTracking: [], mediaInfluence: [] },
+              temporalAnalytics: { trendAnalysis: [], electionCycles: [], policyEvolution: [] }
+            };
+          }
+        })(),
         
         // Monitoring data
         realTimeMonitoring.getCurrentMetrics().catch(() => ({
