@@ -14,7 +14,7 @@ import PoliticiansWidget from "@/components/widgets/PoliticiansWidget";
 import NewsAnalysisWidget from "@/components/widgets/NewsAnalysisWidget";
 import BillsVotingWidget from "@/components/widgets/BillsVotingWidget";
 import PetitionsWidget from "@/components/widgets/PetitionsWidget";
-import { Vote, Clock, Shield, Users, ExternalLink, AlertCircle, MapPin, Trophy, Zap, TrendingUp, BarChart3, Globe } from "lucide-react";
+import { Vote, Clock, Shield, Users, ExternalLink, AlertCircle, MapPin, Trophy, Zap, TrendingUp, BarChart3, Globe, MessageSquare, Calendar, FileText } from "lucide-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import type { Bill, Vote as VoteType } from "@shared/schema";
