@@ -18,6 +18,9 @@ import LegalSearch from "@/pages/legal-search";
 import Rights from "@/pages/rights";
 import Services from "@/pages/services";
 import Elections from "@/pages/elections";
+import Finance from "@/pages/finance";
+import Lobbyists from "@/pages/lobbyists";
+import Procurement from "@/pages/procurement";
 import News from "@/pages/news";
 import Contacts from "@/pages/contacts";
 import Profile from "@/pages/profile";
@@ -51,6 +54,9 @@ function Router() {
                 <Route path="/contacts" component={Contacts} />
                 <Route path="/profile" component={Profile} />
                 <Route path="/settings" component={Settings} />
+                <Route path="/finance" component={Finance} />
+                <Route path="/lobbyists" component={Lobbyists} />
+                <Route path="/procurement" component={Procurement} />
                 <Route component={NotFound} />
               </Switch>
             </div>
