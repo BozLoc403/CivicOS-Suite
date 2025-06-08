@@ -201,7 +201,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const featured = await db.execute(sql`
         SELECT 
           p.id, p.name, p.position, p.party, p.level, p.constituency,
-          p.trust_score as "trustScore", p.contact, p.profile_image as "profileImage",
+          p.trust_score as "trustScore", 
+          COALESCE(p.contact, '{}') as contact, 
+          p.profile_image as "profileImage",
           COUNT(ps.id) as "recentStatements"
         FROM politicians p
         LEFT JOIN politician_statements ps ON p.id = ps.politician_id 
