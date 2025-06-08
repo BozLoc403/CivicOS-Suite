@@ -27,6 +27,13 @@ import News from "@/pages/news";
 import Contacts from "@/pages/contacts";
 import Profile from "@/pages/profile";
 import Settings from "@/pages/settings";
+import FOI from "@/pages/foi";
+import Leaks from "@/pages/leaks";
+import Whistleblower from "@/pages/whistleblower";
+import Corruption from "@/pages/corruption";
+import Pulse from "@/pages/pulse";
+import Trust from "@/pages/trust";
+import Maps from "@/pages/maps";
 
 import NotFound from "@/pages/not-found";
 
@@ -61,6 +68,13 @@ function Router() {
                 <Route path="/procurement" component={Procurement} />
                 <Route path="/memory" component={Memory} />
                 <Route path="/cases" component={Cases} />
+                <Route path="/foi" component={FOI} />
+                <Route path="/leaks" component={Leaks} />
+                <Route path="/whistleblower" component={Whistleblower} />
+                <Route path="/corruption" component={Corruption} />
+                <Route path="/pulse" component={Pulse} />
+                <Route path="/trust" component={Trust} />
+                <Route path="/maps" component={Maps} />
                 <Route component={NotFound} />
               </Switch>
             </div>
