@@ -130,10 +130,7 @@ export default function Discussions() {
   // Create post mutation
   const createPostMutation = useMutation({
     mutationFn: async (postData: any) => {
-      return await apiRequest("/api/forum/posts", {
-        method: "POST",
-        body: JSON.stringify(postData)
-      });
+      return await apiRequest("/api/forum/posts", "POST", postData);
     },
     onSuccess: () => {
       toast({
