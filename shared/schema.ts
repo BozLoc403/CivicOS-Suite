@@ -191,6 +191,8 @@ export const politicians = pgTable("politicians", {
   party: varchar("party"),
   jurisdiction: varchar("jurisdiction").notNull(),
   constituency: varchar("constituency"),
+  level: varchar("level"), // Federal, Provincial, Municipal
+  contact: jsonb("contact"), // contact information
   trustScore: decimal("trust_score", { precision: 5, scale: 2 }).default("50.00"),
   profileImageUrl: varchar("profile_image_url"),
   createdAt: timestamp("created_at").defaultNow(),
