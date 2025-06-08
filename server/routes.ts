@@ -4,7 +4,7 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { db } from "./db";
 import * as schema from "@shared/schema";
-import { eq, or, ilike, desc } from "drizzle-orm";
+import { eq, or, like, ilike, desc, sql } from "drizzle-orm";
 import { insertBillSchema, insertVoteSchema, insertPoliticianSchema } from "@shared/schema";
 import { summarizeBill, analyzePoliticianStatement } from "./claude";
 import { dataVerification } from "./dataVerification";
@@ -953,6 +953,163 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
       res.status(500).json({ message: "Failed to record activity" });
     }
   });
+
+  // Helper functions for geolocation-based electoral district determination
+  async function determineElectoralDistrict(lat: number, lng: number, level: 'federal' | 'provincial'): Promise<string | null> {
+    try {
+      // Simple geographic lookup based on major Canadian cities and regions
+      const coordinates = { lat, lng };
+      
+      // Federal ridings based on approximate geographic boundaries
+      if (level === 'federal') {
+        // Toronto area
+        if (lat >= 43.5 && lat <= 43.9 && lng >= -79.7 && lng <= -79.1) {
+          return determineToronto(lat, lng);
+        }
+        // Vancouver area
+        if (lat >= 49.0 && lat <= 49.4 && lng >= -123.3 && lng <= -122.5) {
+          return determineVancouver(lat, lng);
+        }
+        // Montreal area
+        if (lat >= 45.4 && lat <= 45.7 && lng >= -73.9 && lng <= -73.4) {
+          return determineMontreal(lat, lng);
+        }
+        // Calgary area
+        if (lat >= 50.8 && lat <= 51.2 && lng >= -114.3 && lng <= -113.8) {
+          return "Calgary Centre";
+        }
+        // Ottawa area
+        if (lat >= 45.2 && lat <= 45.6 && lng >= -76.0 && lng <= -75.4) {
+          return "Ottawa Centre";
+        }
+        return "Unknown Federal Riding";
+      }
+      
+      // Provincial ridings
+      if (level === 'provincial') {
+        // Ontario
+        if (lat >= 42.0 && lat <= 57.0 && lng >= -95.0 && lng <= -74.0) {
+          return determineOntarioRiding(lat, lng);
+        }
+        // Quebec
+        if (lat >= 45.0 && lat <= 62.0 && lng >= -79.0 && lng <= -57.0) {
+          return determineQuebecRiding(lat, lng);
+        }
+        // British Columbia
+        if (lat >= 48.0 && lat <= 60.0 && lng >= -139.0 && lng <= -114.0) {
+          return determineBCRiding(lat, lng);
+        }
+        return "Unknown Provincial Riding";
+      }
+      
+      return null;
+    } catch (error) {
+      console.error("Error determining electoral district:", error);
+      return null;
+    }
+  }
+
+  async function determineMunicipalWard(lat: number, lng: number, city?: string): Promise<string | null> {
+    try {
+      if (!city) return null;
+      
+      const cityLower = city.toLowerCase();
+      
+      // Toronto wards
+      if (cityLower.includes('toronto')) {
+        return determineTorontoWard(lat, lng);
+      }
+      
+      // Vancouver wards
+      if (cityLower.includes('vancouver')) {
+        return determineVancouverWard(lat, lng);
+      }
+      
+      // Montreal boroughs
+      if (cityLower.includes('montreal') || cityLower.includes('montréal')) {
+        return determineMontrealBorough(lat, lng);
+      }
+      
+      return `${city} - Ward Unknown`;
+    } catch (error) {
+      console.error("Error determining municipal ward:", error);
+      return null;
+    }
+  }
+
+  function determineToronto(lat: number, lng: number): string {
+    if (lat >= 43.7 && lng >= -79.4) return "Toronto Centre";
+    if (lat >= 43.6 && lng <= -79.5) return "Etobicoke Centre";
+    if (lat <= 43.6 && lng >= -79.3) return "Scarborough Centre";
+    return "Toronto—Danforth";
+  }
+
+  function determineVancouver(lat: number, lng: number): string {
+    if (lat >= 49.2 && lng >= -123.1) return "Vancouver Centre";
+    if (lat <= 49.2 && lng <= -123.1) return "Vancouver South";
+    return "Vancouver Granville";
+  }
+
+  function determineMontreal(lat: number, lng: number): string {
+    if (lat >= 45.5 && lng >= -73.6) return "Mount Royal";
+    if (lat <= 45.5 && lng <= -73.6) return "Ville-Marie—Le Sud-Ouest—Île-des-Soeurs";
+    return "Papineau";
+  }
+
+  function determineOntarioRiding(lat: number, lng: number): string {
+    // Toronto area
+    if (lat >= 43.5 && lat <= 43.9 && lng >= -79.7 && lng <= -79.1) {
+      return "Toronto Centre";
+    }
+    // Ottawa area
+    if (lat >= 45.2 && lat <= 45.6 && lng >= -76.0 && lng <= -75.4) {
+      return "Ottawa Centre";
+    }
+    return "Ontario Riding";
+  }
+
+  function determineQuebecRiding(lat: number, lng: number): string {
+    // Montreal area
+    if (lat >= 45.4 && lat <= 45.7 && lng >= -73.9 && lng <= -73.4) {
+      return "Ville-Marie";
+    }
+    // Quebec City area
+    if (lat >= 46.7 && lat <= 46.9 && lng >= -71.4 && lng <= -71.1) {
+      return "Québec";
+    }
+    return "Quebec Riding";
+  }
+
+  function determineBCRiding(lat: number, lng: number): string {
+    // Vancouver area
+    if (lat >= 49.0 && lat <= 49.4 && lng >= -123.3 && lng <= -122.5) {
+      return "Vancouver-Point Grey";
+    }
+    // Victoria area
+    if (lat >= 48.3 && lat <= 48.6 && lng >= -123.5 && lng <= -123.2) {
+      return "Victoria";
+    }
+    return "BC Riding";
+  }
+
+  function determineTorontoWard(lat: number, lng: number): string {
+    if (lat >= 43.7 && lng >= -79.3) return "Ward 27 - Toronto Centre-Rosedale";
+    if (lat >= 43.6 && lng <= -79.5) return "Ward 3 - Etobicoke Centre";
+    if (lat <= 43.6 && lng >= -79.2) return "Ward 44 - Scarborough East";
+    return "Ward 20 - Trinity-Spadina";
+  }
+
+  function determineVancouverWard(lat: number, lng: number): string {
+    if (lat >= 49.25) return "West End";
+    if (lng <= -123.15) return "Kitsilano";
+    return "Downtown";
+  }
+
+  function determineMontrealBorough(lat: number, lng: number): string {
+    if (lat >= 45.55) return "Plateau-Mont-Royal";
+    if (lng <= -73.65) return "Ville-Marie";
+    return "Le Sud-Ouest";
+  }
 
   // Media credibility analysis
   app.post('/api/news/analyze-credibility', async (req, res) => {
