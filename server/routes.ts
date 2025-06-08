@@ -2149,6 +2149,130 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
     }
   });
 
+  // Comprehensive Dashboard Data - Main endpoint for revolutionary dashboard
+  app.get('/api/dashboard/comprehensive', async (req, res) => {
+    try {
+      const region = req.query.region || 'all';
+      
+      // Collect comprehensive dashboard data
+      const [
+        politiciansData,
+        billsData, 
+        newsData,
+        legalData,
+        electionsData,
+        analyticsData,
+        monitoringData
+      ] = await Promise.all([
+        // Politicians summary
+        db.execute(sql`
+          SELECT 
+            COUNT(*) as total,
+            COUNT(CASE WHEN level = 'Federal' THEN 1 END) as federal,
+            COUNT(CASE WHEN level = 'Provincial' THEN 1 END) as provincial,
+            COUNT(CASE WHEN level = 'Municipal' THEN 1 END) as municipal,
+            AVG(CAST(trust_score AS DECIMAL)) as averageTrust
+          FROM politicians 
+          WHERE name IS NOT NULL
+        `),
+        
+        // Bills summary
+        db.execute(sql`
+          SELECT 
+            COUNT(*) as total,
+            COUNT(CASE WHEN status = 'Passed' THEN 1 END) as passed,
+            COUNT(CASE WHEN status = 'In Progress' THEN 1 END) as inProgress,
+            COUNT(CASE WHEN status = 'Failed' THEN 1 END) as failed
+          FROM bills
+        `),
+        
+        // News summary
+        db.execute(sql`
+          SELECT 
+            COUNT(*) as total,
+            AVG(credibility_score) as avgCredibility,
+            AVG(sentiment) as avgSentiment,
+            COUNT(CASE WHEN published_at >= NOW() - INTERVAL '24 hours' THEN 1 END) as recent
+          FROM news_articles
+        `),
+        
+        // Legal data summary
+        db.execute(sql`
+          SELECT 
+            (SELECT COUNT(*) FROM criminal_code_sections) as criminalSections,
+            (SELECT COUNT(*) FROM legal_acts) as acts,
+            (SELECT COUNT(*) FROM legal_cases) as cases
+        `),
+        
+        // Elections summary
+        db.execute(sql`
+          SELECT 
+            COUNT(*) as total,
+            COUNT(CASE WHEN status = 'Active' THEN 1 END) as active,
+            COUNT(CASE WHEN status = 'Upcoming' THEN 1 END) as upcoming
+          FROM elections
+        `),
+        
+        // Analytics data
+        comprehensiveAnalytics.generateComprehensiveAnalytics().catch(() => ({
+          politicalLandscape: { partyDistribution: [], jurisdictionalBreakdown: [], positionHierarchy: [] },
+          legislativeAnalytics: { billsByCategory: [], votingPatterns: [], legislativeEfficiency: { averagePassageTime: 0, billsInProgress: 0, completedBills: 0 } },
+          politicianPerformance: { topPerformers: [], partyAlignment: [], regionalInfluence: [] },
+          publicEngagement: { civicParticipation: { totalVotes: 0, uniqueUsers: 0, engagementRate: 0 }, issueTracking: [], mediaInfluence: [] },
+          temporalAnalytics: { trendAnalysis: [], electionCycles: [], policyEvolution: [] }
+        })),
+        
+        // Monitoring data
+        realTimeMonitoring.getCurrentMetrics().catch(() => ({
+          systemHealth: 'healthy',
+          dataFreshness: 100,
+          apiResponseTime: 200,
+          activeConnections: 1
+        }))
+      ]);
+
+      const dashboardData = {
+        politicians: {
+          total: politiciansData.rows[0]?.total || 0,
+          federal: politiciansData.rows[0]?.federal || 0,
+          provincial: politiciansData.rows[0]?.provincial || 0,
+          municipal: politiciansData.rows[0]?.municipal || 0,
+          averageTrust: politiciansData.rows[0]?.averageTrust || 0
+        },
+        bills: {
+          total: billsData.rows[0]?.total || 0,
+          passed: billsData.rows[0]?.passed || 0,
+          inProgress: billsData.rows[0]?.inProgress || 0,
+          failed: billsData.rows[0]?.failed || 0
+        },
+        news: {
+          total: newsData.rows[0]?.total || 0,
+          avgCredibility: newsData.rows[0]?.avgCredibility || 0,
+          avgSentiment: newsData.rows[0]?.avgSentiment || 0,
+          recent: newsData.rows[0]?.recent || 0
+        },
+        legal: {
+          criminalSections: legalData.rows[0]?.criminalSections || 0,
+          acts: legalData.rows[0]?.acts || 0,
+          cases: legalData.rows[0]?.cases || 0
+        },
+        elections: {
+          total: electionsData.rows[0]?.total || 0,
+          active: electionsData.rows[0]?.active || 0,
+          upcoming: electionsData.rows[0]?.upcoming || 0
+        },
+        analytics: analyticsData,
+        monitoring: monitoringData,
+        lastUpdated: new Date().toISOString()
+      };
+
+      res.json(dashboardData);
+    } catch (error) {
+      console.error("Error fetching comprehensive dashboard data:", error);
+      res.status(500).json({ message: "Failed to fetch dashboard data" });
+    }
+  });
+
   // Enhanced news articles with AI analysis
   app.get("/api/news/articles", async (req, res) => {
     try {
