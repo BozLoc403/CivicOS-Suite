@@ -18,6 +18,8 @@ import Services from "@/pages/services";
 import Elections from "@/pages/elections";
 import News from "@/pages/news";
 import Contacts from "@/pages/contacts";
+import Profile from "@/pages/profile";
+import Settings from "@/pages/settings";
 
 import NotFound from "@/pages/not-found";
 
@@ -42,6 +44,8 @@ function Router() {
           <Route path="/elections" component={Elections} />
           <Route path="/news" component={News} />
           <Route path="/contacts" component={Contacts} />
+          <Route path="/profile" component={Profile} />
+          <Route path="/settings" component={Settings} />
         </>
       )}
       <Route component={NotFound} />
