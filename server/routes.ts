@@ -792,19 +792,11 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
       const [petition] = await db.insert(schema.petitions).values({
         title,
         description,
-        targetLevel,
-        targetOfficial,
-        targetDepartment,
-        category,
         targetSignatures,
-        deadline,
-        tags,
+        deadlineDate: deadline,
         creatorId: userId,
         currentSignatures: 0,
         status: 'active',
-        isVerified: false,
-        isPromoted: false,
-        priority: 'medium'
       }).returning();
 
       res.json(petition);
@@ -1637,8 +1629,7 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
         // Add like
         await db.insert(forumLikes).values({
           userId,
-          postId,
-          type: "like"
+          postId
         });
         
         await db.update(forumPosts)
