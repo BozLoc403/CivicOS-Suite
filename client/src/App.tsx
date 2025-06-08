@@ -10,6 +10,10 @@ import Voting from "@/pages/voting";
 import Ledger from "@/pages/ledger";
 import Politicians from "@/pages/politicians";
 import Petitions from "@/pages/petitions";
+import Discussions from "@/pages/discussions";
+import Legal from "@/pages/legal";
+import Services from "@/pages/services";
+import Elections from "@/pages/elections";
 
 import NotFound from "@/pages/not-found";
 
@@ -27,6 +31,10 @@ function Router() {
           <Route path="/ledger" component={Ledger} />
           <Route path="/politicians" component={Politicians} />
           <Route path="/petitions" component={Petitions} />
+          <Route path="/discussions" component={Discussions} />
+          <Route path="/legal" component={Legal} />
+          <Route path="/services" component={Services} />
+          <Route path="/elections" component={Elections} />
         </>
       )}
       <Route component={NotFound} />

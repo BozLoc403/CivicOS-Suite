@@ -74,6 +74,51 @@ export function NavigationHeader() {
                   Politicians
                 </a>
               </Link>
+              <Link href="/petitions">
+                <a className={`px-1 pb-4 text-sm font-medium transition-colors ${
+                  isActive("/petitions") 
+                    ? "civic-blue border-b-2 border-civic-blue" 
+                    : "text-gray-500 hover:text-gray-700"
+                }`}>
+                  Petitions
+                </a>
+              </Link>
+              <Link href="/discussions">
+                <a className={`px-1 pb-4 text-sm font-medium transition-colors ${
+                  isActive("/discussions") 
+                    ? "civic-blue border-b-2 border-civic-blue" 
+                    : "text-gray-500 hover:text-gray-700"
+                }`}>
+                  Discussions
+                </a>
+              </Link>
+              <Link href="/elections">
+                <a className={`px-1 pb-4 text-sm font-medium transition-colors ${
+                  isActive("/elections") 
+                    ? "civic-blue border-b-2 border-civic-blue" 
+                    : "text-gray-500 hover:text-gray-700"
+                }`}>
+                  Elections
+                </a>
+              </Link>
+              <Link href="/legal">
+                <a className={`px-1 pb-4 text-sm font-medium transition-colors ${
+                  isActive("/legal") 
+                    ? "civic-blue border-b-2 border-civic-blue" 
+                    : "text-gray-500 hover:text-gray-700"
+                }`}>
+                  Legal System
+                </a>
+              </Link>
+              <Link href="/services">
+                <a className={`px-1 pb-4 text-sm font-medium transition-colors ${
+                  isActive("/services") 
+                    ? "civic-blue border-b-2 border-civic-blue" 
+                    : "text-gray-500 hover:text-gray-700"
+                }`}>
+                  Gov Services
+                </a>
+              </Link>
 
             </nav>
           </div>
