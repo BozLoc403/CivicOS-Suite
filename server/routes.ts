@@ -1504,45 +1504,49 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
     try {
       const { category, sort } = req.query;
       
-      let query = db.select({
-        id: forumPosts.id,
-        title: forumPosts.title,
-        content: forumPosts.content,
-        authorId: forumPosts.authorId,
-        categoryId: forumPosts.categoryId,
-        billId: forumPosts.billId,
-        createdAt: forumPosts.createdAt,
-        updatedAt: forumPosts.updatedAt,
-        viewCount: forumPosts.viewCount,
-        isSticky: forumPosts.isSticky,
-        isLocked: forumPosts.isLocked,
-        replyCount: forumPosts.replyCount,
-        likeCount: forumPosts.likeCount,
-        author: {
-          firstName: users.firstName,
-          email: users.email,
-          profileImageUrl: users.profileImageUrl
-        },
-        category: {
-          name: forumCategories.name,
-          color: forumCategories.color,
-          icon: forumCategories.icon
-        },
-        bill: {
-          title: bills.title,
-          billNumber: bills.billNumber
-        }
-      })
-      .from(forumPosts)
-      .leftJoin(users, eq(forumPosts.authorId, users.id))
-      .leftJoin(forumCategories, eq(forumPosts.categoryId, forumCategories.id))
-      .leftJoin(bills, eq(forumPosts.billId, bills.id));
+      let query = db.select()
+        .from(forumPosts)
+        .leftJoin(users, eq(forumPosts.authorId, users.id))
+        .leftJoin(forumCategories, eq(forumPosts.categoryId, forumCategories.id))
+        .leftJoin(bills, eq(forumPosts.billId, bills.id));
 
       if (category && category !== "all") {
         query = query.where(eq(forumPosts.categoryId, parseInt(category as string)));
       }
 
-      const posts = await query.orderBy(desc(forumPosts.createdAt));
+      const rawPosts = await query.orderBy(desc(forumPosts.createdAt));
+      
+      // Transform the data to match expected structure
+      const posts = rawPosts.map((row: any) => ({
+        id: row.forum_posts.id,
+        title: row.forum_posts.title,
+        content: row.forum_posts.content,
+        authorId: row.forum_posts.authorId,
+        categoryId: row.forum_posts.categoryId,
+        billId: row.forum_posts.billId,
+        createdAt: row.forum_posts.createdAt,
+        updatedAt: row.forum_posts.updatedAt,
+        viewCount: row.forum_posts.viewCount,
+        isSticky: row.forum_posts.isSticky || false,
+        isLocked: row.forum_posts.isLocked || false,
+        replyCount: row.forum_posts.replyCount || 0,
+        likeCount: row.forum_posts.likeCount || 0,
+        author: row.users ? {
+          firstName: row.users.firstName,
+          email: row.users.email,
+          profileImageUrl: row.users.profileImageUrl
+        } : null,
+        category: row.forum_categories ? {
+          name: row.forum_categories.name,
+          color: row.forum_categories.color,
+          icon: row.forum_categories.icon
+        } : null,
+        bill: row.bills ? {
+          title: row.bills.title,
+          billNumber: row.bills.billNumber
+        } : null
+      }));
+
       res.json(posts);
     } catch (error) {
       console.error("Error fetching forum posts:", error);
@@ -1553,14 +1557,18 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
   app.post("/api/forum/posts", isAuthenticated, async (req: any, res) => {
     try {
       const { title, content, categoryId, billId } = req.body;
-      const userId = req.user.claims.sub;
+      const userId = req.user?.claims?.sub;
+
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
 
       const [post] = await db.insert(forumPosts).values({
         authorId: userId,
         title,
         content,
-        categoryId,
-        billId: billId || null
+        categoryId: parseInt(categoryId),
+        billId: billId ? parseInt(billId) : null
       }).returning();
 
       res.json(post);
@@ -1574,24 +1582,26 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
     try {
       const postId = parseInt(req.params.postId);
       
-      const replies = await db.select({
-        id: forumReplies.id,
-        content: forumReplies.content,
-        authorId: forumReplies.authorId,
-        postId: forumReplies.postId,
-        parentReplyId: forumReplies.parentReplyId,
-        createdAt: forumReplies.createdAt,
-        likeCount: forumReplies.likeCount,
-        author: {
-          firstName: users.firstName,
-          email: users.email,
-          profileImageUrl: users.profileImageUrl
-        }
-      })
-      .from(forumReplies)
-      .leftJoin(users, eq(forumReplies.authorId, users.id))
-      .where(eq(forumReplies.postId, postId))
-      .orderBy(forumReplies.createdAt);
+      const rawReplies = await db.select()
+        .from(forumReplies)
+        .leftJoin(users, eq(forumReplies.authorId, users.id))
+        .where(eq(forumReplies.postId, postId))
+        .orderBy(forumReplies.createdAt);
+
+      const replies = rawReplies.map((row: any) => ({
+        id: row.forum_replies.id,
+        content: row.forum_replies.content,
+        authorId: row.forum_replies.authorId,
+        postId: row.forum_replies.postId,
+        parentReplyId: row.forum_replies.parentReplyId,
+        createdAt: row.forum_replies.createdAt,
+        likeCount: row.forum_replies.likeCount || 0,
+        author: row.users ? {
+          firstName: row.users.firstName,
+          email: row.users.email,
+          profileImageUrl: row.users.profileImageUrl
+        } : null
+      }));
 
       res.json(replies);
     } catch (error) {
@@ -1603,19 +1613,23 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
   app.post("/api/forum/replies", isAuthenticated, async (req: any, res) => {
     try {
       const { content, postId, parentReplyId } = req.body;
-      const userId = req.user.claims.sub;
+      const userId = req.user?.claims?.sub;
+
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
 
       const [reply] = await db.insert(forumReplies).values({
         authorId: userId,
         content,
-        postId,
-        parentReplyId: parentReplyId || null
+        postId: parseInt(postId),
+        parentReplyId: parentReplyId ? parseInt(parentReplyId) : null
       }).returning();
 
       // Update reply count on the post
       await db.update(forumPosts)
         .set({ replyCount: sql`${forumPosts.replyCount} + 1` })
-        .where(eq(forumPosts.id, postId));
+        .where(eq(forumPosts.id, parseInt(postId)));
 
       res.json(reply);
     } catch (error) {
