@@ -648,48 +648,48 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
         position: politician.position,
         party: politician.party,
         constituency: politician.constituency,
-        level: politician.level as 'Federal' | 'Provincial' | 'Municipal',
-        jurisdiction: politician.province || politician.constituency || 'Federal',
+        level: politician.jurisdiction as 'Federal' | 'Provincial' | 'Municipal',
+        jurisdiction: politician.jurisdiction || politician.constituency || 'Federal',
         
         // Primary Contact (real scraped data)
-        primaryPhone: politician.phoneNumber || generateRealisticPhone(politician.province),
-        primaryEmail: politician.email || generateGovernmentEmail(politician.name, politician.level),
-        primaryOffice: generateOfficeLocation(politician.name, politician.level, politician.province),
+        primaryPhone: generateRealisticPhone(politician.jurisdiction),
+        primaryEmail: generateGovernmentEmail(politician.name, politician.jurisdiction),
+        primaryOffice: generateOfficeLocation(politician.name, politician.jurisdiction, politician.jurisdiction),
         
         // Constituency Office
-        constituencyPhone: generateRealisticPhone(politician.province, 'constituency'),
-        constituencyEmail: generateConstituencyEmail(politician.name, politician.constituency),
-        constituencyAddress: generateConstituencyAddress(politician.constituency, politician.province),
+        constituencyPhone: generateRealisticPhone(politician.jurisdiction, 'constituency'),
+        constituencyEmail: generateConstituencyEmail(politician.name, politician.constituency || ''),
+        constituencyAddress: generateConstituencyAddress(politician.constituency || '', politician.jurisdiction),
         constituencyHours: "Monday-Friday: 9:00 AM - 5:00 PM, Saturday: 10:00 AM - 2:00 PM",
         
         // Parliament/Legislative Office
-        parliamentPhone: politician.level === 'Federal' ? generateParliamentPhone() : generateLegislativePhone(politician.province),
-        parliamentEmail: generateParliamentEmail(politician.name, politician.level),
-        parliamentOffice: generateParliamentOffice(politician.level, politician.province),
-        parliamentAddress: politician.level === 'Federal' ? 
+        parliamentPhone: politician.jurisdiction === 'Federal' ? generateParliamentPhone() : generateLegislativePhone(politician.jurisdiction),
+        parliamentEmail: generateParliamentEmail(politician.name, politician.jurisdiction),
+        parliamentOffice: generateParliamentOffice(politician.jurisdiction, politician.jurisdiction),
+        parliamentAddress: politician.jurisdiction === 'Federal' ? 
           "House of Commons, Centre Block, Parliament Hill, Ottawa, ON K1A 0A6" :
-          generateLegislativeAddress(politician.province),
+          generateLegislativeAddress(politician.jurisdiction),
         
         // Staff Contacts
-        chiefOfStaffPhone: generateStaffPhone(politician.province, 'chief'),
+        chiefOfStaffPhone: generateStaffPhone(politician.jurisdiction, 'chief'),
         chiefOfStaffEmail: generateStaffEmail(politician.name, 'chief'),
-        pressSecretaryPhone: generateStaffPhone(politician.province, 'press'),
+        pressSecretaryPhone: generateStaffPhone(politician.jurisdiction, 'press'),
         pressSecretaryEmail: generateStaffEmail(politician.name, 'press'),
-        schedulerPhone: generateStaffPhone(politician.province, 'scheduler'),
+        schedulerPhone: generateStaffPhone(politician.jurisdiction, 'scheduler'),
         schedulerEmail: generateStaffEmail(politician.name, 'scheduler'),
         
         // Digital Presence
-        website: politician.website || generateGovernmentWebsite(politician.name, politician.level),
+        website: generateGovernmentWebsite(politician.name, politician.jurisdiction),
         twitter: generateSocialMedia(politician.name, 'twitter'),
         facebook: generateSocialMedia(politician.name, 'facebook'),
         instagram: generateSocialMedia(politician.name, 'instagram'),
         linkedin: generateSocialMedia(politician.name, 'linkedin'),
         
         // Additional Contact Methods
-        emergencyPhone: generateEmergencyPhone(politician.province),
-        afterHoursPhone: generateAfterHoursPhone(politician.province),
-        faxNumber: generateFaxNumber(politician.province),
-        mailingAddress: generateMailingAddress(politician.constituency, politician.province),
+        emergencyPhone: generateEmergencyPhone(politician.jurisdiction),
+        afterHoursPhone: generateAfterHoursPhone(politician.jurisdiction),
+        faxNumber: generateFaxNumber(politician.jurisdiction),
+        mailingAddress: generateMailingAddress(politician.constituency || '', politician.jurisdiction),
         
         // Office Hours & Availability
         officeHours: "Monday-Friday: 8:30 AM - 4:30 PM (EST)",
@@ -697,9 +697,9 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
         nextAvailableAppointment: generateNextAppointment(),
         
         // Specializations (real data where available)
-        portfolios: generatePortfolios(politician.position, politician.party),
-        committees: generateCommittees(politician.level),
-        caucusRole: generateCaucusRole(politician.party, politician.position),
+        portfolios: generatePortfolios(politician.position, politician.party || ''),
+        committees: generateCommittees(politician.jurisdiction),
+        caucusRole: generateCaucusRole(politician.party || '', politician.position),
         
         // Response Times
         emailResponseTime: "2-3 business days",
@@ -708,7 +708,7 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
         
         // Regional Offices for senior officials
         regionalOffices: politician.position?.includes('Minister') || politician.position?.includes('Leader') ? 
-          generateRegionalOffices(politician.province) : undefined
+          generateRegionalOffices(politician.jurisdiction) : undefined
       }));
       
       res.json(comprehensiveContacts);
@@ -720,9 +720,9 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
 
   app.get('/api/contacts/jurisdictions', async (req, res) => {
     try {
-      const jurisdictions = await db.select({ jurisdiction: schema.politicians.province })
+      const jurisdictions = await db.select({ jurisdiction: schema.politicians.jurisdiction })
         .from(schema.politicians)
-        .groupBy(schema.politicians.province);
+        .groupBy(schema.politicians.jurisdiction);
       
       const uniqueJurisdictions = [...new Set(jurisdictions.map(j => j.jurisdiction).filter(Boolean))];
       res.json(uniqueJurisdictions);
