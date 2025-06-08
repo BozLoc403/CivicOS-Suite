@@ -2257,6 +2257,402 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
 
 
 
+  // Charter of Rights and Freedoms Routes
+  app.get("/api/rights/charter", async (req, res) => {
+    try {
+      // Return comprehensive Charter rights with plain language explanations
+      const charterRights = [
+        {
+          id: "1",
+          section: 1,
+          title: "Guarantee of Rights and Freedoms",
+          category: "fundamental",
+          text: "The Canadian Charter of Rights and Freedoms guarantees the rights and freedoms set out in it subject only to such reasonable limits prescribed by law as can be demonstrably justified in a free and democratic society.",
+          plainLanguage: "Your Charter rights are protected, but they can have reasonable limits that are justified in a democratic society.",
+          examples: [
+            "You can express your opinions, but you can't spread hate speech",
+            "You can practice your religion, but you can't harm others while doing so",
+            "You can protest peacefully, but you can't block emergency vehicles"
+          ],
+          limitations: [
+            "Rights must be balanced against other people's rights",
+            "Government can impose reasonable limits if they can justify them in court",
+            "Emergency situations may temporarily limit some rights"
+          ]
+        },
+        {
+          id: "2",
+          section: 2,
+          title: "Fundamental Freedoms",
+          category: "fundamental",
+          text: "Everyone has the following fundamental freedoms: (a) freedom of conscience and religion; (b) freedom of thought, belief, opinion and expression, including freedom of the press and other media; (c) freedom of peaceful assembly; (d) freedom of association.",
+          plainLanguage: "You have the right to believe what you want, say what you think, gather peacefully, and associate with whoever you choose.",
+          examples: [
+            "You can practice any religion or no religion at all",
+            "You can write articles criticizing the government",
+            "You can organize peaceful protests",
+            "You can join unions, clubs, or political parties",
+            "News media can report on government activities"
+          ],
+          limitations: [
+            "Cannot incite violence or hatred against groups",
+            "Cannot spread false information that causes harm",
+            "Assembly must be peaceful and not block public access",
+            "Cannot associate for illegal purposes"
+          ]
+        },
+        {
+          id: "3",
+          section: 3,
+          title: "Democratic Rights - Voting",
+          category: "democratic",
+          text: "Every citizen of Canada has the right to vote in an election of members of the House of Commons or of a legislative assembly and to be qualified for membership therein.",
+          plainLanguage: "If you're a Canadian citizen, you can vote in federal and provincial elections and run for office.",
+          examples: [
+            "Vote in federal elections for your Member of Parliament",
+            "Vote in provincial elections for your MLA/MPP",
+            "Run as a candidate in these elections",
+            "Participate in referendums and municipal elections"
+          ],
+          limitations: [
+            "Must be 18 years or older to vote",
+            "Must be a Canadian citizen",
+            "Some people with mental disabilities may be restricted",
+            "People in prison may have voting restrictions"
+          ]
+        },
+        {
+          id: "4",
+          section: 4,
+          title: "Democratic Rights - Maximum Duration",
+          category: "democratic",
+          text: "No House of Commons and no legislative assembly shall continue for longer than five years from the date fixed for the return of the writs at the last general election of its members.",
+          plainLanguage: "Governments must hold elections at least every 5 years.",
+          examples: [
+            "Federal government cannot stay in power more than 5 years without an election",
+            "Provincial governments must also hold elections within 5 years",
+            "Elections can be called earlier if government loses confidence"
+          ]
+        },
+        {
+          id: "5",
+          section: 5,
+          title: "Democratic Rights - Annual Sitting",
+          category: "democratic",
+          text: "There shall be a sitting of Parliament and of each legislature at least once every twelve months.",
+          plainLanguage: "Parliament and provincial legislatures must meet at least once a year.",
+          examples: [
+            "MPs must gather in Ottawa at least annually",
+            "Provincial legislators must meet in their capitals annually",
+            "Cannot suspend democracy by refusing to meet"
+          ]
+        },
+        {
+          id: "6",
+          section: 6,
+          title: "Mobility Rights",
+          category: "mobility",
+          text: "Every citizen of Canada has the right to enter, remain in and leave Canada. Every citizen of Canada and every person who has the status of a permanent resident of Canada has the right to move to and take up residence in any province and to pursue the gaining of a livelihood in any province.",
+          plainLanguage: "You can move anywhere in Canada, live where you want, and work in any province.",
+          examples: [
+            "Move from Ontario to British Columbia without restrictions",
+            "Work as a nurse in Alberta if licensed in Quebec",
+            "Leave Canada and return whenever you want",
+            "Take a job in any province that accepts your qualifications"
+          ],
+          limitations: [
+            "Professional licensing may require provincial certification",
+            "Some jobs require residency requirements",
+            "Employment insurance may have mobility restrictions"
+          ],
+          provincialVariations: [
+            {
+              province: "Quebec",
+              variation: "French language requirements for some professional licensing",
+              examples: ["Lawyers must pass French proficiency tests", "Some healthcare positions require French fluency"]
+            }
+          ]
+        },
+        {
+          id: "7",
+          section: 7,
+          title: "Life, Liberty and Security",
+          category: "legal",
+          text: "Everyone has the right to life, liberty and security of the person and the right not to be deprived thereof except in accordance with the principles of fundamental justice.",
+          plainLanguage: "You have the right to live, be free, and be safe. The government can only take these away through fair legal processes.",
+          examples: [
+            "Police cannot arrest you without reason",
+            "Cannot be imprisoned without a fair trial",
+            "Right to medical care in life-threatening situations",
+            "Protection from government actions that threaten your safety"
+          ],
+          limitations: [
+            "Can be arrested if police have reasonable grounds",
+            "Can be detained during criminal investigations",
+            "Medical treatment can be refused in some circumstances"
+          ]
+        },
+        {
+          id: "8",
+          section: 8,
+          title: "Search or Seizure",
+          category: "legal",
+          text: "Everyone has the right to be secure against unreasonable search or seizure.",
+          plainLanguage: "Police cannot search you, your home, or belongings without good reason or a warrant.",
+          examples: [
+            "Police need a warrant to search your house",
+            "Cannot search your phone without permission or warrant",
+            "Border officers have broader search powers",
+            "School officials have limited search authority"
+          ],
+          limitations: [
+            "Emergency situations may allow searches without warrants",
+            "Border crossings have different rules",
+            "Evidence in plain sight can be seized"
+          ]
+        },
+        {
+          id: "9",
+          section: 9,
+          title: "Detention or Imprisonment",
+          category: "legal",
+          text: "Everyone has the right not to be arbitrarily detained or imprisoned.",
+          plainLanguage: "You cannot be arrested or held without good legal reasons.",
+          examples: [
+            "Police need reasonable grounds to arrest you",
+            "Cannot be held indefinitely without charges",
+            "Detention must be for legitimate law enforcement purposes"
+          ]
+        },
+        {
+          id: "10",
+          section: 10,
+          title: "Arrest or Detention Rights",
+          category: "legal",
+          text: "Everyone has the right on arrest or detention (a) to be informed promptly of the reasons therefor; (b) to retain and instruct counsel without delay and to be informed of that right; (c) to have the validity of the detention determined by way of habeas corpus and to be released if the detention is not lawful.",
+          plainLanguage: "If arrested, you must be told why, have the right to a lawyer immediately, and challenge your detention in court.",
+          examples: [
+            "Police must tell you why you're being arrested",
+            "You can call a lawyer right away",
+            "Legal aid provides free lawyers if you can't afford one",
+            "You can ask a judge to review if your arrest was legal"
+          ]
+        },
+        {
+          id: "11",
+          section: 11,
+          title: "Proceedings in Criminal and Penal Matters",
+          category: "legal",
+          text: "Any person charged with an offence has the right to be presumed innocent until proven guilty according to law in a fair and public hearing by an independent and impartial tribunal.",
+          plainLanguage: "If charged with a crime, you're innocent until proven guilty in a fair, public trial by an unbiased court.",
+          examples: [
+            "Prosecution must prove you committed the crime",
+            "You don't have to prove your innocence",
+            "Trials are open to the public unless there are special circumstances",
+            "Judges must be independent from government"
+          ]
+        },
+        {
+          id: "15",
+          section: 15,
+          title: "Equality Rights",
+          category: "equality",
+          text: "Every individual is equal before and under the law and has the right to the equal protection and equal benefit of the law without discrimination based on race, national or ethnic origin, colour, religion, sex, age or mental or physical disability.",
+          plainLanguage: "Everyone must be treated equally by the law, regardless of race, religion, sex, age, or disability.",
+          examples: [
+            "Cannot be denied a job because of your race",
+            "Must receive equal pay for equal work regardless of gender",
+            "Public services must be accessible to people with disabilities",
+            "Cannot be discriminated against because of your age"
+          ],
+          limitations: [
+            "Affirmative action programs are allowed to help disadvantaged groups",
+            "Some age restrictions are reasonable (voting age, retirement)",
+            "Religious organizations may have some exemptions"
+          ]
+        },
+        {
+          id: "16",
+          section: 16,
+          title: "Official Languages of Canada",
+          category: "language",
+          text: "English and French are the official languages of Canada and have equality of status and equal rights and privileges as to their use in all institutions of the Parliament and government of Canada.",
+          plainLanguage: "English and French are both official languages. You can use either one when dealing with the federal government.",
+          examples: [
+            "Federal government services available in both languages",
+            "Federal court proceedings can be in English or French",
+            "Federal documents published in both languages",
+            "Federal employees can work in either official language"
+          ],
+          provincialVariations: [
+            {
+              province: "Quebec",
+              variation: "French is the only official language of Quebec",
+              examples: ["Government services primarily in French", "Commercial signs must be in French"]
+            },
+            {
+              province: "New Brunswick",
+              variation: "Only officially bilingual province",
+              examples: ["All provincial services in both languages", "Both languages in education system"]
+            }
+          ]
+        },
+        {
+          id: "23",
+          section: 23,
+          title: "Minority Language Educational Rights",
+          category: "language",
+          text: "Citizens of Canada whose first language learned and still understood is that of the English or French linguistic minority population of the province in which they reside have the right to have their children receive primary and secondary school instruction in that language.",
+          plainLanguage: "If you're part of the English or French minority in your province, your children can go to school in your language.",
+          examples: [
+            "English speakers in Quebec can send children to English schools",
+            "French speakers in Alberta can access French schools",
+            "Applies where numbers warrant such instruction"
+          ],
+          provincialVariations: [
+            {
+              province: "Quebec",
+              variation: "Strict rules about who can attend English schools",
+              examples: ["Must qualify under Bill 101", "Some exceptions for military families"]
+            }
+          ]
+        }
+      ];
+
+      res.json(charterRights);
+    } catch (error) {
+      console.error("Error fetching charter rights:", error);
+      res.status(500).json({ message: "Failed to fetch charter rights" });
+    }
+  });
+
+  app.get("/api/rights/provincial", async (req, res) => {
+    try {
+      const { province } = req.query;
+      
+      // Provincial rights data based on actual legislation
+      const provincialRights = [
+        {
+          id: "bc-1",
+          province: "British Columbia",
+          title: "Human Rights Protection",
+          category: "Human Rights",
+          description: "BC Human Rights Code prohibits discrimination in employment, housing, and services",
+          plainLanguage: "In BC, you cannot be discriminated against because of your personal characteristics when getting a job, renting a place, or using services.",
+          examples: [
+            "Cannot be refused a job because you're pregnant",
+            "Cannot be denied housing because of your race",
+            "Cannot be refused service because of your sexual orientation",
+            "Employers must accommodate religious practices"
+          ]
+        },
+        {
+          id: "on-1",
+          province: "Ontario",
+          title: "Employment Standards Protection",
+          category: "Employment Rights",
+          description: "Ontario Employment Standards Act sets minimum standards for wages, hours, and working conditions",
+          plainLanguage: "In Ontario, you have specific rights about minimum wage, overtime pay, vacation time, and safe working conditions.",
+          examples: [
+            "Minimum wage of $16.55 per hour (as of 2024)",
+            "Overtime pay after 44 hours per week",
+            "At least 2 weeks paid vacation after 1 year",
+            "Pregnancy and parental leave protection"
+          ]
+        },
+        {
+          id: "qc-1",
+          province: "Quebec",
+          title: "Charter of Human Rights and Freedoms",
+          category: "Human Rights",
+          description: "Quebec Charter provides broader protections than federal Charter",
+          plainLanguage: "Quebec has its own charter that gives you additional rights beyond what the federal Charter provides.",
+          examples: [
+            "Right to free public education",
+            "Right to social assistance if in need",
+            "Protection from discrimination based on social condition",
+            "Right to information from government"
+          ]
+        },
+        {
+          id: "ab-1",
+          province: "Alberta",
+          title: "Individual Rights Protection",
+          category: "Human Rights",
+          description: "Alberta Human Rights Act protects against discrimination",
+          plainLanguage: "Alberta law protects you from discrimination and ensures equal treatment in employment, housing, and public services.",
+          examples: [
+            "Cannot be discriminated against in employment",
+            "Equal access to public accommodations",
+            "Protection from harassment",
+            "Right to file human rights complaints"
+          ]
+        }
+      ];
+
+      const filtered = province && province !== "all" 
+        ? provincialRights.filter(right => right.province === province)
+        : provincialRights;
+
+      res.json(filtered);
+    } catch (error) {
+      console.error("Error fetching provincial rights:", error);
+      res.status(500).json({ message: "Failed to fetch provincial rights" });
+    }
+  });
+
+  app.get("/api/location/province", async (req, res) => {
+    try {
+      const { lat, lng } = req.query;
+      
+      if (!lat || !lng) {
+        return res.status(400).json({ message: "Latitude and longitude required" });
+      }
+
+      const latitude = parseFloat(lat as string);
+      const longitude = parseFloat(lng as string);
+
+      // Simple geolocation to province mapping
+      // This is a simplified version - in production, use a proper geocoding service
+      let province = "Unknown";
+
+      if (latitude >= 60) {
+        if (longitude < -115) province = "Yukon";
+        else if (longitude < -85) province = "Northwest Territories";
+        else province = "Nunavut";
+      } else if (latitude >= 55) {
+        if (longitude < -120) province = "British Columbia";
+        else if (longitude < -110) province = "Alberta";
+        else if (longitude < -102) province = "Saskatchewan";
+        else if (longitude < -95) province = "Manitoba";
+        else province = "Ontario";
+      } else if (latitude >= 49) {
+        if (longitude < -123) province = "British Columbia";
+        else if (longitude < -110) province = "Alberta";
+        else if (longitude < -102) province = "Saskatchewan";
+        else if (longitude < -95) province = "Manitoba";
+        else if (longitude < -85) province = "Ontario";
+        else if (longitude < -74) province = "Quebec";
+        else if (longitude < -66) province = "New Brunswick";
+        else if (longitude < -64) province = "Nova Scotia";
+        else province = "Prince Edward Island";
+      } else if (latitude >= 45) {
+        if (longitude < -80) province = "Ontario";
+        else if (longitude < -74) province = "Quebec";
+        else if (longitude < -66) province = "New Brunswick";
+        else if (longitude < -64) province = "Nova Scotia";
+        else province = "Newfoundland and Labrador";
+      } else {
+        province = "Newfoundland and Labrador";
+      }
+
+      res.json(province);
+    } catch (error) {
+      console.error("Error detecting province:", error);
+      res.status(500).json({ message: "Failed to detect province" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

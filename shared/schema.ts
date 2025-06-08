@@ -1030,3 +1030,47 @@ export type CivicLevel = typeof civicLevels.$inferSelect;
 export type InsertCivicLevel = typeof civicLevels.$inferInsert;
 export type LegalSearchHistory = typeof legalSearchHistory.$inferSelect;
 export type InsertLegalSearchHistory = typeof legalSearchHistory.$inferInsert;
+
+// Charter of Rights and Freedoms system
+export const charterRights = pgTable("charter_rights", {
+  id: serial("id").primaryKey(),
+  section: integer("section").notNull().unique(),
+  title: varchar("title").notNull(),
+  category: varchar("category").notNull(), // fundamental, democratic, mobility, legal, equality, language
+  text: text("text").notNull(),
+  plainLanguage: text("plain_language").notNull(),
+  examples: text("examples").array(),
+  limitations: text("limitations").array(),
+  relatedSections: integer("related_sections").array(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const provincialRights = pgTable("provincial_rights", {
+  id: serial("id").primaryKey(),
+  province: varchar("province").notNull(),
+  title: varchar("title").notNull(),
+  category: varchar("category").notNull(),
+  description: text("description").notNull(),
+  plainLanguage: text("plain_language").notNull(),
+  examples: text("examples").array(),
+  relatedCharter: integer("related_charter").array(),
+  sourceAct: varchar("source_act"),
+  sourceSection: varchar("source_section"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const provincialVariations = pgTable("provincial_variations", {
+  id: serial("id").primaryKey(),
+  charterRightId: integer("charter_right_id").notNull().references(() => charterRights.id),
+  province: varchar("province").notNull(),
+  variation: text("variation").notNull(),
+  examples: text("examples").array(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type CharterRight = typeof charterRights.$inferSelect;
+export type InsertCharterRight = typeof charterRights.$inferInsert;
+export type ProvincialRight = typeof provincialRights.$inferSelect;
+export type InsertProvincialRight = typeof provincialRights.$inferInsert;
