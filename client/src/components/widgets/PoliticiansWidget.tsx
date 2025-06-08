@@ -35,7 +35,9 @@ export default function PoliticiansWidget() {
     refetchInterval: 300000, // Refresh every 5 minutes
   });
 
-  const getPartyColor = (party: string) => {
+  const getPartyColor = (party: string | undefined) => {
+    if (!party) return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
+    
     switch (party.toLowerCase()) {
       case 'liberal': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
       case 'conservative': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
@@ -46,7 +48,9 @@ export default function PoliticiansWidget() {
     }
   };
 
-  const getLevelIcon = (level: string) => {
+  const getLevelIcon = (level: string | undefined) => {
+    if (!level) return '📍';
+    
     switch (level.toLowerCase()) {
       case 'federal': return '🍁';
       case 'provincial': return '🏛️';
@@ -109,11 +113,11 @@ export default function PoliticiansWidget() {
                     <Star className="h-4 w-4 text-yellow-500" />
                     <span className="text-xs font-medium text-purple-700 dark:text-purple-300">Featured</span>
                   </div>
-                  <h4 className="font-medium text-sm">{featuredPolitician.name}</h4>
-                  <p className="text-xs text-gray-600 dark:text-gray-300">{featuredPolitician.position}</p>
+                  <h4 className="font-medium text-sm">{featuredPolitician.name || 'Unknown'}</h4>
+                  <p className="text-xs text-gray-600 dark:text-gray-300">{featuredPolitician.position || 'Position Unknown'}</p>
                   <div className="flex items-center space-x-2 mt-1">
                     <Badge className={`text-xs ${getPartyColor(featuredPolitician.party)}`}>
-                      {featuredPolitician.party}
+                      {featuredPolitician.party || 'Independent'}
                     </Badge>
                     <span className="text-xs">{getLevelIcon(featuredPolitician.level)}</span>
                   </div>
@@ -147,12 +151,12 @@ export default function PoliticiansWidget() {
                       {politician.party}
                     </Badge>
                     <div className="flex items-center space-x-1">
-                      {politician.contact.phone && (
+                      {politician.contact?.phone && (
                         <Button variant="ghost" size="sm" className="h-5 w-5 p-0">
                           <Phone className="h-3 w-3" />
                         </Button>
                       )}
-                      {politician.contact.email && (
+                      {politician.contact?.email && (
                         <Button variant="ghost" size="sm" className="h-5 w-5 p-0">
                           <Mail className="h-3 w-3" />
                         </Button>
