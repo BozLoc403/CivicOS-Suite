@@ -10,6 +10,7 @@ import {
   boolean,
   decimal,
   uuid,
+  unique,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -97,15 +98,77 @@ export const politicianStatements = pgTable("politician_statements", {
   contradictionDetails: text("contradiction_details"),
 });
 
+// Petitions table for citizen-initiated petitions
+export const petitions = pgTable("petitions", {
+  id: serial("id").primaryKey(),
+  title: varchar("title").notNull(),
+  description: text("description").notNull(),
+  relatedBillId: integer("related_bill_id").references(() => bills.id),
+  creatorId: varchar("creator_id").notNull().references(() => users.id),
+  targetSignatures: integer("target_signatures").default(500), // Canadian e-petition minimum
+  currentSignatures: integer("current_signatures").default(0),
+  status: varchar("status").default("active"), // active, closed, successful
+  autoCreated: boolean("auto_created").default(false), // true if created from vote threshold
+  voteThresholdMet: timestamp("vote_threshold_met"),
+  deadlineDate: timestamp("deadline_date"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Petition signatures tracking
+export const petitionSignatures = pgTable("petition_signatures", {
+  id: serial("id").primaryKey(),
+  petitionId: integer("petition_id").notNull().references(() => petitions.id),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  signedAt: timestamp("signed_at").defaultNow(),
+  verificationId: varchar("verification_id").notNull(),
+}, (table) => ({
+  uniqueSignature: unique().on(table.petitionId, table.userId),
+}));
+
+// Enhanced politicians table with party and sector information
+export const politicianParties = pgTable("politician_parties", {
+  id: serial("id").primaryKey(),
+  name: varchar("name").notNull(),
+  abbreviation: varchar("abbreviation"),
+  ideology: varchar("ideology"), // conservative, liberal, progressive, etc.
+  color: varchar("color"), // for UI display
+  description: text("description"),
+  website: varchar("website"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const politicianSectors = pgTable("politician_sectors", {
+  id: serial("id").primaryKey(),
+  name: varchar("name").notNull(), // Health, Finance, Defence, etc.
+  description: text("description"),
+  parentSectorId: integer("parent_sector_id"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Politician positions and voting history
+export const politicianPositions = pgTable("politician_positions", {
+  id: serial("id").primaryKey(),
+  politicianId: integer("politician_id").notNull().references(() => politicians.id),
+  billId: integer("bill_id").references(() => bills.id),
+  position: varchar("position").notNull(), // support, oppose, neutral
+  reasoning: text("reasoning"),
+  publicStatement: text("public_statement"),
+  dateStated: timestamp("date_stated").defaultNow(),
+  source: varchar("source"), // hansard, press release, interview
+  verified: boolean("verified").default(false),
+});
+
 // Notifications table
 export const notifications = pgTable("notifications", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").notNull().references(() => users.id),
   title: varchar("title").notNull(),
   message: text("message").notNull(),
-  type: varchar("type").default("info"), // info, warning, urgent
+  type: varchar("type").default("info"), // info, warning, urgent, petition
   isRead: boolean("is_read").default(false),
   relatedBillId: integer("related_bill_id").references(() => bills.id),
+  relatedPetitionId: integer("related_petition_id").references(() => petitions.id),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -113,12 +176,63 @@ export const notifications = pgTable("notifications", {
 export const usersRelations = relations(users, ({ many }) => ({
   votes: many(votes),
   notifications: many(notifications),
+  petitions: many(petitions, { relationName: "creator" }),
+  petitionSignatures: many(petitionSignatures),
 }));
 
-export const billsRelations = relations(bills, ({ many }) => ({
-  votes: many(votes),
+
+
+export const petitionsRelations = relations(petitions, ({ one, many }) => ({
+  creator: one(users, {
+    fields: [petitions.creatorId],
+    references: [users.id],
+    relationName: "creator",
+  }),
+  relatedBill: one(bills, {
+    fields: [petitions.relatedBillId],
+    references: [bills.id],
+  }),
+  signatures: many(petitionSignatures),
   notifications: many(notifications),
 }));
+
+export const petitionSignaturesRelations = relations(petitionSignatures, ({ one }) => ({
+  petition: one(petitions, {
+    fields: [petitionSignatures.petitionId],
+    references: [petitions.id],
+  }),
+  user: one(users, {
+    fields: [petitionSignatures.userId],
+    references: [users.id],
+  }),
+}));
+
+export const politicianPartiesRelations = relations(politicianParties, ({ many }) => ({
+  politicians: many(politicians),
+}));
+
+export const politicianSectorsRelations = relations(politicianSectors, ({ one, many }) => ({
+  parentSector: one(politicianSectors, {
+    fields: [politicianSectors.parentSectorId],
+    references: [politicianSectors.id],
+    relationName: "parent",
+  }),
+  childSectors: many(politicianSectors, { relationName: "parent" }),
+  politicians: many(politicians),
+}));
+
+export const politicianPositionsRelations = relations(politicianPositions, ({ one }) => ({
+  politician: one(politicians, {
+    fields: [politicianPositions.politicianId],
+    references: [politicians.id],
+  }),
+  bill: one(bills, {
+    fields: [politicianPositions.billId],
+    references: [bills.id],
+  }),
+}));
+
+
 
 export const votesRelations = relations(votes, ({ one }) => ({
   user: one(users, {
