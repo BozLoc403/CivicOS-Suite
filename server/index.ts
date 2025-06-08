@@ -3,6 +3,7 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { initializeDataSync } from "./dataSync";
 import { initializeNewsAnalysis } from "./newsAnalyzer";
+import { realTimeMonitoring } from "./realTimeMonitoring";
 
 const app = express();
 app.use(express.json());
@@ -74,5 +75,8 @@ app.use((req, res, next) => {
     
     // Initialize daily news analysis and propaganda detection
     initializeNewsAnalysis();
+    
+    // Start real-time platform monitoring
+    realTimeMonitoring.startMonitoring();
   });
 })();

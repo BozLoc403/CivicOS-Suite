@@ -10,6 +10,7 @@ import { summarizeBill, analyzePoliticianStatement } from "./claude";
 import { dataVerification } from "./dataVerification";
 import { aggressiveScraper } from "./aggressiveDataScraper";
 import { comprehensiveAnalytics } from "./comprehensiveAnalytics";
+import { realTimeMonitoring } from "./realTimeMonitoring";
 import crypto from "crypto";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -933,6 +934,57 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
     } catch (error) {
       console.error("Error generating legislative analytics:", error);
       res.status(500).json({ message: "Failed to generate legislative analytics" });
+    }
+  });
+
+  // Real-time monitoring endpoints
+  app.get('/api/monitoring/health', async (req, res) => {
+    try {
+      const metrics = await realTimeMonitoring.getCurrentMetrics();
+      res.json(metrics);
+    } catch (error) {
+      console.error("Error getting health metrics:", error);
+      res.status(500).json({ message: "Failed to get health metrics" });
+    }
+  });
+
+  app.get('/api/monitoring/report', async (req, res) => {
+    try {
+      const report = await realTimeMonitoring.generateHealthReport();
+      res.json(report);
+    } catch (error) {
+      console.error("Error generating health report:", error);
+      res.status(500).json({ message: "Failed to generate health report" });
+    }
+  });
+
+  app.get('/api/monitoring/alerts', async (req, res) => {
+    try {
+      const alerts = await realTimeMonitoring.getActiveAlerts();
+      res.json(alerts);
+    } catch (error) {
+      console.error("Error getting active alerts:", error);
+      res.status(500).json({ message: "Failed to get active alerts" });
+    }
+  });
+
+  app.get('/api/monitoring/sources', async (req, res) => {
+    try {
+      const sources = await realTimeMonitoring.monitorDataSources();
+      res.json(sources);
+    } catch (error) {
+      console.error("Error monitoring data sources:", error);
+      res.status(500).json({ message: "Failed to monitor data sources" });
+    }
+  });
+
+  app.get('/api/monitoring/security', async (req, res) => {
+    try {
+      const security = await realTimeMonitoring.getSecurityMetrics();
+      res.json(security);
+    } catch (error) {
+      console.error("Error getting security metrics:", error);
+      res.status(500).json({ message: "Failed to get security metrics" });
     }
   });
 
