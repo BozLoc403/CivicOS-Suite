@@ -15,6 +15,7 @@ import Discussions from "@/pages/discussions";
 import Legal from "@/pages/legal";
 import Services from "@/pages/services";
 import Elections from "@/pages/elections";
+import News from "@/pages/news";
 
 import NotFound from "@/pages/not-found";
 
@@ -36,6 +37,7 @@ function Router() {
           <Route path="/legal" component={Legal} />
           <Route path="/services" component={Services} />
           <Route path="/elections" component={Elections} />
+          <Route path="/news" component={News} />
         </>
       )}
       <Route component={NotFound} />
