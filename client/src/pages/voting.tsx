@@ -3,15 +3,17 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { VotingModal } from "@/components/VotingModal";
-import { Clock, MapPin, Scale, AlertCircle, Vote, FileText } from "lucide-react";
+import { Clock, MapPin, Scale, AlertCircle, Vote, FileText, ChevronDown, ChevronUp, Info } from "lucide-react";
 import { useState } from "react";
 import type { Bill } from "@shared/schema";
 
 export default function Voting() {
   const [selectedBill, setSelectedBill] = useState<Bill | null>(null);
   const [isVotingModalOpen, setIsVotingModalOpen] = useState(false);
+  const [expandedBills, setExpandedBills] = useState<Set<number>>(new Set());
 
   const { data: bills = [], isLoading } = useQuery<Bill[]>({
     queryKey: ["/api/bills"],
@@ -20,6 +22,18 @@ export default function Voting() {
   const handleVoteClick = (bill: Bill) => {
     setSelectedBill(bill);
     setIsVotingModalOpen(true);
+  };
+
+  const toggleBillExpansion = (billId: number) => {
+    setExpandedBills(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(billId)) {
+        newSet.delete(billId);
+      } else {
+        newSet.add(billId);
+      }
+      return newSet;
+    });
   };
 
   const getStatusColor = (status: string) => {
@@ -91,86 +105,149 @@ export default function Voting() {
     return acc;
   }, {} as Record<string, Bill[]>);
 
-  const BillCard = ({ bill }: { bill: Bill }) => (
-    <Card key={bill.id} className="hover:shadow-lg transition-all duration-200 border-l-4 border-l-civic-blue">
-      <CardHeader>
-        <div className="flex justify-between items-start">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-3">
-              <Badge variant="outline" className="font-mono text-xs px-2 py-1">
-                {bill.billNumber}
-              </Badge>
-              <Badge className={`text-xs px-2 py-1 border ${getStatusColor(bill.status)}`}>
-                {bill.status}
-              </Badge>
-              <Badge variant="secondary" className="text-xs px-2 py-1">
-                <span className="mr-1">{getCategoryIcon(bill.category)}</span>
-                {bill.category || 'General'}
-              </Badge>
+  const BillCard = ({ bill }: { bill: Bill }) => {
+    const isExpanded = expandedBills.has(bill.id);
+    
+    return (
+      <Card className="hover:shadow-lg transition-all duration-200 border-l-4 border-l-civic-blue">
+        <CardHeader>
+          <div className="flex justify-between items-start">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-3">
+                <Badge variant="outline" className="font-mono text-xs px-2 py-1">
+                  {bill.billNumber}
+                </Badge>
+                <Badge className={`text-xs px-2 py-1 border ${getStatusColor(bill.status || '')}`}>
+                  {bill.status}
+                </Badge>
+                <Badge variant="secondary" className="text-xs px-2 py-1">
+                  <span className="mr-1">{getCategoryIcon(bill.category || '')}</span>
+                  {bill.category || 'General'}
+                </Badge>
+              </div>
+              <CardTitle className="text-xl mb-2 text-gray-900 leading-tight">{bill.title}</CardTitle>
+              <CardDescription className="text-sm text-gray-600 flex items-center gap-4">
+                <span className="flex items-center gap-1">
+                  <MapPin className="w-3 h-3" />
+                  {bill.jurisdiction}
+                </span>
+                <span className="flex items-center gap-1">
+                  <Scale className="w-3 h-3" />
+                  Parliamentary Bill
+                </span>
+              </CardDescription>
             </div>
-            <CardTitle className="text-xl mb-2 text-gray-900 leading-tight">{bill.title}</CardTitle>
-            <CardDescription className="text-sm text-gray-600 flex items-center gap-4">
-              <span className="flex items-center gap-1">
-                <MapPin className="w-3 h-3" />
-                {bill.jurisdiction}
-              </span>
-              <span className="flex items-center gap-1">
-                <Scale className="w-3 h-3" />
-                Parliamentary Bill
-              </span>
-            </CardDescription>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline"
+                size="sm"
+                onClick={() => toggleBillExpansion(bill.id)}
+                className="flex items-center gap-1"
+              >
+                <Info className="w-4 h-4" />
+                {isExpanded ? 'Less' : 'Details'}
+                {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+              </Button>
+              <Button 
+                onClick={() => handleVoteClick(bill)}
+                className="bg-civic-blue hover:bg-civic-blue/90 shadow-sm"
+                size="sm"
+              >
+                <Vote className="w-4 h-4 mr-2" />
+                Cast Vote
+              </Button>
+            </div>
           </div>
-          <Button 
-            onClick={() => handleVoteClick(bill)}
-            className="ml-4 bg-civic-blue hover:bg-civic-blue/90 shadow-sm"
-            size="sm"
-          >
-            <Vote className="w-4 h-4 mr-2" />
-            Cast Vote
-          </Button>
-        </div>
-      </CardHeader>
-      
-      <CardContent className="space-y-4">
-        <div className="bg-gray-50 p-4 rounded-lg">
-          <h4 className="font-semibold text-gray-900 mb-2">Bill Summary</h4>
-          <p className="text-gray-700 leading-relaxed text-sm">
-            {bill.description}
-          </p>
-        </div>
+        </CardHeader>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-          <div className="flex items-center gap-2 p-3 rounded-lg border border-gray-200 bg-gray-50">
-            <Clock className="w-4 h-4 text-gray-600" />
-            <div>
-              <div className="font-medium text-gray-900">Voting Deadline</div>
-              <div className="text-xs text-gray-600">{formatDate(bill.votingDeadline)}</div>
-              <div className="text-xs font-medium">{formatTimeRemaining(bill.votingDeadline)}</div>
-            </div>
+        <CardContent className="space-y-4">
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <h4 className="font-semibold text-gray-900 mb-2">Bill Summary</h4>
+            <p className="text-gray-700 leading-relaxed text-sm">
+              {bill.description}
+            </p>
           </div>
           
-          <div className="flex items-center gap-2 p-3 rounded-lg border border-gray-200 bg-gray-50">
-            <FileText className="w-4 h-4 text-gray-600" />
-            <div>
-              <div className="font-medium text-gray-900">Current Status</div>
-              <div className="text-xs text-gray-600">{bill.status}</div>
-              <div className="text-xs text-gray-500">Parliamentary Process</div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div className="flex items-center gap-2 p-3 rounded-lg border border-gray-200 bg-gray-50">
+              <Clock className="w-4 h-4 text-gray-600" />
+              <div>
+                <div className="font-medium text-gray-900">Voting Deadline</div>
+                <div className="text-xs text-gray-600">{formatDate(bill.votingDeadline)}</div>
+                <div className="text-xs font-medium">{formatTimeRemaining(bill.votingDeadline)}</div>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2 p-3 rounded-lg border border-gray-200 bg-gray-50">
+              <FileText className="w-4 h-4 text-gray-600" />
+              <div>
+                <div className="font-medium text-gray-900">Current Status</div>
+                <div className="text-xs text-gray-600">{bill.status}</div>
+                <div className="text-xs text-gray-500">Parliamentary Process</div>
+              </div>
             </div>
           </div>
-        </div>
 
-        {bill.aiSummary && (
-          <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-            <h4 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
-              <span>🤖</span>
-              AI Analysis
-            </h4>
-            <p className="text-blue-800 text-sm leading-relaxed">{bill.aiSummary}</p>
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  );
+          <Collapsible open={isExpanded} onOpenChange={() => toggleBillExpansion(bill.id)}>
+            <CollapsibleContent className="space-y-4">
+              <div className="border-t pt-4">
+                <h4 className="font-semibold text-gray-900 mb-3">Detailed Legislation Information</h4>
+                
+                <div className="space-y-4">
+                  <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
+                    <h5 className="font-medium text-amber-900 mb-2">📋 Bill Overview</h5>
+                    <div className="text-sm text-amber-800 space-y-1">
+                      <p><strong>Bill Number:</strong> {bill.billNumber}</p>
+                      <p><strong>Sponsor:</strong> Government Bill</p>
+                      <p><strong>Date Introduced:</strong> {formatDate(bill.createdAt)}</p>
+                      <p><strong>Current Reading:</strong> {bill.status}</p>
+                    </div>
+                  </div>
+
+                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    <h5 className="font-medium text-blue-900 mb-2">🏛️ Legislative Purpose</h5>
+                    <p className="text-sm text-blue-800 leading-relaxed">
+                      {bill.description || 'No detailed description available for this legislation.'}
+                    </p>
+                  </div>
+
+                  <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                    <h5 className="font-medium text-green-900 mb-2">⚖️ Key Provisions</h5>
+                    <div className="text-sm text-green-800 space-y-2">
+                      <p>• Establishes new legal framework within {bill.jurisdiction}</p>
+                      <p>• Affects {bill.category?.toLowerCase() || 'general'} policy</p>
+                      <p>• Requires implementation by relevant government departments</p>
+                      <p>• Subject to parliamentary review and committee examination</p>
+                    </div>
+                  </div>
+
+                  <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                    <h5 className="font-medium text-purple-900 mb-2">📊 Impact Analysis</h5>
+                    <div className="text-sm text-purple-800 space-y-2">
+                      <p><strong>Jurisdiction:</strong> {bill.jurisdiction} government authority</p>
+                      <p><strong>Category:</strong> {bill.category || 'General legislation'}</p>
+                      <p><strong>Implementation:</strong> Subject to royal assent and regulatory development</p>
+                      <p><strong>Timeline:</strong> Voting deadline {formatDate(bill.votingDeadline)}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+
+          {bill.aiSummary && (
+            <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
+              <h4 className="font-semibold text-indigo-900 mb-2 flex items-center gap-2">
+                <span>🤖</span>
+                AI Analysis
+              </h4>
+              <p className="text-indigo-800 text-sm leading-relaxed">{bill.aiSummary}</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    );
+  };
 
   if (isLoading) {
     return (
