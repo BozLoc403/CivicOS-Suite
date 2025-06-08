@@ -2190,11 +2190,11 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
         (async () => {
           try {
             const { revolutionaryNewsAggregator } = await import("./revolutionaryNewsAggregator");
-            await revolutionaryNewsAggregator.performComprehensiveAggregation();
-            return { rows: [await revolutionaryNewsAggregator.getNewsAnalytics()] };
+            const analytics = await revolutionaryNewsAggregator.getNewsAnalytics();
+            return { rows: [analytics] };
           } catch (error) {
             console.error("Error fetching news analytics:", error);
-            return { rows: [{ totalArticles: 0, averageCredibility: 0, averageSentiment: 0, sourceDistribution: [], topTopics: [], biasDistribution: [] }] };
+            throw new Error("Unable to retrieve authentic news analytics");
           }
         })(),
         
@@ -2215,20 +2215,14 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
           FROM elections
         `),
         
-        // Analytics data from authentic sources
+        // Analytics data from authentic Canadian government sources only
         (async () => {
           try {
-            const { analyticsPopulator } = await import("./comprehensiveAnalyticsPopulator");
-            return await analyticsPopulator.generatePopulatedAnalytics();
+            const { authenticDataService } = await import("./authenticDataService");
+            return await authenticDataService.getComprehensiveDashboardData();
           } catch (error) {
-            console.error("Analytics generation error:", error);
-            return {
-              politicalLandscape: { partyDistribution: [], jurisdictionalBreakdown: [], positionHierarchy: [] },
-              legislativeAnalytics: { billsByCategory: [], votingPatterns: [], legislativeEfficiency: { averagePassageTime: 0, billsInProgress: 0, completedBills: 0 } },
-              politicianPerformance: { topPerformers: [], partyAlignment: [], regionalInfluence: [] },
-              publicEngagement: { civicParticipation: { totalVotes: 0, uniqueUsers: 0, engagementRate: 0 }, issueTracking: [], mediaInfluence: [] },
-              temporalAnalytics: { trendAnalysis: [], electionCycles: [], policyEvolution: [] }
-            };
+            console.error("Error fetching authentic analytics:", error);
+            throw new Error("Unable to retrieve authentic government analytics");
           }
         })(),
         

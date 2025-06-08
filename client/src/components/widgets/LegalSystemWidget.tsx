@@ -111,12 +111,12 @@ export function LegalSystemWidget() {
     return "outline";
   };
 
-  const filteredCriminalCode = criminalCode?.filter((section: CriminalCodeSection) =>
+  const filteredCriminalCode = Array.isArray(criminalCode) ? criminalCode.filter((section: CriminalCodeSection) =>
     searchQuery.length < 3 || 
     section.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     section.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (section.offense && section.offense.toLowerCase().includes(searchQuery.toLowerCase()))
-  ) || [];
+  ) : [];
 
   return (
     <Card className="w-full">
