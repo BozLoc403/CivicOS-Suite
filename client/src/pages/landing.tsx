@@ -11,11 +11,11 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-slate-700 via-slate-600 to-slate-800 flex items-center justify-center shadow-lg border border-slate-500">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-slate-700 via-slate-600 to-slate-800 flex items-center justify-center shadow-lg border border-slate-500 overflow-hidden">
                 <img 
                   src={dominionEmblem} 
                   alt="Dominion Intelligence" 
-                  className="w-8 h-8 object-contain filter brightness-125 contrast-125"
+                  className="w-10 h-10 object-cover rounded-full filter brightness-125 contrast-125"
                 />
               </div>
               <div>
@@ -39,11 +39,11 @@ export default function Landing() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center mb-20">
           <div className="flex justify-center mb-8">
-            <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900 flex items-center justify-center shadow-2xl border border-slate-600">
+            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900 flex items-center justify-center shadow-2xl border border-slate-600 overflow-hidden">
               <img 
                 src={dominionEmblem} 
                 alt="Dominion Intelligence" 
-                className="w-16 h-16 object-contain filter brightness-125 contrast-125"
+                className="w-20 h-20 object-cover rounded-full filter brightness-125 contrast-125"
               />
             </div>
           </div>

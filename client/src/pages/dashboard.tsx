@@ -105,11 +105,11 @@ export default function Dashboard() {
       {/* Professional Dominion Header */}
       <div className="flex items-center justify-between bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700 shadow-lg">
         <div className="flex items-center space-x-4">
-          <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900 flex items-center justify-center shadow-lg border border-slate-600">
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900 flex items-center justify-center shadow-lg border border-slate-600 overflow-hidden">
             <img 
               src={dominionEmblem} 
               alt="Dominion Intelligence" 
-              className="w-10 h-10 object-contain filter brightness-125 contrast-125"
+              className="w-14 h-14 object-cover rounded-full filter brightness-125 contrast-125"
             />
           </div>
           <div>
