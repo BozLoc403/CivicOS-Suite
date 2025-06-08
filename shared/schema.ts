@@ -249,6 +249,207 @@ export const politicianParties = pgTable("politician_parties", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Comprehensive legal system tables
+export const legalActs = pgTable("legal_acts", {
+  id: serial("id").primaryKey(),
+  title: varchar("title").notNull(),
+  shortTitle: varchar("short_title"),
+  actNumber: varchar("act_number").notNull().unique(),
+  jurisdiction: varchar("jurisdiction").notNull(), // federal, provincial, municipal
+  province: varchar("province"), // if provincial
+  category: varchar("category").notNull(), // criminal, civil, constitutional, etc.
+  status: varchar("status").default("active"), // active, repealed, amended
+  dateEnacted: timestamp("date_enacted"),
+  lastAmended: timestamp("last_amended"),
+  fullText: text("full_text"),
+  summary: text("summary"),
+  keyProvisions: text("key_provisions").array(),
+  relatedActs: varchar("related_acts").array(),
+  sourceUrl: varchar("source_url"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const legalSections = pgTable("legal_sections", {
+  id: serial("id").primaryKey(),
+  actId: integer("act_id").notNull().references(() => legalActs.id),
+  sectionNumber: varchar("section_number").notNull(),
+  title: varchar("title"),
+  content: text("content").notNull(),
+  subsections: jsonb("subsections"), // array of subsection objects
+  penalties: text("penalties"),
+  explanationSimple: text("explanation_simple"), // plain language explanation
+  realWorldExamples: text("real_world_examples").array(),
+  relatedSections: varchar("related_sections").array(),
+  precedentCases: jsonb("precedent_cases"), // array of case objects
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const legalCases = pgTable("legal_cases", {
+  id: serial("id").primaryKey(),
+  caseName: varchar("case_name").notNull(),
+  caseNumber: varchar("case_number"),
+  court: varchar("court").notNull(),
+  jurisdiction: varchar("jurisdiction").notNull(),
+  dateDecided: timestamp("date_decided"),
+  judge: varchar("judge"),
+  parties: jsonb("parties"), // plaintiff, defendant info
+  summary: text("summary"),
+  ruling: text("ruling"),
+  precedentSet: text("precedent_set"),
+  relatedActIds: integer("related_act_ids").array(),
+  relatedSectionIds: integer("related_section_ids").array(),
+  keyQuotes: text("key_quotes").array(),
+  significance: varchar("significance"), // landmark, routine, controversial
+  sourceUrl: varchar("source_url"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const criminalCodeSections = pgTable("criminal_code_sections", {
+  id: serial("id").primaryKey(),
+  sectionNumber: varchar("section_number").notNull().unique(),
+  title: varchar("title").notNull(),
+  offense: varchar("offense"),
+  content: text("content").notNull(),
+  maxPenalty: varchar("max_penalty"),
+  minPenalty: varchar("min_penalty"),
+  isSummary: boolean("is_summary").default(false),
+  isIndictable: boolean("is_indictable").default(false),
+  isHybrid: boolean("is_hybrid").default(false),
+  explanationSimple: text("explanation_simple"),
+  commonExamples: text("common_examples").array(),
+  defenses: text("defenses").array(),
+  relatedSections: varchar("related_sections").array(),
+  amendments: jsonb("amendments"), // history of changes
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Discussion forum system
+export const forumCategories = pgTable("forum_categories", {
+  id: serial("id").primaryKey(),
+  name: varchar("name").notNull(),
+  description: text("description"),
+  color: varchar("color"),
+  icon: varchar("icon"),
+  isVisible: boolean("is_visible").default(true),
+  sortOrder: integer("sort_order").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const forumPosts = pgTable("forum_posts", {
+  id: serial("id").primaryKey(),
+  title: varchar("title").notNull(),
+  content: text("content").notNull(),
+  authorId: varchar("author_id").notNull().references(() => users.id),
+  categoryId: integer("category_id").notNull().references(() => forumCategories.id),
+  billId: integer("bill_id").references(() => bills.id), // if discussing a bill
+  petitionId: integer("petition_id").references(() => petitions.id), // if discussing a petition
+  isPinned: boolean("is_pinned").default(false),
+  isLocked: boolean("is_locked").default(false),
+  viewCount: integer("view_count").default(0),
+  likeCount: integer("like_count").default(0),
+  replyCount: integer("reply_count").default(0),
+  lastActivityAt: timestamp("last_activity_at").defaultNow(),
+  moderationStatus: varchar("moderation_status").default("approved"), // approved, flagged, removed
+  moderationReason: varchar("moderation_reason"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const forumReplies = pgTable("forum_replies", {
+  id: serial("id").primaryKey(),
+  postId: integer("post_id").notNull().references(() => forumPosts.id),
+  parentReplyId: integer("parent_reply_id"), // remove self-reference for now
+  content: text("content").notNull(),
+  authorId: varchar("author_id").notNull().references(() => users.id),
+  likeCount: integer("like_count").default(0),
+  moderationStatus: varchar("moderation_status").default("approved"),
+  moderationReason: varchar("moderation_reason"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const forumLikes = pgTable("forum_likes", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  postId: integer("post_id").references(() => forumPosts.id),
+  replyId: integer("reply_id").references(() => forumReplies.id),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  uniquePostLike: unique().on(table.userId, table.postId),
+  uniqueReplyLike: unique().on(table.userId, table.replyId),
+}));
+
+// User messaging system
+export const userMessages = pgTable("user_messages", {
+  id: serial("id").primaryKey(),
+  senderId: varchar("sender_id").notNull().references(() => users.id),
+  recipientId: varchar("recipient_id").notNull().references(() => users.id),
+  subject: varchar("subject"),
+  content: text("content").notNull(),
+  isRead: boolean("is_read").default(false),
+  readAt: timestamp("read_at"),
+  parentMessageId: integer("parent_message_id").references(() => userMessages.id),
+  isDeleted: boolean("is_deleted").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Enhanced gamification system
+export const userAchievements = pgTable("user_achievements", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  achievementType: varchar("achievement_type").notNull(), // voting, discussion, petition, legal_research
+  achievementName: varchar("achievement_name").notNull(),
+  description: text("description"),
+  badgeIcon: varchar("badge_icon"),
+  badgeColor: varchar("badge_color"),
+  pointsAwarded: integer("points_awarded").default(0),
+  rarity: varchar("rarity").default("common"), // common, rare, epic, legendary
+  relatedEntityId: integer("related_entity_id"), // bill_id, petition_id, etc.
+  relatedEntityType: varchar("related_entity_type"), // bill, petition, discussion
+  earnedAt: timestamp("earned_at").defaultNow(),
+  isVisible: boolean("is_visible").default(true),
+}, (table) => ({
+  uniqueUserAchievement: unique().on(table.userId, table.achievementType, table.achievementName),
+}));
+
+export const userActivity = pgTable("user_activity", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  activityType: varchar("activity_type").notNull(), // vote, post, reply, petition_sign, legal_search
+  entityId: integer("entity_id"), // id of the thing they interacted with
+  entityType: varchar("entity_type"), // bill, post, reply, petition, legal_act
+  pointsEarned: integer("points_earned").default(0),
+  details: jsonb("details"), // additional activity context
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const civicLevels = pgTable("civic_levels", {
+  id: serial("id").primaryKey(),
+  levelName: varchar("level_name").notNull(),
+  minPoints: integer("min_points").notNull(),
+  maxPoints: integer("max_points"),
+  description: text("description"),
+  benefits: text("benefits").array(),
+  badgeIcon: varchar("badge_icon"),
+  badgeColor: varchar("badge_color"),
+  isActive: boolean("is_active").default(true),
+});
+
+// Legal research tracking
+export const legalSearchHistory = pgTable("legal_search_history", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  searchQuery: varchar("search_query").notNull(),
+  searchType: varchar("search_type").notNull(), // act, section, case, criminal_code
+  resultsFound: integer("results_found").default(0),
+  timeSpent: integer("time_spent"), // seconds
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const politicianSectors = pgTable("politician_sectors", {
   id: serial("id").primaryKey(),
   name: varchar("name").notNull(), // Health, Finance, Defence, etc.
@@ -367,18 +568,7 @@ export const governmentServices = pgTable("government_services", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const criminalCodeSections = pgTable("criminal_code_sections", {
-  id: serial("id").primaryKey(),
-  sectionNumber: varchar("section_number").notNull(),
-  title: varchar("title").notNull(),
-  fullText: text("full_text").notNull(),
-  summary: text("summary"),
-  penalties: text("penalties"),
-  recentChanges: text("recent_changes"),
-  relatedSections: text("related_sections").array(),
-  caseExamples: text("case_examples"),
-  lastUpdated: timestamp("last_updated").defaultNow(),
-});
+
 
 // Election and candidate tracking
 export const elections = pgTable("elections", {
@@ -749,3 +939,31 @@ export type InsertPolitician = z.infer<typeof insertPoliticianSchema>;
 export type PoliticianStatement = typeof politicianStatements.$inferSelect;
 export type Notification = typeof notifications.$inferSelect;
 export type InsertNotification = z.infer<typeof insertNotificationSchema>;
+
+// Type definitions for new tables
+export type LegalAct = typeof legalActs.$inferSelect;
+export type InsertLegalAct = typeof legalActs.$inferInsert;
+export type LegalSection = typeof legalSections.$inferSelect;
+export type InsertLegalSection = typeof legalSections.$inferInsert;
+export type LegalCase = typeof legalCases.$inferSelect;
+export type InsertLegalCase = typeof legalCases.$inferInsert;
+export type CriminalCodeSection = typeof criminalCodeSections.$inferSelect;
+export type InsertCriminalCodeSection = typeof criminalCodeSections.$inferInsert;
+export type ForumCategory = typeof forumCategories.$inferSelect;
+export type InsertForumCategory = typeof forumCategories.$inferInsert;
+export type ForumPost = typeof forumPosts.$inferSelect;
+export type InsertForumPost = typeof forumPosts.$inferInsert;
+export type ForumReply = typeof forumReplies.$inferSelect;
+export type InsertForumReply = typeof forumReplies.$inferInsert;
+export type ForumLike = typeof forumLikes.$inferSelect;
+export type InsertForumLike = typeof forumLikes.$inferInsert;
+export type UserMessage = typeof userMessages.$inferSelect;
+export type InsertUserMessage = typeof userMessages.$inferInsert;
+export type UserAchievement = typeof userAchievements.$inferSelect;
+export type InsertUserAchievement = typeof userAchievements.$inferInsert;
+export type UserActivity = typeof userActivity.$inferSelect;
+export type InsertUserActivity = typeof userActivity.$inferInsert;
+export type CivicLevel = typeof civicLevels.$inferSelect;
+export type InsertCivicLevel = typeof civicLevels.$inferInsert;
+export type LegalSearchHistory = typeof legalSearchHistory.$inferSelect;
+export type InsertLegalSearchHistory = typeof legalSearchHistory.$inferInsert;
