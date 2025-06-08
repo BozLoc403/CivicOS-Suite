@@ -202,11 +202,11 @@ export default function Dashboard() {
         <AIStatusBanner hasApiKey={!!aiStatus?.enabled} className="mb-6" />
         
         {/* Welcome Section */}
-        <div className="mb-8 bg-gradient-to-br from-civic-green via-civic-blue to-civic-purple text-white p-10 rounded-2xl shadow-2xl border border-white/10 backdrop-blur-sm">
-          <h1 className="text-luxury text-5xl font-bold mb-6 tracking-tight">
+        <div className="mb-8 bg-gradient-to-br from-blue-600 via-blue-700 to-purple-700 text-white p-10 rounded-2xl shadow-2xl border border-white/10 backdrop-blur-sm">
+          <h1 className="text-white text-5xl font-bold mb-6 tracking-tight">
             Welcome to CivicOS
           </h1>
-          <p className="text-political text-xl text-white/90 leading-relaxed max-w-2xl">
+          <p className="text-white text-xl leading-relaxed max-w-2xl">
             Your comprehensive platform for transparent democracy and civic engagement with authentic government data
           </p>
           <div className="flex items-center mt-6 space-x-6">
