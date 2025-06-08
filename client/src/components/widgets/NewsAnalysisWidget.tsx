@@ -135,150 +135,107 @@ export default function NewsAnalysisWidget() {
       </CardHeader>
       <CardContent className="overflow-y-auto">
         <div className="space-y-3">
-          {/* Trending Controversies */}
-          {controversies.length > 0 && (
-            <div className="border-l-4 border-red-500 pl-3 mb-4">
-              <h4 className="font-medium text-sm mb-2 text-red-700 dark:text-red-300">
-                🚨 Active Controversies
-              </h4>
-              <div className="space-y-2">
-                {controversies.map((controversy) => (
-                  <div key={controversy.id} className="border rounded-lg p-2 bg-red-50 dark:bg-red-900/20">
-                    <div className="flex items-start space-x-2">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={controversy.politician.profileImage} />
-                        <AvatarFallback className="text-xs">
-                          {controversy.politician.name.split(' ').map(n => n[0]).join('')}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center space-x-2 mb-1">
-                          {getControversyIcon(controversy.severity)}
-                          <Badge className={`text-xs ${getSeverityColor(controversy.severity)}`}>
-                            {controversy.severity}
-                          </Badge>
-                          <span className="text-xs text-gray-500">
-                            {new Date(controversy.dateReported).toLocaleDateString()}
-                          </span>
-                        </div>
-                        <h5 className="font-medium text-xs mb-1">{controversy.politician.name}</h5>
-                        <p className="text-xs text-gray-600 dark:text-gray-300 line-clamp-2">
-                          {controversy.description}
-                        </p>
-                        <div className="flex items-center space-x-2 mt-1">
-                          <Badge variant="secondary" className="text-xs">
-                            {controversy.politician.party}
-                          </Badge>
-                          <div className="flex items-center space-x-1">
-                            <Eye className="h-3 w-3 text-gray-400" />
-                            <span className="text-xs text-gray-500">{controversy.publicImpact}% impact</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+          {/* Show empty state when no authentic data is available */}
+          {articles.length === 0 && controversies.length === 0 ? (
+            <div className="text-center py-8">
+              <Newspaper className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+              <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
+                News Analysis Loading
+              </h3>
+              <p className="text-xs text-gray-500 max-w-sm mx-auto">
+                Analyzing authentic news sources from CBC, CTV, and other verified Canadian media outlets. 
+                AI-powered analysis includes credibility scoring and propaganda detection.
+              </p>
             </div>
-          )}
-
-          {/* News Articles with Politician Stances */}
-          {articles.map((article) => (
-            <div key={article.id} className="border rounded-lg p-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-              <div className="flex items-start justify-between mb-2">
-                <div className="flex-1">
-                  <div className="flex items-center space-x-2 mb-1">
-                    <Badge className={`text-xs ${getCredibilityColor(article.credibilityScore)}`}>
-                      {article.credibilityScore}% credible
-                    </Badge>
-                    <Badge className={`text-xs ${getBiasColor(article.bias)}`}>
-                      {article.bias}
-                    </Badge>
-                    {article.propagandaScore > 30 && (
-                      <Badge variant="destructive" className="text-xs">
-                        Propaganda Risk
-                      </Badge>
-                    )}
-                  </div>
-                  <h4 className="font-medium text-sm mb-1 line-clamp-2">{article.title}</h4>
-                  
-                  {/* AI Simplified Summary */}
-                  {article.simplifiedSummary && (
-                    <div className="bg-blue-50 dark:bg-blue-900/20 rounded p-2 mb-2">
-                      <div className="flex items-center space-x-1 mb-1">
-                        <Badge variant="secondary" className="text-xs">AI Summary</Badge>
-                      </div>
-                      <p className="text-xs text-blue-700 dark:text-blue-300">
-                        {article.simplifiedSummary}
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Politicians Involved & Their Stances */}
-                  {article.politiciansInvolved.length > 0 && (
-                    <div className="space-y-1 mb-2">
-                      <div className="flex items-center space-x-1">
-                        <Users className="h-3 w-3 text-gray-400" />
-                        <span className="text-xs text-gray-500">Politicians Involved:</span>
-                      </div>
-                      {article.politiciansInvolved.slice(0, 2).map((politician) => (
-                        <div key={politician.id} className="flex items-start space-x-2 bg-gray-50 dark:bg-gray-800 rounded p-1">
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-2">
-                              <span className="text-xs font-medium">{politician.name}</span>
-                              <Badge variant="outline" className="text-xs">{politician.party}</Badge>
+          ) : (
+            <>
+              {/* Trending Controversies */}
+              {controversies.length > 0 && (
+                <div className="border-l-4 border-red-500 pl-3 mb-4">
+                  <h4 className="font-medium text-sm mb-2 text-red-700 dark:text-red-300">
+                    🚨 Active Controversies
+                  </h4>
+                  <div className="space-y-2">
+                    {controversies.map((controversy) => (
+                      <div key={controversy.id} className="border rounded-lg p-2 bg-red-50 dark:bg-red-900/20">
+                        <div className="flex items-start space-x-2">
+                          <Avatar className="h-8 w-8">
+                            <AvatarImage src={controversy.politician.profileImage} />
+                            <AvatarFallback className="text-xs">
+                              {controversy.politician.name.split(' ').map(n => n[0]).join('')}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center space-x-2 mb-1">
+                              {getControversyIcon(controversy.severity)}
+                              <Badge className={`text-xs ${getSeverityColor(controversy.severity)}`}>
+                                {controversy.severity}
+                              </Badge>
+                              <span className="text-xs text-gray-500">
+                                {new Date(controversy.dateReported).toLocaleDateString()}
+                              </span>
                             </div>
-                            <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">
-                              <strong>Stance:</strong> {politician.stance}
+                            <h5 className="font-medium text-xs mb-1">{controversy.politician.name}</h5>
+                            <p className="text-xs text-gray-600 dark:text-gray-300 line-clamp-2">
+                              {controversy.description}
                             </p>
-                            {politician.quotes.length > 0 && (
-                              <p className="text-xs text-blue-600 dark:text-blue-400 italic mt-1">
-                                "{politician.quotes[0]}"
-                              </p>
-                            )}
+                            <div className="flex items-center space-x-2 mt-1">
+                              <Badge variant="secondary" className="text-xs">
+                                {controversy.politician.party}
+                              </Badge>
+                              <div className="flex items-center space-x-1">
+                                <Eye className="h-3 w-3 text-gray-400" />
+                                <span className="text-xs text-gray-500">{controversy.publicImpact}% impact</span>
+                              </div>
+                            </div>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Public Reaction */}
-                  {article.publicReaction && (
-                    <div className="mt-2">
-                      <div className="flex items-center space-x-2 mb-1">
-                        <TrendingUp className="h-3 w-3 text-gray-400" />
-                        <span className="text-xs text-gray-500">Public Opinion:</span>
                       </div>
-                      <div className="flex space-x-1">
-                        <div className="flex-1 bg-green-200 dark:bg-green-800 h-2 rounded" 
-                             style={{ width: `${article.publicReaction.supportPercent}%` }}></div>
-                        <div className="flex-1 bg-gray-200 dark:bg-gray-700 h-2 rounded" 
-                             style={{ width: `${article.publicReaction.neutralPercent}%` }}></div>
-                        <div className="flex-1 bg-red-200 dark:bg-red-800 h-2 rounded" 
-                             style={{ width: `${article.publicReaction.oppositionPercent}%` }}></div>
-                      </div>
-                      <div className="flex justify-between text-xs text-gray-500 mt-1">
-                        <span>{article.publicReaction.supportPercent}% support</span>
-                        <span>{article.publicReaction.oppositionPercent}% oppose</span>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="flex items-center justify-between mt-2">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-xs text-gray-500">{article.source}</span>
-                      <span className="text-xs text-gray-400">
-                        {new Date(article.publishedAt).toLocaleDateString()}
-                      </span>
-                    </div>
-                    <Button variant="ghost" size="sm" className="h-6 px-2">
-                      <ExternalLink className="h-3 w-3" />
-                    </Button>
+                    ))}
                   </div>
                 </div>
-              </div>
-            </div>
-          ))}
+              )}
+
+              {/* News Articles with Politician Stances */}
+              {articles.map((article) => (
+                <div key={article.id} className="border rounded-lg p-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2 mb-1">
+                        <Badge className={`text-xs ${getCredibilityColor(article.credibilityScore)}`}>
+                          {article.credibilityScore}% credible
+                        </Badge>
+                        <Badge className={`text-xs ${getBiasColor(article.bias)}`}>
+                          {article.bias}
+                        </Badge>
+                        {article.propagandaScore > 30 && (
+                          <Badge variant="destructive" className="text-xs">
+                            Propaganda Risk
+                          </Badge>
+                        )}
+                      </div>
+                      <h3 className="font-medium text-sm mb-2 line-clamp-2">{article.title}</h3>
+                      <p className="text-xs text-gray-600 dark:text-gray-300 mb-3 line-clamp-3">
+                        {article.simplifiedSummary || article.summary}
+                      </p>
+
+                      <div className="flex items-center justify-between mt-2">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-xs text-gray-500">{article.source}</span>
+                          <span className="text-xs text-gray-400">
+                            {new Date(article.publishedAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <Button variant="ghost" size="sm" className="h-6 px-2">
+                          <ExternalLink className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </>
+          )}
         </div>
 
         <div className="mt-4 pt-3 border-t">
