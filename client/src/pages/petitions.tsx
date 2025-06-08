@@ -88,10 +88,7 @@ export default function Petitions() {
   // Create petition mutation
   const createPetitionMutation = useMutation({
     mutationFn: async (petitionData: any) => {
-      return await apiRequest("/api/petitions", {
-        method: "POST",
-        body: JSON.stringify(petitionData)
-      });
+      return await apiRequest("/api/petitions", "POST", petitionData);
     },
     onSuccess: () => {
       toast({
@@ -122,9 +119,7 @@ export default function Petitions() {
   // Sign petition mutation
   const signPetitionMutation = useMutation({
     mutationFn: async (petitionId: number) => {
-      return await apiRequest(`/api/petitions/${petitionId}/sign`, {
-        method: "POST"
-      });
+      return await apiRequest(`/api/petitions/${petitionId}/sign`, "POST");
     },
     onSuccess: () => {
       toast({

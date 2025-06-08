@@ -153,10 +153,7 @@ export default function Discussions() {
   // Create reply mutation
   const createReplyMutation = useMutation({
     mutationFn: async (replyData: any) => {
-      return await apiRequest("/api/forum/replies", {
-        method: "POST",
-        body: JSON.stringify(replyData)
-      });
+      return await apiRequest("/api/forum/replies", "POST", replyData);
     },
     onSuccess: () => {
       toast({
@@ -178,9 +175,7 @@ export default function Discussions() {
   // Like post mutation
   const likePostMutation = useMutation({
     mutationFn: async (postId: number) => {
-      return await apiRequest(`/api/forum/posts/${postId}/like`, {
-        method: "POST"
-      });
+      return await apiRequest(`/api/forum/posts/${postId}/like`, "POST");
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/forum/posts"] });
