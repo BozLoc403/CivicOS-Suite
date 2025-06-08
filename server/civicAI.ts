@@ -1,4 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
+
+// the newest Anthropic model is "claude-sonnet-4-20250514" which was released May 14, 2025. Use this by default unless user has already selected claude-3-7-sonnet-20250219
 import { storage } from './storage';
 import { db } from './db';
 import { bills, politicians, votes, politicianStatements } from '@shared/schema';
@@ -64,7 +66,7 @@ Respond in JSON format with: {
   "keywords": []
 }`;
 
-    const response = await anthropic.messages.create({
+    const response = await this.anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 1024,
       messages: [{ role: 'user', content: analysisPrompt }],
@@ -216,7 +218,7 @@ Answer the query with complete honesty and provide specific evidence for any cla
 
 Analyze this using the government data provided. Be direct and factual. If politicians are lying or being inconsistent, call it out with specific examples. Focus on facts, voting records, and documented statements.`;
 
-    const response = await anthropic.messages.create({
+    const response = await this.anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 2000,
       messages: [
