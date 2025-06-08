@@ -2,6 +2,7 @@ import * as cheerio from 'cheerio';
 import fetch from 'node-fetch';
 import { db } from './db';
 import * as schema from '@shared/schema';
+import { eq } from 'drizzle-orm';
 import Anthropic from '@anthropic-ai/sdk';
 
 // the newest Anthropic model is "claude-sonnet-4-20250514" which was released May 14, 2025. Use this by default unless user has already selected claude-3-7-sonnet-20250219
@@ -397,7 +398,11 @@ Respond in JSON format with these exact keys:
       messages: [{ role: 'user', content: prompt }],
     });
 
-    const analysisText = response.content[0].text;
+    const content = response.content[0];
+    if (content.type !== 'text') {
+      throw new Error('Unexpected response type from AI');
+    }
+    const analysisText = content.text;
     const analysis = JSON.parse(analysisText);
     
     return {
@@ -484,7 +489,11 @@ Respond in JSON format:
       messages: [{ role: 'user', content: prompt }],
     });
 
-    const analysisText = response.content[0].text;
+    const content = response.content[0];
+    if (content.type !== 'text') {
+      throw new Error('Unexpected response type from AI');
+    }
+    const analysisText = content.text;
     const analysis = JSON.parse(analysisText);
     
     return {

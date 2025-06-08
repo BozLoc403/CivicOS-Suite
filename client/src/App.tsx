@@ -43,12 +43,21 @@ function Router() {
   );
 }
 
+function AppWithBot() {
+  return (
+    <>
+      <Router />
+      <FloatingCivicBot />
+    </>
+  );
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
+        <AppWithBot />
         <Toaster />
-        <Router />
       </TooltipProvider>
     </QueryClientProvider>
   );

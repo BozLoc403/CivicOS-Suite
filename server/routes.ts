@@ -573,6 +573,69 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
     }
   });
 
+  // News analysis and propaganda detection endpoints
+  app.get('/api/news/articles', async (req, res) => {
+    try {
+      const articles = await db.select()
+        .from(schema.newsArticles)
+        .orderBy(desc(schema.newsArticles.publishedAt))
+        .limit(50);
+      res.json(articles);
+    } catch (error) {
+      console.error("Error fetching news articles:", error);
+      res.status(500).json({ message: "Failed to fetch news articles" });
+    }
+  });
+
+  app.get('/api/news/sources', async (req, res) => {
+    try {
+      const sources = await db.select()
+        .from(schema.newsSourceCredibility)
+        .orderBy(desc(schema.newsSourceCredibility.overallCredibility));
+      res.json(sources);
+    } catch (error) {
+      console.error("Error fetching news sources:", error);
+      res.status(500).json({ message: "Failed to fetch news sources" });
+    }
+  });
+
+  app.get('/api/politicians/truthfulness', async (req, res) => {
+    try {
+      const truthfulness = await db.select()
+        .from(schema.politicianTruthTracking)
+        .leftJoin(schema.politicians, eq(schema.politicianTruthTracking.politicianId, schema.politicians.id))
+        .orderBy(desc(schema.politicianTruthTracking.overallTruthScore));
+      res.json(truthfulness);
+    } catch (error) {
+      console.error("Error fetching politician truthfulness:", error);
+      res.status(500).json({ message: "Failed to fetch politician truthfulness" });
+    }
+  });
+
+  app.get('/api/news/propaganda/:articleId', async (req, res) => {
+    try {
+      const articleId = parseInt(req.params.articleId);
+      const propaganda = await db.select()
+        .from(schema.propagandaDetection)
+        .where(eq(schema.propagandaDetection.articleId, articleId));
+      res.json(propaganda);
+    } catch (error) {
+      console.error("Error fetching propaganda analysis:", error);
+      res.status(500).json({ message: "Failed to fetch propaganda analysis" });
+    }
+  });
+
+  app.post('/api/news/analyze', isAuthenticated, async (req, res) => {
+    try {
+      const { runNewsAnalysis } = await import('./newsAnalyzer');
+      await runNewsAnalysis();
+      res.json({ message: "News analysis completed successfully" });
+    } catch (error) {
+      console.error("Error running news analysis:", error);
+      res.status(500).json({ message: "Failed to run news analysis" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
