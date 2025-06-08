@@ -177,7 +177,7 @@ export class VotingSystem {
       `);
 
       const item = itemDetails.rows[0];
-      const options = JSON.parse(item?.options || '[]');
+      const options = typeof item?.options === 'string' ? JSON.parse(item.options) : Array.isArray(item?.options) ? item.options : [];
 
       return {
         itemId,
