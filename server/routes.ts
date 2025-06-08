@@ -778,10 +778,7 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
       // Check if user already signed
       const existingSignature = await db.select()
         .from(schema.petitionSignatures)
-        .where(and(
-          eq(schema.petitionSignatures.petitionId, petitionId),
-          eq(schema.petitionSignatures.userId, userId)
-        ));
+        .where(eq(schema.petitionSignatures.petitionId, petitionId));
 
       if (existingSignature.length > 0) {
         return res.status(400).json({ message: "You have already signed this petition" });
