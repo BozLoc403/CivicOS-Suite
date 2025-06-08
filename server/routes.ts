@@ -1782,6 +1782,185 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
     }
   });
 
+  // News analysis and controversy tracking endpoints
+  app.get("/api/news/controversies", async (req, res) => {
+    try {
+      const controversies = await db.execute(sql`
+        SELECT 
+          pc.id, pc.title, pc.description, pc.severity, 
+          pc.public_impact as "publicImpact", pc.date_reported as "dateReported",
+          p.name as "politicianName", p.party, p.position, p.profile_image as "profileImage",
+          COUNT(na.id) as "relatedArticles"
+        FROM politician_controversies pc
+        JOIN politicians p ON pc.politician_id = p.id
+        LEFT JOIN news_articles na ON na.politicians_involved::text ILIKE '%' || p.name || '%'
+        WHERE pc.date_reported >= NOW() - INTERVAL '30 days'
+        GROUP BY pc.id, p.id
+        ORDER BY pc.public_impact DESC, pc.date_reported DESC
+        LIMIT 10
+      `);
+
+      const formattedControversies = controversies.rows.map((row: any) => ({
+        id: row.id,
+        title: row.title,
+        description: row.description,
+        politician: {
+          name: row.politicianName,
+          party: row.party,
+          position: row.position,
+          profileImage: row.profileImage
+        },
+        severity: row.severity,
+        dateReported: row.dateReported,
+        publicImpact: row.publicImpact,
+        relatedArticles: parseInt(row.relatedArticles) || 0
+      }));
+
+      res.json(formattedControversies);
+    } catch (error) {
+      console.error("Error fetching controversies:", error);
+      res.status(500).json({ message: "Failed to fetch controversies" });
+    }
+  });
+
+  // Enhanced news articles with AI analysis
+  app.get("/api/news/articles", async (req, res) => {
+    try {
+      const articles = await db.execute(sql`
+        SELECT 
+          na.id, na.title, na.summary, na.source, na.published_at as "publishedAt",
+          na.credibility_score as "credibilityScore", na.bias, na.propaganda_score as "propagandaScore",
+          na.sentiment, na.politicians_involved as "politiciansInvolved", 
+          na.controversy_level as "controversyLevel", na.simplified_summary as "simplifiedSummary",
+          na.key_points as "keyPoints", na.public_reaction as "publicReaction"
+        FROM news_articles na
+        WHERE na.published_at >= NOW() - INTERVAL '7 days'
+        ORDER BY na.published_at DESC, na.credibility_score DESC
+        LIMIT 20
+      `);
+
+      const formattedArticles = articles.rows.map((row: any) => ({
+        ...row,
+        politiciansInvolved: typeof row.politiciansInvolved === 'string' 
+          ? JSON.parse(row.politiciansInvolved || '[]') 
+          : row.politiciansInvolved || [],
+        keyPoints: typeof row.keyPoints === 'string' 
+          ? JSON.parse(row.keyPoints || '[]') 
+          : row.keyPoints || [],
+        publicReaction: typeof row.publicReaction === 'string' 
+          ? JSON.parse(row.publicReaction || '{}') 
+          : row.publicReaction || {}
+      }));
+
+      res.json(formattedArticles);
+    } catch (error) {
+      console.error("Error fetching news articles:", error);
+      res.json([]); // Return empty array to prevent widget crashes
+    }
+  });
+
+  // Content simplification endpoint
+  app.post("/api/content/simplify", async (req, res) => {
+    try {
+      const { content, type = 'news_article', targetAudience = 'general', complexity = 'intermediate' } = req.body;
+      
+      if (!content) {
+        return res.status(400).json({ message: "Content is required" });
+      }
+
+      const { contentSimplifier } = await import('./contentSimplifier');
+      const result = await contentSimplifier.simplifyContent({
+        content,
+        type,
+        targetAudience,
+        complexity
+      });
+
+      res.json(result);
+    } catch (error) {
+      console.error("Content simplification error:", error);
+      res.status(500).json({ message: "Failed to simplify content" });
+    }
+  });
+
+  // Politician stance tracking
+  app.get("/api/politicians/:id/stances", async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      const stances = await db.execute(sql`
+        SELECT 
+          ps.id, ps.issue, ps.stance, ps.confidence_level as "confidenceLevel",
+          ps.date_recorded as "dateRecorded", ps.source_url as "sourceUrl",
+          ps.quote, ps.context
+        FROM politician_stances ps
+        WHERE ps.politician_id = ${id}
+        ORDER BY ps.date_recorded DESC
+        LIMIT 50
+      `);
+
+      res.json(stances.rows);
+    } catch (error) {
+      console.error("Error fetching politician stances:", error);
+      res.status(500).json({ message: "Failed to fetch politician stances" });
+    }
+  });
+
+  // Trending topics endpoint
+  app.get("/api/news/trending", async (req, res) => {
+    try {
+      const trending = await db.execute(sql`
+        SELECT 
+          topic, COUNT(*) as mentions, 
+          AVG(credibility_score) as "avgCredibility",
+          STRING_AGG(DISTINCT source, ', ') as sources
+        FROM news_articles 
+        WHERE published_at >= NOW() - INTERVAL '24 hours'
+        GROUP BY topic
+        HAVING COUNT(*) >= 2
+        ORDER BY mentions DESC, "avgCredibility" DESC
+        LIMIT 10
+      `);
+
+      res.json(trending.rows);
+    } catch (error) {
+      console.error("Error fetching trending topics:", error);
+      res.json([]);
+    }
+  });
+
+  // Featured politician endpoint
+  app.get("/api/politicians/featured", async (req, res) => {
+    try {
+      const featured = await db.execute(sql`
+        SELECT 
+          p.id, p.name, p.position, p.party, p.level, p.constituency,
+          p.trust_score as "trustScore", p.contact, p.profile_image as "profileImage",
+          COUNT(ps.id) as "recentStatements"
+        FROM politicians p
+        LEFT JOIN politician_statements ps ON p.id = ps.politician_id 
+          AND ps.date_made >= NOW() - INTERVAL '7 days'
+        WHERE p.trust_score IS NOT NULL
+        GROUP BY p.id
+        ORDER BY p.trust_score::numeric DESC, "recentStatements" DESC
+        LIMIT 1
+      `);
+
+      if (featured.rows.length > 0) {
+        const politician = featured.rows[0];
+        politician.contact = typeof politician.contact === 'string' 
+          ? JSON.parse(politician.contact || '{}') 
+          : politician.contact || {};
+        res.json(politician);
+      } else {
+        res.json(null);
+      }
+    } catch (error) {
+      console.error("Error fetching featured politician:", error);
+      res.json(null);
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
