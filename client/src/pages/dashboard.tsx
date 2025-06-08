@@ -291,7 +291,7 @@ export default function Dashboard() {
           {/* Column 1: Bills & Voting */}
           <div className="space-y-6">
             <BillsVotingWidget />
-            <LegalUpdatesWidget />
+            <LegalSystemWidget />
           </div>
 
           {/* Column 2: Petitions & Politicians */}
