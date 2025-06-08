@@ -113,7 +113,7 @@ export default function BillsVotingWidget() {
             </Badge>
             {votingStats && (
               <Badge variant="secondary" className="text-xs">
-                {votingStats.totalParticipants} Voters
+                {(votingStats as any).totalParticipants || 0} Voters
               </Badge>
             )}
           </div>
@@ -121,164 +121,99 @@ export default function BillsVotingWidget() {
       </CardHeader>
       <CardContent className="overflow-y-auto">
         <div className="space-y-3">
-          {/* Urgent Bills Section */}
-          {bills.filter(bill => bill.urgency === 'high').length > 0 && (
-            <div className="border-l-4 border-red-500 pl-3 mb-4">
-              <h4 className="font-medium text-sm mb-2 text-red-700 dark:text-red-300">
-                🚨 Urgent - Voting Ends Soon
-              </h4>
-              <div className="space-y-2">
-                {bills.filter(bill => bill.urgency === 'high').slice(0, 2).map((bill) => {
-                  const userVote = getUserVote(bill.id);
-                  const votePercentage = calculateVotePercentage(bill.yesVotes, bill.totalVotes);
-                  const votingActive = isVotingActive(bill.votingDeadline);
-                  
-                  return (
-                    <div key={bill.id} className={`border rounded-lg p-2 ${getUrgencyColor(bill.urgency)}`}>
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-2 mb-1">
-                            <Badge variant="secondary" className="text-xs">{bill.billNumber}</Badge>
-                            <Badge className={`text-xs ${getStatusColor(bill.status)}`}>
-                              {bill.status}
-                            </Badge>
-                            {userVote && (
-                              <CheckCircle className="h-3 w-3 text-green-500" />
-                            )}
-                          </div>
-                          <h5 className="font-medium text-sm mb-1 line-clamp-2">{bill.title}</h5>
-                          <p className="text-xs text-gray-600 dark:text-gray-300 line-clamp-2">
-                            {bill.summary}
-                          </p>
+          {/* Show empty state when no authentic data is available */}
+          {bills.length === 0 ? (
+            <div className="text-center py-8">
+              <Vote className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+              <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
+                Parliamentary System Loading
+              </h3>
+              <p className="text-xs text-gray-500 max-w-sm mx-auto">
+                Connecting to authentic Canadian parliamentary voting systems and bill tracking databases. 
+                Only verified bills with real voting records and official status will be displayed.
+              </p>
+            </div>
+          ) : (
+            <>
+              {/* Regular Bills */}
+              {bills.map((bill) => {
+                const userVote = getUserVote(bill.id);
+                const votePercentage = calculateVotePercentage(bill.yesVotes, bill.totalVotes);
+                const votingActive = isVotingActive(bill.votingDeadline);
+                
+                return (
+                  <div key={bill.id} className="border rounded-lg p-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-2 mb-1">
+                          <Badge variant="secondary" className="text-xs">{bill.billNumber}</Badge>
+                          <Badge className={`text-xs ${getStatusColor(bill.status)}`}>
+                            {bill.status}
+                          </Badge>
+                          {userVote && (
+                            <CheckCircle className="h-3 w-3 text-green-500" />
+                          )}
                         </div>
+                        <h4 className="font-medium text-sm mb-1 line-clamp-2">{bill.title}</h4>
+                        <p className="text-xs text-gray-600 dark:text-gray-300 line-clamp-2">
+                          {bill.summary}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Vote Progress Bar */}
+                    <div className="space-y-1 mb-2">
+                      <div className="flex justify-between text-xs">
+                        <span>Support</span>
+                        <span>{votePercentage}%</span>
+                      </div>
+                      <Progress value={votePercentage} className="h-1.5" />
+                    </div>
+
+                    {/* Vote Actions */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2 text-xs text-gray-500">
+                        <Users className="h-3 w-3" />
+                        <span>{bill.totalVotes} votes</span>
+                        {bill.sponsor && (
+                          <>
+                            <span>•</span>
+                            <span>{bill.sponsor}</span>
+                          </>
+                        )}
                       </div>
                       
-                      {/* Voting Progress */}
-                      <div className="space-y-1 mb-2">
-                        <div className="flex justify-between text-xs">
-                          <span>Public Support</span>
-                          <span>{votePercentage}% Yes</span>
-                        </div>
-                        <Progress value={votePercentage} className="h-2" />
-                        <div className="flex justify-between text-xs text-gray-500">
-                          <span>{bill.totalVotes} total votes</span>
-                          <span>{bill.publicSupport}% public support</span>
-                        </div>
-                      </div>
-
-                      {/* User Vote Status */}
                       {userVote ? (
-                        <div className="flex items-center space-x-2 text-xs text-green-600 dark:text-green-400">
-                          <CheckCircle className="h-3 w-3" />
-                          <span>You voted: {userVote.voteValue}</span>
-                          <span className="text-gray-400">
-                            {new Date(userVote.timestamp).toLocaleDateString()}
-                          </span>
-                        </div>
+                        <Badge variant="secondary" className="text-xs">
+                          Voted {userVote.voteValue}
+                        </Badge>
                       ) : votingActive ? (
-                        <Button size="sm" className="w-full h-6 text-xs">
-                          Vote Now
+                        <Button variant="outline" size="sm" className="h-6 px-2 text-xs">
+                          Vote
                         </Button>
                       ) : (
-                        <div className="text-xs text-gray-500 text-center">
-                          Voting Closed
-                        </div>
+                        <span className="text-xs text-gray-400">Closed</span>
                       )}
+                    </div>
 
-                      {/* Deadline */}
+                    {/* Impact & Deadline */}
+                    <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
+                      <div className="flex items-center space-x-1">
+                        <TrendingUp className="h-3 w-3" />
+                        <span>{bill.estimatedImpact}% impact</span>
+                      </div>
                       {bill.votingDeadline && (
-                        <div className="flex items-center space-x-1 mt-1 text-xs text-gray-500">
-                          <Clock className="h-3 w-3" />
-                          <span>
-                            Ends: {new Date(bill.votingDeadline).toLocaleDateString()}
-                          </span>
+                        <div className="flex items-center space-x-1">
+                          <Calendar className="h-3 w-3" />
+                          <span>{new Date(bill.votingDeadline).toLocaleDateString()}</span>
                         </div>
                       )}
                     </div>
-                  );
-                })}
-              </div>
-            </div>
+                  </div>
+                );
+              })}
+            </>
           )}
-
-          {/* Regular Bills */}
-          {bills.filter(bill => bill.urgency !== 'high').map((bill) => {
-            const userVote = getUserVote(bill.id);
-            const votePercentage = calculateVotePercentage(bill.yesVotes, bill.totalVotes);
-            const votingActive = isVotingActive(bill.votingDeadline);
-            
-            return (
-              <div key={bill.id} className="border rounded-lg p-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-1">
-                      <Badge variant="secondary" className="text-xs">{bill.billNumber}</Badge>
-                      <Badge className={`text-xs ${getStatusColor(bill.status)}`}>
-                        {bill.status}
-                      </Badge>
-                      <Badge variant="outline" className="text-xs">{bill.category}</Badge>
-                      {userVote && (
-                        <CheckCircle className="h-3 w-3 text-green-500" />
-                      )}
-                    </div>
-                    <h4 className="font-medium text-sm mb-1 line-clamp-2">{bill.title}</h4>
-                    <p className="text-xs text-gray-600 dark:text-gray-300 line-clamp-2">
-                      {bill.summary}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Vote Progress Bar */}
-                <div className="space-y-1 mb-2">
-                  <div className="flex justify-between text-xs">
-                    <span>Support</span>
-                    <span>{votePercentage}%</span>
-                  </div>
-                  <Progress value={votePercentage} className="h-1.5" />
-                </div>
-
-                {/* Vote Actions */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2 text-xs text-gray-500">
-                    <Users className="h-3 w-3" />
-                    <span>{bill.totalVotes} votes</span>
-                    {bill.sponsor && (
-                      <>
-                        <span>•</span>
-                        <span>{bill.sponsor}</span>
-                      </>
-                    )}
-                  </div>
-                  
-                  {userVote ? (
-                    <Badge variant="secondary" className="text-xs">
-                      Voted {userVote.voteValue}
-                    </Badge>
-                  ) : votingActive ? (
-                    <Button variant="outline" size="sm" className="h-6 px-2 text-xs">
-                      Vote
-                    </Button>
-                  ) : (
-                    <span className="text-xs text-gray-400">Closed</span>
-                  )}
-                </div>
-
-                {/* Impact & Deadline */}
-                <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
-                  <div className="flex items-center space-x-1">
-                    <TrendingUp className="h-3 w-3" />
-                    <span>{bill.estimatedImpact}% impact</span>
-                  </div>
-                  {bill.votingDeadline && (
-                    <div className="flex items-center space-x-1">
-                      <Calendar className="h-3 w-3" />
-                      <span>{new Date(bill.votingDeadline).toLocaleDateString()}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
         </div>
 
         <div className="mt-4 pt-3 border-t">
