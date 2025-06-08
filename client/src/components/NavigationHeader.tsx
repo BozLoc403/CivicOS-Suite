@@ -1,187 +1,191 @@
-import { Link, useLocation } from "wouter";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
-import { useQuery } from "@tanstack/react-query";
-import { Vote, Bell } from "lucide-react";
-import type { Notification } from "@shared/schema";
+import { Link, useLocation } from "wouter";
+import { ChevronDown, Trophy, Zap, Settings, User, LogOut } from "lucide-react";
+import { useState } from "react";
 
 export function NavigationHeader() {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const [location] = useLocation();
-
-  const { data: notifications = [] } = useQuery<Notification[]>({
-    queryKey: ["/api/notifications"],
-  });
-
-  const unreadCount = notifications.filter(n => !n.isRead).length;
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const isActive = (path: string) => {
-    if (path === "/" && location === "/") return true;
-    if (path !== "/" && location.startsWith(path)) return true;
-    return false;
+    return location === path;
   };
 
-  const getInitials = (firstName?: string, lastName?: string) => {
-    const first = firstName?.[0] || "";
-    const last = lastName?.[0] || "";
-    return (first + last).toUpperCase() || "U";
-  };
+  const navGroups = [
+    {
+      title: "Overview",
+      items: [
+        { href: "/dashboard", label: "Dashboard" },
+        { href: "/politicians", label: "Politicians" },
+        { href: "/news", label: "News" }
+      ]
+    },
+    {
+      title: "Participate",
+      items: [
+        { href: "/voting", label: "Voting" },
+        { href: "/petitions", label: "Petitions" },
+        { href: "/discussions", label: "Discussions" }
+      ]
+    },
+    {
+      title: "Government",
+      items: [
+        { href: "/elections", label: "Elections" },
+        { href: "/legal", label: "Legal System" },
+        { href: "/services", label: "Services" },
+        { href: "/contacts", label: "Contacts" }
+      ]
+    },
+    {
+      title: "Tools",
+      items: [
+        { href: "/legal-search", label: "Legal Research" },
+        { href: "/ledger", label: "Blockchain" }
+      ]
+    }
+  ];
+
+  if (isLoading) {
+    return (
+      <header className="bg-white shadow-sm border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <h1 className="text-2xl font-bold text-civic-blue">CivicOS</h1>
+              </div>
+            </div>
+            <div className="animate-pulse h-8 w-24 bg-gray-200 rounded"></div>
+          </div>
+        </div>
+      </header>
+    );
+  }
 
   return (
-    <header className="bg-white shadow-sm border-b border-gray-200">
+    <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
-            <div className="flex-shrink-0 flex items-center">
-              <Vote className="civic-blue text-2xl mr-3" />
-              <h1 className="text-xl font-bold civic-gray">CivicOS</h1>
-            </div>
-            <nav className="hidden md:ml-8 md:flex md:space-x-8">
+            <div className="flex-shrink-0">
               <Link href="/">
-                <a className={`px-1 pb-4 text-sm font-medium transition-colors ${
-                  isActive("/") 
-                    ? "civic-blue border-b-2 border-civic-blue" 
-                    : "text-gray-500 hover:text-gray-700"
-                }`}>
-                  Dashboard
+                <a className="text-2xl font-bold text-civic-blue hover:text-civic-dark transition-colors">
+                  CivicOS
                 </a>
               </Link>
-              <Link href="/voting">
-                <a className={`px-1 pb-4 text-sm font-medium transition-colors ${
-                  isActive("/voting") 
-                    ? "civic-blue border-b-2 border-civic-blue" 
-                    : "text-gray-500 hover:text-gray-700"
-                }`}>
-                  Active Votes
-                </a>
-              </Link>
-              <Link href="/ledger">
-                <a className={`px-1 pb-4 text-sm font-medium transition-colors ${
-                  isActive("/ledger") 
-                    ? "civic-blue border-b-2 border-civic-blue" 
-                    : "text-gray-500 hover:text-gray-700"
-                }`}>
-                  My Ledger
-                </a>
-              </Link>
-              <Link href="/politicians">
-                <a className={`px-1 pb-4 text-sm font-medium transition-colors ${
-                  isActive("/politicians") 
-                    ? "civic-blue border-b-2 border-civic-blue" 
-                    : "text-gray-500 hover:text-gray-700"
-                }`}>
-                  Politicians
-                </a>
-              </Link>
-              <Link href="/petitions">
-                <a className={`px-1 pb-4 text-sm font-medium transition-colors ${
-                  isActive("/petitions") 
-                    ? "civic-blue border-b-2 border-civic-blue" 
-                    : "text-gray-500 hover:text-gray-700"
-                }`}>
-                  Petitions
-                </a>
-              </Link>
-              <Link href="/discussions">
-                <a className={`px-1 pb-4 text-sm font-medium transition-colors ${
-                  isActive("/discussions") 
-                    ? "civic-blue border-b-2 border-civic-blue" 
-                    : "text-gray-500 hover:text-gray-700"
-                }`}>
-                  Discussions
-                </a>
-              </Link>
-              <Link href="/elections">
-                <a className={`px-1 pb-4 text-sm font-medium transition-colors ${
-                  isActive("/elections") 
-                    ? "civic-blue border-b-2 border-civic-blue" 
-                    : "text-gray-500 hover:text-gray-700"
-                }`}>
-                  Elections
-                </a>
-              </Link>
-              <Link href="/legal">
-                <a className={`px-1 pb-4 text-sm font-medium transition-colors ${
-                  isActive("/legal") 
-                    ? "civic-blue border-b-2 border-civic-blue" 
-                    : "text-gray-500 hover:text-gray-700"
-                }`}>
-                  Legal System
-                </a>
-              </Link>
-              <Link href="/legal-search">
-                <a className={`px-1 pb-4 text-sm font-medium transition-colors ${
-                  isActive("/legal-search") 
-                    ? "civic-blue border-b-2 border-civic-blue" 
-                    : "text-gray-500 hover:text-gray-700"
-                }`}>
-                  Legal Research
-                </a>
-              </Link>
-              <Link href="/services">
-                <a className={`px-1 pb-4 text-sm font-medium transition-colors ${
-                  isActive("/services") 
-                    ? "civic-blue border-b-2 border-civic-blue" 
-                    : "text-gray-500 hover:text-gray-700"
-                }`}>
-                  Gov Services
-                </a>
-              </Link>
-              <Link href="/contacts">
-                <a className={`px-1 pb-4 text-sm font-medium transition-colors ${
-                  isActive("/contacts") 
-                    ? "civic-blue border-b-2 border-civic-blue" 
-                    : "text-gray-500 hover:text-gray-700"
-                }`}>
-                  Contacts
-                </a>
-              </Link>
-              <Link href="/news">
-                <a className={`px-1 pb-4 text-sm font-medium transition-colors ${
-                  isActive("/news") 
-                    ? "civic-blue border-b-2 border-civic-blue" 
-                    : "text-gray-500 hover:text-gray-700"
-                }`}>
-                  News Analysis
-                </a>
-              </Link>
-
-            </nav>
-          </div>
-          
-          <div className="flex items-center space-x-4">
-            {/* Notifications */}
-            <button className="relative p-2 text-gray-400 hover:text-gray-500 transition-colors">
-              <Bell className="w-5 h-5" />
-              {unreadCount > 0 && (
-                <Badge className="absolute -top-1 -right-1 bg-civic-red text-white text-xs w-5 h-5 rounded-full flex items-center justify-center p-0">
-                  {unreadCount > 9 ? "9+" : unreadCount}
-                </Badge>
-              )}
-            </button>
-            
-            {/* User Info */}
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-civic-blue rounded-full flex items-center justify-center">
-                <span className="text-white text-sm font-medium">
-                  {getInitials(user?.firstName, user?.lastName)}
-                </span>
-              </div>
-              <span className="text-sm font-medium text-gray-700">
-                {user?.firstName || "Citizen"}
-              </span>
             </div>
             
-            {/* Logout */}
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => window.location.href = '/api/logout'}
-              className="hidden sm:inline-flex"
-            >
-              Sign Out
-            </Button>
+            {user && (
+              <nav className="hidden lg:block ml-10">
+                <div className="flex items-baseline space-x-6">
+                  {navGroups.map((group) => (
+                    <div key={group.title} className="relative group">
+                      <button className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-civic-blue transition-colors">
+                        {group.title}
+                        <ChevronDown className="ml-1 h-4 w-4" />
+                      </button>
+                      <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                        <div className="py-1">
+                          {group.items.map((item) => (
+                            <Link key={item.href} href={item.href}>
+                              <a className={`block px-4 py-2 text-sm transition-colors ${
+                                isActive(item.href)
+                                  ? "bg-civic-blue text-white"
+                                  : "text-gray-700 hover:bg-gray-100"
+                              }`}>
+                                {item.label}
+                              </a>
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </nav>
+            )}
+          </div>
+
+          <div className="flex items-center space-x-4">
+            {user ? (
+              <>
+                {/* Gamification Stats */}
+                <div className="hidden md:flex items-center space-x-4">
+                  <div className="flex items-center space-x-1 bg-amber-50 px-3 py-1 rounded-full">
+                    <Trophy className="h-4 w-4 text-amber-600" />
+                    <span className="text-sm font-medium text-amber-700">
+                      Lvl {user.currentLevel || 1}
+                    </span>
+                  </div>
+                  <div className="flex items-center space-x-1 bg-blue-50 px-3 py-1 rounded-full">
+                    <Zap className="h-4 w-4 text-blue-600" />
+                    <span className="text-sm font-medium text-blue-700">
+                      {user.civicPoints || 0} pts
+                    </span>
+                  </div>
+                </div>
+
+                {/* User Menu */}
+                <div className="relative">
+                  <button
+                    onClick={() => setDropdownOpen(!dropdownOpen)}
+                    className="flex items-center space-x-2 text-sm text-gray-700 hover:text-gray-900 focus:outline-none"
+                  >
+                    {user.profileImageUrl ? (
+                      <img 
+                        src={user.profileImageUrl} 
+                        alt="Profile" 
+                        className="h-8 w-8 rounded-full object-cover border border-gray-200"
+                      />
+                    ) : (
+                      <div className="h-8 w-8 rounded-full bg-civic-blue text-white flex items-center justify-center text-sm font-medium">
+                        {(user.firstName?.[0] || user.email?.[0] || 'U').toUpperCase()}
+                      </div>
+                    )}
+                    <span className="hidden md:block">
+                      {user.firstName || user.email?.split('@')[0] || 'User'}
+                    </span>
+                    <ChevronDown className="h-4 w-4" />
+                  </button>
+
+                  {dropdownOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50">
+                      <div className="py-1">
+                        <Link href="/profile">
+                          <a className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            <User className="mr-3 h-4 w-4" />
+                            Profile
+                          </a>
+                        </Link>
+                        <Link href="/settings">
+                          <a className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            <Settings className="mr-3 h-4 w-4" />
+                            Settings
+                          </a>
+                        </Link>
+                        <div className="border-t border-gray-100"></div>
+                        <a 
+                          href="/api/logout"
+                          className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          <LogOut className="mr-3 h-4 w-4" />
+                          Logout
+                        </a>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              <a 
+                href="/api/login" 
+                className="bg-civic-blue hover:bg-civic-dark text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+              >
+                Sign In
+              </a>
+            )}
           </div>
         </div>
       </div>

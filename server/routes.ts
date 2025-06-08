@@ -807,6 +807,153 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
     }
   });
 
+  // Geolocation and user location services
+  app.post('/api/user/location', isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { latitude, longitude, city, province, postalCode, accuracy } = req.body;
+
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+
+      // Update user location
+      await db.update(schema.users)
+        .set({
+          latitude: latitude?.toString(),
+          longitude: longitude?.toString(),
+          city,
+          province,
+          postalCode,
+          locationAccuracy: accuracy,
+          locationTimestamp: new Date(),
+          updatedAt: new Date()
+        })
+        .where(eq(schema.users.id, userId));
+
+      // Determine electoral districts based on location
+      const federalRiding = await determineElectoralDistrict(latitude, longitude, 'federal');
+      const provincialRiding = await determineElectoralDistrict(latitude, longitude, 'provincial');
+      const municipalWard = await determineMunicipalWard(latitude, longitude, city);
+
+      // Update electoral districts
+      await db.update(schema.users)
+        .set({
+          federalRiding,
+          provincialRiding,
+          municipalWard
+        })
+        .where(eq(schema.users.id, userId));
+
+      res.json({ 
+        message: "Location updated successfully",
+        federalRiding,
+        provincialRiding,
+        municipalWard
+      });
+    } catch (error) {
+      console.error("Error updating user location:", error);
+      res.status(500).json({ message: "Failed to update location" });
+    }
+  });
+
+  app.get('/api/politicians/local', isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+
+      const [user] = await db.select().from(schema.users).where(eq(schema.users.id, userId));
+      
+      if (!user || (!user.federalRiding && !user.provincialRiding && !user.city)) {
+        return res.status(400).json({ message: "User location not set. Please update your location first." });
+      }
+
+      // Find politicians representing this user's area
+      const localPoliticians = await db.select()
+        .from(schema.politicians)
+        .where(
+          or(
+            user.federalRiding ? eq(schema.politicians.constituency, user.federalRiding) : undefined,
+            user.provincialRiding ? eq(schema.politicians.constituency, user.provincialRiding) : undefined,
+            user.city ? like(schema.politicians.constituency, `%${user.city}%`) : undefined
+          )
+        );
+
+      res.json(localPoliticians);
+    } catch (error) {
+      console.error("Error fetching local politicians:", error);
+      res.status(500).json({ message: "Failed to fetch local politicians" });
+    }
+  });
+
+  // Gamification endpoints
+  app.get('/api/gamification/badges', isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      
+      const userBadges = await db.select()
+        .from(schema.userBadges)
+        .leftJoin(schema.badges, eq(schema.userBadges.badgeId, schema.badges.id))
+        .where(eq(schema.userBadges.userId, userId));
+
+      res.json(userBadges);
+    } catch (error) {
+      console.error("Error fetching user badges:", error);
+      res.status(500).json({ message: "Failed to fetch badges" });
+    }
+  });
+
+  app.get('/api/gamification/challenges', isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const today = new Date().toISOString().split('T')[0];
+      
+      const userChallenges = await db.select()
+        .from(schema.userChallenges)
+        .leftJoin(schema.dailyChallenges, eq(schema.userChallenges.challengeId, schema.dailyChallenges.id))
+        .where(eq(schema.userChallenges.userId, userId));
+
+      res.json(userChallenges);
+    } catch (error) {
+      console.error("Error fetching user challenges:", error);
+      res.status(500).json({ message: "Failed to fetch challenges" });
+    }
+  });
+
+  app.post('/api/gamification/activity', isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { activityType, points, description, relatedId, relatedType } = req.body;
+
+      // Record civic activity
+      await db.insert(schema.civicActivities).values({
+        userId,
+        activityType,
+        points: points || 0,
+        description,
+        relatedId,
+        relatedType,
+        timestamp: new Date()
+      });
+
+      // Update user points and check for level up
+      await db.update(schema.users)
+        .set({
+          civicPoints: sql`${schema.users.civicPoints} + ${points || 0}`,
+          lastActivityDate: new Date()
+        })
+        .where(eq(schema.users.id, userId));
+
+      res.json({ message: "Activity recorded successfully", pointsEarned: points || 0 });
+    } catch (error) {
+      console.error("Error recording civic activity:", error);
+      res.status(500).json({ message: "Failed to record activity" });
+    }
+  });
+
   // Media credibility analysis
   app.post('/api/news/analyze-credibility', async (req, res) => {
     try {

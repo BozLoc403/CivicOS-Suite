@@ -6,9 +6,11 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { VotingModal } from "@/components/VotingModal";
-import { CivicAI } from "@/components/CivicAI";
-import { Vote, Clock, Shield, Users, ExternalLink, AlertCircle } from "lucide-react";
+import { BadgeDisplay } from "@/components/BadgeDisplay";
+import { DailyChallenges } from "@/components/DailyChallenges";
+import { Vote, Clock, Shield, Users, ExternalLink, AlertCircle, MapPin, Trophy, Zap, TrendingUp } from "lucide-react";
 import { useState } from "react";
+import { motion } from "framer-motion";
 import type { Bill, Vote as VoteType } from "@shared/schema";
 
 export default function Dashboard() {
@@ -48,6 +50,79 @@ export default function Dashboard() {
     setSelectedBill(bill);
     setIsVotingModalOpen(true);
   };
+
+  // Mock data for gamification features
+  const mockBadges = [
+    {
+      id: 1,
+      name: "First Vote",
+      description: "Cast your first vote on legislation",
+      icon: "trophy",
+      category: "voting",
+      rarity: "common",
+      earnedAt: "2024-01-15",
+      isCompleted: true,
+      progress: 100
+    },
+    {
+      id: 2,
+      name: "News Reader",
+      description: "Read 10 verified news articles",
+      icon: "star",
+      category: "knowledge",
+      rarity: "rare",
+      isCompleted: false,
+      progress: 60
+    },
+    {
+      id: 3,
+      name: "Civic Champion",
+      description: "Achieve 1000 civic points",
+      icon: "crown",
+      category: "engagement",
+      rarity: "epic",
+      isCompleted: false,
+      progress: 45
+    }
+  ];
+
+  const mockChallenges = [
+    {
+      id: 1,
+      title: "Daily Voter",
+      description: "Vote on 3 bills today",
+      category: "voting",
+      pointsReward: 50,
+      difficulty: "easy",
+      progress: 1,
+      maxProgress: 3,
+      isCompleted: false,
+      timeRemaining: "18h 42m"
+    },
+    {
+      id: 2,
+      title: "News Analyst",
+      description: "Verify credibility of 5 news articles",
+      category: "learning",
+      pointsReward: 75,
+      difficulty: "medium",
+      progress: 2,
+      maxProgress: 5,
+      isCompleted: false,
+      timeRemaining: "18h 42m"
+    },
+    {
+      id: 3,
+      title: "Community Engager",
+      description: "Participate in 2 discussions",
+      category: "engagement",
+      pointsReward: 100,
+      difficulty: "hard",
+      progress: 2,
+      maxProgress: 2,
+      isCompleted: true
+    }
+  ];
 
   const formatTimeRemaining = (deadline: string) => {
     const now = new Date();
@@ -312,8 +387,19 @@ export default function Dashboard() {
               </CardContent>
             </Card>
 
-            {/* CivicAI Assistant */}
-            <CivicAI />
+            {/* Gamification Features */}
+            <div className="space-y-6">
+              <BadgeDisplay 
+                badges={mockBadges} 
+                userLevel={user?.currentLevel || 1}
+                civicPoints={user?.civicPoints || 0}
+                showAnimation={true}
+              />
+              <DailyChallenges 
+                challenges={mockChallenges}
+                streakDays={user?.streakDays || 0}
+              />
+            </div>
           </div>
         </div>
       </main>

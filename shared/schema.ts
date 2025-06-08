@@ -65,8 +65,93 @@ export const users = pgTable("users", {
   residencyVerified: boolean("residency_verified").default(false),
   citizenshipStatus: varchar("citizenship_status"), // citizen, permanent_resident, temporary_resident, visitor
   voterRegistrationStatus: varchar("voter_registration_status"), // registered, not_registered, unknown
+  // Gamification features
+  civicPoints: integer("civic_points").default(0),
+  currentLevel: integer("current_level").default(1),
+  totalBadges: integer("total_badges").default(0),
+  streakDays: integer("streak_days").default(0),
+  lastActivityDate: timestamp("last_activity_date"),
+  achievementTier: varchar("achievement_tier").default("bronze"), // bronze, silver, gold, platinum, diamond
+  politicalAwarenessScore: decimal("political_awareness_score", { precision: 5, scale: 2 }).default("0.00"),
+  engagementLevel: varchar("engagement_level").default("newcomer"), // newcomer, active, advocate, expert, champion
+  monthlyGoal: integer("monthly_goal").default(100), // civic points goal
+  yearlyGoal: integer("yearly_goal").default(1200),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Gamification badges and achievements
+export const badges = pgTable("badges", {
+  id: serial("id").primaryKey(),
+  name: varchar("name").notNull(),
+  description: text("description"),
+  icon: varchar("icon"),
+  category: varchar("category"), // civic_engagement, knowledge, voting, advocacy, social
+  rarity: varchar("rarity").default("common"), // common, rare, epic, legendary
+  pointsRequired: integer("points_required").default(0),
+  criteria: jsonb("criteria"), // complex achievement criteria
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const userBadges = pgTable("user_badges", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id),
+  badgeId: integer("badge_id").references(() => badges.id),
+  earnedAt: timestamp("earned_at").defaultNow(),
+  progress: integer("progress").default(0), // for progressive badges
+  isCompleted: boolean("is_completed").default(true),
+  notificationSent: boolean("notification_sent").default(false),
+});
+
+export const civicActivities = pgTable("civic_activities", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id),
+  activityType: varchar("activity_type").notNull(), // vote, petition_sign, bill_read, discussion, contact_politician
+  points: integer("points").default(0),
+  description: text("description"),
+  relatedId: integer("related_id"), // bill_id, petition_id, etc.
+  relatedType: varchar("related_type"), // bill, petition, discussion, politician
+  metadata: jsonb("metadata"), // additional activity data
+  verificationLevel: varchar("verification_level").default("automatic"), // automatic, manual, verified
+  timestamp: timestamp("timestamp").defaultNow(),
+});
+
+export const dailyChallenges = pgTable("daily_challenges", {
+  id: serial("id").primaryKey(),
+  title: varchar("title").notNull(),
+  description: text("description"),
+  category: varchar("category"), // voting, learning, engagement, advocacy
+  pointsReward: integer("points_reward").default(50),
+  difficulty: varchar("difficulty").default("easy"), // easy, medium, hard
+  criteria: jsonb("criteria"), // challenge completion criteria
+  validDate: timestamp("valid_date").notNull(),
+  isActive: boolean("is_active").default(true),
+  participantCount: integer("participant_count").default(0),
+  completionRate: decimal("completion_rate", { precision: 5, scale: 2 }).default("0.00"),
+});
+
+export const userChallenges = pgTable("user_challenges", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id),
+  challengeId: integer("challenge_id").references(() => dailyChallenges.id),
+  progress: integer("progress").default(0),
+  maxProgress: integer("max_progress").default(1),
+  isCompleted: boolean("is_completed").default(false),
+  completedAt: timestamp("completed_at"),
+  pointsEarned: integer("points_earned").default(0),
+});
+
+export const leaderboards = pgTable("leaderboards", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id),
+  category: varchar("category").notNull(), // weekly_points, monthly_points, all_time, badges, streak
+  rank: integer("rank"),
+  score: integer("score"),
+  period: varchar("period"), // weekly, monthly, yearly, all_time
+  periodStart: timestamp("period_start"),
+  periodEnd: timestamp("period_end"),
+  lastUpdated: timestamp("last_updated").defaultNow(),
 });
 
 // Bills/Legislation table
