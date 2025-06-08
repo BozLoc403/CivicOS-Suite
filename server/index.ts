@@ -78,6 +78,19 @@ app.use((req, res, next) => {
     // Initialize daily news analysis and propaganda detection
     initializeNewsAnalysis();
     
+    // Start comprehensive Canadian news analysis
+    console.log("Starting comprehensive Canadian news analysis system...");
+    comprehensiveNewsAnalyzer.performComprehensiveAnalysis().catch(error => {
+      console.error("Error in comprehensive news analysis:", error);
+    });
+
+    // Schedule regular comprehensive news analysis (every 2 hours)
+    setInterval(() => {
+      comprehensiveNewsAnalyzer.performComprehensiveAnalysis().catch(error => {
+        console.error("Error in scheduled news analysis:", error);
+      });
+    }, 2 * 60 * 60 * 1000); // 2 hours
+    
     // Start real-time platform monitoring
     realTimeMonitoring.startMonitoring();
     

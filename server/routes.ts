@@ -748,6 +748,67 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
     }
   });
 
+  // Comprehensive news analysis endpoints
+  app.get('/api/news/comprehensive', async (req, res) => {
+    try {
+      const articles = await db.select()
+        .from(schema.newsArticles)
+        .where(gte(schema.newsArticles.publishedAt, new Date(Date.now() - 24 * 60 * 60 * 1000)))
+        .orderBy(desc(schema.newsArticles.factualityScore), desc(schema.newsArticles.publishedAt))
+        .limit(20);
+      res.json(articles);
+    } catch (error) {
+      console.error("Error fetching comprehensive news:", error);
+      res.status(500).json({ message: "Failed to fetch comprehensive news" });
+    }
+  });
+
+  app.get('/api/news/comparisons', async (req, res) => {
+    try {
+      const comparisons = await db.select()
+        .from(schema.newsComparisons)
+        .orderBy(desc(schema.newsComparisons.analysisDate))
+        .limit(10);
+      res.json(comparisons);
+    } catch (error) {
+      console.error("Error fetching news comparisons:", error);
+      res.status(500).json({ message: "Failed to fetch news comparisons" });
+    }
+  });
+
+  app.get('/api/news/bias-analysis', async (req, res) => {
+    try {
+      const biasAnalysis = await db.select({
+        source: schema.newsArticles.source,
+        avgBiasScore: sql`AVG(${schema.newsArticles.biasScore})`,
+        avgFactuality: sql`AVG(${schema.newsArticles.factualityScore})`,
+        avgCredibility: sql`AVG(${schema.newsArticles.credibilityScore})`,
+        articleCount: sql`COUNT(*)`,
+      })
+        .from(schema.newsArticles)
+        .where(gte(schema.newsArticles.publishedAt, new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)))
+        .groupBy(schema.newsArticles.source)
+        .orderBy(sql`AVG(${schema.newsArticles.factualityScore}) DESC`);
+      res.json(biasAnalysis);
+    } catch (error) {
+      console.error("Error fetching bias analysis:", error);
+      res.status(500).json({ message: "Failed to fetch bias analysis" });
+    }
+  });
+
+  app.post('/api/news/trigger-analysis', isAuthenticated, async (req, res) => {
+    try {
+      // Trigger comprehensive news analysis
+      comprehensiveNewsAnalyzer.performComprehensiveAnalysis().catch(error => {
+        console.error("Manual news analysis error:", error);
+      });
+      res.json({ message: "News analysis triggered successfully" });
+    } catch (error) {
+      console.error("Error triggering news analysis:", error);
+      res.status(500).json({ message: "Failed to trigger news analysis" });
+    }
+  });
+
   app.post('/api/news/analyze', isAuthenticated, async (req, res) => {
     try {
       const { runNewsAnalysis } = await import('./newsAnalyzer');

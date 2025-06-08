@@ -194,8 +194,7 @@ export class ComprehensiveNewsAnalyzer {
       const response = await fetch(source.rssUrl, {
         headers: {
           'User-Agent': 'CivicOS News Analyzer 1.0 (Democratic Platform)',
-        },
-        timeout: 10000
+        }
       });
 
       if (!response.ok) {
@@ -277,8 +276,7 @@ export class ComprehensiveNewsAnalyzer {
         const articleResponse = await fetch(article.url, {
           headers: {
             'User-Agent': 'CivicOS News Analyzer 1.0',
-          },
-          timeout: 8000
+          }
         });
         
         if (articleResponse.ok) {
