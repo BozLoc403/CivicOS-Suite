@@ -7,6 +7,8 @@ import * as schema from "@shared/schema";
 import { eq, or, ilike, desc } from "drizzle-orm";
 import { insertBillSchema, insertVoteSchema, insertPoliticianSchema } from "@shared/schema";
 import { summarizeBill, analyzePoliticianStatement } from "./claude";
+import { dataVerification } from "./dataVerification";
+import { aggressiveScraper } from "./aggressiveDataScraper";
 import crypto from "crypto";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -841,6 +843,62 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
     } catch (error) {
       console.error("Error fetching parties:", error);
       res.status(500).json({ message: "Failed to fetch parties" });
+    }
+  });
+
+  // Data verification endpoints
+  app.get('/api/verification/politician/:id', async (req, res) => {
+    try {
+      const politicianId = parseInt(req.params.id);
+      const verification = await dataVerification.verifyPoliticianData(politicianId);
+      res.json(verification);
+    } catch (error) {
+      console.error("Error verifying politician data:", error);
+      res.status(500).json({ message: "Failed to verify politician data" });
+    }
+  });
+
+  app.get('/api/verification/voting-record/:id', async (req, res) => {
+    try {
+      const politicianId = parseInt(req.params.id);
+      const verification = await dataVerification.verifyVotingRecords(politicianId);
+      res.json(verification);
+    } catch (error) {
+      console.error("Error verifying voting records:", error);
+      res.status(500).json({ message: "Failed to verify voting records" });
+    }
+  });
+
+  app.get('/api/verification/bill/:id', async (req, res) => {
+    try {
+      const billId = parseInt(req.params.id);
+      const verification = await dataVerification.verifyBillData(billId);
+      res.json(verification);
+    } catch (error) {
+      console.error("Error verifying bill data:", error);
+      res.status(500).json({ message: "Failed to verify bill data" });
+    }
+  });
+
+  app.get('/api/verification/financial/:id', async (req, res) => {
+    try {
+      const politicianId = parseInt(req.params.id);
+      const verification = await dataVerification.verifyFinancialDisclosures(politicianId);
+      res.json(verification);
+    } catch (error) {
+      console.error("Error verifying financial disclosures:", error);
+      res.status(500).json({ message: "Failed to verify financial disclosures" });
+    }
+  });
+
+  // Enhanced scraping endpoint
+  app.post('/api/scraper/comprehensive', isAuthenticated, async (req: any, res) => {
+    try {
+      await aggressiveScraper.performComprehensiveScraping();
+      res.json({ message: "Comprehensive data scraping completed successfully" });
+    } catch (error) {
+      console.error("Error performing comprehensive scraping:", error);
+      res.status(500).json({ message: "Failed to perform comprehensive scraping" });
     }
   });
 
