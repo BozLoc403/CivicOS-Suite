@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/hooks/useAuth";
+import dominionEmblem from "@assets/EFE54ED9-DEE5-4F72-88D4-4441CE2D11CB_1_105_c_1749411960407.jpeg";
 import { 
   Home, 
   Users, 
@@ -139,12 +140,16 @@ export function LuxuryNavigation() {
         {!isCollapsed && (
           <div className="mt-4">
             <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 flex items-center justify-center shadow-lg">
-                <Crown className="w-7 h-7 text-white" />
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900 flex items-center justify-center shadow-lg border border-slate-600">
+                <img 
+                  src={dominionEmblem} 
+                  alt="Dominion Emblem" 
+                  className="w-8 h-8 object-contain filter brightness-125 contrast-125"
+                />
               </div>
               <div>
-                <h1 className="text-2xl font-bold font-serif text-gray-900 dark:text-white">CivicOS</h1>
-                <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Democratic Intelligence</p>
+                <h1 className="text-2xl font-bold font-serif text-slate-900 dark:text-slate-100">CivicOS</h1>
+                <p className="text-sm text-slate-600 dark:text-slate-400 font-medium tracking-wide">DOMINION INTELLIGENCE</p>
               </div>
             </div>
             

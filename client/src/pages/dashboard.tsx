@@ -24,6 +24,7 @@ import {
   ExternalLink
 } from "lucide-react";
 import type { Bill } from "@shared/schema";
+import dominionEmblem from "@assets/EFE54ED9-DEE5-4F72-88D4-4441CE2D11CB_1_105_c_1749411960407.jpeg";
 
 interface DashboardWidget {
   id: string;

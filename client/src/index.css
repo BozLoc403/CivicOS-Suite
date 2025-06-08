@@ -5,27 +5,27 @@
 @tailwind utilities;
 
 :root {
-  /* Luxury CivicOS - Light Theme */
-  --background: hsl(0, 0%, 100%);
-  --foreground: hsl(225, 39%, 4%);
-  --muted: hsl(220, 14%, 96%);
-  --muted-foreground: hsl(220, 9%, 46%);
-  --popover: hsl(0, 0%, 100%);
-  --popover-foreground: hsl(225, 39%, 4%);
-  --card: hsl(0, 0%, 100%);
-  --card-foreground: hsl(225, 39%, 4%);
-  --border: hsl(220, 13%, 91%);
-  --input: hsl(220, 13%, 91%);
-  --primary: hsl(218, 100%, 8%);
-  --primary-foreground: hsl(0, 0%, 100%);
-  --secondary: hsl(220, 14%, 96%);
-  --secondary-foreground: hsl(220, 9%, 46%);
-  --accent: hsl(45, 95%, 68%);
-  --accent-foreground: hsl(225, 39%, 4%);
-  --destructive: hsl(0, 84%, 60%);
-  --destructive-foreground: hsl(0, 0%, 100%);
-  --ring: hsl(218, 100%, 8%);
-  --radius: 0.75rem;
+  /* Professional Dominion Theme - Light */
+  --background: hsl(210, 17%, 98%);
+  --foreground: hsl(215, 25%, 8%);
+  --muted: hsl(210, 13%, 93%);
+  --muted-foreground: hsl(215, 13%, 45%);
+  --popover: hsl(210, 17%, 98%);
+  --popover-foreground: hsl(215, 25%, 8%);
+  --card: hsl(210, 17%, 98%);
+  --card-foreground: hsl(215, 25%, 8%);
+  --border: hsl(215, 15%, 85%);
+  --input: hsl(215, 15%, 85%);
+  --primary: hsl(215, 25%, 27%);
+  --primary-foreground: hsl(210, 17%, 98%);
+  --secondary: hsl(210, 13%, 93%);
+  --secondary-foreground: hsl(210, 15%, 15%);
+  --accent: hsl(35, 45%, 55%);
+  --accent-foreground: hsl(215, 25%, 8%);
+  --destructive: hsl(0, 65%, 48%);
+  --destructive-foreground: hsl(210, 17%, 98%);
+  --ring: hsl(215, 25%, 27%);
+  --radius: 0.5rem;
   
   /* Political Brand Colors */
   --civic-blue: hsl(220, 91%, 51%);
@@ -49,27 +49,27 @@
 }
 
 .dark {
-  /* Luxury CivicOS - Dark Theme */
-  --background: hsl(225, 39%, 4%);
-  --foreground: hsl(0, 0%, 100%);
-  --muted: hsl(220, 24%, 16%);
-  --muted-foreground: hsl(220, 9%, 60%);
-  --popover: hsl(220, 24%, 16%);
-  --popover-foreground: hsl(0, 0%, 100%);
-  --card: hsl(220, 39%, 11%);
-  --card-foreground: hsl(0, 0%, 100%);
-  --border: hsl(220, 24%, 16%);
-  --input: hsl(220, 24%, 16%);
-  --primary: hsl(218, 54%, 16%);
-  --primary-foreground: hsl(0, 0%, 100%);
-  --secondary: hsl(220, 24%, 16%);
-  --secondary-foreground: hsl(220, 14%, 93%);
-  --accent: hsl(45, 95%, 68%);
-  --accent-foreground: hsl(225, 39%, 4%);
-  --destructive: hsl(0, 84%, 60%);
-  --destructive-foreground: hsl(0, 0%, 100%);
-  --ring: hsl(45, 95%, 68%);
-  --radius: 0.75rem;
+  /* Professional Dominion Theme - Dark */
+  --background: hsl(215, 30%, 6%);
+  --foreground: hsl(210, 17%, 95%);
+  --muted: hsl(215, 20%, 12%);
+  --muted-foreground: hsl(215, 13%, 65%);
+  --popover: hsl(215, 25%, 8%);
+  --popover-foreground: hsl(210, 17%, 95%);
+  --card: hsl(215, 25%, 8%);
+  --card-foreground: hsl(210, 17%, 95%);
+  --border: hsl(215, 20%, 18%);
+  --input: hsl(215, 20%, 18%);
+  --primary: hsl(210, 17%, 85%);
+  --primary-foreground: hsl(215, 30%, 6%);
+  --secondary: hsl(215, 20%, 12%);
+  --secondary-foreground: hsl(210, 17%, 95%);
+  --accent: hsl(35, 55%, 65%);
+  --accent-foreground: hsl(215, 30%, 6%);
+  --destructive: hsl(0, 65%, 55%);
+  --destructive-foreground: hsl(210, 17%, 95%);
+  --ring: hsl(210, 17%, 85%);
+  --radius: 0.5rem;
   
   /* Enhanced dark luxury colors */
   --civic-blue: hsl(220, 91%, 51%);
@@ -102,6 +102,12 @@
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
     font-variation-settings: 'opsz' 14;
+    background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(210 20% 96%) 100%);
+    min-height: 100vh;
+  }
+  
+  .dark body {
+    background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(215 25% 8%) 100%);
   }
   
   h1, h2, h3, h4, h5, h6 {
