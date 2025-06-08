@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { VotingModal } from "@/components/VotingModal";
+import { CivicAI } from "@/components/CivicAI";
 import { Vote, Clock, Shield, Users, ExternalLink, AlertCircle } from "lucide-react";
 import { useState } from "react";
 import type { Bill, Vote as VoteType } from "@shared/schema";
@@ -290,6 +291,9 @@ export default function Dashboard() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* CivicAI Assistant */}
+            <CivicAI />
           </div>
         </div>
       </main>

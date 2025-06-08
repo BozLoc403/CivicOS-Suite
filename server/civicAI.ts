@@ -230,7 +230,7 @@ Analyze this using the government data provided. Be direct and factual. If polit
     const sources = this.extractSources(data);
 
     const content = response.content[0];
-    const responseText = content.type === 'text' ? content.text : 'Analysis failed';
+    const responseText = content.type === 'text' ? (content as any).text : 'Analysis failed';
 
     return {
       response: responseText,
