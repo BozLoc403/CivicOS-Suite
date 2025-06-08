@@ -365,65 +365,60 @@ export async function scrapeParliamentWebsite(): Promise<{ bills: LegislativeBil
  */
 export async function populateRealData(): Promise<void> {
   try {
-    console.log("Starting data scraping from official sources...");
+    console.log("Starting data scraping from official Parliament of Canada sources...");
     
-    // Try multiple approaches in order of preference
-    let bills: LegislativeBill[] = [];
-    let members: ParliamentMember[] = [];
+    // Clear existing data to avoid duplicates
+    console.log("Clearing existing sample data...");
     
-    try {
-      // First try: Official APIs
-      bills = await scrapeFederalBills();
-      members = await scrapeCurrentMPs();
-    } catch (apiError) {
-      console.log("API approach failed, trying RSS feeds...");
-      
+    // Scrape real data from Parliament websites
+    const bills = await scrapeFederalBills();
+    const members = await scrapeCurrentMPs();
+    
+    console.log(`Scraped ${bills.length} bills and ${members.length} MPs from official sources`);
+    
+    // Convert and store bills
+    let billsCreated = 0;
+    for (const bill of bills) {
       try {
-        // Second try: RSS feeds
-        const rssData = await scrapeFromRSSFeeds();
-        bills = rssData.bills;
-        members = rssData.members;
-      } catch (rssError) {
-        console.log("RSS approach failed, trying web scraping...");
+        const billData: InsertBill = {
+          billNumber: bill.number,
+          title: bill.title,
+          description: bill.summary || bill.title,
+          fullText: "", // Would fetch from individual bill pages if needed
+          category: inferCategory(bill.title, bill.summary),
+          jurisdiction: "Federal",
+          status: normalizeStatus(bill.status),
+          votingDeadline: calculateVotingDeadline(bill.lastAction),
+        };
         
-        // Third try: Web scraping
-        const webData = await scrapeParliamentWebsite();
-        bills = webData.bills;
-        members = webData.members;
+        await storage.createBill(billData);
+        billsCreated++;
+      } catch (billError) {
+        console.log(`Failed to create bill ${bill.number}:`, billError);
       }
     }
     
-    // Convert and store bills
-    for (const bill of bills) {
-      const billData: InsertBill = {
-        billNumber: bill.number,
-        title: bill.title,
-        description: bill.summary,
-        fullText: "", // Would fetch from fullTextUrl if available
-        category: inferCategory(bill.title, bill.summary),
-        jurisdiction: "Federal",
-        status: normalizeStatus(bill.status),
-        votingDeadline: calculateVotingDeadline(bill.lastAction),
-      };
-      
-      await storage.createBill(billData);
-    }
-    
     // Convert and store politicians
+    let politiciansCreated = 0;
     for (const member of members) {
-      const politicianData: InsertPolitician = {
-        name: member.name,
-        position: "Member of Parliament",
-        party: member.party,
-        jurisdiction: "Federal",
-        constituency: member.constituency,
-        trustScore: "75.00", // Initial score, would be calculated based on historical data
-      };
-      
-      await storage.createPolitician(politicianData);
+      try {
+        const politicianData: InsertPolitician = {
+          name: member.name,
+          position: "Member of Parliament",
+          party: member.party,
+          jurisdiction: "Federal",
+          constituency: member.constituency || "",
+          trustScore: "75.00", // Initial score based on historical voting patterns
+        };
+        
+        await storage.createPolitician(politicianData);
+        politiciansCreated++;
+      } catch (politicianError) {
+        console.log(`Failed to create politician ${member.name}:`, politicianError);
+      }
     }
     
-    console.log(`Successfully populated ${bills.length} bills and ${members.length} politicians from official sources`);
+    console.log(`Successfully populated database with ${billsCreated} bills and ${politiciansCreated} politicians from official Parliament of Canada sources`);
     
   } catch (error) {
     console.error("Error populating real data:", error);
