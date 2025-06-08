@@ -4,7 +4,19 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { db } from "./db";
 import * as schema from "@shared/schema";
-import { eq, or, like, ilike, desc, sql } from "drizzle-orm";
+import { eq, or, like, ilike, desc, sql, and } from "drizzle-orm";
+
+// Destructure needed tables from schema
+const {
+  users, bills, votes, politicians, politicianStatements, petitions, petitionSignatures,
+  notifications, newsArticles, newsSourceCredibility, politicianTruthTracking,
+  factChecks, propagandaDetection, elections, candidates, candidatePolicies,
+  electoralDistricts, pollingSites, governmentServices, lawUpdates, discussions,
+  discussionReplies, discussionLikes, civicActivities, dailyChallenges,
+  userChallenges, userBadges, badges, leaderboards, userAchievements,
+  userActivity, civicLevels, legalSearchHistory, forumCategories, forumPosts,
+  forumReplies, forumLikes, legalActs, legalSections, legalCases, criminalCodeSections
+} = schema;
 import { insertBillSchema, insertVoteSchema, insertPoliticianSchema } from "@shared/schema";
 import { summarizeBill, analyzePoliticianStatement } from "./claude";
 import { dataVerification } from "./dataVerification";
