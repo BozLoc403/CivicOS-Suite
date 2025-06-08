@@ -116,8 +116,8 @@ export function LuxuryNavigation() {
   };
 
   return (
-    <div className="w-72 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 h-screen sticky top-0">
-      <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+    <div className="w-72 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 h-screen flex flex-col overflow-hidden">
+      <div className="flex-shrink-0 p-6 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center space-x-3">
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 flex items-center justify-center shadow-lg">
             <Crown className="w-7 h-7 text-white" />
@@ -152,7 +152,7 @@ export function LuxuryNavigation() {
         )}
       </div>
 
-      <ScrollArea className="flex-1 px-3 py-4">
+      <div className="flex-1 overflow-y-auto px-3 py-4">
         <div className="space-y-6">
           {navigationSections.map((section) => (
             <div key={section.title}>
@@ -195,9 +195,9 @@ export function LuxuryNavigation() {
             </div>
           ))}
         </div>
-      </ScrollArea>
+      </div>
 
-      <div className="p-4 border-t border-border">
+      <div className="flex-shrink-0 p-4 border-t border-gray-200 dark:border-gray-700">
         <div className="space-y-2">
           <Link href="/settings">
             <Button
