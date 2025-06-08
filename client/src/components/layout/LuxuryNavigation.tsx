@@ -169,29 +169,32 @@ export function LuxuryNavigation() {
                 )}
               </Button>
               
-              {expandedSections.includes(section.title) && (
-                <div className="ml-3 mt-2 space-y-1">
-                  {section.items.map((item) => (
-                    <Link key={item.href} href={item.href}>
-                      <Button
-                        variant="ghost"
-                        className={cn(
-                          "w-full justify-start space-x-3 h-10 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800",
-                          isActive(item.href) && "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-l-3 border-blue-500"
-                        )}
-                      >
-                        <item.icon className="w-4 h-4" />
-                        <span className="flex-1 text-left text-sm">{item.title}</span>
-                        {item.badge && (
-                          <Badge variant="outline" className="text-xs bg-blue-100 text-blue-700 border-blue-200">
-                            {item.badge}
-                          </Badge>
-                        )}
-                      </Button>
-                    </Link>
-                  ))}
-                </div>
-              )}
+              <div className={cn(
+                "ml-3 mt-2 space-y-1 overflow-hidden transition-all duration-200 ease-in-out",
+                expandedSections.includes(section.title) 
+                  ? "max-h-96 opacity-100" 
+                  : "max-h-0 opacity-0"
+              )}>
+                {section.items.map((item) => (
+                  <Link key={item.href} href={item.href}>
+                    <Button
+                      variant="ghost"
+                      className={cn(
+                        "w-full justify-start space-x-3 h-10 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800",
+                        isActive(item.href) && "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-l-3 border-blue-500"
+                      )}
+                    >
+                      <item.icon className="w-4 h-4" />
+                      <span className="flex-1 text-left text-sm">{item.title}</span>
+                      {item.badge && (
+                        <Badge variant="outline" className="text-xs bg-blue-100 text-blue-700 border-blue-200">
+                          {item.badge}
+                        </Badge>
+                      )}
+                    </Button>
+                  </Link>
+                ))}
+              </div>
             </div>
           ))}
         </div>
