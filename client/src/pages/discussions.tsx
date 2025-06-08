@@ -150,6 +150,44 @@ export default function Discussions() {
     }
   });
 
+  // Delete post mutation
+  const deletePostMutation = useMutation({
+    mutationFn: async (postId: number) => {
+      return await apiRequest(`/api/forum/posts/${postId}`, "DELETE");
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Post deleted successfully!"
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/forum/posts"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete post",
+        variant: "destructive"
+      });
+    }
+  });
+
+  // Like post mutation
+  const likePostMutation = useMutation({
+    mutationFn: async (postId: number) => {
+      return await apiRequest(`/api/forum/posts/${postId}/like`, "POST");
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/forum/posts"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to toggle like",
+        variant: "destructive"
+      });
+    }
+  });
+
   // Create reply mutation
   const createReplyMutation = useMutation({
     mutationFn: async (replyData: any) => {
@@ -169,16 +207,6 @@ export default function Discussions() {
         description: error.message || "Failed to post reply",
         variant: "destructive"
       });
-    }
-  });
-
-  // Like post mutation
-  const likePostMutation = useMutation({
-    mutationFn: async (postId: number) => {
-      return await apiRequest(`/api/forum/posts/${postId}/like`, "POST");
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/forum/posts"] });
     }
   });
 
