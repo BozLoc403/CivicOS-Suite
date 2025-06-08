@@ -2,6 +2,9 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import { db } from "./db";
+import * as schema from "@shared/schema";
+import { eq, or, ilike, desc } from "drizzle-orm";
 import { insertBillSchema, insertVoteSchema, insertPoliticianSchema } from "@shared/schema";
 import { summarizeBill, analyzePoliticianStatement } from "./claude";
 import crypto from "crypto";
@@ -394,6 +397,181 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
       console.error("Error checking vote petition threshold:", error);
     }
   }
+
+  // Elections and candidates routes
+  app.get('/api/elections', async (req, res) => {
+    try {
+      const elections = await db.select().from(schema.elections).orderBy(schema.elections.electionDate);
+      res.json(elections);
+    } catch (error) {
+      console.error("Error fetching elections:", error);
+      res.status(500).json({ message: "Failed to fetch elections" });
+    }
+  });
+
+  app.get('/api/candidates', async (req, res) => {
+    try {
+      const { search, electionType } = req.query;
+      let query = db.select({
+        id: schema.candidates.id,
+        electionId: schema.candidates.electionId,
+        name: schema.candidates.name,
+        party: schema.candidates.party,
+        constituency: schema.candidates.constituency,
+        biography: schema.candidates.biography,
+        website: schema.candidates.website,
+        email: schema.candidates.email,
+        phoneNumber: schema.candidates.phoneNumber,
+        campaignWebsite: schema.candidates.campaignWebsite,
+        socialMediaTwitter: schema.candidates.socialMediaTwitter,
+        socialMediaFacebook: schema.candidates.socialMediaFacebook,
+        socialMediaInstagram: schema.candidates.socialMediaInstagram,
+        occupation: schema.candidates.occupation,
+        education: schema.candidates.education,
+        previousExperience: schema.candidates.previousExperience,
+        keyPlatformPoints: schema.candidates.keyPlatformPoints,
+        campaignPromises: schema.candidates.campaignPromises,
+        votesReceived: schema.candidates.votesReceived,
+        votePercentage: schema.candidates.votePercentage,
+        isIncumbent: schema.candidates.isIncumbent,
+        isElected: schema.candidates.isElected,
+        endorsements: schema.candidates.endorsements,
+        financialDisclosure: schema.candidates.financialDisclosure,
+        createdAt: schema.candidates.createdAt,
+        election: {
+          electionName: schema.elections.electionName,
+          electionType: schema.elections.electionType,
+          electionDate: schema.elections.electionDate,
+        }
+      }).from(schema.candidates).innerJoin(schema.elections, eq(schema.candidates.electionId, schema.elections.id));
+
+      if (search) {
+        query = query.where(
+          or(
+            ilike(schema.candidates.name, `%${search}%`),
+            ilike(schema.candidates.party, `%${search}%`),
+            ilike(schema.candidates.constituency, `%${search}%`)
+          )
+        );
+      }
+
+      if (electionType && electionType !== 'all') {
+        query = query.where(eq(schema.elections.electionType, electionType as string));
+      }
+
+      const candidates = await query.orderBy(schema.candidates.name);
+      res.json(candidates);
+    } catch (error) {
+      console.error("Error fetching candidates:", error);
+      res.status(500).json({ message: "Failed to fetch candidates" });
+    }
+  });
+
+  app.get('/api/electoral-districts', async (req, res) => {
+    try {
+      const districts = await db.select().from(schema.electoralDistricts).orderBy(schema.electoralDistricts.province, schema.electoralDistricts.districtName);
+      res.json(districts);
+    } catch (error) {
+      console.error("Error fetching electoral districts:", error);
+      res.status(500).json({ message: "Failed to fetch electoral districts" });
+    }
+  });
+
+  app.get('/api/candidate-policies', async (req, res) => {
+    try {
+      const { candidateId } = req.query;
+      let query = db.select().from(schema.candidatePolicies);
+      
+      if (candidateId) {
+        query = query.where(eq(schema.candidatePolicies.candidateId, parseInt(candidateId as string)));
+      }
+      
+      const policies = await query.orderBy(schema.candidatePolicies.policyArea, schema.candidatePolicies.priority);
+      res.json(policies);
+    } catch (error) {
+      console.error("Error fetching candidate policies:", error);
+      res.status(500).json({ message: "Failed to fetch candidate policies" });
+    }
+  });
+
+  // Discussions routes
+  app.get('/api/discussions', async (req, res) => {
+    try {
+      const discussions = await db.select({
+        id: schema.discussions.id,
+        userId: schema.discussions.userId,
+        title: schema.discussions.title,
+        content: schema.discussions.content,
+        category: schema.discussions.category,
+        isVerificationRequired: schema.discussions.isVerificationRequired,
+        likeCount: schema.discussions.likeCount,
+        replyCount: schema.discussions.replyCount,
+        isPinned: schema.discussions.isPinned,
+        isLocked: schema.discussions.isLocked,
+        createdAt: schema.discussions.createdAt,
+        user: {
+          firstName: schema.users.firstName,
+          lastName: schema.users.lastName,
+        }
+      }).from(schema.discussions).innerJoin(schema.users, eq(schema.discussions.userId, schema.users.id)).orderBy(desc(schema.discussions.createdAt));
+      res.json(discussions);
+    } catch (error) {
+      console.error("Error fetching discussions:", error);
+      res.status(500).json({ message: "Failed to fetch discussions" });
+    }
+  });
+
+  app.post('/api/discussions', isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { title, content, category, isVerificationRequired } = req.body;
+      
+      const [discussion] = await db.insert(schema.discussions).values({
+        userId,
+        title,
+        content,
+        category,
+        isVerificationRequired: isVerificationRequired || false,
+      }).returning();
+
+      res.json(discussion);
+    } catch (error) {
+      console.error("Error creating discussion:", error);
+      res.status(500).json({ message: "Failed to create discussion" });
+    }
+  });
+
+  // Legal system routes
+  app.get('/api/legal/updates', async (req, res) => {
+    try {
+      const updates = await db.select().from(schema.lawUpdates).orderBy(desc(schema.lawUpdates.effectiveDate));
+      res.json(updates);
+    } catch (error) {
+      console.error("Error fetching law updates:", error);
+      res.status(500).json({ message: "Failed to fetch law updates" });
+    }
+  });
+
+  app.get('/api/legal/criminal-code', async (req, res) => {
+    try {
+      const sections = await db.select().from(schema.criminalCodeSections).orderBy(schema.criminalCodeSections.sectionNumber);
+      res.json(sections);
+    } catch (error) {
+      console.error("Error fetching criminal code sections:", error);
+      res.status(500).json({ message: "Failed to fetch criminal code sections" });
+    }
+  });
+
+  // Government services routes
+  app.get('/api/services', async (req, res) => {
+    try {
+      const services = await db.select().from(schema.governmentServices).orderBy(schema.governmentServices.serviceName);
+      res.json(services);
+    } catch (error) {
+      console.error("Error fetching government services:", error);
+      res.status(500).json({ message: "Failed to fetch government services" });
+    }
+  });
 
   const httpServer = createServer(app);
   return httpServer;
