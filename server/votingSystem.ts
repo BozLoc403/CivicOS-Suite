@@ -138,13 +138,13 @@ export class VotingSystem {
         title: row.title,
         description: row.description,
         type: row.type,
-        options: JSON.parse(row.options || '[]'),
+        options: typeof row.options === 'string' ? JSON.parse(row.options) : Array.isArray(row.options) ? row.options : [],
         startDate: new Date(row.start_date),
         endDate: new Date(row.end_date),
         status: row.status,
         jurisdiction: row.jurisdiction,
         requiredQuorum: row.required_quorum,
-        eligibleVoters: JSON.parse(row.eligible_voters || '["all"]')
+        eligibleVoters: typeof row.eligible_voters === 'string' ? JSON.parse(row.eligible_voters) : (row.eligible_voters || ['all'])
       }));
     } catch (error) {
       console.error("Error getting active voting items:", error);
