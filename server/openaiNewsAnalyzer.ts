@@ -1,136 +1,112 @@
 import OpenAI from "openai";
 import { db } from "./db";
-import { newsArticles } from "@shared/schema";
-import { eq, desc, and, gte, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import * as cheerio from "cheerio";
-import fetch from "node-fetch";
 
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 interface NewsSource {
   name: string;
   url: string;
   rssUrl: string;
-  selectors: {
-    title: string[];
-    content: string[];
-    author: string[];
-    publishDate: string[];
-  };
+  bias: string;
+  credibility: number;
 }
 
-interface AnalyzedArticle {
-  title: string;
-  content: string;
-  url: string;
-  author: string;
-  publishedAt: Date;
-  source: string;
-  credibilityScore: number;
-  sentimentScore: number;
-  biasRating: string;
-  keyTopics: string[];
-  politicalImpact: number;
-  factCheck: string;
+interface ArticleAnalysis {
+  sentiment: 'positive' | 'negative' | 'neutral';
+  credibility: number;
+  bias: 'left' | 'right' | 'center';
+  topics: string[];
+  keyPoints: string[];
+  factualAccuracy: number;
+  propagandaScore: number;
   summary: string;
 }
 
-/**
- * Revolutionary OpenAI-powered Canadian news analysis system
- * Provides authentic news data with fallback when other APIs are constrained
- */
+interface NewsComparison {
+  topic: string;
+  articles: Array<{
+    source: string;
+    title: string;
+    bias: string;
+    sentiment: string;
+    credibility: number;
+  }>;
+  consensus: string;
+  divergence: string[];
+}
+
 export class OpenAINewsAnalyzer {
-  private newsSources: NewsSource[] = [
+  private openai: OpenAI;
+  private sources: NewsSource[] = [
     {
       name: "CBC News",
       url: "https://www.cbc.ca",
-      rssUrl: "https://www.cbc.ca/webfeed/rss/rss-politics",
-      selectors: {
-        title: [".detailHeadline", "h1", ".headline"],
-        content: [".story-content", ".detailBodyText", "main p"],
-        author: [".byline", ".author", "[data-testid='byline']"],
-        publishDate: [".timeStamp", "time", ".published-date"]
-      }
+      rssUrl: "https://www.cbc.ca/cmlink/rss-canada",
+      bias: "center-left",
+      credibility: 85
     },
     {
       name: "Global News",
       url: "https://globalnews.ca",
-      rssUrl: "https://globalnews.ca/politics/feed/",
-      selectors: {
-        title: ["h1", ".entry-title", ".headline"],
-        content: [".l-article__body", ".entry-content", "article p"],
-        author: [".c-byline__author", ".author", ".byline"],
-        publishDate: [".c-byline__published", "time", ".published"]
-      }
+      rssUrl: "https://globalnews.ca/feed/",
+      bias: "center",
+      credibility: 82
     },
     {
       name: "CTV News",
       url: "https://www.ctvnews.ca",
-      rssUrl: "https://www.ctvnews.ca/rss/politics",
-      selectors: {
-        title: ["h1", ".articleHeadline", ".entry-title"],
-        content: [".articleBody", ".entry-content", "article p"],
-        author: [".byline", ".author", ".articleByline"],
-        publishDate: [".timestamp", "time", ".published"]
-      }
+      rssUrl: "https://www.ctvnews.ca/rss/ctvnews-ca-top-stories-public-rss-1.822009",
+      bias: "center",
+      credibility: 83
     },
     {
       name: "National Post",
       url: "https://nationalpost.com",
-      rssUrl: "https://nationalpost.com/category/news/politics/feed",
-      selectors: {
-        title: ["h1", ".article-title", ".headline"],
-        content: [".article-content", ".entry-content", "article p"],
-        author: [".author-name", ".byline", ".author"],
-        publishDate: [".published-date", "time", ".timestamp"]
-      }
+      rssUrl: "https://nationalpost.com/feed/",
+      bias: "center-right",
+      credibility: 80
     },
     {
-      name: "The Globe and Mail",
-      url: "https://www.theglobeandmail.com",
-      rssUrl: "https://www.theglobeandmail.com/politics/?service=rss",
-      selectors: {
-        title: ["h1", ".headline", ".article-headline"],
-        content: [".article-body", ".content", "article p"],
-        author: [".author", ".byline", ".writer"],
-        publishDate: [".published-date", "time", ".date"]
-      }
+      name: "Toronto Star",
+      url: "https://www.thestar.com",
+      rssUrl: "https://www.thestar.com/content/thestar/feed.rss",
+      bias: "center-left",
+      credibility: 78
     }
   ];
 
-  /**
-   * Perform comprehensive Canadian news analysis with OpenAI
-   */
-  async performComprehensiveNewsAnalysis(): Promise<void> {
-    console.log("Starting OpenAI-powered Canadian news analysis...");
+  constructor() {
+    this.openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY
+    });
+  }
 
-    for (const source of this.newsSources) {
+  async performComprehensiveAnalysis(): Promise<void> {
+    console.log("Starting comprehensive Canadian news analysis with OpenAI...");
+    
+    for (const source of this.sources) {
       try {
-        await this.analyzeNewsSource(source);
+        console.log(`Analyzing news source: ${source.name}`);
+        await this.scrapeAndAnalyzeSource(source);
         await this.delay(2000); // Rate limiting
       } catch (error) {
         console.error(`Error analyzing ${source.name}:`, error);
-        continue;
       }
     }
 
-    console.log("OpenAI news analysis completed");
+    await this.performCrossSourceComparison();
+    console.log("Comprehensive news analysis completed");
   }
 
-  /**
-   * Analyze individual news source with OpenAI intelligence
-   */
-  private async analyzeNewsSource(source: NewsSource): Promise<void> {
-    console.log(`Analyzing news source: ${source.name}`);
-
+  private async scrapeAndAnalyzeSource(source: NewsSource): Promise<void> {
     try {
-      // Fetch RSS feed
+      console.log(`Scraping RSS feed: ${source.name}`);
       const response = await fetch(source.rssUrl, {
         headers: {
-          'User-Agent': 'CivicOS-NewsAnalyzer/1.0 (https://civicos.ca)'
-        },
-        timeout: 10000
+          'User-Agent': 'Mozilla/5.0 (compatible; CivicOS/1.0; +https://civicos.ca)'
+        }
       });
 
       if (!response.ok) {
@@ -138,226 +114,299 @@ export class OpenAINewsAnalyzer {
       }
 
       const rssContent = await response.text();
-      const articles = await this.parseRSSFeed(rssContent, source);
-
-      for (const article of articles.slice(0, 5)) { // Limit to 5 recent articles
-        try {
-          const analyzedArticle = await this.analyzeArticleWithOpenAI(article, source);
-          await this.storeAnalyzedArticle(analyzedArticle);
-          await this.delay(1000);
-        } catch (error) {
-          console.error(`Error analyzing article from ${source.name}:`, error);
-          continue;
-        }
-      }
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
-   * Parse RSS feed and extract article data
-   */
-  private async parseRSSFeed(rssContent: string, source: NewsSource): Promise<any[]> {
-    const $ = cheerio.load(rssContent, { xmlMode: true });
-    const articles: any[] = [];
-
-    $('item').each((index, element) => {
-      const $item = $(element);
+      const $ = cheerio.load(rssContent, { xmlMode: true });
       
-      const article = {
-        title: $item.find('title').text().trim(),
-        url: $item.find('link').text().trim(),
-        description: $item.find('description').text().trim(),
-        pubDate: new Date($item.find('pubDate').text()),
-        source: source.name
-      };
+      const articles: any[] = [];
+      $('item').slice(0, 10).each((i, elem) => {
+        const $elem = $(elem);
+        const title = $elem.find('title').text().trim();
+        const description = $elem.find('description').text().trim();
+        const link = $elem.find('link').text().trim();
+        const pubDate = $elem.find('pubDate').text().trim();
 
-      if (article.title && article.url) {
-        articles.push(article);
-      }
-    });
-
-    return articles;
-  }
-
-  /**
-   * Analyze article content using OpenAI
-   */
-  private async analyzeArticleWithOpenAI(article: any, source: NewsSource): Promise<AnalyzedArticle> {
-    // Fetch full article content
-    let fullContent = article.description;
-    
-    try {
-      const articleResponse = await fetch(article.url, {
-        headers: {
-          'User-Agent': 'CivicOS-NewsAnalyzer/1.0 (https://civicos.ca)'
-        },
-        timeout: 8000
+        if (title && description) {
+          articles.push({
+            title,
+            description,
+            url: link,
+            publishedAt: new Date(pubDate),
+            source: source.name
+          });
+        }
       });
 
-      if (articleResponse.ok) {
-        const html = await articleResponse.text();
-        const $ = cheerio.load(html);
-        
-        // Extract content using selectors
-        let extractedContent = '';
-        for (const selector of source.selectors.content) {
-          const content = $(selector).text().trim();
-          if (content && content.length > extractedContent.length) {
-            extractedContent = content;
-          }
-        }
-        
-        if (extractedContent.length > 100) {
-          fullContent = extractedContent;
+      for (const article of articles) {
+        try {
+          const analysis = await this.analyzeArticle(article.title, article.description);
+          await this.storeArticleAnalysis(article, analysis, source);
+        } catch (error) {
+          console.error(`Error analyzing article: ${article.title}`, error);
         }
       }
     } catch (error) {
-      // Use RSS description as fallback
+      console.error(`Error scraping ${source.name}:`, error);
     }
-
-    // Analyze with OpenAI
-    const analysisPrompt = `
-    Analyze this Canadian political news article:
-    
-    Title: ${article.title}
-    Content: ${fullContent.substring(0, 2000)}
-    Source: ${source.name}
-    
-    Provide analysis in JSON format:
-    {
-      "credibilityScore": number (0-100),
-      "sentimentScore": number (-1 to 1),
-      "biasRating": "left" | "center" | "right",
-      "keyTopics": ["topic1", "topic2", "topic3"],
-      "politicalImpact": number (0-100),
-      "factCheck": "verified" | "disputed" | "unverified",
-      "summary": "2-sentence summary",
-      "canadianRelevance": number (0-100)
-    }
-    `;
-
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content: "You are a Canadian political news analyst. Provide objective, factual analysis of news articles with focus on Canadian political relevance."
-        },
-        {
-          role: "user",
-          content: analysisPrompt
-        }
-      ],
-      response_format: { type: "json_object" },
-      temperature: 0.3
-    });
-
-    const analysis = JSON.parse(response.choices[0].message.content || '{}');
-
-    return {
-      title: article.title,
-      content: fullContent,
-      url: article.url,
-      author: "Unknown", // Extract from selectors if needed
-      publishedAt: article.pubDate || new Date(),
-      source: source.name,
-      credibilityScore: analysis.credibilityScore || 50,
-      sentimentScore: analysis.sentimentScore || 0,
-      biasRating: analysis.biasRating || "center",
-      keyTopics: analysis.keyTopics || [],
-      politicalImpact: analysis.politicalImpact || 0,
-      factCheck: analysis.factCheck || "unverified",
-      summary: analysis.summary || article.description.substring(0, 200)
-    };
   }
 
-  /**
-   * Store analyzed article in database
-   */
-  private async storeAnalyzedArticle(article: AnalyzedArticle): Promise<void> {
+  private async analyzeArticle(title: string, content: string): Promise<ArticleAnalysis> {
     try {
-      // Check if article already exists
-      const existing = await db.select()
-        .from(newsArticles)
-        .where(eq(newsArticles.url, article.url))
-        .limit(1);
+      const prompt = `Analyze this Canadian news article for political bias, credibility, and propaganda:
 
-      if (existing.length === 0) {
-        await db.insert(newsArticles).values({
-          title: article.title,
-          content: article.content,
-          url: article.url,
-          author: article.author,
-          publishedAt: article.publishedAt,
-          source: article.source,
-          credibilityScore: article.credibilityScore.toString(),
-          sentimentScore: article.sentimentScore,
-          biasRating: article.biasRating,
-          keyTopics: JSON.stringify(article.keyTopics),
-          politicalImpact: article.politicalImpact,
-          factCheckStatus: article.factCheck,
-          summary: article.summary,
-          isVerified: true,
-          analysisVersion: "openai-v1"
-        });
+Title: ${title}
+Content: ${content}
 
-        console.log(`Stored article: ${article.title.substring(0, 50)}...`);
+Provide analysis in JSON format:
+{
+  "sentiment": "positive|negative|neutral",
+  "credibility": 0-100,
+  "bias": "left|right|center", 
+  "topics": ["topic1", "topic2"],
+  "keyPoints": ["point1", "point2"],
+  "factualAccuracy": 0-100,
+  "propagandaScore": 0-100,
+  "summary": "brief summary"
+}`;
+
+      const response = await this.openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          {
+            role: "system",
+            content: "You are an expert Canadian political news analyst. Analyze articles for bias, credibility, and propaganda techniques used in Canadian media."
+          },
+          { role: "user", content: prompt }
+        ],
+        response_format: { type: "json_object" },
+        max_tokens: 800
+      });
+
+      const analysis = JSON.parse(response.choices[0].message.content || "{}");
+      
+      return {
+        sentiment: analysis.sentiment || 'neutral',
+        credibility: Math.max(0, Math.min(100, analysis.credibility || 50)),
+        bias: analysis.bias || 'center',
+        topics: Array.isArray(analysis.topics) ? analysis.topics : [],
+        keyPoints: Array.isArray(analysis.keyPoints) ? analysis.keyPoints : [],
+        factualAccuracy: Math.max(0, Math.min(100, analysis.factualAccuracy || 50)),
+        propagandaScore: Math.max(0, Math.min(100, analysis.propagandaScore || 0)),
+        summary: analysis.summary || title
+      };
+    } catch (error) {
+      console.error("Error in OpenAI analysis:", error);
+      return {
+        sentiment: 'neutral',
+        credibility: 50,
+        bias: 'center',
+        topics: [],
+        keyPoints: [],
+        factualAccuracy: 50,
+        propagandaScore: 0,
+        summary: title
+      };
+    }
+  }
+
+  private async storeArticleAnalysis(article: any, analysis: ArticleAnalysis, source: NewsSource): Promise<void> {
+    try {
+      await db.execute(sql`
+        INSERT INTO news_articles (
+          title, content, url, source, published_at, 
+          sentiment, credibility_score, bias, topics, 
+          factual_accuracy, propaganda_score, summary
+        ) VALUES (
+          ${article.title}, 
+          ${article.description}, 
+          ${article.url}, 
+          ${article.source}, 
+          ${article.publishedAt}, 
+          ${analysis.sentiment}, 
+          ${analysis.credibility}, 
+          ${analysis.bias}, 
+          ${JSON.stringify(analysis.topics)}, 
+          ${analysis.factualAccuracy}, 
+          ${analysis.propagandaScore}, 
+          ${analysis.summary}
+        )
+        ON CONFLICT (url) DO UPDATE SET
+          sentiment = EXCLUDED.sentiment,
+          credibility_score = EXCLUDED.credibility_score,
+          bias = EXCLUDED.bias,
+          topics = EXCLUDED.topics,
+          factual_accuracy = EXCLUDED.factual_accuracy,
+          propaganda_score = EXCLUDED.propaganda_score,
+          summary = EXCLUDED.summary,
+          updated_at = NOW()
+      `);
+    } catch (error) {
+      console.error("Error storing article analysis:", error);
+    }
+  }
+
+  private async performCrossSourceComparison(): Promise<void> {
+    try {
+      const topics = await db.execute(sql`
+        SELECT DISTINCT jsonb_array_elements_text(topics::jsonb) as topic
+        FROM news_articles 
+        WHERE published_at > NOW() - INTERVAL '24 hours'
+        GROUP BY topic
+        HAVING COUNT(*) >= 2
+        LIMIT 10
+      `);
+
+      for (const topicRow of topics.rows) {
+        const topic = topicRow.topic as string;
+        await this.compareTopicCoverage(topic);
       }
     } catch (error) {
-      console.error("Error storing article:", error);
+      console.error("Error in cross-source comparison:", error);
     }
   }
 
-  /**
-   * Get latest analyzed news for dashboard
-   */
-  async getLatestNews(limit: number = 10): Promise<any[]> {
+  private async compareTopicCoverage(topic: string): Promise<void> {
     try {
-      const articles = await db.select()
-        .from(newsArticles)
-        .orderBy(desc(newsArticles.publishedAt))
-        .limit(limit);
+      const articles = await db.execute(sql`
+        SELECT title, source, bias, sentiment, credibility_score, summary
+        FROM news_articles 
+        WHERE topics::jsonb ? ${topic}
+        AND published_at > NOW() - INTERVAL '24 hours'
+        ORDER BY published_at DESC
+        LIMIT 5
+      `);
 
-      return articles.map(article => ({
-        ...article,
-        keyTopics: JSON.parse(article.keyTopics || '[]'),
-        credibilityScore: parseInt(article.credibilityScore || '50')
+      if (articles.rows.length < 2) return;
+
+      const comparison = await this.generateTopicComparison(topic, articles.rows);
+      await this.storeComparison(topic, comparison);
+    } catch (error) {
+      console.error(`Error comparing topic ${topic}:`, error);
+    }
+  }
+
+  private async generateTopicComparison(topic: string, articles: any[]): Promise<NewsComparison> {
+    try {
+      const articlesData = articles.map(a => ({
+        source: a.source,
+        title: a.title,
+        bias: a.bias,
+        sentiment: a.sentiment,
+        credibility: a.credibility_score,
+        summary: a.summary
       }));
+
+      const prompt = `Compare how different Canadian news sources cover this topic: "${topic}"
+
+Articles:
+${articlesData.map(a => `${a.source} (${a.bias}): ${a.title} - ${a.summary}`).join('\n')}
+
+Provide comparison in JSON format:
+{
+  "consensus": "areas of agreement",
+  "divergence": ["key differences", "bias variations"],
+  "overallTrend": "positive|negative|neutral"
+}`;
+
+      const response = await this.openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          {
+            role: "system",
+            content: "You are analyzing Canadian media coverage patterns to identify bias and consensus across news sources."
+          },
+          { role: "user", content: prompt }
+        ],
+        response_format: { type: "json_object" },
+        max_tokens: 600
+      });
+
+      const analysis = JSON.parse(response.choices[0].message.content || "{}");
+
+      return {
+        topic,
+        articles: articlesData,
+        consensus: analysis.consensus || "No clear consensus",
+        divergence: Array.isArray(analysis.divergence) ? analysis.divergence : []
+      };
     } catch (error) {
-      console.error("Error fetching latest news:", error);
-      return [];
+      console.error("Error generating topic comparison:", error);
+      return {
+        topic,
+        articles: [],
+        consensus: "Analysis unavailable",
+        divergence: []
+      };
     }
   }
 
-  /**
-   * Get news analytics for dashboard
-   */
+  private async storeComparison(topic: string, comparison: NewsComparison): Promise<void> {
+    try {
+      await db.execute(sql`
+        INSERT INTO news_comparisons (
+          topic, articles_data, consensus, divergence_points, analysis_date
+        ) VALUES (
+          ${topic}, 
+          ${JSON.stringify(comparison.articles)}, 
+          ${comparison.consensus}, 
+          ${JSON.stringify(comparison.divergence)}, 
+          NOW()
+        )
+        ON CONFLICT (topic) DO UPDATE SET
+          articles_data = EXCLUDED.articles_data,
+          consensus = EXCLUDED.consensus,
+          divergence_points = EXCLUDED.divergence_points,
+          analysis_date = EXCLUDED.analysis_date
+      `);
+    } catch (error) {
+      console.error("Error storing comparison:", error);
+    }
+  }
+
   async getNewsAnalytics(): Promise<any> {
     try {
-      const [totalResult] = await db.execute(sql`
+      const analytics = await db.execute(sql`
         SELECT 
-          COUNT(*) as total,
-          COALESCE(AVG(CAST(credibility_score AS INTEGER)), 50) as avgCredibility,
-          COALESCE(AVG(sentiment_score), 0) as avgSentiment,
-          COUNT(CASE WHEN published_at >= NOW() - INTERVAL '24 hours' THEN 1 END) as recent
-        FROM news_articles
+          COUNT(*) as total_articles,
+          COUNT(CASE WHEN sentiment = 'positive' THEN 1 END) as positive,
+          COUNT(CASE WHEN sentiment = 'negative' THEN 1 END) as negative,
+          COUNT(CASE WHEN sentiment = 'neutral' THEN 1 END) as neutral,
+          AVG(credibility_score) as avg_credibility,
+          AVG(factual_accuracy) as avg_accuracy,
+          AVG(propaganda_score) as avg_propaganda
+        FROM news_articles 
+        WHERE published_at > NOW() - INTERVAL '24 hours'
+      `);
+
+      const biasDistribution = await db.execute(sql`
+        SELECT bias, COUNT(*) as count
+        FROM news_articles 
+        WHERE published_at > NOW() - INTERVAL '24 hours'
+        GROUP BY bias
+      `);
+
+      const topTopics = await db.execute(sql`
+        SELECT 
+          jsonb_array_elements_text(topics::jsonb) as topic,
+          COUNT(*) as frequency
+        FROM news_articles 
+        WHERE published_at > NOW() - INTERVAL '24 hours'
+        GROUP BY topic
+        ORDER BY frequency DESC
+        LIMIT 10
       `);
 
       return {
-        total: parseInt(totalResult.total || '0'),
-        avgCredibility: Math.round(totalResult.avgCredibility || 50),
-        avgSentiment: parseFloat(totalResult.avgSentiment || '0'),
-        recent: parseInt(totalResult.recent || '0')
+        summary: analytics.rows[0] || {},
+        biasDistribution: biasDistribution.rows || [],
+        topTopics: topTopics.rows || [],
+        lastUpdated: new Date().toISOString()
       };
     } catch (error) {
-      console.error("Error fetching news analytics:", error);
+      console.error("Error getting news analytics:", error);
       return {
-        total: 0,
-        avgCredibility: 50,
-        avgSentiment: 0,
-        recent: 0
+        summary: {},
+        biasDistribution: [],
+        topTopics: [],
+        lastUpdated: new Date().toISOString()
       };
     }
   }

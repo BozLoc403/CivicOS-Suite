@@ -35,8 +35,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
       const user = await storage.getUser(userId);
+      if (!user) {
+        // Create user if doesn't exist
+        const newUser = await storage.upsertUser({
+          id: userId,
+          email: req.user?.claims?.email || null,
+          firstName: req.user?.claims?.first_name || null,
+          lastName: req.user?.claims?.last_name || null,
+          profileImageUrl: req.user?.claims?.profile_image_url || null,
+        });
+        return res.json(newUser);
+      }
       res.json(user);
     } catch (error) {
       console.error("Error fetching user:", error);
@@ -851,6 +865,50 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
     } catch (error) {
       console.error("Error fetching government services:", error);
       res.status(500).json({ message: "Failed to fetch government services" });
+    }
+  });
+
+  // Voting system routes
+  app.get('/api/voting/active', async (req, res) => {
+    try {
+      const { votingSystem } = await import("./votingSystem");
+      const items = await votingSystem.getActiveVotingItems();
+      res.json(items);
+    } catch (error) {
+      console.error("Error fetching active voting items:", error);
+      res.status(500).json({ message: "Failed to fetch voting items" });
+    }
+  });
+
+  app.post('/api/voting/:id/vote', isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+
+      const itemId = parseInt(req.params.id);
+      const { optionId } = req.body;
+
+      const { votingSystem } = await import("./votingSystem");
+      await votingSystem.castVote(userId, itemId, optionId);
+      
+      res.json({ success: true, message: "Vote cast successfully" });
+    } catch (error) {
+      console.error("Error casting vote:", error);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.get('/api/voting/:id/results', async (req, res) => {
+    try {
+      const itemId = parseInt(req.params.id);
+      const { votingSystem } = await import("./votingSystem");
+      const results = await votingSystem.getVotingResults(itemId);
+      res.json(results);
+    } catch (error) {
+      console.error("Error getting voting results:", error);
+      res.status(500).json({ message: "Failed to get voting results" });
     }
   });
 
@@ -2189,12 +2247,12 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
         // News summary using OpenAI analyzer
         (async () => {
           try {
-            const { revolutionaryNewsAggregator } = await import("./revolutionaryNewsAggregator");
-            const analytics = await revolutionaryNewsAggregator.getNewsAnalytics();
+            const { openaiNewsAnalyzer } = await import("./openaiNewsAnalyzer");
+            const analytics = await openaiNewsAnalyzer.getNewsAnalytics();
             return { rows: [analytics] };
           } catch (error) {
             console.error("Error fetching news analytics:", error);
-            throw new Error("Unable to retrieve authentic news analytics");
+            return { rows: [{ total_articles: 0, positive: 0, negative: 0, neutral: 0 }] };
           }
         })(),
         
