@@ -948,7 +948,15 @@ export const insertNotificationSchema = createInsertSchema(notifications).omit({
 
 // Types
 export type UpsertUser = typeof users.$inferInsert;
-export type User = typeof users.$inferSelect;
+export type User = typeof users.$inferSelect & {
+  claims?: {
+    sub: string;
+    email?: string;
+    first_name?: string;
+    last_name?: string;
+    profile_image_url?: string;
+  };
+};
 export type Bill = typeof bills.$inferSelect;
 export type InsertBill = z.infer<typeof insertBillSchema>;
 export type Vote = typeof votes.$inferSelect;

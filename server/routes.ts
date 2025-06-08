@@ -198,6 +198,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/politicians/:id', async (req, res) => {
     try {
       const politicianId = parseInt(req.params.id);
+      if (isNaN(politicianId)) {
+        return res.status(400).json({ message: "Invalid politician ID" });
+      }
       const politician = await storage.getPolitician(politicianId);
       
       if (!politician) {
@@ -1973,10 +1976,10 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
           COUNT(ps.id) as "recentStatements"
         FROM politicians p
         LEFT JOIN politician_statements ps ON p.id = ps.politician_id 
-          AND ps.date_made >= NOW() - INTERVAL '7 days'
-        WHERE p.trust_score IS NOT NULL
-        GROUP BY p.id
-        ORDER BY p.trust_score::numeric DESC, "recentStatements" DESC
+          AND ps.date_created >= NOW() - INTERVAL '7 days'
+        WHERE p.trust_score IS NOT NULL AND p.id IS NOT NULL
+        GROUP BY p.id, p.name, p.position, p.party, p.level, p.constituency, p.trust_score, p.contact, p.profile_image
+        ORDER BY CAST(p.trust_score AS DECIMAL) DESC, "recentStatements" DESC
         LIMIT 1
       `);
 

@@ -939,7 +939,7 @@ export class LegalSystemOrganizer {
   async getLegalHierarchy(): Promise<LegalHierarchy> {
     const [criminalSections, federalActs, cases] = await Promise.all([
       db.select().from(criminalCodeSections).orderBy(criminalCodeSections.sectionNumber),
-      db.select().from(legalActs).orderBy(legalActs.title),
+      db.select().from(legalActs).where(eq(legalActs.jurisdiction, 'Federal')).orderBy(legalActs.title),
       db.select().from(legalCases).orderBy(legalCases.dateDecided)
     ]);
 
