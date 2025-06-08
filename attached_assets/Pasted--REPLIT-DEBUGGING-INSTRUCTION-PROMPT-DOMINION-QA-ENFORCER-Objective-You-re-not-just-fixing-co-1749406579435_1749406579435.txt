@@ -1,0 +1,93 @@
+📜 REPLIT DEBUGGING INSTRUCTION PROMPT — "DOMINION QA ENFORCER"
+Objective:
+You're not just fixing code. You are restoring functional sovereignty to this application. Your task is to hunt down, fix, and polish every visual and functional inconsistency across the full system — frontend and backend — until it reflects perfect user-facing coherence, internal logic, and live-operational reliability.
+
+🔍 PRIMARY FUNCTIONAL DIRECTIVES
+System-Wide Debugging Pass:
+
+Identify and repair all frontend or backend crashes, undefined objects, missing methods, or incorrect state handling.
+
+Check all API routes for proper response handling, status codes, and error fallbacks.
+
+UI/UX SANITY CHECK:
+
+Audit all pages/components for:
+
+Mismatched fonts or weights
+
+Inconsistent padding/margin
+
+Text overflows or invisible text on low-contrast backgrounds
+
+Buttons with text that spills outside boundaries
+
+Non-centered or visually misaligned content
+
+Spacing inconsistencies between sections/widgets
+
+FORM & INTERACTION SYSTEM LOGIC:
+
+Forms should behave like real forms:
+
+Inputs should be labeled clearly
+
+Validation should be visible and contextual (errors below the relevant field)
+
+Submits should show spinner/loading state
+
+Success/error states must give visible feedback
+
+Autofocus first input on form load
+
+Tab/Enter navigation must flow naturally
+
+WIDGET AND MODULE FUNCTIONALITY:
+
+Any component that looks like it should be clickable or interactive — must work.
+
+Buttons must:
+
+Visibly change on hover
+
+Give click feedback
+
+Actually trigger the correct action
+
+Modals, tooltips, dropdowns, toggles — test and fix if they're broken, glitchy, or non-intuitive
+
+COLOR & STYLING STANDARDS:
+
+Use high-contrast readable text (no white on yellow, light on light, etc.)
+
+Apply consistent font families and sizes across headings, body, and footers
+
+Enforce mobile-first responsive layout with flex/grid containers
+
+Eliminate overlapping elements or scroll-locked sections
+
+🧠 SYSTEM INTENT & LOGIC RULES
+This is a professional-grade AI-powered financial webapp. It must feel stable, intentional, and tightly designed.
+
+Components should:
+
+Communicate clearly
+
+Be visually satisfying
+
+Behave logically
+
+UX should be streamlined, responsive, and error-tolerant.
+
+✅ FINAL OUTPUT REQUIREMENTS
+One pass per frontend page, component, and critical API route
+
+Add comments if any module still has unresolved issues or missing API keys
+
+Fix styling issues even if they’re minor — polish is not optional
+
+Ensure visual rhythm, consistency, and functional cohesion system-wide
+
+Use intelligent defaults where input is missing
+
+📣 FINAL ACTIVATION COMMAND
+“Run a full UI/UX integrity sweep, system crash audit, and functionality repair cycle. Treat this like a pre-launch QC pass before a public SaaS rollout.”

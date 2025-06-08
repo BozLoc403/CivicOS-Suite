@@ -1,0 +1,118 @@
+📜 REPLIT INSTRUCTION — “DOMINION QA ENFORCER v2”
+Mission Objective:
+You're executing a full-scale quality assurance, debug, and UX functionality sweep across this application. Treat this as a pre-launch rollout for a high-performance SaaS product. This includes not only backend stability and frontend polish, but also full-feature behavioral audits — especially the discussion forum module, which must function like a real production-ready community space.
+
+🔍 CORE DIRECTIVES
+✅ 1. SYSTEM-WIDE FUNCTIONALITY & STABILITY
+Identify and fix any frontend crashes, missing props, undefined state, or API request failures.
+
+Review every backend route and controller for:
+
+Proper HTTP status codes
+
+Error handling with meaningful feedback
+
+Null-checks and input validation on all params
+
+Audit all active APIs (OpenAI, Stripe, Gemini, Claude, RapidAPI) for proper usage, rate limits, key handling, and fallback strategies.
+
+🎯 2. DISCUSSION FORUM — FUNCTIONALITY EXPECTATION
+This forum must behave like a production-ready web forum. Implement or verify the following:
+
+POSTING & THREADING
+
+Users must be able to:
+
+Start new discussions (new thread title + body)
+
+Comment on any thread
+
+Reply to comments (nested replies allowed up to 2 levels)
+
+Text editor should support:
+
+Basic formatting: bold, italic, line breaks
+
+Line wrapping and emoji support
+
+Input boxes must resize with content or offer scroll
+
+MODERATION & LOGIC
+
+Each thread and comment should include:
+
+Username (or anon), timestamp, and upvote count
+
+Ability to edit/delete own posts
+
+Optional admin delete for moderation
+
+Comments should load lazily (pagination or infinite scroll)
+
+INTERACTION FEATURES
+
+Upvote/downvote system per comment
+
+Sorting:
+
+Newest / Oldest / Most Liked
+
+Real-time update when someone adds a new comment (or auto-refresh every few seconds)
+
+Notify user after successful post or error (e.g. “Comment posted!”, “Failed to submit.”)
+
+STYLING
+
+Thread titles: readable, bold, consistent spacing
+
+Replies indented with visual threading
+
+Avoid: white text on white/light backgrounds, cramped text, or UI elements that look clickable but aren’t
+
+🎨 3. UI/UX & FRONTEND CONSISTENCY
+Fonts, colors, spacing, and widget design must be visually consistent across all pages
+
+Fix:
+
+Texts that overflow or vanish into backgrounds
+
+Buttons with text outside boundaries
+
+Inconsistent input box styling
+
+Low contrast buttons or unreadable field labels
+
+Enforce:
+
+Proper button hover/click feedback
+
+Aligned and padded containers
+
+Mobile responsiveness
+
+🔐 4. FORM BEHAVIOR & DATA VALIDATION
+Across the app (forum, signup, contracts, payments):
+
+Autofocus first field on load
+
+Input validation with contextual error messages
+
+Prevent duplicate submission (double-click protection)
+
+Success and error states must be visible and accurate
+
+🧠 UX PRINCIPLE: “INTENTIONALITY”
+Every component should:
+
+Behave like a real-world app
+
+Feel satisfying to use
+
+Recover gracefully from errors
+
+Be visually legible and self-explanatory
+
+✅ FINAL COMMAND TO EXECUTE
+“Run a complete QA + UX polish pass. Fix all system errors, polish all visuals, and bring the discussion forum to full production readiness. Audit every API route, all page behavior, and enforce frontend coherence site-wide.”
+
+This is the last line of defense before live launch. Execute like it's shipping tomorrow.
