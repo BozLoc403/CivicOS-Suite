@@ -16,7 +16,7 @@ const {
   discussionReplies, discussionLikes, civicActivities, dailyChallenges,
   userChallenges, userBadges, badges, leaderboards, userAchievements,
   userActivity, civicLevels, legalSearchHistory, forumCategories, forumPosts,
-  forumReplies, forumLikes, legalActs, legalSections, legalCases, criminalCodeSections
+  forumReplies, forumLikes, forumReplyLikes, legalActs, legalSections, legalCases, criminalCodeSections
 } = schema;
 import { insertBillSchema, insertVoteSchema, insertPoliticianSchema } from "@shared/schema";
 import { summarizeBill, analyzePoliticianStatement } from "./claude";
@@ -1791,18 +1791,18 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
 
       // Check if already liked
       const existingLike = await db.select()
-        .from(forumLikes)
+        .from(forumReplyLikes)
         .where(and(
-          eq(forumLikes.replyId, replyId),
-          eq(forumLikes.userId, userId)
+          eq(forumReplyLikes.replyId, replyId),
+          eq(forumReplyLikes.userId, userId)
         ));
 
       if (existingLike.length > 0) {
         // Remove like
-        await db.delete(forumLikes)
+        await db.delete(forumReplyLikes)
           .where(and(
-            eq(forumLikes.replyId, replyId),
-            eq(forumLikes.userId, userId)
+            eq(forumReplyLikes.replyId, replyId),
+            eq(forumReplyLikes.userId, userId)
           ));
         
         await db.update(forumReplies)
@@ -1810,7 +1810,7 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
           .where(eq(forumReplies.id, replyId));
       } else {
         // Add like
-        await db.insert(forumLikes).values({
+        await db.insert(forumReplyLikes).values({
           userId,
           replyId
         });

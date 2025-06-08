@@ -394,10 +394,17 @@ export const forumLikes = pgTable("forum_likes", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").notNull().references(() => users.id),
   postId: integer("post_id").references(() => forumPosts.id),
-  replyId: integer("reply_id").references(() => forumReplies.id),
   createdAt: timestamp("created_at").defaultNow(),
 }, (table) => ({
   uniquePostLike: unique().on(table.userId, table.postId),
+}));
+
+export const forumReplyLikes = pgTable("forum_reply_likes", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  replyId: integer("reply_id").notNull().references(() => forumReplies.id),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
   uniqueReplyLike: unique().on(table.userId, table.replyId),
 }));
 
