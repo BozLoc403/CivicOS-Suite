@@ -9,6 +9,7 @@ import Dashboard from "@/pages/dashboard";
 import Voting from "@/pages/voting";
 import Ledger from "@/pages/ledger";
 import Politicians from "@/pages/politicians";
+import Petitions from "@/pages/petitions";
 
 import NotFound from "@/pages/not-found";
 
@@ -25,7 +26,7 @@ function Router() {
           <Route path="/voting" component={Voting} />
           <Route path="/ledger" component={Ledger} />
           <Route path="/politicians" component={Politicians} />
-
+          <Route path="/petitions" component={Petitions} />
         </>
       )}
       <Route component={NotFound} />

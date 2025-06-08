@@ -5,6 +5,8 @@ import {
   politicians,
   politicianStatements,
   notifications,
+  petitions,
+  petitionSignatures,
   type User,
   type UpsertUser,
   type Bill,
@@ -255,6 +257,121 @@ export class DatabaseStorage implements IStorage {
       trustScore: user.trustScore || "100.00",
       civicLevel: user.civicLevel || "Registered",
     };
+  }
+
+  // Petitions operations
+  async getAllPetitions(): Promise<any[]> {
+    return await db.select().from(petitions).orderBy(desc(petitions.createdAt));
+  }
+
+  async getPetitionSignature(petitionId: number, userId: string): Promise<any | undefined> {
+    const [signature] = await db
+      .select()
+      .from(petitionSignatures)
+      .where(and(
+        eq(petitionSignatures.petitionId, petitionId),
+        eq(petitionSignatures.userId, userId)
+      ));
+    return signature;
+  }
+
+  async signPetition(petitionId: number, userId: string, verificationId: string): Promise<any> {
+    // Insert signature
+    const [signature] = await db
+      .insert(petitionSignatures)
+      .values({
+        petitionId,
+        userId,
+        verificationId,
+      })
+      .returning();
+
+    // Update petition signature count
+    await db
+      .update(petitions)
+      .set({
+        currentSignatures: sql`${petitions.currentSignatures} + 1`,
+        updatedAt: new Date(),
+      })
+      .where(eq(petitions.id, petitionId));
+
+    return signature;
+  }
+
+  async checkPetitionTarget(petitionId: number): Promise<void> {
+    const [petition] = await db
+      .select()
+      .from(petitions)
+      .where(eq(petitions.id, petitionId));
+
+    if (!petition) return;
+
+    // Check if target reached
+    if (petition.currentSignatures >= petition.targetSignatures && petition.status === "active") {
+      await db
+        .update(petitions)
+        .set({
+          status: "successful",
+          updatedAt: new Date(),
+        })
+        .where(eq(petitions.id, petitionId));
+
+      // Create success notification
+      await this.createNotification({
+        userId: petition.creatorId,
+        title: "Petition Successful!",
+        message: `Your petition "${petition.title}" has reached its target of ${petition.targetSignatures} signatures.`,
+        type: "petition",
+        relatedPetitionId: petitionId,
+      });
+    }
+  }
+
+  async getAutoPetitionForBill(billId: number): Promise<any | undefined> {
+    const [petition] = await db
+      .select()
+      .from(petitions)
+      .where(and(
+        eq(petitions.relatedBillId, billId),
+        eq(petitions.autoCreated, true)
+      ));
+    return petition;
+  }
+
+  async createPetition(petitionData: any): Promise<any> {
+    const [petition] = await db
+      .insert(petitions)
+      .values(petitionData)
+      .returning();
+    return petition;
+  }
+
+  async notifyVotersOfAutoPetition(billId: number, petitionId: number): Promise<void> {
+    // Get all users who voted "no" on this bill
+    const noVoters = await db
+      .select({ userId: votes.userId })
+      .from(votes)
+      .where(and(
+        eq(votes.billId, billId),
+        eq(votes.vote, "no")
+      ));
+
+    const [bill] = await db.select().from(bills).where(eq(bills.id, billId));
+    if (!bill) return;
+
+    // Create notifications for all "no" voters
+    const notifications = noVoters.map(voter => ({
+      userId: voter.userId,
+      title: "Automatic Petition Created",
+      message: `A petition has been automatically created for Bill ${bill.billNumber} based on citizen opposition. You can sign it to make your voice heard in Parliament.`,
+      type: "petition",
+      relatedBillId: billId,
+      relatedPetitionId: petitionId,
+    }));
+
+    if (notifications.length > 0) {
+      await db.insert(notifications).values(notifications);
+    }
   }
 }
 
