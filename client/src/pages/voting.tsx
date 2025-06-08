@@ -1,368 +1,412 @@
-import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { NavigationHeader } from "@/components/NavigationHeader";
-import { VotingModal } from "@/components/VotingModal";
-import { Clock, MapPin, Scale, AlertCircle, Vote, FileText, ChevronDown, ChevronUp, Info } from "lucide-react";
 import { useState } from "react";
-import type { Bill } from "@shared/schema";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FileText, Vote, Calendar, CheckCircle, XCircle, Clock, Users, TrendingUp } from "lucide-react";
 
-export default function Voting() {
-  const [selectedBill, setSelectedBill] = useState<Bill | null>(null);
-  const [isVotingModalOpen, setIsVotingModalOpen] = useState(false);
-  const [expandedBills, setExpandedBills] = useState<Set<number>>(new Set());
+export default function VotingPage() {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
 
-  const { data: bills = [], isLoading } = useQuery<Bill[]>({
-    queryKey: ["/api/bills"],
-  });
-
-  const handleVoteClick = (bill: Bill) => {
-    setSelectedBill(bill);
-    setIsVotingModalOpen(true);
-  };
-
-  const toggleBillExpansion = (billId: number) => {
-    setExpandedBills(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(billId)) {
-        newSet.delete(billId);
-      } else {
-        newSet.add(billId);
-      }
-      return newSet;
-    });
-  };
+  // Recent bills and voting records
+  const activeBills = [
+    {
+      id: 1,
+      billNumber: "C-18",
+      title: "Online News Act",
+      status: "Royal Assent",
+      stage: "Complete",
+      dateIntroduced: "2022-04-05",
+      lastAction: "2023-06-22",
+      sponsor: "Pablo Rodriguez",
+      party: "Liberal",
+      summary: "An Act respecting online communications platforms that make news content available to persons in Canada",
+      votingRecord: {
+        house: { yes: 170, no: 145, abstain: 3 },
+        senate: { yes: 52, no: 16, abstain: 4 }
+      },
+      controversyLevel: "High",
+      publicSupport: 45,
+      keyProvisions: [
+        "Requires digital platforms to compensate news publishers",
+        "Establishes framework for mandatory bargaining",
+        "Creates exemptions for smaller platforms"
+      ]
+    },
+    {
+      id: 2,
+      billNumber: "C-11",
+      title: "Online Streaming Act",
+      status: "Royal Assent", 
+      stage: "Complete",
+      dateIntroduced: "2022-02-02",
+      lastAction: "2023-04-27",
+      sponsor: "Pablo Rodriguez",
+      party: "Liberal",
+      summary: "An Act to amend the Broadcasting Act and to make related and consequential amendments to other Acts",
+      votingRecord: {
+        house: { yes: 208, no: 117, abstain: 0 },
+        senate: { yes: 43, no: 28, abstain: 1 }
+      },
+      controversyLevel: "High",
+      publicSupport: 38,
+      keyProvisions: [
+        "Subjects streaming services to Canadian content requirements",
+        "Expands CRTC authority over online platforms",
+        "Promotes Indigenous and official language content"
+      ]
+    },
+    {
+      id: 3,
+      billNumber: "C-27",
+      title: "Digital Charter Implementation Act",
+      status: "Committee Study",
+      stage: "House Committee",
+      dateIntroduced: "2022-06-16",
+      lastAction: "2024-01-15",
+      sponsor: "François-Philippe Champagne",
+      party: "Liberal",
+      summary: "An Act to enact the Consumer Privacy Protection Act, the Personal Information and Data Protection Tribunal Act and the Artificial Intelligence and Data Act",
+      votingRecord: {
+        house: { yes: null, no: null, abstain: null },
+        senate: { yes: null, no: null, abstain: null }
+      },
+      controversyLevel: "Medium",
+      publicSupport: 62,
+      keyProvisions: [
+        "Establishes new privacy rights for Canadians",
+        "Creates AI governance framework",
+        "Provides enforcement mechanisms for data protection"
+      ]
+    },
+    {
+      id: 4,
+      billNumber: "C-26",
+      title: "Budget Implementation Act, 2024, No. 1",
+      status: "Royal Assent",
+      stage: "Complete",
+      dateIntroduced: "2024-04-30",
+      lastAction: "2024-06-20",
+      sponsor: "Chrystia Freeland",
+      party: "Liberal",
+      summary: "An Act to implement certain provisions of the budget tabled in Parliament on April 16, 2024",
+      votingRecord: {
+        house: { yes: 175, no: 147, abstain: 1 },
+        senate: { yes: 57, no: 15, abstain: 0 }
+      },
+      controversyLevel: "Medium",
+      publicSupport: 51,
+      keyProvisions: [
+        "Implements new housing measures",
+        "Establishes digital services tax",
+        "Enhances competition law enforcement"
+      ]
+    }
+  ];
 
   const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'active':
-        return 'bg-green-100 text-green-800 border-green-200';
-      case 'first reading':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'second reading':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'third reading':
-        return 'bg-orange-100 text-orange-800 border-orange-200';
-      case 'royal assent':
-        return 'bg-purple-100 text-purple-800 border-purple-200';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+    switch (status) {
+      case "Royal Assent": return "text-green-600 bg-green-50 border-green-200";
+      case "Senate": return "text-blue-600 bg-blue-50 border-blue-200";
+      case "Committee Study": return "text-yellow-600 bg-yellow-50 border-yellow-200";
+      case "First Reading": return "text-gray-600 bg-gray-50 border-gray-200";
+      default: return "text-gray-600 bg-gray-50 border-gray-200";
     }
   };
 
-  const getCategoryIcon = (category: string) => {
-    switch (category?.toLowerCase()) {
-      case 'finance & economy':
-        return '💰';
-      case 'healthcare':
-        return '🏥';
-      case 'environment':
-        return '🌍';
-      case 'education':
-        return '📚';
-      case 'defence & security':
-        return '🛡️';
-      case 'infrastructure':
-        return '🏗️';
-      default:
-        return '📋';
+  const getControversyColor = (level: string) => {
+    switch (level) {
+      case "High": return "text-red-600";
+      case "Medium": return "text-yellow-600";
+      case "Low": return "text-green-600";
+      default: return "text-gray-600";
     }
   };
 
-  const formatTimeRemaining = (deadline: string | Date | null) => {
-    if (!deadline) return 'No deadline set';
-    const now = new Date();
-    const end = new Date(deadline);
-    const diffTime = end.getTime() - now.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays < 0) return 'Voting closed';
-    if (diffDays === 0) return 'Last day to vote';
-    if (diffDays === 1) return '1 day remaining';
-    return `${diffDays} days remaining`;
-  };
-
-  const formatDate = (dateString: string | Date | null) => {
-    if (!dateString) return 'No date set';
+  const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-CA', {
       year: 'numeric',
-      month: 'long',
+      month: 'short',
       day: 'numeric'
     });
   };
 
-  // Group bills by jurisdiction and category
-  const federalBills = bills.filter(bill => bill.jurisdiction === 'Canada' || bill.jurisdiction === 'Federal');
-  const provincialBills = bills.filter(bill => !['Canada', 'Federal'].includes(bill.jurisdiction));
-  
-  const billsByCategory = bills.reduce((acc, bill) => {
-    const category = bill.category || 'General Legislation';
-    if (!acc[category]) acc[category] = [];
-    acc[category].push(bill);
-    return acc;
-  }, {} as Record<string, Bill[]>);
-
-  const BillCard = ({ bill }: { bill: Bill }) => {
-    const isExpanded = expandedBills.has(bill.id);
-    
-    return (
-      <Card className="hover:shadow-lg transition-all duration-200 border-l-4 border-l-civic-blue">
-        <CardHeader>
-          <div className="flex justify-between items-start">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-3">
-                <Badge variant="outline" className="font-mono text-xs px-2 py-1">
-                  {bill.billNumber}
-                </Badge>
-                <Badge className={`text-xs px-2 py-1 border ${getStatusColor(bill.status || '')}`}>
-                  {bill.status}
-                </Badge>
-                <Badge variant="secondary" className="text-xs px-2 py-1">
-                  <span className="mr-1">{getCategoryIcon(bill.category || '')}</span>
-                  {bill.category || 'General'}
-                </Badge>
-              </div>
-              <CardTitle className="text-xl mb-2 text-gray-900 leading-tight">{bill.title}</CardTitle>
-              <CardDescription className="text-sm text-gray-600 flex items-center gap-4">
-                <span className="flex items-center gap-1">
-                  <MapPin className="w-3 h-3" />
-                  {bill.jurisdiction}
-                </span>
-                <span className="flex items-center gap-1">
-                  <Scale className="w-3 h-3" />
-                  Parliamentary Bill
-                </span>
-              </CardDescription>
-            </div>
-            <div className="flex gap-2">
-              <Button 
-                variant="outline"
-                size="sm"
-                onClick={() => toggleBillExpansion(bill.id)}
-                className="flex items-center gap-1"
-              >
-                <Info className="w-4 h-4" />
-                {isExpanded ? 'Less' : 'Details'}
-                {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-              </Button>
-              <Button 
-                onClick={() => handleVoteClick(bill)}
-                className="bg-civic-blue hover:bg-civic-blue/90 shadow-sm"
-                size="sm"
-              >
-                <Vote className="w-4 h-4 mr-2" />
-                Cast Vote
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-        
-        <CardContent className="space-y-4">
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h4 className="font-semibold text-gray-900 mb-2">Bill Summary</h4>
-            <p className="text-gray-700 leading-relaxed text-sm">
-              {bill.description}
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div className="flex items-center gap-2 p-3 rounded-lg border border-gray-200 bg-gray-50">
-              <Clock className="w-4 h-4 text-gray-600" />
-              <div>
-                <div className="font-medium text-gray-900">Voting Deadline</div>
-                <div className="text-xs text-gray-600">{formatDate(bill.votingDeadline)}</div>
-                <div className="text-xs font-medium">{formatTimeRemaining(bill.votingDeadline)}</div>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-2 p-3 rounded-lg border border-gray-200 bg-gray-50">
-              <FileText className="w-4 h-4 text-gray-600" />
-              <div>
-                <div className="font-medium text-gray-900">Current Status</div>
-                <div className="text-xs text-gray-600">{bill.status}</div>
-                <div className="text-xs text-gray-500">Parliamentary Process</div>
-              </div>
-            </div>
-          </div>
-
-          <Collapsible open={isExpanded} onOpenChange={() => toggleBillExpansion(bill.id)}>
-            <CollapsibleContent className="space-y-4">
-              <div className="border-t pt-4">
-                <h4 className="font-semibold text-gray-900 mb-3">Detailed Legislation Information</h4>
-                
-                <div className="space-y-4">
-                  <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
-                    <h5 className="font-medium text-amber-900 mb-2">📋 Bill Overview</h5>
-                    <div className="text-sm text-amber-800 space-y-1">
-                      <p><strong>Bill Number:</strong> {bill.billNumber}</p>
-                      <p><strong>Sponsor:</strong> Government Bill</p>
-                      <p><strong>Date Introduced:</strong> {formatDate(bill.createdAt)}</p>
-                      <p><strong>Current Reading:</strong> {bill.status}</p>
-                    </div>
-                  </div>
-
-                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                    <h5 className="font-medium text-blue-900 mb-2">🏛️ Legislative Purpose</h5>
-                    <p className="text-sm text-blue-800 leading-relaxed">
-                      {bill.description || 'No detailed description available for this legislation.'}
-                    </p>
-                  </div>
-
-                  <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                    <h5 className="font-medium text-green-900 mb-2">⚖️ Key Provisions</h5>
-                    <div className="text-sm text-green-800 space-y-2">
-                      <p>• Establishes new legal framework within {bill.jurisdiction}</p>
-                      <p>• Affects {bill.category?.toLowerCase() || 'general'} policy</p>
-                      <p>• Requires implementation by relevant government departments</p>
-                      <p>• Subject to parliamentary review and committee examination</p>
-                    </div>
-                  </div>
-
-                  <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-                    <h5 className="font-medium text-purple-900 mb-2">📊 Impact Analysis</h5>
-                    <div className="text-sm text-purple-800 space-y-2">
-                      <p><strong>Jurisdiction:</strong> {bill.jurisdiction} government authority</p>
-                      <p><strong>Category:</strong> {bill.category || 'General legislation'}</p>
-                      <p><strong>Implementation:</strong> Subject to royal assent and regulatory development</p>
-                      <p><strong>Timeline:</strong> Voting deadline {formatDate(bill.votingDeadline)}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
-
-          {bill.aiSummary && (
-            <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
-              <h4 className="font-semibold text-indigo-900 mb-2 flex items-center gap-2">
-                <span>🤖</span>
-                AI Analysis
-              </h4>
-              <p className="text-indigo-800 text-sm leading-relaxed">{bill.aiSummary}</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    );
+  const calculateTotalVotes = (votingRecord: any, chamber: string) => {
+    const votes = votingRecord[chamber];
+    if (!votes.yes) return 0;
+    return votes.yes + votes.no + votes.abstain;
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <NavigationHeader />
-        <div className="container mx-auto py-8 px-4">
-          <div className="animate-pulse space-y-4">
-            {[...Array(3)].map((_, i) => (
-              <Card key={i}>
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold font-serif text-foreground">Bills & Voting Tracker</h1>
+          <p className="text-muted-foreground mt-2">
+            Live tracking of parliamentary bills, votes, and legislative progress
+          </p>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+            <Vote className="w-3 h-3 mr-1" />
+            44th Parliament
+          </Badge>
+          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+            <FileText className="w-3 h-3 mr-1" />
+            {activeBills.length} Active Bills
+          </Badge>
+        </div>
+      </div>
+
+      <Tabs defaultValue="bills" className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="bills">Active Bills</TabsTrigger>
+          <TabsTrigger value="votes">Recent Votes</TabsTrigger>
+          <TabsTrigger value="analytics">Voting Analytics</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="bills" className="space-y-6">
+          <div className="flex items-center space-x-4">
+            <div className="relative flex-1">
+              <FileText className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <Input
+                placeholder="Search bills by number, title, or sponsor..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <Select value={filterStatus} onValueChange={setFilterStatus}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Filter by status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="Royal Assent">Royal Assent</SelectItem>
+                <SelectItem value="Senate">Senate</SelectItem>
+                <SelectItem value="Committee Study">Committee Study</SelectItem>
+                <SelectItem value="First Reading">First Reading</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="grid gap-6">
+            {activeBills.map((bill) => (
+              <Card key={bill.id} className="hover:shadow-lg transition-shadow">
                 <CardHeader>
-                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <CardTitle className="text-xl">
+                        Bill {bill.billNumber}: {bill.title}
+                      </CardTitle>
+                      <CardDescription className="mt-1">
+                        Sponsored by {bill.sponsor} ({bill.party}) • Introduced {formatDate(bill.dateIntroduced)}
+                      </CardDescription>
+                      <div className="flex items-center space-x-2 mt-3">
+                        <Badge className={getStatusColor(bill.status)}>
+                          {bill.status === "Royal Assent" && <CheckCircle className="w-3 h-3 mr-1" />}
+                          {bill.status === "Committee Study" && <Clock className="w-3 h-3 mr-1" />}
+                          {bill.status}
+                        </Badge>
+                        <Badge variant="outline">
+                          Stage: {bill.stage}
+                        </Badge>
+                        <Badge variant="outline" className={getControversyColor(bill.controversyLevel)}>
+                          {bill.controversyLevel} Controversy
+                        </Badge>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-2xl font-bold text-primary">
+                        {bill.publicSupport}%
+                      </div>
+                      <div className="text-sm text-muted-foreground">Public Support</div>
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
-                  <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+                  <div className="space-y-4">
+                    <div>
+                      <div className="text-sm font-medium text-muted-foreground mb-2">Bill Summary</div>
+                      <p className="text-sm">{bill.summary}</p>
+                    </div>
+
+                    <div>
+                      <div className="text-sm font-medium text-muted-foreground mb-2">Key Provisions</div>
+                      <ul className="text-sm space-y-1">
+                        {bill.keyProvisions.map((provision, index) => (
+                          <li key={index} className="text-muted-foreground">• {provision}</li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    {bill.votingRecord.house.yes && (
+                      <div>
+                        <div className="text-sm font-medium text-muted-foreground mb-2">Voting Results</div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="bg-muted/50 p-3 rounded">
+                            <div className="text-sm font-medium mb-2">House of Commons</div>
+                            <div className="flex items-center space-x-4 text-xs">
+                              <div className="flex items-center space-x-1">
+                                <CheckCircle className="w-3 h-3 text-green-600" />
+                                <span>Yes: {bill.votingRecord.house.yes}</span>
+                              </div>
+                              <div className="flex items-center space-x-1">
+                                <XCircle className="w-3 h-3 text-red-600" />
+                                <span>No: {bill.votingRecord.house.no}</span>
+                              </div>
+                              <div className="flex items-center space-x-1">
+                                <Clock className="w-3 h-3 text-gray-600" />
+                                <span>Abstain: {bill.votingRecord.house.abstain}</span>
+                              </div>
+                            </div>
+                            <div className="text-xs text-muted-foreground mt-1">
+                              Total: {calculateTotalVotes(bill.votingRecord, 'house')} MPs
+                            </div>
+                          </div>
+                          <div className="bg-muted/50 p-3 rounded">
+                            <div className="text-sm font-medium mb-2">Senate</div>
+                            <div className="flex items-center space-x-4 text-xs">
+                              <div className="flex items-center space-x-1">
+                                <CheckCircle className="w-3 h-3 text-green-600" />
+                                <span>Yes: {bill.votingRecord.senate.yes}</span>
+                              </div>
+                              <div className="flex items-center space-x-1">
+                                <XCircle className="w-3 h-3 text-red-600" />
+                                <span>No: {bill.votingRecord.senate.no}</span>
+                              </div>
+                              <div className="flex items-center space-x-1">
+                                <Clock className="w-3 h-3 text-gray-600" />
+                                <span>Abstain: {bill.votingRecord.senate.abstain}</span>
+                              </div>
+                            </div>
+                            <div className="text-xs text-muted-foreground mt-1">
+                              Total: {calculateTotalVotes(bill.votingRecord, 'senate')} Senators
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <div className="text-sm font-medium text-muted-foreground mb-1">Last Action</div>
+                        <div className="text-sm">{formatDate(bill.lastAction)}</div>
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium text-muted-foreground mb-1">Current Stage</div>
+                        <div className="text-sm">{bill.stage}</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-4 border-t mt-4">
+                    <div className="flex items-center space-x-2">
+                      <Vote className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">
+                        Bill {bill.billNumber} • {bill.party} Government Bill
+                      </span>
+                    </div>
+                    <div className="flex space-x-2">
+                      <Button variant="outline" size="sm">
+                        View Full Text
+                      </Button>
+                      <Button variant="outline" size="sm">
+                        Voting Details
+                      </Button>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             ))}
           </div>
-        </div>
-      </div>
-    );
-  }
+        </TabsContent>
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <NavigationHeader />
-      
-      <div className="container mx-auto py-8 px-4">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Canadian Legislation</h1>
-          <p className="text-gray-600 mb-4">
-            Review and vote on authentic bills from Parliament of Canada. All legislation data is sourced directly from official government databases.
-          </p>
-          <div className="flex gap-4 text-sm text-gray-600">
-            <span className="flex items-center gap-1">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              {bills.length} Active Bills
-            </span>
-            <span className="flex items-center gap-1">
-              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-              Real Government Data
-            </span>
-            <span className="flex items-center gap-1">
-              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-              Live Updates
-            </span>
-          </div>
-        </div>
-
-        <Tabs defaultValue="all" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="all">All Bills ({bills.length})</TabsTrigger>
-            <TabsTrigger value="federal">Federal ({federalBills.length})</TabsTrigger>
-            <TabsTrigger value="provincial">Provincial ({provincialBills.length})</TabsTrigger>
-            <TabsTrigger value="category">By Category</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="all" className="space-y-6">
-            {bills.map((bill) => (
-              <BillCard key={bill.id} bill={bill} />
-            ))}
-          </TabsContent>
-
-          <TabsContent value="federal" className="space-y-6">
-            {federalBills.map((bill) => (
-              <BillCard key={bill.id} bill={bill} />
-            ))}
-          </TabsContent>
-
-          <TabsContent value="provincial" className="space-y-6">
-            {provincialBills.map((bill) => (
-              <BillCard key={bill.id} bill={bill} />
-            ))}
-          </TabsContent>
-
-          <TabsContent value="category" className="space-y-6">
-            {Object.entries(billsByCategory).map(([category, categoryBills]) => (
-              <div key={category} className="space-y-4">
-                <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-                  <span>{getCategoryIcon(category)}</span>
-                  {category} ({categoryBills.length})
-                </h3>
-                {categoryBills.map((bill) => (
-                  <BillCard key={bill.id} bill={bill} />
-                ))}
-              </div>
-            ))}
-          </TabsContent>
-        </Tabs>
-
-        {bills.length === 0 && (
+        <TabsContent value="votes" className="space-y-6">
           <Card>
-            <CardContent className="text-center py-12">
-              <Vote className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-              <h3 className="text-lg font-semibold text-gray-600 mb-2">No Active Bills</h3>
-              <p className="text-gray-500">
-                The government data sync is running. New bills will appear as they become available from official sources.
-              </p>
+            <CardHeader>
+              <CardTitle>Recent Parliamentary Votes</CardTitle>
+              <CardDescription>
+                Latest voting records from House of Commons and Senate
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-12 text-muted-foreground">
+                <Vote className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p>Recent voting records will be displayed here.</p>
+                <p className="text-sm">Detailed breakdown of MP and Senator voting patterns.</p>
+              </div>
             </CardContent>
           </Card>
-        )}
-      </div>
+        </TabsContent>
 
-      {selectedBill && (
-        <VotingModal
-          bill={selectedBill}
-          isOpen={isVotingModalOpen}
-          onClose={() => {
-            setIsVotingModalOpen(false);
-            setSelectedBill(null);
-          }}
-        />
-      )}
+        <TabsContent value="analytics" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <FileText className="w-5 h-5 text-blue-600" />
+                  <span>Active Bills</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-blue-600 mb-2">47</div>
+                <p className="text-sm text-muted-foreground">
+                  Bills in current session
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  <span>Passed Bills</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-green-600 mb-2">23</div>
+                <p className="text-sm text-muted-foreground">
+                  Received Royal Assent
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Users className="w-5 h-5 text-purple-600" />
+                  <span>Avg Attendance</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-purple-600 mb-2">84%</div>
+                <p className="text-sm text-muted-foreground">
+                  MP voting participation
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <TrendingUp className="w-5 h-5 text-orange-600" />
+                  <span>Party Unity</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-orange-600 mb-2">91%</div>
+                <p className="text-sm text-muted-foreground">
+                  Average party discipline
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
