@@ -1,421 +1,571 @@
 import { useState } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { useAuth } from "@/hooks/useAuth";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { NavigationHeader } from "@/components/NavigationHeader";
-import { apiRequest, queryClient } from "@/lib/queryClient";
-import { MessageSquare, ThumbsUp, Reply, Shield, AlertCircle, Pin, Users, Clock } from "lucide-react";
-import type { Bill } from "@shared/schema";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
+import { 
+  MessageCircle, 
+  Heart, 
+  Eye, 
+  Plus, 
+  Filter, 
+  TrendingUp,
+  Clock,
+  Users,
+  Flag,
+  Scale,
+  FileText,
+  Building,
+  Map,
+  Megaphone
+} from "lucide-react";
 
-interface Discussion {
+interface ForumPost {
   id: number;
-  billId: number;
-  userId: string;
   title: string;
   content: string;
-  type: string;
-  isVerified: boolean;
-  likesCount: number;
-  repliesCount: number;
-  isPinned: boolean;
+  authorId: string;
+  categoryId: number;
+  billId?: number;
   createdAt: string;
-  user: {
+  updatedAt: string;
+  viewCount: number;
+  isSticky: boolean;
+  isLocked: boolean;
+  replyCount: number;
+  likeCount: number;
+  author?: {
     firstName: string;
-    lastName: string;
-    governmentIdVerified: boolean;
-    verificationLevel: string;
+    email: string;
+    profileImageUrl?: string;
   };
-  bill: {
-    billNumber: string;
+  category?: {
+    name: string;
+    color: string;
+    icon: string;
+  };
+  bill?: {
     title: string;
+    billNumber: string;
   };
 }
 
-interface DiscussionReply {
+interface ForumCategory {
   id: number;
-  discussionId: number;
-  userId: string;
+  name: string;
+  description: string;
+  color: string;
+  icon: string;
+  sortOrder: number;
+  postCount?: number;
+}
+
+interface ForumReply {
+  id: number;
   content: string;
-  isVerified: boolean;
-  likesCount: number;
+  authorId: string;
+  postId: number;
+  parentReplyId?: number;
   createdAt: string;
-  user: {
+  likeCount: number;
+  author?: {
     firstName: string;
-    lastName: string;
-    governmentIdVerified: boolean;
+    email: string;
+    profileImageUrl?: string;
   };
 }
+
+const categoryIcons = {
+  flag: Flag,
+  map: Map,
+  building: Building,
+  scale: Scale,
+  "file-text": FileText,
+  users: Users,
+  "message-circle": MessageCircle
+};
 
 export default function Discussions() {
-  const { user } = useAuth();
-  const [selectedBill, setSelectedBill] = useState<number | null>(null);
-  const [newDiscussion, setNewDiscussion] = useState({ title: "", content: "", type: "general" });
-  const [showNewDiscussion, setShowNewDiscussion] = useState(false);
-  const [selectedDiscussion, setSelectedDiscussion] = useState<number | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<string>("recent");
+  const [showCreatePost, setShowCreatePost] = useState(false);
+  const [selectedPost, setSelectedPost] = useState<ForumPost | null>(null);
+  const [newPost, setNewPost] = useState({
+    title: "",
+    content: "",
+    categoryId: "",
+    billId: ""
+  });
   const [newReply, setNewReply] = useState("");
 
-  const { data: bills = [] } = useQuery<Bill[]>({
-    queryKey: ["/api/bills"],
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  // Fetch forum categories
+  const { data: categories = [] } = useQuery<ForumCategory[]>({
+    queryKey: ["/api/forum/categories"]
   });
 
-  const { data: discussions = [] } = useQuery<Discussion[]>({
-    queryKey: ["/api/discussions", selectedBill],
-    enabled: !!selectedBill,
+  // Fetch forum posts
+  const { data: posts = [], isLoading: postsLoading } = useQuery<ForumPost[]>({
+    queryKey: ["/api/forum/posts", selectedCategory, sortBy],
+    enabled: !!categories.length
   });
 
-  const { data: replies = [] } = useQuery<DiscussionReply[]>({
-    queryKey: ["/api/discussions", selectedDiscussion, "replies"],
-    enabled: !!selectedDiscussion,
+  // Fetch replies for selected post
+  const { data: replies = [] } = useQuery<ForumReply[]>({
+    queryKey: ["/api/forum/replies", selectedPost?.id],
+    enabled: !!selectedPost
   });
 
-  const createDiscussionMutation = useMutation({
-    mutationFn: async (data: any) => {
-      return await apiRequest("/api/discussions", "POST", data);
+  // Create post mutation
+  const createPostMutation = useMutation({
+    mutationFn: async (postData: any) => {
+      return await apiRequest("/api/forum/posts", {
+        method: "POST",
+        body: JSON.stringify(postData)
+      });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/discussions"] });
-      setNewDiscussion({ title: "", content: "", type: "general" });
-      setShowNewDiscussion(false);
+      toast({
+        title: "Success",
+        description: "Your post has been created successfully!"
+      });
+      setShowCreatePost(false);
+      setNewPost({ title: "", content: "", categoryId: "", billId: "" });
+      queryClient.invalidateQueries({ queryKey: ["/api/forum/posts"] });
     },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create post",
+        variant: "destructive"
+      });
+    }
   });
 
+  // Create reply mutation
   const createReplyMutation = useMutation({
-    mutationFn: async (data: any) => {
-      return await apiRequest("/api/discussions/replies", "POST", data);
+    mutationFn: async (replyData: any) => {
+      return await apiRequest("/api/forum/replies", {
+        method: "POST",
+        body: JSON.stringify(replyData)
+      });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/discussions", selectedDiscussion, "replies"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/discussions"] });
+      toast({
+        title: "Success",
+        description: "Your reply has been posted!"
+      });
       setNewReply("");
+      queryClient.invalidateQueries({ queryKey: ["/api/forum/replies"] });
     },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to post reply",
+        variant: "destructive"
+      });
+    }
   });
 
-  const likeMutation = useMutation({
-    mutationFn: async (data: { discussionId?: number; replyId?: number; likeType: string }) => {
-      return await apiRequest("/api/discussions/like", "POST", data);
+  // Like post mutation
+  const likePostMutation = useMutation({
+    mutationFn: async (postId: number) => {
+      return await apiRequest(`/api/forum/posts/${postId}/like`, {
+        method: "POST"
+      });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/discussions"] });
-      if (selectedDiscussion) {
-        queryClient.invalidateQueries({ queryKey: ["/api/discussions", selectedDiscussion, "replies"] });
-      }
-    },
+      queryClient.invalidateQueries({ queryKey: ["/api/forum/posts"] });
+    }
   });
 
-  const handleCreateDiscussion = () => {
-    if (!selectedBill || !newDiscussion.title || !newDiscussion.content) return;
-    
-    createDiscussionMutation.mutate({
-      billId: selectedBill,
-      title: newDiscussion.title,
-      content: newDiscussion.content,
-      type: newDiscussion.type,
+  const handleCreatePost = () => {
+    if (!newPost.title.trim() || !newPost.content.trim() || !newPost.categoryId) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    createPostMutation.mutate({
+      title: newPost.title,
+      content: newPost.content,
+      categoryId: parseInt(newPost.categoryId),
+      billId: newPost.billId ? parseInt(newPost.billId) : undefined
     });
   };
 
   const handleCreateReply = () => {
-    if (!selectedDiscussion || !newReply.trim()) return;
-    
+    if (!newReply.trim() || !selectedPost) {
+      return;
+    }
+
     createReplyMutation.mutate({
-      discussionId: selectedDiscussion,
       content: newReply,
+      postId: selectedPost.id
     });
   };
 
-  const getVerificationBadge = (user: any) => {
-    if (user.governmentIdVerified) {
-      return (
-        <Badge className="bg-green-100 text-green-800 border-green-300">
-          <Shield className="w-3 h-3 mr-1" />
-          ID Verified
-        </Badge>
-      );
-    }
-    return (
-      <Badge className="bg-gray-100 text-gray-600 border-gray-300">
-        <Users className="w-3 h-3 mr-1" />
-        Unverified
-      </Badge>
-    );
+  const handleLikePost = (postId: number) => {
+    likePostMutation.mutate(postId);
   };
 
-  const getDiscussionTypeColor = (type: string) => {
-    switch (type) {
-      case "analysis": return "bg-blue-100 text-blue-800";
-      case "question": return "bg-yellow-100 text-yellow-800";
-      case "debate": return "bg-red-100 text-red-800";
-      default: return "bg-gray-100 text-gray-800";
-    }
+  const getCategoryIcon = (iconName: string) => {
+    const IconComponent = categoryIcons[iconName as keyof typeof categoryIcons] || MessageCircle;
+    return IconComponent;
   };
 
-  const formatTimeAgo = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffTime = now.getTime() - date.getTime();
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
-    const diffMinutes = Math.floor(diffTime / (1000 * 60));
-
-    if (diffDays > 0) return `${diffDays}d ago`;
-    if (diffHours > 0) return `${diffHours}h ago`;
-    if (diffMinutes > 0) return `${diffMinutes}m ago`;
-    return "Just now";
-  };
+  const filteredPosts = posts.filter(post => 
+    selectedCategory === "all" || post.categoryId === parseInt(selectedCategory)
+  );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <NavigationHeader />
-      
-      <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Bill Discussions</h1>
-          <p className="mt-2 text-gray-600">
-            Join verified discussions about legislation. All participants must link their real identity to their posts.
+    <div className="container mx-auto px-4 py-8 max-w-6xl">
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            Community Discussions
+          </h1>
+          <p className="text-gray-600 dark:text-gray-300 mt-2">
+            Engage in meaningful conversations about Canadian politics and civic issues
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Bill Selection Sidebar */}
-          <div className="lg:col-span-1">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Select a Bill</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                {bills.map((bill) => (
+        <Dialog open={showCreatePost} onOpenChange={setShowCreatePost}>
+          <DialogTrigger asChild>
+            <Button className="bg-blue-600 hover:bg-blue-700">
+              <Plus className="h-4 w-4 mr-2" />
+              New Discussion
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Start a New Discussion</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Title</label>
+                <Input
+                  value={newPost.title}
+                  onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
+                  placeholder="Enter discussion title"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Category</label>
+                <Select
+                  value={newPost.categoryId}
+                  onValueChange={(value) => setNewPost({ ...newPost, categoryId: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((category) => (
+                      <SelectItem key={category.id} value={category.id.toString()}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Content</label>
+                <Textarea
+                  value={newPost.content}
+                  onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
+                  placeholder="Share your thoughts..."
+                  rows={6}
+                />
+              </div>
+
+              <div className="flex justify-end space-x-3">
+                <Button variant="outline" onClick={() => setShowCreatePost(false)}>
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={handleCreatePost}
+                  disabled={createPostMutation.isPending}
+                >
+                  {createPostMutation.isPending ? "Creating..." : "Create Discussion"}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        {/* Categories Sidebar */}
+        <div className="lg:col-span-1">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Categories</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <Button
+                variant={selectedCategory === "all" ? "default" : "ghost"}
+                className="w-full justify-start"
+                onClick={() => setSelectedCategory("all")}
+              >
+                <MessageCircle className="h-4 w-4 mr-2" />
+                All Discussions
+              </Button>
+              
+              {categories.map((category) => {
+                const IconComponent = getCategoryIcon(category.icon);
+                return (
                   <Button
-                    key={bill.id}
-                    variant={selectedBill === bill.id ? "default" : "outline"}
-                    className="w-full justify-start text-left h-auto p-3"
-                    onClick={() => setSelectedBill(bill.id)}
+                    key={category.id}
+                    variant={selectedCategory === category.id.toString() ? "default" : "ghost"}
+                    className="w-full justify-start"
+                    onClick={() => setSelectedCategory(category.id.toString())}
                   >
-                    <div>
-                      <div className="font-medium text-sm">{bill.billNumber}</div>
-                      <div className="text-xs text-gray-600 line-clamp-2">{bill.title}</div>
-                    </div>
+                    <IconComponent className="h-4 w-4 mr-2" />
+                    {category.name}
+                    {category.postCount && (
+                      <Badge variant="secondary" className="ml-auto">
+                        {category.postCount}
+                      </Badge>
+                    )}
                   </Button>
-                ))}
-              </CardContent>
-            </Card>
+                );
+              })}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Main Content */}
+        <div className="lg:col-span-3">
+          {/* Filters */}
+          <div className="flex items-center space-x-4 mb-6">
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-48">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="recent">Most Recent</SelectItem>
+                <SelectItem value="popular">Most Popular</SelectItem>
+                <SelectItem value="replies">Most Replies</SelectItem>
+                <SelectItem value="views">Most Views</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
-          {/* Main Discussion Area */}
-          <div className="lg:col-span-3">
-            {selectedBill ? (
-              <div className="space-y-6">
-                {/* New Discussion Form */}
-                {!showNewDiscussion ? (
-                  <Card>
-                    <CardContent className="p-4">
-                      <Button
-                        onClick={() => setShowNewDiscussion(true)}
-                        className="w-full bg-civic-blue hover:bg-civic-blue/90"
-                      >
-                        <MessageSquare className="w-4 h-4 mr-2" />
-                        Start a New Discussion
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ) : (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Start New Discussion</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium mb-2">Discussion Type</label>
-                        <select
-                          value={newDiscussion.type}
-                          onChange={(e) => setNewDiscussion(prev => ({ ...prev, type: e.target.value }))}
-                          className="w-full border border-gray-300 rounded-md px-3 py-2"
-                        >
-                          <option value="general">General Discussion</option>
-                          <option value="analysis">Bill Analysis</option>
-                          <option value="question">Question</option>
-                          <option value="debate">Debate</option>
-                        </select>
-                      </div>
-                      
-                      <Input
-                        placeholder="Discussion title"
-                        value={newDiscussion.title}
-                        onChange={(e) => setNewDiscussion(prev => ({ ...prev, title: e.target.value }))}
-                      />
-                      
-                      <Textarea
-                        placeholder="Share your thoughts on this bill..."
-                        value={newDiscussion.content}
-                        onChange={(e) => setNewDiscussion(prev => ({ ...prev, content: e.target.value }))}
-                        rows={4}
-                      />
-                      
-                      <div className="flex space-x-2">
-                        <Button
-                          onClick={handleCreateDiscussion}
-                          disabled={createDiscussionMutation.isPending}
-                          className="bg-civic-blue hover:bg-civic-blue/90"
-                        >
-                          {createDiscussionMutation.isPending ? "Posting..." : "Post Discussion"}
-                        </Button>
-                        <Button
-                          variant="outline"
-                          onClick={() => setShowNewDiscussion(false)}
-                        >
-                          Cancel
-                        </Button>
-                      </div>
-                      
-                      <div className="text-xs text-gray-500 bg-yellow-50 p-3 rounded-md">
-                        <AlertCircle className="w-4 h-4 inline mr-1" />
-                        Your real name and verification status will be displayed with this post.
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {/* Discussions List */}
-                <div className="space-y-4">
-                  {discussions.map((discussion) => (
-                    <Card key={discussion.id} className="hover:shadow-md transition-shadow">
-                      <CardContent className="p-6">
-                        <div className="flex items-start justify-between mb-3">
-                          <div className="flex items-center space-x-3">
-                            <div className="flex items-center space-x-2">
-                              <Badge className={getDiscussionTypeColor(discussion.type)}>
-                                {discussion.type}
-                              </Badge>
-                              {discussion.isPinned && (
-                                <Pin className="w-4 h-4 text-civic-blue" />
-                              )}
-                            </div>
-                            {getVerificationBadge(discussion.user)}
-                          </div>
-                          <div className="text-sm text-gray-500 flex items-center">
-                            <Clock className="w-4 h-4 mr-1" />
-                            {formatTimeAgo(discussion.createdAt)}
-                          </div>
-                        </div>
-                        
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                          {discussion.title}
-                        </h3>
-                        
-                        <p className="text-gray-700 mb-4 line-clamp-3">
-                          {discussion.content}
-                        </p>
-                        
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-4">
-                            <span className="text-sm text-gray-600">
-                              By {discussion.user.firstName} {discussion.user.lastName}
-                            </span>
-                          </div>
-                          
-                          <div className="flex items-center space-x-4">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => likeMutation.mutate({ discussionId: discussion.id, likeType: "like" })}
-                              className="text-gray-600 hover:text-civic-blue"
-                            >
-                              <ThumbsUp className="w-4 h-4 mr-1" />
-                              {discussion.likesCount}
-                            </Button>
-                            
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => setSelectedDiscussion(
-                                selectedDiscussion === discussion.id ? null : discussion.id
-                              )}
-                              className="text-gray-600 hover:text-civic-blue"
-                            >
-                              <Reply className="w-4 h-4 mr-1" />
-                              {discussion.repliesCount} replies
-                            </Button>
-                          </div>
-                        </div>
-                        
-                        {/* Replies Section */}
-                        {selectedDiscussion === discussion.id && (
-                          <div className="mt-6 border-t pt-6">
-                            <div className="space-y-4 mb-4">
-                              {replies.map((reply) => (
-                                <div key={reply.id} className="bg-gray-50 rounded-lg p-4">
-                                  <div className="flex items-center justify-between mb-2">
-                                    <div className="flex items-center space-x-2">
-                                      <span className="text-sm font-medium">
-                                        {reply.user.firstName} {reply.user.lastName}
-                                      </span>
-                                      {getVerificationBadge(reply.user)}
-                                    </div>
-                                    <div className="text-xs text-gray-500">
-                                      {formatTimeAgo(reply.createdAt)}
-                                    </div>
-                                  </div>
-                                  <p className="text-gray-700 text-sm mb-2">{reply.content}</p>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => likeMutation.mutate({ replyId: reply.id, likeType: "like" })}
-                                    className="text-gray-600 hover:text-civic-blue text-xs"
-                                  >
-                                    <ThumbsUp className="w-3 h-3 mr-1" />
-                                    {reply.likesCount}
-                                  </Button>
-                                </div>
-                              ))}
-                            </div>
-                            
-                            <div className="space-y-3">
-                              <Textarea
-                                placeholder="Write a reply..."
-                                value={newReply}
-                                onChange={(e) => setNewReply(e.target.value)}
-                                rows={3}
-                              />
-                              <Button
-                                onClick={handleCreateReply}
-                                disabled={createReplyMutation.isPending}
-                                size="sm"
-                                className="bg-civic-blue hover:bg-civic-blue/90"
-                              >
-                                {createReplyMutation.isPending ? "Posting..." : "Post Reply"}
-                              </Button>
-                            </div>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  ))}
-                  
-                  {discussions.length === 0 && (
-                    <Card>
-                      <CardContent className="p-8 text-center">
-                        <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">No discussions yet</h3>
-                        <p className="text-gray-600">Be the first to start a discussion about this bill.</p>
-                      </CardContent>
-                    </Card>
-                  )}
-                </div>
+          {/* Posts List */}
+          <div className="space-y-4">
+            {postsLoading ? (
+              <div className="text-center py-8">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <p className="mt-2 text-gray-600 dark:text-gray-300">Loading discussions...</p>
               </div>
-            ) : (
+            ) : filteredPosts.length === 0 ? (
               <Card>
-                <CardContent className="p-8 text-center">
-                  <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">Select a Bill</h3>
-                  <p className="text-gray-600">Choose a bill from the sidebar to view and join discussions.</p>
+                <CardContent className="py-12 text-center">
+                  <MessageCircle className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                    No discussions yet
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-300">
+                    Be the first to start a discussion in this category!
+                  </p>
                 </CardContent>
               </Card>
+            ) : (
+              filteredPosts.map((post) => (
+                <Card 
+                  key={post.id} 
+                  className={`cursor-pointer hover:shadow-md transition-shadow ${
+                    post.isSticky ? 'border-yellow-200 bg-yellow-50 dark:bg-yellow-900/20' : ''
+                  }`}
+                  onClick={() => setSelectedPost(post)}
+                >
+                  <CardContent className="p-6">
+                    <div className="flex items-start space-x-4">
+                      <Avatar>
+                        <AvatarFallback>
+                          {post.author?.firstName?.[0] || post.author?.email?.[0] || '?'}
+                        </AvatarFallback>
+                      </Avatar>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center space-x-2 mb-2">
+                          {post.isSticky && (
+                            <Badge variant="outline" className="text-yellow-600 border-yellow-600">
+                              Sticky
+                            </Badge>
+                          )}
+                          {post.category && (
+                            <Badge 
+                              variant="secondary" 
+                              style={{ backgroundColor: `${post.category.color}20`, color: post.category.color }}
+                            >
+                              {post.category.name}
+                            </Badge>
+                          )}
+                          {post.bill && (
+                            <Badge variant="outline">
+                              {post.bill.billNumber}
+                            </Badge>
+                          )}
+                        </div>
+
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                          {post.title}
+                        </h3>
+
+                        <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-2">
+                          {post.content}
+                        </p>
+
+                        <div className="flex items-center space-x-6 text-sm text-gray-500">
+                          <div className="flex items-center space-x-1">
+                            <span>{post.author?.firstName || post.author?.email?.split('@')[0]}</span>
+                          </div>
+                          
+                          <div className="flex items-center space-x-1">
+                            <Clock className="h-4 w-4" />
+                            <span>{new Date(post.createdAt).toLocaleDateString()}</span>
+                          </div>
+
+                          <div className="flex items-center space-x-1">
+                            <MessageCircle className="h-4 w-4" />
+                            <span>{post.replyCount || 0}</span>
+                          </div>
+
+                          <div className="flex items-center space-x-1">
+                            <Eye className="h-4 w-4" />
+                            <span>{post.viewCount || 0}</span>
+                          </div>
+
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleLikePost(post.id);
+                            }}
+                            className="flex items-center space-x-1 hover:text-red-500 transition-colors"
+                          >
+                            <Heart className="h-4 w-4" />
+                            <span>{post.likeCount || 0}</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
             )}
           </div>
         </div>
-      </main>
+      </div>
+
+      {/* Post Detail Modal */}
+      {selectedPost && (
+        <Dialog open={!!selectedPost} onOpenChange={() => setSelectedPost(null)}>
+          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-xl">{selectedPost.title}</DialogTitle>
+            </DialogHeader>
+
+            <div className="space-y-6">
+              {/* Original Post */}
+              <div className="border-b pb-6">
+                <div className="flex items-start space-x-4">
+                  <Avatar>
+                    <AvatarFallback>
+                      {selectedPost.author?.firstName?.[0] || selectedPost.author?.email?.[0] || '?'}
+                    </AvatarFallback>
+                  </Avatar>
+                  
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <span className="font-medium">
+                        {selectedPost.author?.firstName || selectedPost.author?.email?.split('@')[0]}
+                      </span>
+                      <span className="text-gray-500 text-sm">
+                        {new Date(selectedPost.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                    
+                    <div className="prose dark:prose-invert max-w-none">
+                      <p>{selectedPost.content}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Replies */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">
+                  Replies ({replies.length})
+                </h3>
+
+                {replies.map((reply) => (
+                  <div key={reply.id} className="border-l-2 border-gray-200 pl-4">
+                    <div className="flex items-start space-x-4">
+                      <Avatar>
+                        <AvatarFallback>
+                          {reply.author?.firstName?.[0] || reply.author?.email?.[0] || '?'}
+                        </AvatarFallback>
+                      </Avatar>
+                      
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <span className="font-medium">
+                            {reply.author?.firstName || reply.author?.email?.split('@')[0]}
+                          </span>
+                          <span className="text-gray-500 text-sm">
+                            {new Date(reply.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                        
+                        <p className="text-gray-700 dark:text-gray-300">
+                          {reply.content}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Reply Form */}
+              <div className="border-t pt-6">
+                <h3 className="text-lg font-semibold mb-4">Add a Reply</h3>
+                <div className="space-y-4">
+                  <Textarea
+                    value={newReply}
+                    onChange={(e) => setNewReply(e.target.value)}
+                    placeholder="Share your thoughts..."
+                    rows={4}
+                  />
+                  <div className="flex justify-end">
+                    <Button 
+                      onClick={handleCreateReply}
+                      disabled={createReplyMutation.isPending || !newReply.trim()}
+                    >
+                      {createReplyMutation.isPending ? "Posting..." : "Post Reply"}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }

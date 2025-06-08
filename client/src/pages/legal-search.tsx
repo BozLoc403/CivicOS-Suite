@@ -1,439 +1,504 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Search, Scale, BookOpen, FileText, AlertTriangle, Phone, Globe, MapPin, Clock } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { NavigationHeader } from "@/components/NavigationHeader";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Search, Scale, BookOpen, Gavel, FileText, AlertCircle, ExternalLink } from "lucide-react";
+
+interface CriminalCodeSection {
+  id: number;
+  sectionNumber: string;
+  title: string;
+  offense: string;
+  content: string;
+  maxPenalty: string;
+  minPenalty: string;
+  isSummary: boolean;
+  isIndictable: boolean;
+  isHybrid: boolean;
+  explanationSimple: string;
+  commonExamples: string[];
+  defenses: string[];
+  relatedSections: string[];
+  amendments: Record<string, string>;
+}
+
+interface LegalAct {
+  id: number;
+  title: string;
+  shortTitle: string;
+  actNumber: string;
+  jurisdiction: string;
+  category: string;
+  dateEnacted: string;
+  lastAmended?: string;
+  summary: string;
+  keyProvisions: string[];
+  relatedActs: string[];
+  sourceUrl: string;
+  province?: string;
+}
+
+interface LegalCase {
+  id: number;
+  caseName: string;
+  caseNumber: string;
+  court: string;
+  jurisdiction: string;
+  dateDecided: string;
+  judge: string;
+  parties: Record<string, string>;
+  summary: string;
+  ruling: string;
+  precedentSet: string;
+  keyQuotes: string[];
+  significance: string;
+  sourceUrl: string;
+}
 
 export default function LegalSearch() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeTab, setActiveTab] = useState("criminal-code");
-
-  const { data: criminalCodeSections = [] } = useQuery({
-    queryKey: ["/api/legal/criminal-code"],
+  const [selectedTab, setSelectedTab] = useState("criminal");
+  const [filters, setFilters] = useState({
+    jurisdiction: "",
+    category: "",
+    court: ""
   });
 
-  const { data: lawUpdates = [] } = useQuery({
-    queryKey: ["/api/legal/updates"],
+  // Fetch criminal code sections
+  const { data: criminalCodeSections = [], isLoading: criminalLoading } = useQuery<CriminalCodeSection[]>({
+    queryKey: ["/api/legal/criminal-code", searchQuery],
+    enabled: selectedTab === "criminal"
   });
 
-  const { data: governmentServices = [] } = useQuery({
-    queryKey: ["/api/legal/services"],
+  // Fetch legal acts
+  const { data: legalActs = [], isLoading: actsLoading } = useQuery<LegalAct[]>({
+    queryKey: ["/api/legal/acts", filters.jurisdiction, filters.category, searchQuery],
+    enabled: selectedTab === "acts"
   });
 
-  const filteredCriminalCode = criminalCodeSections.filter((section: any) =>
-    section.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    section.sectionNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    section.summary?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Fetch legal cases
+  const { data: legalCases = [], isLoading: casesLoading } = useQuery<LegalCase[]>({
+    queryKey: ["/api/legal/cases", filters.court, filters.jurisdiction, searchQuery],
+    enabled: selectedTab === "cases"
+  });
 
-  const filteredLawUpdates = lawUpdates.filter((update: any) =>
-    update.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    update.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    update.jurisdiction?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Search across all legal content
+  const { data: searchData, isLoading: searchLoading } = useQuery({
+    queryKey: ["/api/legal/search", searchQuery],
+    enabled: !!searchQuery && selectedTab === "search"
+  });
 
-  const filteredServices = governmentServices.filter((service: any) =>
-    service.serviceName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    service.department?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    service.description?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const handleSearch = () => {
+    if (!searchQuery.trim()) return;
+    setSelectedTab("search");
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-CA', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
 
   return (
-    <div className="min-h-screen bg-background">
-      <NavigationHeader />
-      
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header Section */}
-        <div className="mb-8 bg-gradient-to-br from-civic-blue via-civic-purple to-civic-green text-white p-10 rounded-2xl shadow-2xl border border-white/10 backdrop-blur-sm">
-          <h1 className="text-luxury text-5xl font-bold mb-6 tracking-tight">
-            Legal Research Center
-          </h1>
-          <p className="text-political text-xl text-white/90 leading-relaxed max-w-2xl">
-            Comprehensive legal research with authentic Canadian criminal code, law updates, and government services
-          </p>
-          <div className="flex items-center mt-6 space-x-6">
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-green-400 rounded-full pulse-glow"></div>
-              <span className="text-sm text-white/80">Real-time legal updates</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-blue-400 rounded-full pulse-glow"></div>
-              <span className="text-sm text-white/80">Verified government sources</span>
-            </div>
-          </div>
-        </div>
+    <div className="container mx-auto px-4 py-8 max-w-6xl">
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+          Legal Research Database
+        </h1>
+        <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+          Search through Canadian criminal code, federal acts, provincial legislation, and landmark legal cases
+        </p>
+      </div>
 
-        {/* Search Section */}
-        <Card className="mb-8 shadow-lg border-none glass-card">
-          <CardContent className="p-6">
-            <div className="flex space-x-4">
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input
-                  placeholder="Search criminal code sections, law updates, or government services..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 border-2 focus:border-civic-blue text-political"
-                />
+      {/* Search Bar */}
+      <div className="flex space-x-4 mb-8 max-w-2xl mx-auto">
+        <Input
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search laws, cases, acts..."
+          className="flex-1"
+          onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+        />
+        <Button onClick={handleSearch} className="bg-purple-600 hover:bg-purple-700">
+          <Search className="h-4 w-4 mr-2" />
+          Search
+        </Button>
+      </div>
+
+      <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="criminal">Criminal Code</TabsTrigger>
+          <TabsTrigger value="acts">Federal Acts</TabsTrigger>
+          <TabsTrigger value="cases">Legal Cases</TabsTrigger>
+          <TabsTrigger value="search">Search Results</TabsTrigger>
+          <TabsTrigger value="updates">Updates</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="criminal" className="mt-6">
+          <div className="grid gap-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-2">
+                <Scale className="h-5 w-5 text-purple-600" />
+                <h2 className="text-xl font-semibold">Canadian Criminal Code</h2>
               </div>
-              <Button className="bg-civic-blue hover:bg-civic-blue/90 text-white">
-                <Search className="w-4 h-4 mr-2" />
-                Search
-              </Button>
+              <Badge variant="outline" className="text-sm">
+                {criminalCodeSections.length} sections loaded
+              </Badge>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Main Content Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 bg-muted/50">
-            <TabsTrigger value="criminal-code" className="text-political data-[state=active]:bg-civic-blue data-[state=active]:text-white">
-              <Scale className="w-4 h-4 mr-2" />
-              Criminal Code
-            </TabsTrigger>
-            <TabsTrigger value="law-updates" className="text-political data-[state=active]:bg-civic-green data-[state=active]:text-white">
-              <BookOpen className="w-4 h-4 mr-2" />
-              Law Updates
-            </TabsTrigger>
-            <TabsTrigger value="services" className="text-political data-[state=active]:bg-civic-purple data-[state=active]:text-white">
-              <FileText className="w-4 h-4 mr-2" />
-              Government Services
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="criminal-code" className="space-y-6">
-            <div className="grid gap-6">
-              {filteredCriminalCode.length === 0 ? (
-                <Card className="border-none shadow-lg glass-card">
-                  <CardContent className="p-8 text-center">
-                    <Scale className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                    <h3 className="text-luxury text-lg font-semibold text-foreground mb-2">
-                      {searchQuery ? "No Results Found" : "Criminal Code Sections"}
-                    </h3>
-                    <p className="text-political text-muted-foreground">
-                      {searchQuery 
-                        ? "Try adjusting your search terms to find relevant criminal code sections."
-                        : "Search for specific criminal code sections, offenses, or legal terms."
-                      }
-                    </p>
-                  </CardContent>
-                </Card>
-              ) : (
-                <Accordion type="single" collapsible className="space-y-4">
-                  {filteredCriminalCode.map((section: any) => (
-                    <AccordionItem 
-                      key={section.id} 
-                      value={`section-${section.id}`}
-                      className="border-none shadow-lg rounded-lg glass-card"
-                    >
-                      <AccordionTrigger className="hover:no-underline p-6">
-                        <div className="flex items-start space-x-4">
-                          <Badge variant="outline" className="border-civic-blue text-civic-blue">
-                            Section {section.sectionNumber}
-                          </Badge>
-                          <div className="text-left">
-                            <h3 className="text-luxury text-lg font-semibold text-foreground">
-                              {section.title}
-                            </h3>
-                            {section.summary && (
-                              <p className="text-political text-sm text-muted-foreground mt-1">
-                                {section.summary}
-                              </p>
-                            )}
-                          </div>
+            
+            {criminalLoading ? (
+              <div className="text-center py-8">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+                <p className="mt-2 text-gray-600 dark:text-gray-300">Loading criminal code sections...</p>
+              </div>
+            ) : (
+              <div className="grid gap-4">
+                {criminalCodeSections.map((section) => (
+                  <Card key={section.id} className="hover:shadow-md transition-shadow">
+                    <CardHeader className="pb-3">
+                      <div className="flex justify-between items-start">
+                        <CardTitle className="text-lg">
+                          Section {section.sectionNumber}: {section.title}
+                        </CardTitle>
+                        <Badge variant="outline" className="ml-2">
+                          {section.offense}
+                        </Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-gray-600 dark:text-gray-300 mb-3">
+                        {section.content}
+                      </p>
+                      {section.explanationSimple && (
+                        <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg mb-3">
+                          <p className="text-sm text-blue-800 dark:text-blue-300">
+                            <strong>Simple Explanation:</strong> {section.explanationSimple}
+                          </p>
                         </div>
-                      </AccordionTrigger>
-                      <AccordionContent className="px-6 pb-6">
-                        <div className="space-y-4">
-                          <div>
-                            <h4 className="text-political font-semibold text-foreground mb-2">Full Text</h4>
-                            <p className="text-sm text-muted-foreground leading-relaxed">
-                              {section.fullText}
-                            </p>
-                          </div>
-                          
-                          {section.penalties && (
-                            <div>
-                              <h4 className="text-political font-semibold text-foreground mb-2">Penalties</h4>
-                              <p className="text-sm text-muted-foreground">
-                                {section.penalties}
-                              </p>
-                            </div>
-                          )}
-
-                          {section.recentChanges && (
-                            <div>
-                              <h4 className="text-political font-semibold text-foreground mb-2">Recent Changes</h4>
-                              <p className="text-sm text-muted-foreground">
-                                {section.recentChanges}
-                              </p>
-                            </div>
-                          )}
-
-                          {section.relatedSections && section.relatedSections.length > 0 && (
-                            <div>
-                              <h4 className="text-political font-semibold text-foreground mb-2">Related Sections</h4>
-                              <div className="flex flex-wrap gap-2">
-                                {section.relatedSections.map((related: string, index: number) => (
-                                  <Badge key={index} variant="secondary">
-                                    {related}
-                                  </Badge>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-
-                          <div className="flex items-center text-xs text-muted-foreground">
-                            <Clock className="w-3 h-3 mr-1" />
-                            Last updated: {new Date(section.lastUpdated).toLocaleDateString()}
-                          </div>
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-                  ))}
-                </Accordion>
-              )}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="law-updates" className="space-y-6">
-            <div className="grid gap-6">
-              {filteredLawUpdates.length === 0 ? (
-                <Card className="border-none shadow-lg glass-card">
-                  <CardContent className="p-8 text-center">
-                    <BookOpen className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                    <h3 className="text-luxury text-lg font-semibold text-foreground mb-2">
-                      {searchQuery ? "No Updates Found" : "Recent Law Updates"}
-                    </h3>
-                    <p className="text-political text-muted-foreground">
-                      {searchQuery 
-                        ? "Try adjusting your search terms to find relevant law updates."
-                        : "Recent changes and updates to Canadian federal and provincial laws."
-                      }
-                    </p>
-                  </CardContent>
-                </Card>
-              ) : (
-                filteredLawUpdates.map((update: any) => (
-                  <Card key={update.id} className="border-none shadow-lg hover:shadow-xl transition-all duration-300 glass-card">
-                    <CardContent className="p-6">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex items-center space-x-2">
-                          <Badge 
-                            variant="outline" 
-                            className={`
-                              ${update.jurisdiction === 'federal' ? 'border-civic-blue text-civic-blue' : ''}
-                              ${update.jurisdiction === 'provincial' ? 'border-civic-green text-civic-green' : ''}
-                              ${update.jurisdiction === 'municipal' ? 'border-civic-purple text-civic-purple' : ''}
-                            `}
-                          >
-                            {update.jurisdiction}
+                      )}
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        <Badge variant="secondary" className="text-xs">
+                          Max: {section.maxPenalty}
+                        </Badge>
+                        <Badge variant="secondary" className="text-xs">
+                          Min: {section.minPenalty}
+                        </Badge>
+                        {section.isHybrid && (
+                          <Badge variant="outline" className="text-xs">
+                            Hybrid Offence
                           </Badge>
-                          <Badge variant="secondary">
-                            {update.lawType}
-                          </Badge>
-                          <Badge 
-                            variant={update.changeType === 'new' ? 'default' : 'outline'}
-                            className={update.changeType === 'amended' ? 'border-civic-gold text-civic-gold' : ''}
-                          >
-                            {update.changeType}
-                          </Badge>
-                        </div>
-                        {update.effectiveDate && (
-                          <div className="text-xs text-muted-foreground">
-                            Effective: {new Date(update.effectiveDate).toLocaleDateString()}
-                          </div>
                         )}
                       </div>
+                      {section.commonExamples && section.commonExamples.length > 0 && (
+                        <div className="mt-3">
+                          <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            Common Examples:
+                          </p>
+                          <ul className="text-sm text-gray-600 dark:text-gray-400 list-disc list-inside">
+                            {section.commonExamples.slice(0, 3).map((example, idx) => (
+                              <li key={idx}>{example}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
+        </TabsContent>
 
-                      <h3 className="text-luxury text-xl font-semibold text-foreground mb-3">
-                        {update.title}
-                      </h3>
-
-                      <p className="text-political text-muted-foreground mb-4 leading-relaxed">
-                        {update.description}
+        <TabsContent value="acts" className="mt-6">
+          <div className="grid gap-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-2">
+                <BookOpen className="h-5 w-5 text-purple-600" />
+                <h2 className="text-xl font-semibold">Federal & Provincial Acts</h2>
+              </div>
+              <div className="flex space-x-2">
+                <Select 
+                  value={filters.jurisdiction} 
+                  onValueChange={(value) => setFilters({...filters, jurisdiction: value})}
+                >
+                  <SelectTrigger className="w-48">
+                    <SelectValue placeholder="Filter by jurisdiction" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">All Jurisdictions</SelectItem>
+                    <SelectItem value="federal">Federal</SelectItem>
+                    <SelectItem value="provincial">Provincial</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select 
+                  value={filters.category} 
+                  onValueChange={(value) => setFilters({...filters, category: value})}
+                >
+                  <SelectTrigger className="w-48">
+                    <SelectValue placeholder="Filter by category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">All Categories</SelectItem>
+                    <SelectItem value="constitutional">Constitutional</SelectItem>
+                    <SelectItem value="criminal">Criminal</SelectItem>
+                    <SelectItem value="privacy">Privacy</SelectItem>
+                    <SelectItem value="traffic">Traffic</SelectItem>
+                    <SelectItem value="housing">Housing</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            
+            {actsLoading ? (
+              <div className="text-center py-8">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+                <p className="mt-2 text-gray-600 dark:text-gray-300">Loading legal acts...</p>
+              </div>
+            ) : (
+              <div className="grid gap-4">
+                {legalActs.map((act) => (
+                  <Card key={act.id} className="hover:shadow-md transition-shadow">
+                    <CardHeader className="pb-3">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <CardTitle className="text-lg">{act.title}</CardTitle>
+                          <p className="text-sm text-gray-500 mt-1">{act.actNumber}</p>
+                        </div>
+                        <div className="flex space-x-2">
+                          <Badge variant="outline" className="capitalize">
+                            {act.jurisdiction}
+                          </Badge>
+                          <Badge variant="secondary" className="capitalize">
+                            {act.category}
+                          </Badge>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-gray-600 dark:text-gray-300 mb-3">
+                        {act.summary}
                       </p>
-
-                      {update.summary && (
-                        <div className="mb-4">
-                          <h4 className="text-political font-semibold text-foreground mb-2">Summary</h4>
-                          <p className="text-sm text-muted-foreground">
-                            {update.summary}
-                          </p>
-                        </div>
-                      )}
-
-                      {update.impactAnalysis && (
-                        <div className="mb-4">
-                          <h4 className="text-political font-semibold text-foreground mb-2">Impact Analysis</h4>
-                          <p className="text-sm text-muted-foreground">
-                            {update.impactAnalysis}
-                          </p>
-                        </div>
-                      )}
-
-                      <div className="flex items-center justify-between">
-                        <div className="text-xs text-muted-foreground">
-                          Reference: {update.legalReference}
-                        </div>
-                        {update.sourceUrl && (
-                          <Button variant="outline" size="sm" asChild>
-                            <a href={update.sourceUrl} target="_blank" rel="noopener noreferrer">
-                              <Globe className="w-3 h-3 mr-1" />
-                              View Source
-                            </a>
-                          </Button>
+                      <div className="mb-3">
+                        <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          Key Provisions:
+                        </p>
+                        <ul className="text-sm text-gray-600 dark:text-gray-400 list-disc list-inside">
+                          {act.keyProvisions.slice(0, 3).map((provision, idx) => (
+                            <li key={idx}>{provision}</li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div className="flex justify-between items-center text-sm text-gray-500">
+                        <span>Enacted: {formatDate(act.dateEnacted)}</span>
+                        {act.lastAmended && (
+                          <span>Last Amended: {formatDate(act.lastAmended)}</span>
                         )}
+                        <a 
+                          href={act.sourceUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="flex items-center text-purple-600 hover:text-purple-700"
+                        >
+                          View Source <ExternalLink className="h-3 w-3 ml-1" />
+                        </a>
                       </div>
                     </CardContent>
                   </Card>
-                ))
-              )}
-            </div>
-          </TabsContent>
+                ))}
+              </div>
+            )}
+          </div>
+        </TabsContent>
 
-          <TabsContent value="services" className="space-y-6">
-            <div className="grid gap-6">
-              {filteredServices.length === 0 ? (
-                <Card className="border-none shadow-lg glass-card">
-                  <CardContent className="p-8 text-center">
-                    <FileText className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                    <h3 className="text-luxury text-lg font-semibold text-foreground mb-2">
-                      {searchQuery ? "No Services Found" : "Government Services"}
-                    </h3>
-                    <p className="text-political text-muted-foreground">
-                      {searchQuery 
-                        ? "Try adjusting your search terms to find relevant government services."
-                        : "Comprehensive directory of Canadian government services with contact information."
-                      }
-                    </p>
-                  </CardContent>
-                </Card>
-              ) : (
-                <div className="grid md:grid-cols-2 gap-6">
-                  {filteredServices.map((service: any) => (
-                    <Card key={service.id} className="border-none shadow-lg hover:shadow-xl transition-all duration-300 glass-card">
-                      <CardHeader>
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <CardTitle className="text-luxury text-lg font-semibold text-foreground">
-                              {service.serviceName}
-                            </CardTitle>
-                            <p className="text-political text-sm text-muted-foreground mt-1">
-                              {service.department}
-                            </p>
-                          </div>
-                          <Badge 
-                            variant="outline"
-                            className={`
-                              ${service.jurisdiction === 'federal' ? 'border-civic-blue text-civic-blue' : ''}
-                              ${service.jurisdiction === 'provincial' ? 'border-civic-green text-civic-green' : ''}
-                              ${service.jurisdiction === 'municipal' ? 'border-civic-purple text-civic-purple' : ''}
-                            `}
-                          >
-                            {service.jurisdiction}
+        <TabsContent value="cases" className="mt-6">
+          <div className="grid gap-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-2">
+                <Gavel className="h-5 w-5 text-purple-600" />
+                <h2 className="text-xl font-semibold">Landmark Legal Cases</h2>
+              </div>
+              <Select 
+                value={filters.court} 
+                onValueChange={(value) => setFilters({...filters, court: value})}
+              >
+                <SelectTrigger className="w-64">
+                  <SelectValue placeholder="Filter by court" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">All Courts</SelectItem>
+                  <SelectItem value="Supreme Court of Canada">Supreme Court of Canada</SelectItem>
+                  <SelectItem value="Federal Court">Federal Court</SelectItem>
+                  <SelectItem value="Provincial Court">Provincial Courts</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {casesLoading ? (
+              <div className="text-center py-8">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+                <p className="mt-2 text-gray-600 dark:text-gray-300">Loading legal cases...</p>
+              </div>
+            ) : (
+              <div className="grid gap-4">
+                {legalCases.map((legalCase) => (
+                  <Card key={legalCase.id} className="hover:shadow-md transition-shadow">
+                    <CardHeader className="pb-3">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <CardTitle className="text-lg">{legalCase.caseName}</CardTitle>
+                          <p className="text-sm text-gray-500 mt-1">{legalCase.caseNumber}</p>
+                        </div>
+                        <div className="flex space-x-2">
+                          <Badge variant="outline">
+                            {legalCase.court}
+                          </Badge>
+                          <Badge variant="secondary" className="capitalize">
+                            {legalCase.significance}
                           </Badge>
                         </div>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-political text-sm text-muted-foreground mb-4 leading-relaxed">
-                          {service.description}
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-gray-600 dark:text-gray-300 mb-3">
+                        {legalCase.summary}
+                      </p>
+                      <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg mb-3">
+                        <p className="text-sm text-green-800 dark:text-green-300">
+                          <strong>Precedent Set:</strong> {legalCase.precedentSet}
                         </p>
+                      </div>
+                      <div className="flex justify-between items-center text-sm text-gray-500">
+                        <span>Decided: {formatDate(legalCase.dateDecided)}</span>
+                        <span>Judge: {legalCase.judge}</span>
+                        <a 
+                          href={legalCase.sourceUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="flex items-center text-purple-600 hover:text-purple-700"
+                        >
+                          View Case <ExternalLink className="h-3 w-3 ml-1" />
+                        </a>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
+        </TabsContent>
 
-                        <div className="space-y-3">
-                          {service.phoneNumber && (
-                            <div className="flex items-center space-x-2">
-                              <Phone className="w-4 h-4 text-civic-blue" />
-                              <a 
-                                href={`tel:${service.phoneNumber}`}
-                                className="text-sm text-civic-blue hover:underline"
-                              >
-                                {service.phoneNumber}
-                              </a>
-                            </div>
-                          )}
-
-                          {service.websiteUrl && (
-                            <div className="flex items-center space-x-2">
-                              <Globe className="w-4 h-4 text-civic-green" />
-                              <a 
-                                href={service.websiteUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-sm text-civic-green hover:underline"
-                              >
-                                Visit Website
-                              </a>
-                            </div>
-                          )}
-
-                          {service.physicalAddress && (
-                            <div className="flex items-start space-x-2">
-                              <MapPin className="w-4 h-4 text-civic-purple mt-0.5" />
-                              <span className="text-sm text-muted-foreground">
-                                {service.physicalAddress}
-                              </span>
-                            </div>
-                          )}
-
-                          {service.hoursOfOperation && (
-                            <div className="flex items-start space-x-2">
-                              <Clock className="w-4 h-4 text-civic-gold mt-0.5" />
-                              <span className="text-sm text-muted-foreground">
-                                {service.hoursOfOperation}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-
-                        {service.fees && (
-                          <div className="mt-4 p-3 bg-muted/50 rounded-lg">
-                            <h4 className="text-political font-semibold text-foreground text-sm mb-1">Fees</h4>
-                            <p className="text-xs text-muted-foreground">
-                              {service.fees}
-                            </p>
-                          </div>
-                        )}
-
-                        {service.processingTime && (
-                          <div className="mt-3">
-                            <span className="text-xs text-muted-foreground">
-                              Processing time: {service.processingTime}
-                            </span>
-                          </div>
-                        )}
-
-                        <div className="flex items-center justify-between mt-4">
-                          <div className="flex space-x-2">
-                            {service.onlineAccessible && (
-                              <Badge variant="secondary" className="text-xs">
-                                Online Available
-                              </Badge>
-                            )}
-                            {service.applicationRequired && (
-                              <Badge variant="outline" className="text-xs">
-                                Application Required
-                              </Badge>
-                            )}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            Updated: {new Date(service.lastUpdated).toLocaleDateString()}
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+        <TabsContent value="search" className="mt-6">
+          <div className="grid gap-6">
+            <div className="flex items-center space-x-2 mb-4">
+              <Search className="h-5 w-5 text-purple-600" />
+              <h2 className="text-xl font-semibold">Search Results</h2>
+              {searchQuery && (
+                <Badge variant="outline">
+                  Results for "{searchQuery}"
+                </Badge>
               )}
             </div>
-          </TabsContent>
-        </Tabs>
-      </main>
+            
+            {searchLoading ? (
+              <div className="text-center py-8">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+                <p className="mt-2 text-gray-600 dark:text-gray-300">Searching legal database...</p>
+              </div>
+            ) : searchData ? (
+              <div className="space-y-8">
+                {searchData.criminalCode && searchData.criminalCode.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">Criminal Code Sections</h3>
+                    <div className="grid gap-4">
+                      {searchData.criminalCode.map((section: CriminalCodeSection) => (
+                        <Card key={section.id} className="hover:shadow-md transition-shadow">
+                          <CardContent className="pt-4">
+                            <h4 className="font-medium">Section {section.sectionNumber}: {section.title}</h4>
+                            <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                              {section.content.substring(0, 200)}...
+                            </p>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {searchData.acts && searchData.acts.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">Legal Acts</h3>
+                    <div className="grid gap-4">
+                      {searchData.acts.map((act: LegalAct) => (
+                        <Card key={act.id} className="hover:shadow-md transition-shadow">
+                          <CardContent className="pt-4">
+                            <h4 className="font-medium">{act.title}</h4>
+                            <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                              {act.summary.substring(0, 200)}...
+                            </p>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {searchData.cases && searchData.cases.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">Legal Cases</h3>
+                    <div className="grid gap-4">
+                      {searchData.cases.map((legalCase: LegalCase) => (
+                        <Card key={legalCase.id} className="hover:shadow-md transition-shadow">
+                          <CardContent className="pt-4">
+                            <h4 className="font-medium">{legalCase.caseName}</h4>
+                            <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                              {legalCase.summary.substring(0, 200)}...
+                            </p>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <Search className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                  Enter a search query
+                </h3>
+                <p className="text-gray-600 dark:text-gray-300">
+                  Search through criminal code, acts, and cases to find relevant legal information
+                </p>
+              </div>
+            )}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="updates" className="mt-6">
+          <div className="grid gap-6">
+            <div className="flex items-center space-x-2 mb-4">
+              <AlertCircle className="h-5 w-5 text-purple-600" />
+              <h2 className="text-xl font-semibold">Recent Law Updates</h2>
+            </div>
+            
+            <div className="text-center py-12">
+              <AlertCircle className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                No Recent Updates
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300">
+                Check back regularly for the latest changes to Canadian law
+              </p>
+            </div>
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

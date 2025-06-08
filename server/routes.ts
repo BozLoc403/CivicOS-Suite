@@ -1426,6 +1426,338 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
     });
   });
 
+  // Forum API endpoints
+  app.get("/api/forum/categories", async (req, res) => {
+    try {
+      const categories = await db.select().from(forumCategories).orderBy(forumCategories.sortOrder);
+      res.json(categories);
+    } catch (error) {
+      console.error("Error fetching forum categories:", error);
+      res.status(500).json({ message: "Failed to fetch forum categories" });
+    }
+  });
+
+  app.get("/api/forum/posts", async (req, res) => {
+    try {
+      const { category, sort } = req.query;
+      
+      let query = db.select({
+        id: forumPosts.id,
+        title: forumPosts.title,
+        content: forumPosts.content,
+        authorId: forumPosts.authorId,
+        categoryId: forumPosts.categoryId,
+        billId: forumPosts.billId,
+        createdAt: forumPosts.createdAt,
+        updatedAt: forumPosts.updatedAt,
+        viewCount: forumPosts.viewCount,
+        isSticky: forumPosts.isSticky,
+        isLocked: forumPosts.isLocked,
+        replyCount: forumPosts.replyCount,
+        likeCount: forumPosts.likeCount,
+        author: {
+          firstName: users.firstName,
+          email: users.email,
+          profileImageUrl: users.profileImageUrl
+        },
+        category: {
+          name: forumCategories.name,
+          color: forumCategories.color,
+          icon: forumCategories.icon
+        },
+        bill: {
+          title: bills.title,
+          billNumber: bills.billNumber
+        }
+      })
+      .from(forumPosts)
+      .leftJoin(users, eq(forumPosts.authorId, users.id))
+      .leftJoin(forumCategories, eq(forumPosts.categoryId, forumCategories.id))
+      .leftJoin(bills, eq(forumPosts.billId, bills.id));
+
+      if (category && category !== "all") {
+        query = query.where(eq(forumPosts.categoryId, parseInt(category as string)));
+      }
+
+      const posts = await query.orderBy(desc(forumPosts.createdAt));
+      res.json(posts);
+    } catch (error) {
+      console.error("Error fetching forum posts:", error);
+      res.status(500).json({ message: "Failed to fetch forum posts" });
+    }
+  });
+
+  app.post("/api/forum/posts", isAuthenticated, async (req: any, res) => {
+    try {
+      const { title, content, categoryId, billId } = req.body;
+      const userId = req.user.claims.sub;
+
+      const [post] = await db.insert(forumPosts).values({
+        authorId: userId,
+        title,
+        content,
+        categoryId,
+        billId: billId || null
+      }).returning();
+
+      res.json(post);
+    } catch (error) {
+      console.error("Error creating forum post:", error);
+      res.status(500).json({ message: "Failed to create post" });
+    }
+  });
+
+  app.get("/api/forum/replies/:postId", async (req, res) => {
+    try {
+      const postId = parseInt(req.params.postId);
+      
+      const replies = await db.select({
+        id: forumReplies.id,
+        content: forumReplies.content,
+        authorId: forumReplies.authorId,
+        postId: forumReplies.postId,
+        parentReplyId: forumReplies.parentReplyId,
+        createdAt: forumReplies.createdAt,
+        likeCount: forumReplies.likeCount,
+        author: {
+          firstName: users.firstName,
+          email: users.email,
+          profileImageUrl: users.profileImageUrl
+        }
+      })
+      .from(forumReplies)
+      .leftJoin(users, eq(forumReplies.authorId, users.id))
+      .where(eq(forumReplies.postId, postId))
+      .orderBy(forumReplies.createdAt);
+
+      res.json(replies);
+    } catch (error) {
+      console.error("Error fetching forum replies:", error);
+      res.status(500).json({ message: "Failed to fetch replies" });
+    }
+  });
+
+  app.post("/api/forum/replies", isAuthenticated, async (req: any, res) => {
+    try {
+      const { content, postId, parentReplyId } = req.body;
+      const userId = req.user.claims.sub;
+
+      const [reply] = await db.insert(forumReplies).values({
+        authorId: userId,
+        content,
+        postId,
+        parentReplyId: parentReplyId || null
+      }).returning();
+
+      // Update reply count on the post
+      await db.update(forumPosts)
+        .set({ replyCount: sql`${forumPosts.replyCount} + 1` })
+        .where(eq(forumPosts.id, postId));
+
+      res.json(reply);
+    } catch (error) {
+      console.error("Error creating forum reply:", error);
+      res.status(500).json({ message: "Failed to create reply" });
+    }
+  });
+
+  app.post("/api/forum/posts/:id/like", isAuthenticated, async (req: any, res) => {
+    try {
+      const postId = parseInt(req.params.id);
+      const userId = req.user.claims.sub;
+
+      // Check if already liked
+      const existingLike = await db.select()
+        .from(forumLikes)
+        .where(and(
+          eq(forumLikes.postId, postId),
+          eq(forumLikes.userId, userId)
+        ));
+
+      if (existingLike.length > 0) {
+        // Remove like
+        await db.delete(forumLikes)
+          .where(and(
+            eq(forumLikes.postId, postId),
+            eq(forumLikes.userId, userId)
+          ));
+        
+        await db.update(forumPosts)
+          .set({ likeCount: sql`${forumPosts.likeCount} - 1` })
+          .where(eq(forumPosts.id, postId));
+      } else {
+        // Add like
+        await db.insert(forumLikes).values({
+          userId,
+          postId,
+          type: "like"
+        });
+        
+        await db.update(forumPosts)
+          .set({ likeCount: sql`${forumPosts.likeCount} + 1` })
+          .where(eq(forumPosts.id, postId));
+      }
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error toggling post like:", error);
+      res.status(500).json({ message: "Failed to toggle like" });
+    }
+  });
+
+  // Legal Research API endpoints
+  app.get("/api/legal/criminal-code", async (req, res) => {
+    try {
+      const { search, section } = req.query;
+      
+      let query = db.select().from(criminalCodeSections);
+      
+      if (section) {
+        query = query.where(eq(criminalCodeSections.sectionNumber, section as string));
+      } else if (search) {
+        query = query.where(
+          or(
+            ilike(criminalCodeSections.title, `%${search}%`),
+            ilike(criminalCodeSections.content, `%${search}%`),
+            ilike(criminalCodeSections.offense, `%${search}%`)
+          )
+        );
+      }
+      
+      const sections = await query.orderBy(criminalCodeSections.sectionNumber);
+      res.json(sections);
+    } catch (error) {
+      console.error("Error fetching criminal code sections:", error);
+      res.status(500).json({ message: "Failed to fetch criminal code sections" });
+    }
+  });
+
+  app.get("/api/legal/acts", async (req, res) => {
+    try {
+      const { jurisdiction, category, search } = req.query;
+      
+      let query = db.select().from(legalActs);
+      
+      const conditions = [];
+      if (jurisdiction) {
+        conditions.push(eq(legalActs.jurisdiction, jurisdiction as string));
+      }
+      if (category) {
+        conditions.push(eq(legalActs.category, category as string));
+      }
+      if (search) {
+        conditions.push(
+          or(
+            ilike(legalActs.title, `%${search}%`),
+            ilike(legalActs.summary, `%${search}%`)
+          )
+        );
+      }
+      
+      if (conditions.length > 0) {
+        query = query.where(and(...conditions));
+      }
+      
+      const acts = await query.orderBy(legalActs.dateEnacted);
+      res.json(acts);
+    } catch (error) {
+      console.error("Error fetching legal acts:", error);
+      res.status(500).json({ message: "Failed to fetch legal acts" });
+    }
+  });
+
+  app.get("/api/legal/cases", async (req, res) => {
+    try {
+      const { court, jurisdiction, search } = req.query;
+      
+      let query = db.select().from(legalCases);
+      
+      const conditions = [];
+      if (court) {
+        conditions.push(eq(legalCases.court, court as string));
+      }
+      if (jurisdiction) {
+        conditions.push(eq(legalCases.jurisdiction, jurisdiction as string));
+      }
+      if (search) {
+        conditions.push(
+          or(
+            ilike(legalCases.caseName, `%${search}%`),
+            ilike(legalCases.summary, `%${search}%`)
+          )
+        );
+      }
+      
+      if (conditions.length > 0) {
+        query = query.where(and(...conditions));
+      }
+      
+      const cases = await query.orderBy(desc(legalCases.dateDecided));
+      res.json(cases);
+    } catch (error) {
+      console.error("Error fetching legal cases:", error);
+      res.status(500).json({ message: "Failed to fetch legal cases" });
+    }
+  });
+
+  app.get("/api/legal/search", async (req, res) => {
+    try {
+      const { query: searchQuery, type } = req.query;
+      
+      if (!searchQuery) {
+        return res.status(400).json({ message: "Search query is required" });
+      }
+
+      const results = {
+        criminalCode: [],
+        acts: [],
+        cases: []
+      };
+
+      if (!type || type === "criminal") {
+        results.criminalCode = await db.select()
+          .from(criminalCodeSections)
+          .where(
+            or(
+              ilike(criminalCodeSections.title, `%${searchQuery}%`),
+              ilike(criminalCodeSections.content, `%${searchQuery}%`),
+              ilike(criminalCodeSections.offense, `%${searchQuery}%`)
+            )
+          )
+          .limit(10);
+      }
+
+      if (!type || type === "acts") {
+        results.acts = await db.select()
+          .from(legalActs)
+          .where(
+            or(
+              ilike(legalActs.title, `%${searchQuery}%`),
+              ilike(legalActs.summary, `%${searchQuery}%`)
+            )
+          )
+          .limit(10);
+      }
+
+      if (!type || type === "cases") {
+        results.cases = await db.select()
+          .from(legalCases)
+          .where(
+            or(
+              ilike(legalCases.caseName, `%${searchQuery}%`),
+              ilike(legalCases.summary, `%${searchQuery}%`)
+            )
+          )
+          .limit(10);
+      }
+
+      res.json(results);
+    } catch (error) {
+      console.error("Error performing legal search:", error);
+      res.status(500).json({ message: "Failed to perform legal search" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
