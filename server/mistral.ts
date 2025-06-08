@@ -67,7 +67,16 @@ export class MistralAI {
         max_tokens: 1000
       });
 
-      const analysis = JSON.parse(response.choices[0].message.content);
+      let responseText = response.choices[0].message.content;
+      
+      // Clean the response text to extract JSON
+      if (responseText.includes('```json')) {
+        responseText = responseText.split('```json')[1].split('```')[0].trim();
+      } else if (responseText.includes('```')) {
+        responseText = responseText.split('```')[1].split('```')[0].trim();
+      }
+      
+      const analysis = JSON.parse(responseText);
       return {
         isAuthentic: analysis.isAuthentic || false,
         credibilityScore: Math.max(0, Math.min(100, analysis.credibilityScore || 50)),
@@ -113,7 +122,16 @@ export class MistralAI {
         max_tokens: 2000
       });
 
-      const result = JSON.parse(response.choices[0].message.content);
+      let responseText = response.choices[0].message.content;
+      
+      // Clean the response text to extract JSON
+      if (responseText.includes('```json')) {
+        responseText = responseText.split('```json')[1].split('```')[0].trim();
+      } else if (responseText.includes('```')) {
+        responseText = responseText.split('```')[1].split('```')[0].trim();
+      }
+      
+      const result = JSON.parse(responseText);
       return {
         simplifiedContent: result.simplifiedContent || content,
         keyPoints: result.keyPoints || [],
@@ -159,7 +177,16 @@ export class MistralAI {
         max_tokens: 1500
       });
 
-      const controversies = JSON.parse(response.choices[0].message.content);
+      let responseText = response.choices[0].message.content;
+      
+      // Clean the response text to extract JSON
+      if (responseText.includes('```json')) {
+        responseText = responseText.split('```json')[1].split('```')[0].trim();
+      } else if (responseText.includes('```')) {
+        responseText = responseText.split('```')[1].split('```')[0].trim();
+      }
+      
+      const controversies = JSON.parse(responseText);
       return Array.isArray(controversies) ? controversies : [];
     } catch (error) {
       console.error('Mistral controversy analysis error:', error);
@@ -192,7 +219,16 @@ export class MistralAI {
         max_tokens: 500
       });
 
-      const analysis = JSON.parse(response.choices[0].message.content);
+      let responseText = response.choices[0].message.content;
+      
+      // Clean the response text to extract JSON
+      if (responseText.includes('```json')) {
+        responseText = responseText.split('```json')[1].split('```')[0].trim();
+      } else if (responseText.includes('```')) {
+        responseText = responseText.split('```')[1].split('```')[0].trim();
+      }
+      
+      const analysis = JSON.parse(responseText);
       return {
         sentiment: analysis.sentiment || 'neutral',
         confidence: Math.max(0, Math.min(1, analysis.confidence || 0.5)),
@@ -234,7 +270,16 @@ export class MistralAI {
         max_tokens: 1500
       });
 
-      const analysis = JSON.parse(response.choices[0].message.content);
+      let responseText = response.choices[0].message.content;
+      
+      // Clean the response text to extract JSON
+      if (responseText.includes('```json')) {
+        responseText = responseText.split('```json')[1].split('```')[0].trim();
+      } else if (responseText.includes('```')) {
+        responseText = responseText.split('```')[1].split('```')[0].trim();
+      }
+      
+      const analysis = JSON.parse(responseText);
       return {
         summary: analysis.summary || 'Summary unavailable',
         keyPoints: analysis.keyPoints || [],
