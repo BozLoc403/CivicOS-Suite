@@ -69,16 +69,28 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <NavigationHeader />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            Welcome back, {user?.firstName || "Citizen"}
-          </h2>
-          <p className="text-gray-600">Your voice matters. Stay informed and participate in democracy.</p>
+        <div className="mb-8 bg-gradient-to-br from-civic-green via-civic-blue to-civic-purple text-white p-10 rounded-2xl shadow-2xl border border-white/10 backdrop-blur-sm">
+          <h1 className="text-luxury text-5xl font-bold mb-6 tracking-tight">
+            Welcome to CivicOS
+          </h1>
+          <p className="text-political text-xl text-white/90 leading-relaxed max-w-2xl">
+            Your comprehensive platform for transparent democracy and civic engagement with authentic government data
+          </p>
+          <div className="flex items-center mt-6 space-x-6">
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-green-400 rounded-full pulse-glow"></div>
+              <span className="text-sm text-white/80">Real-time data monitoring</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-blue-400 rounded-full pulse-glow"></div>
+              <span className="text-sm text-white/80">15,412+ verified officials</span>
+            </div>
+          </div>
         </div>
 
         {/* Stats Overview */}
