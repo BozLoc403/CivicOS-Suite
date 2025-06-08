@@ -168,7 +168,8 @@ export function RevolutionaryDashboard() {
 
 // Individual Widget Components
 function PoliticiansWidget({ data, searchQuery }: { data: any[], searchQuery: string }) {
-  const filteredData = data.filter(p => 
+  const validData = Array.isArray(data) ? data : [];
+  const filteredData = validData.filter(p => 
     p.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     p.party?.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -222,7 +223,8 @@ function PoliticiansWidget({ data, searchQuery }: { data: any[], searchQuery: st
 }
 
 function BillsWidget({ data, searchQuery }: { data: any[], searchQuery: string }) {
-  const filteredData = data.filter(b => 
+  const validData = Array.isArray(data) ? data : [];
+  const filteredData = validData.filter(b => 
     b.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     b.billNumber?.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -274,7 +276,8 @@ function BillsWidget({ data, searchQuery }: { data: any[], searchQuery: string }
 }
 
 function NewsWidget({ data, searchQuery }: { data: any[], searchQuery: string }) {
-  const filteredData = data.filter(n => 
+  const validData = Array.isArray(data) ? data : [];
+  const filteredData = validData.filter(n => 
     n.title?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 

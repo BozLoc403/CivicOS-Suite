@@ -1,933 +1,372 @@
-import cheerio from 'cheerio';
-import fetch from 'node-fetch';
-import { parseStringPromise } from 'xml2js';
-import { db } from './db';
-import { newsArticles, newsOutlets, newsComparisons } from '@shared/schema';
-import { openaiNewsAnalyzer } from './openaiNewsAnalyzer';
+import OpenAI from "openai";
+import { db } from "./db";
+import { newsArticles } from "@shared/schema";
+import { desc } from "drizzle-orm";
+import * as cheerio from "cheerio";
+
+// the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 interface NewsSource {
-  id: string;
   name: string;
-  website: string;
-  rssFeeds: string[];
-  bias: 'left' | 'center' | 'right';
-  credibilityScore: number;
-  type: 'mainstream' | 'alternative' | 'government' | 'independent';
-  region: string;
-  language: 'en' | 'fr' | 'bilingual';
+  url: string;
+  rssUrl: string;
+  selectors: {
+    title: string[];
+    content: string[];
+    author: string[];
+    publishDate: string[];
+  };
 }
 
-interface ProcessedArticle {
+interface AnalyzedArticle {
   title: string;
-  url: string;
   content: string;
+  url: string;
+  author: string;
   publishedAt: Date;
   source: string;
-  author?: string;
-  bias: string;
   credibilityScore: number;
-  politicalTopics: string[];
-  mentioned_politicians: string[];
-  mentioned_bills: string[];
-  sentiment: number;
-  factualityScore: number;
-  propagandaTechniques: string[];
+  sentimentScore: number;
+  biasRating: string;
+  keyTopics: string[];
+  politicalImpact: number;
+  factCheck: string;
+  summary: string;
+  publicImpact: number;
 }
 
 /**
- * Revolutionary News Aggregation System
- * Monitors 50+ Canadian news sources for comprehensive political coverage
+ * Revolutionary news aggregator using OpenAI for Canadian political intelligence
  */
 export class RevolutionaryNewsAggregator {
   private newsSources: NewsSource[] = [
-    // MAJOR NATIONAL OUTLETS
     {
-      id: 'cbc',
-      name: 'CBC News',
-      website: 'https://www.cbc.ca',
-      rssFeeds: [
-        'https://www.cbc.ca/cmlink/rss-politics',
-        'https://www.cbc.ca/cmlink/rss-canada',
-        'https://www.cbc.ca/cmlink/rss-topstories'
-      ],
-      bias: 'center',
-      credibilityScore: 85,
-      type: 'government',
-      region: 'National',
-      language: 'bilingual'
+      name: "CBC News",
+      url: "https://www.cbc.ca",
+      rssUrl: "https://www.cbc.ca/cmlink/rss-canada",
+      selectors: {
+        title: [".headline", ".story-headline", "h1"],
+        content: [".story-content", ".content", ".article-content"],
+        author: [".author", ".byline", ".story-author"],
+        publishDate: [".timestamp", ".story-date", "time"]
+      }
     },
     {
-      id: 'ctv',
-      name: 'CTV News',
-      website: 'https://www.ctvnews.ca',
-      rssFeeds: [
-        'https://www.ctvnews.ca/rss/politics',
-        'https://www.ctvnews.ca/rss/canada',
-        'https://www.ctvnews.ca/rss/ctvnews-ca-top-stories-public-rss-1.822009'
-      ],
-      bias: 'center',
-      credibilityScore: 82,
-      type: 'mainstream',
-      region: 'National',
-      language: 'en'
+      name: "Global News",
+      url: "https://globalnews.ca",
+      rssUrl: "https://globalnews.ca/feed/",
+      selectors: {
+        title: [".c-posts__headline", ".entry-title", "h1"],
+        content: [".l-article__text", ".entry-content", ".article-content"],
+        author: [".c-byline__author", ".author", ".byline"],
+        publishDate: [".c-byline__date", ".entry-date", "time"]
+      }
     },
     {
-      id: 'global',
-      name: 'Global News',
-      website: 'https://globalnews.ca',
-      rssFeeds: [
-        'https://globalnews.ca/politics/feed/',
-        'https://globalnews.ca/canada/feed/',
-        'https://globalnews.ca/feed/'
-      ],
-      bias: 'center',
-      credibilityScore: 80,
-      type: 'mainstream',
-      region: 'National',
-      language: 'en'
-    },
-    {
-      id: 'nationalpost',
-      name: 'National Post',
-      website: 'https://nationalpost.com',
-      rssFeeds: [
-        'https://nationalpost.com/category/news/politics/feed',
-        'https://nationalpost.com/category/news/canada/feed',
-        'https://nationalpost.com/feed'
-      ],
-      bias: 'right',
-      credibilityScore: 78,
-      type: 'mainstream',
-      region: 'National',
-      language: 'en'
-    },
-    {
-      id: 'globemail',
-      name: 'The Globe and Mail',
-      website: 'https://www.theglobeandmail.com',
-      rssFeeds: [
-        'https://www.theglobeandmail.com/politics/?service=rss',
-        'https://www.theglobeandmail.com/canada/?service=rss'
-      ],
-      bias: 'center',
-      credibilityScore: 88,
-      type: 'mainstream',
-      region: 'National',
-      language: 'en'
-    },
-    {
-      id: 'torontostar',
-      name: 'Toronto Star',
-      website: 'https://www.thestar.com',
-      rssFeeds: [
-        'https://www.thestar.com/politics.rss',
-        'https://www.thestar.com/news/canada.rss'
-      ],
-      bias: 'left',
-      credibilityScore: 75,
-      type: 'mainstream',
-      region: 'Ontario',
-      language: 'en'
-    },
-    {
-      id: 'ipolitics',
-      name: 'iPolitics',
-      website: 'https://ipolitics.ca',
-      rssFeeds: [
-        'https://ipolitics.ca/feed/',
-        'https://ipolitics.ca/category/politics/feed/'
-      ],
-      bias: 'center',
-      credibilityScore: 82,
-      type: 'independent',
-      region: 'National',
-      language: 'en'
-    },
-    {
-      id: 'hilltimes',
-      name: 'The Hill Times',
-      website: 'https://www.hilltimes.com',
-      rssFeeds: [
-        'https://www.hilltimes.com/feed/'
-      ],
-      bias: 'center',
-      credibilityScore: 85,
-      type: 'independent',
-      region: 'National',
-      language: 'en'
-    },
-    {
-      id: 'canadaland',
-      name: 'Canadaland',
-      website: 'https://www.canadaland.com',
-      rssFeeds: [
-        'https://www.canadaland.com/feed/'
-      ],
-      bias: 'left',
-      credibilityScore: 70,
-      type: 'independent',
-      region: 'National',
-      language: 'en'
-    },
-
-    // FRENCH LANGUAGE OUTLETS
-    {
-      id: 'radiocanada',
-      name: 'Radio-Canada',
-      website: 'https://ici.radio-canada.ca',
-      rssFeeds: [
-        'https://ici.radio-canada.ca/rss/4159',
-        'https://ici.radio-canada.ca/rss/4169'
-      ],
-      bias: 'center',
-      credibilityScore: 85,
-      type: 'government',
-      region: 'National',
-      language: 'fr'
-    },
-    {
-      id: 'lapresse',
-      name: 'La Presse',
-      website: 'https://www.lapresse.ca',
-      rssFeeds: [
-        'https://www.lapresse.ca/actualites/politique/rss'
-      ],
-      bias: 'center',
-      credibilityScore: 83,
-      type: 'mainstream',
-      region: 'Quebec',
-      language: 'fr'
-    },
-    {
-      id: 'ledevoir',
-      name: 'Le Devoir',
-      website: 'https://www.ledevoir.com',
-      rssFeeds: [
-        'https://www.ledevoir.com/rss/section/politique.xml'
-      ],
-      bias: 'left',
-      credibilityScore: 80,
-      type: 'independent',
-      region: 'Quebec',
-      language: 'fr'
-    },
-    {
-      id: 'journaldemontreal',
-      name: 'Journal de Montréal',
-      website: 'https://www.journaldemontreal.com',
-      rssFeeds: [
-        'https://www.journaldemontreal.com/rss.xml'
-      ],
-      bias: 'right',
-      credibilityScore: 65,
-      type: 'mainstream',
-      region: 'Quebec',
-      language: 'fr'
-    },
-
-    // REGIONAL OUTLETS
-    {
-      id: 'vancouversun',
-      name: 'Vancouver Sun',
-      website: 'https://vancouversun.com',
-      rssFeeds: [
-        'https://vancouversun.com/category/news/politics/feed',
-        'https://vancouversun.com/category/news/local-news/feed'
-      ],
-      bias: 'center',
-      credibilityScore: 75,
-      type: 'mainstream',
-      region: 'British Columbia',
-      language: 'en'
-    },
-    {
-      id: 'calgaryherald',
-      name: 'Calgary Herald',
-      website: 'https://calgaryherald.com',
-      rssFeeds: [
-        'https://calgaryherald.com/category/news/politics/feed',
-        'https://calgaryherald.com/category/news/local-news/feed'
-      ],
-      bias: 'center',
-      credibilityScore: 73,
-      type: 'mainstream',
-      region: 'Alberta',
-      language: 'en'
-    },
-    {
-      id: 'edmontonjournal',
-      name: 'Edmonton Journal',
-      website: 'https://edmontonjournal.com',
-      rssFeeds: [
-        'https://edmontonjournal.com/category/news/politics/feed'
-      ],
-      bias: 'center',
-      credibilityScore: 73,
-      type: 'mainstream',
-      region: 'Alberta',
-      language: 'en'
-    },
-    {
-      id: 'winnipegfreepress',
-      name: 'Winnipeg Free Press',
-      website: 'https://www.winnipegfreepress.com',
-      rssFeeds: [
-        'https://www.winnipegfreepress.com/rss/?path=local'
-      ],
-      bias: 'center',
-      credibilityScore: 78,
-      type: 'mainstream',
-      region: 'Manitoba',
-      language: 'en'
-    },
-    {
-      id: 'leaderpost',
-      name: 'Regina Leader-Post',
-      website: 'https://leaderpost.com',
-      rssFeeds: [
-        'https://leaderpost.com/category/news/politics/feed'
-      ],
-      bias: 'center',
-      credibilityScore: 72,
-      type: 'mainstream',
-      region: 'Saskatchewan',
-      language: 'en'
-    },
-    {
-      id: 'thechronicleherald',
-      name: 'The Chronicle Herald',
-      website: 'https://www.saltwire.com',
-      rssFeeds: [
-        'https://www.saltwire.com/feed/'
-      ],
-      bias: 'center',
-      credibilityScore: 70,
-      type: 'mainstream',
-      region: 'Nova Scotia',
-      language: 'en'
-    },
-
-    // SPECIALIZED POLITICAL OUTLETS
-    {
-      id: 'blacklocks',
-      name: "Blacklock's Reporter",
-      website: 'https://www.blacklocks.ca',
-      rssFeeds: [
-        'https://www.blacklocks.ca/feed/'
-      ],
-      bias: 'center',
-      credibilityScore: 85,
-      type: 'independent',
-      region: 'National',
-      language: 'en'
-    },
-    {
-      id: 'policyoptions',
-      name: 'Policy Options',
-      website: 'https://policyoptions.irpp.org',
-      rssFeeds: [
-        'https://policyoptions.irpp.org/feed/'
-      ],
-      bias: 'center',
-      credibilityScore: 88,
-      type: 'independent',
-      region: 'National',
-      language: 'bilingual'
-    },
-    {
-      id: 'canadianpress',
-      name: 'The Canadian Press',
-      website: 'https://www.thecanadianpress.com',
-      rssFeeds: [
-        'https://www.thecanadianpress.com/feed/'
-      ],
-      bias: 'center',
-      credibilityScore: 90,
-      type: 'independent',
-      region: 'National',
-      language: 'bilingual'
-    },
-
-    // ALTERNATIVE AND INDEPENDENT MEDIA
-    {
-      id: 'nationalobserver',
-      name: 'National Observer',
-      website: 'https://www.nationalobserver.com',
-      rssFeeds: [
-        'https://www.nationalobserver.com/feed'
-      ],
-      bias: 'left',
-      credibilityScore: 75,
-      type: 'independent',
-      region: 'National',
-      language: 'en'
-    },
-    {
-      id: 'truenorth',
-      name: 'True North',
-      website: 'https://tnc.news',
-      rssFeeds: [
-        'https://tnc.news/feed/'
-      ],
-      bias: 'right',
-      credibilityScore: 60,
-      type: 'alternative',
-      region: 'National',
-      language: 'en'
-    },
-    {
-      id: 'thetyee',
-      name: 'The Tyee',
-      website: 'https://thetyee.ca',
-      rssFeeds: [
-        'https://thetyee.ca/rss2.xml'
-      ],
-      bias: 'left',
-      credibilityScore: 72,
-      type: 'independent',
-      region: 'British Columbia',
-      language: 'en'
-    },
-    {
-      id: 'westernstandard',
-      name: 'Western Standard',
-      website: 'https://www.westernstandard.news',
-      rssFeeds: [
-        'https://www.westernstandard.news/feed/'
-      ],
-      bias: 'right',
-      credibilityScore: 55,
-      type: 'alternative',
-      region: 'Western Canada',
-      language: 'en'
-    },
-
-    // GOVERNMENT SOURCES
-    {
-      id: 'cpac',
-      name: 'CPAC',
-      website: 'https://www.cpac.ca',
-      rssFeeds: [
-        'https://www.cpac.ca/en/feed/'
-      ],
-      bias: 'center',
-      credibilityScore: 92,
-      type: 'government',
-      region: 'National',
-      language: 'bilingual'
-    },
-    {
-      id: 'parl_hill_times',
-      name: 'Parliament Hill Times',
-      website: 'https://www.hilltimes.com',
-      rssFeeds: [
-        'https://www.hilltimes.com/category/politics/feed/'
-      ],
-      bias: 'center',
-      credibilityScore: 85,
-      type: 'independent',
-      region: 'National',
-      language: 'en'
+      name: "Toronto Star",
+      url: "https://www.thestar.com",
+      rssUrl: "https://www.thestar.com/news.rss",
+      selectors: {
+        title: [".headline", ".story-headline", "h1"],
+        content: [".story-content", ".article-body", ".content"],
+        author: [".author-name", ".byline", ".author"],
+        publishDate: [".story-date", ".timestamp", "time"]
+      }
     }
   ];
 
   /**
-   * Perform comprehensive news aggregation from all sources
+   * Perform comprehensive news aggregation with OpenAI analysis
    */
   async performComprehensiveAggregation(): Promise<void> {
-    console.log('🚀 Starting revolutionary news aggregation from 50+ sources...');
-    
-    // First, update news outlets in database
-    await this.updateNewsOutlets();
-    
-    const allArticles: ProcessedArticle[] = [];
+    console.log("Starting revolutionary news aggregation...");
     
     for (const source of this.newsSources) {
       try {
-        console.log(`📰 Aggregating from ${source.name}...`);
-        
-        const articles = await this.aggregateFromSource(source);
-        allArticles.push(...articles);
-        
-        console.log(`✅ Collected ${articles.length} articles from ${source.name}`);
-        
-        // Rate limiting
-        await this.delay(2000);
-        
+        await this.processNewsSource(source);
+        await this.delay(2000); // Respectful delay
       } catch (error) {
-        console.error(`❌ Error aggregating from ${source.name}:`, error.message);
-        continue;
-      }
-    }
-
-    // Store all articles
-    await this.storeArticles(allArticles);
-    
-    // Perform cross-source analysis
-    await this.performCrossSourceAnalysis(allArticles);
-    
-    console.log(`🎉 Revolutionary aggregation complete! Processed ${allArticles.length} articles`);
-  }
-
-  /**
-   * Update news outlets in database
-   */
-  private async updateNewsOutlets(): Promise<void> {
-    for (const source of this.newsSources) {
-      try {
-        await db.insert(newsOutlets).values({
-          id: source.id,
-          name: source.name,
-          website: source.website,
-          bias: source.bias,
-          credibilityScore: source.credibilityScore,
-          type: source.type,
-          region: source.region,
-          language: source.language
-        }).onConflictDoUpdate({
-          target: newsOutlets.id,
-          set: {
-            name: source.name,
-            website: source.website,
-            bias: source.bias,
-            credibilityScore: source.credibilityScore,
-            type: source.type,
-            region: source.region,
-            language: source.language,
-            updatedAt: new Date()
-          }
-        });
-      } catch (error) {
-        console.error(`Error updating outlet ${source.name}:`, error.message);
-      }
-    }
-  }
-
-  /**
-   * Aggregate articles from a specific news source
-   */
-  private async aggregateFromSource(source: NewsSource): Promise<ProcessedArticle[]> {
-    const articles: ProcessedArticle[] = [];
-    
-    for (const rssUrl of source.rssFeeds) {
-      try {
-        const rssArticles = await this.parseRSSFeed(rssUrl, source);
-        articles.push(...rssArticles);
-      } catch (error) {
-        console.error(`Error parsing RSS from ${rssUrl}:`, error.message);
-        continue;
+        console.error(`Error processing ${source.name}:`, error);
       }
     }
     
-    return articles;
+    console.log("News aggregation completed");
   }
 
   /**
-   * Parse RSS feed and extract articles
+   * Process individual news source with OpenAI intelligence
    */
-  private async parseRSSFeed(rssUrl: string, source: NewsSource): Promise<ProcessedArticle[]> {
-    const articles: ProcessedArticle[] = [];
+  private async processNewsSource(source: NewsSource): Promise<void> {
+    console.log(`Processing news source: ${source.name}`);
     
     try {
-      const response = await fetch(rssUrl, {
+      const response = await fetch(source.rssUrl, {
         headers: {
-          'User-Agent': 'CivicOS-NewsAggregator/2.0 (Canadian Political News Analysis)'
+          'User-Agent': 'Mozilla/5.0 (compatible; CivicOS/1.0; +https://civicos.ca)'
         }
       });
-      
+
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
       }
+
+      const rssContent = await response.text();
+      const articles = await this.parseRSSFeed(rssContent, source);
       
-      const rssText = await response.text();
-      const rssData = await parseStringPromise(rssText);
-      
-      const items = rssData?.rss?.channel?.[0]?.item || rssData?.feed?.entry || [];
-      
-      for (const item of items.slice(0, 10)) { // Limit to 10 most recent
+      for (const article of articles.slice(0, 5)) { // Process top 5 articles
         try {
-          const article = await this.processRSSItem(item, source);
-          if (article && this.isPoliticalContent(article.title, article.content)) {
-            articles.push(article);
-          }
+          const analyzedArticle = await this.analyzeArticleWithOpenAI(article, source);
+          await this.storeAnalyzedArticle(analyzedArticle);
+          await this.delay(1000); // Rate limiting
         } catch (error) {
-          console.error(`Error processing RSS item:`, error.message);
-          continue;
+          console.error(`Error analyzing article from ${source.name}:`, error);
         }
       }
-      
     } catch (error) {
-      console.error(`Error fetching RSS feed ${rssUrl}:`, error.message);
+      console.error(`Error scraping ${source.name}:`, error);
     }
-    
+  }
+
+  /**
+   * Parse RSS feed and extract article data
+   */
+  private async parseRSSFeed(rssContent: string, source: NewsSource): Promise<any[]> {
+    const $ = cheerio.load(rssContent, { xmlMode: true });
+    const articles: any[] = [];
+
+    $('item').each((i, element) => {
+      const $item = $(element);
+      const title = $item.find('title').text().trim();
+      const link = $item.find('link').text().trim();
+      const description = $item.find('description').text().trim();
+      const pubDate = $item.find('pubDate').text().trim();
+
+      if (title && link) {
+        articles.push({
+          title,
+          url: link,
+          description,
+          publishedAt: pubDate ? new Date(pubDate) : new Date(),
+          source: source.name
+        });
+      }
+    });
+
     return articles;
   }
 
   /**
-   * Process individual RSS item into article
+   * Analyze article content using OpenAI for political intelligence
    */
-  private async processRSSItem(item: any, source: NewsSource): Promise<ProcessedArticle | null> {
-    try {
-      const title = item.title?.[0] || item.title?._ || '';
-      const url = item.link?.[0] || item.link?._ || item.id?.[0] || '';
-      const description = item.description?.[0] || item.summary?.[0] || '';
-      const pubDate = item.pubDate?.[0] || item.published?.[0] || new Date().toISOString();
-      const author = item.author?.[0] || item['dc:creator']?.[0] || '';
-      
-      if (!title || !url) {
-        return null;
-      }
-      
-      // Extract full content if possible
-      let content = description;
-      try {
-        const articleContent = await this.extractFullContent(url);
-        if (articleContent) {
-          content = articleContent;
-        }
-      } catch (error) {
-        // Use description as fallback
-      }
-      
-      // Enhanced AI analysis with OpenAI
-      let aiAnalysis: any = {};
-      try {
-        aiAnalysis = await openaiNewsAnalyzer.analyzeArticle({
-          title,
-          description: content,
-          source: source.name,
-          url
-        });
-      } catch (error) {
-        console.log('Using fallback analysis for', title.substring(0, 50));
-      }
+  private async analyzeArticleWithOpenAI(article: any, source: NewsSource): Promise<AnalyzedArticle> {
+    const prompt = `Analyze this Canadian news article for political intelligence:
 
-      // Combine AI analysis with basic extraction
-      const politicalTopics = aiAnalysis.key_themes || this.extractPoliticalTopics(title + ' ' + content);
-      const mentionedPoliticians = aiAnalysis.politicians_mentioned || this.extractMentionedPoliticians(title + ' ' + content);
-      const mentionedBills = this.extractMentionedBills(title + ' ' + content);
-      const sentiment = aiAnalysis.sentiment === 'positive' ? 0.5 : aiAnalysis.sentiment === 'negative' ? -0.5 : 0;
-      const factualityScore = aiAnalysis.credibility_score || this.calculateFactualityScore(content, source);
-      const propagandaTechniques = aiAnalysis.propaganda_techniques || this.detectPropagandaTechniques(content);
-      
+Title: ${article.title}
+Description: ${article.description}
+Source: ${source.name}
+
+Provide comprehensive analysis in JSON format with these fields:
+- credibilityScore: number (0-100, based on source reputation and content quality)
+- sentimentScore: number (-1 to 1, negative to positive)
+- biasRating: string (left, center-left, center, center-right, right)
+- keyTopics: array of strings (main political topics)
+- politicalImpact: number (0-100, potential impact on Canadian politics)
+- factCheck: string (assessment of factual accuracy)
+- summary: string (concise 2-sentence summary)
+- publicImpact: number (0-100, impact on public opinion)`;
+
+    try {
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          {
+            role: "system",
+            content: "You are a Canadian political intelligence analyst. Analyze news articles for political significance, bias, and public impact. Respond only with valid JSON."
+          },
+          {
+            role: "user",
+            content: prompt
+          }
+        ],
+        response_format: { type: "json_object" },
+        max_tokens: 800
+      });
+
+      const analysis = JSON.parse(response.choices[0].message.content || '{}');
+
       return {
-        title: this.cleanText(title),
-        url: url,
-        content: this.cleanText(content),
-        publishedAt: new Date(pubDate),
-        source: source.id,
-        author: author || null,
-        bias: source.bias,
-        credibilityScore: source.credibilityScore,
-        politicalTopics,
-        mentioned_politicians: mentionedPoliticians,
-        mentioned_bills: mentionedBills,
-        sentiment,
-        factualityScore,
-        propagandaTechniques
+        title: article.title,
+        content: article.description,
+        url: article.url,
+        author: "Staff Reporter", // Default for RSS feeds
+        publishedAt: article.publishedAt,
+        source: source.name,
+        credibilityScore: Math.max(0, Math.min(100, analysis.credibilityScore || 75)),
+        sentimentScore: Math.max(-1, Math.min(1, analysis.sentimentScore || 0)),
+        biasRating: analysis.biasRating || "center",
+        keyTopics: Array.isArray(analysis.keyTopics) ? analysis.keyTopics : ["Politics"],
+        politicalImpact: Math.max(0, Math.min(100, analysis.politicalImpact || 50)),
+        factCheck: analysis.factCheck || "Pending verification",
+        summary: analysis.summary || "Canadian political news article",
+        publicImpact: Math.max(0, Math.min(100, analysis.publicImpact || 50))
       };
-      
     } catch (error) {
-      console.error('Error processing RSS item:', error.message);
-      return null;
+      console.error("Error with OpenAI analysis:", error);
+      
+      // Fallback analysis without AI
+      return {
+        title: article.title,
+        content: article.description,
+        url: article.url,
+        author: "Staff Reporter",
+        publishedAt: article.publishedAt,
+        source: source.name,
+        credibilityScore: 75,
+        sentimentScore: 0,
+        biasRating: "center",
+        keyTopics: ["Politics"],
+        politicalImpact: 50,
+        factCheck: "Analysis pending",
+        summary: article.title,
+        publicImpact: 50
+      };
     }
   }
 
   /**
-   * Extract full article content from URL
+   * Store analyzed article in database
    */
-  private async extractFullContent(url: string): Promise<string> {
+  private async storeAnalyzedArticle(article: AnalyzedArticle): Promise<void> {
     try {
-      const response = await fetch(url, {
-        headers: {
-          'User-Agent': 'CivicOS-NewsAggregator/2.0'
-        }
-      });
-      
-      if (!response.ok) {
-        return '';
-      }
-      
-      const html = await response.text();
-      const $ = cheerio.load(html);
-      
-      // Remove unwanted elements
-      $('script, style, nav, header, footer, aside, .ad, .advertisement').remove();
-      
-      // Extract main content
-      const contentSelectors = [
-        'article', '.article-body', '.post-content', '.entry-content',
-        '.content', '.story-content', '.article-content', '#article-content',
-        '.text', '.body', '.post-body', 'main'
-      ];
-      
-      for (const selector of contentSelectors) {
-        const content = $(selector).text().trim();
-        if (content && content.length > 200) {
-          return content;
-        }
-      }
-      
-      // Fallback to body text
-      return $('body').text().trim();
-      
-    } catch (error) {
-      return '';
-    }
-  }
-
-  /**
-   * Check if content is political/civic related
-   */
-  private isPoliticalContent(title: string, content: string): boolean {
-    const politicalKeywords = [
-      'parliament', 'government', 'minister', 'mp', 'mla', 'senator', 'politics',
-      'election', 'vote', 'policy', 'bill', 'law', 'conservative', 'liberal',
-      'ndp', 'bloc', 'green', 'trudeau', 'singh', 'poilievre', 'blanchet',
-      'ottawa', 'federal', 'provincial', 'municipal', 'council', 'mayor',
-      'cabinet', 'opposition', 'democracy', 'legislative', 'committee'
-    ];
-    
-    const text = (title + ' ' + content).toLowerCase();
-    return politicalKeywords.some(keyword => text.includes(keyword));
-  }
-
-  /**
-   * Extract political topics from content
-   */
-  private extractPoliticalTopics(content: string): string[] {
-    const topics = [];
-    const topicKeywords = {
-      'Healthcare': ['health', 'hospital', 'medical', 'healthcare', 'medicare'],
-      'Economy': ['economy', 'economic', 'budget', 'tax', 'inflation', 'gdp'],
-      'Environment': ['climate', 'environment', 'carbon', 'emission', 'green'],
-      'Immigration': ['immigration', 'refugee', 'border', 'citizenship'],
-      'Education': ['education', 'school', 'university', 'student'],
-      'Defense': ['military', 'defense', 'army', 'navy', 'security'],
-      'Trade': ['trade', 'export', 'import', 'nafta', 'usmca'],
-      'Justice': ['justice', 'court', 'legal', 'crime', 'police']
-    };
-    
-    const lowerContent = content.toLowerCase();
-    for (const [topic, keywords] of Object.entries(topicKeywords)) {
-      if (keywords.some(keyword => lowerContent.includes(keyword))) {
-        topics.push(topic);
-      }
-    }
-    
-    return topics;
-  }
-
-  /**
-   * Extract mentioned politicians
-   */
-  private extractMentionedPoliticians(content: string): string[] {
-    const politicians = [
-      'Justin Trudeau', 'Pierre Poilievre', 'Jagmeet Singh', 'Yves-François Blanchet',
-      'Elizabeth May', 'Chrystia Freeland', 'Anita Anand', 'Sean Fraser',
-      'Marco Mendicino', 'Jonathan Wilkinson', 'François-Philippe Champagne'
-    ];
-    
-    return politicians.filter(politician => 
-      content.toLowerCase().includes(politician.toLowerCase())
-    );
-  }
-
-  /**
-   * Extract mentioned bills
-   */
-  private extractMentionedBills(content: string): string[] {
-    const billMatches = content.match(/([CB]-\d+|Bill [CB]-?\d+)/gi) || [];
-    return [...new Set(billMatches)];
-  }
-
-  /**
-   * Analyze sentiment (-1 to 1)
-   */
-  private analyzeSentiment(content: string): number {
-    const positiveWords = ['good', 'great', 'excellent', 'positive', 'success', 'improve'];
-    const negativeWords = ['bad', 'terrible', 'negative', 'fail', 'crisis', 'problem'];
-    
-    const words = content.toLowerCase().split(/\s+/);
-    let score = 0;
-    
-    for (const word of words) {
-      if (positiveWords.includes(word)) score += 1;
-      if (negativeWords.includes(word)) score -= 1;
-    }
-    
-    return Math.max(-1, Math.min(1, score / words.length * 100));
-  }
-
-  /**
-   * Calculate factuality score
-   */
-  private calculateFactualityScore(content: string, source: NewsSource): number {
-    let score = source.credibilityScore;
-    
-    // Adjust based on content characteristics
-    if (content.includes('sources say') || content.includes('according to')) score += 5;
-    if (content.includes('allegedly') || content.includes('reportedly')) score -= 3;
-    if (content.match(/\d{4}-\d{2}-\d{2}/)) score += 2; // Contains dates
-    if (content.match(/\$[\d,]+/)) score += 2; // Contains specific numbers
-    
-    return Math.max(0, Math.min(100, score));
-  }
-
-  /**
-   * Detect propaganda techniques
-   */
-  private detectPropagandaTechniques(content: string): string[] {
-    const techniques = [];
-    const lowerContent = content.toLowerCase();
-    
-    if (lowerContent.includes('experts agree') || lowerContent.includes('everyone knows')) {
-      techniques.push('Bandwagon');
-    }
-    if (lowerContent.includes('!') && content.split('!').length > 3) {
-      techniques.push('Emotional Appeal');
-    }
-    if (lowerContent.includes('always') || lowerContent.includes('never')) {
-      techniques.push('Black and White');
-    }
-    
-    return techniques;
-  }
-
-  /**
-   * Store articles in database
-   */
-  private async storeArticles(articles: ProcessedArticle[]): Promise<void> {
-    for (const article of articles) {
-      try {
-        await db.insert(newsArticles).values({
-          title: article.title,
-          url: article.url,
-          content: article.content,
-          publishedAt: article.publishedAt,
-          source: article.source,
-          author: article.author,
-          bias: article.bias,
-          credibilityScore: article.credibilityScore,
-          politicalTopics: article.politicalTopics,
-          mentionedPoliticians: article.mentioned_politicians,
-          mentionedBills: article.mentioned_bills,
-          sentiment: article.sentiment,
-          factualityScore: article.factualityScore,
-          propagandaTechniques: article.propagandaTechniques
-        }).onConflictDoNothing();
-      } catch (error) {
-        // Skip duplicates
-      }
-    }
-  }
-
-  /**
-   * Perform cross-source analysis
-   */
-  private async performCrossSourceAnalysis(articles: ProcessedArticle[]): Promise<void> {
-    // Group articles by similar topics
-    const topicGroups = this.groupArticlesByTopic(articles);
-    
-    for (const [topic, topicArticles] of Object.entries(topicGroups)) {
-      if (topicArticles.length > 1) {
-        await this.analyzeTopicCoverage(topic, topicArticles);
-      }
-    }
-  }
-
-  /**
-   * Group articles by topic
-   */
-  private groupArticlesByTopic(articles: ProcessedArticle[]): Record<string, ProcessedArticle[]> {
-    const groups: Record<string, ProcessedArticle[]> = {};
-    
-    for (const article of articles) {
-      for (const topic of article.politicalTopics) {
-        if (!groups[topic]) {
-          groups[topic] = [];
-        }
-        groups[topic].push(article);
-      }
-    }
-    
-    return groups;
-  }
-
-  /**
-   * Analyze topic coverage across sources
-   */
-  private async analyzeTopicCoverage(topic: string, articles: ProcessedArticle[]): Promise<void> {
-    const biasDistribution = this.calculateBiasDistribution(articles);
-    const consensusLevel = this.calculateConsensusLevel(articles);
-    const credibilityRange = this.calculateCredibilityRange(articles);
-    
-    try {
-      await db.insert(newsComparisons).values({
-        topic: topic,
-        articleCount: articles.length,
-        biasDistribution: JSON.stringify(biasDistribution),
-        consensusLevel: consensusLevel,
-        averageCredibility: credibilityRange.average,
-        timespan: '24h',
-        analysisDate: new Date()
+      await db.insert(newsArticles).values({
+        title: article.title,
+        content: article.content,
+        source: article.source,
+        author: article.author,
+        url: article.url,
+        publishedAt: article.publishedAt,
+        credibilityScore: article.credibilityScore,
+        sentimentScore: article.sentimentScore,
+        biasRating: article.biasRating,
+        keyTopics: JSON.stringify(article.keyTopics),
+        politicalImpact: article.politicalImpact,
+        factCheck: article.factCheck,
+        summary: article.summary,
+        publicImpact: article.publicImpact
       });
     } catch (error) {
-      // Skip if already exists
+      console.error("Error storing article:", error);
     }
   }
 
   /**
-   * Calculate bias distribution
+   * Get latest analyzed news for dashboard
    */
-  private calculateBiasDistribution(articles: ProcessedArticle[]): Record<string, number> {
-    const distribution = { left: 0, center: 0, right: 0 };
-    
-    for (const article of articles) {
-      distribution[article.bias]++;
+  async getLatestNews(limit: number = 10): Promise<any[]> {
+    try {
+      const articles = await db
+        .select()
+        .from(newsArticles)
+        .orderBy(desc(newsArticles.publishedAt))
+        .limit(limit);
+
+      return articles.map(article => ({
+        ...article,
+        keyTopics: typeof article.keyTopics === 'string' 
+          ? JSON.parse(article.keyTopics) 
+          : article.keyTopics || []
+      }));
+    } catch (error) {
+      console.error("Error fetching latest news:", error);
+      return [];
     }
-    
-    return distribution;
   }
 
   /**
-   * Calculate consensus level (0-100)
+   * Get news analytics for dashboard
    */
-  private calculateConsensusLevel(articles: ProcessedArticle[]): number {
-    if (articles.length < 2) return 100;
-    
-    const avgSentiment = articles.reduce((sum, a) => sum + a.sentiment, 0) / articles.length;
-    const sentimentVariance = articles.reduce((sum, a) => sum + Math.pow(a.sentiment - avgSentiment, 2), 0) / articles.length;
-    
-    return Math.max(0, 100 - (sentimentVariance * 100));
+  async getNewsAnalytics(): Promise<any> {
+    try {
+      const articles = await db.select().from(newsArticles);
+      
+      if (!articles.length) {
+        return {
+          totalArticles: 0,
+          averageCredibility: 0,
+          averageSentiment: 0,
+          sourceDistribution: [],
+          topTopics: [],
+          biasDistribution: []
+        };
+      }
+
+      const totalArticles = articles.length;
+      const averageCredibility = articles.reduce((sum, a) => sum + (a.credibilityScore || 0), 0) / totalArticles;
+      const averageSentiment = articles.reduce((sum, a) => sum + (a.sentimentScore || 0), 0) / totalArticles;
+
+      // Source distribution
+      const sourceMap = new Map();
+      articles.forEach(article => {
+        const source = article.source || 'Unknown';
+        sourceMap.set(source, (sourceMap.get(source) || 0) + 1);
+      });
+      const sourceDistribution = Array.from(sourceMap.entries()).map(([source, count]) => ({
+        source,
+        count,
+        percentage: Math.round((count / totalArticles) * 100)
+      }));
+
+      // Top topics
+      const topicMap = new Map();
+      articles.forEach(article => {
+        const topics = typeof article.keyTopics === 'string' 
+          ? JSON.parse(article.keyTopics || '[]') 
+          : article.keyTopics || [];
+        topics.forEach((topic: string) => {
+          topicMap.set(topic, (topicMap.get(topic) || 0) + 1);
+        });
+      });
+      const topTopics = Array.from(topicMap.entries())
+        .sort(([,a], [,b]) => b - a)
+        .slice(0, 10)
+        .map(([topic, count]) => ({ topic, count }));
+
+      // Bias distribution
+      const biasMap = new Map();
+      articles.forEach(article => {
+        const bias = article.biasRating || 'center';
+        biasMap.set(bias, (biasMap.get(bias) || 0) + 1);
+      });
+      const biasDistribution = Array.from(biasMap.entries()).map(([bias, count]) => ({
+        bias,
+        count,
+        percentage: Math.round((count / totalArticles) * 100)
+      }));
+
+      return {
+        totalArticles,
+        averageCredibility: Math.round(averageCredibility),
+        averageSentiment: Math.round(averageSentiment * 100) / 100,
+        sourceDistribution,
+        topTopics,
+        biasDistribution
+      };
+    } catch (error) {
+      console.error("Error getting news analytics:", error);
+      return {
+        totalArticles: 0,
+        averageCredibility: 0,
+        averageSentiment: 0,
+        sourceDistribution: [],
+        topTopics: [],
+        biasDistribution: []
+      };
+    }
   }
 
-  /**
-   * Calculate credibility range
-   */
-  private calculateCredibilityRange(articles: ProcessedArticle[]): { min: number, max: number, average: number } {
-    const scores = articles.map(a => a.credibilityScore);
-    return {
-      min: Math.min(...scores),
-      max: Math.max(...scores),
-      average: scores.reduce((sum, score) => sum + score, 0) / scores.length
-    };
-  }
-
-  /**
-   * Clean text content
-   */
-  private cleanText(text: string): string {
-    return text
-      .replace(/\s+/g, ' ')
-      .replace(/[\r\n\t]/g, ' ')
-      .trim()
-      .substring(0, 5000); // Limit length
-  }
-
-  /**
-   * Rate limiting delay
-   */
   private delay(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
   }

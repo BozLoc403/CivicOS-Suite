@@ -1,5 +1,5 @@
 import { db } from "./db";
-import { politicians, bills, votes, statements, criminalCode, federalActs, courtCases } from "@shared/schema";
+import { politicians, bills, votes } from "@shared/schema";
 import { sql, desc, eq, and, count, avg } from "drizzle-orm";
 
 interface PopulatedAnalytics {
@@ -118,9 +118,10 @@ export class ComprehensiveAnalyticsPopulator {
         ORDER BY count DESC
       `);
 
-      const total = results.reduce((sum, row) => sum + parseInt(row.count.toString()), 0);
+      const resultRows = results.rows || [];
+      const total = resultRows.reduce((sum: number, row: any) => sum + parseInt(row.count?.toString() || '0'), 0);
       
-      return results.map(row => ({
+      return resultRows.map((row: any) => ({
         party: row.party.toString(),
         count: parseInt(row.count.toString()),
         percentage: Math.round((parseInt(row.count.toString()) / total) * 100)
