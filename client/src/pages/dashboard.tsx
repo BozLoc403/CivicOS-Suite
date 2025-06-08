@@ -294,9 +294,9 @@ export default function Dashboard() {
             <LegalSystemWidget />
           </div>
 
-          {/* Column 2: Petitions & Politicians */}
+          {/* Column 2: News Analysis & Politicians */}
           <div className="space-y-6">
-            <PetitionsWidget />
+            <NewsAnalysisWidget />
             <PoliticiansWidget />
           </div>
 

@@ -24,6 +24,7 @@ import { aggressiveScraper } from "./aggressiveDataScraper";
 import { comprehensiveAnalytics } from "./comprehensiveAnalytics";
 import { realTimeMonitoring } from "./realTimeMonitoring";
 import { legalSystemOrganizer } from "./legalSystemOrganizer";
+import { newsComparison } from "./newsComparison";
 import crypto from "crypto";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -1828,6 +1829,65 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
     } catch (error) {
       console.error("Error performing legal search:", error);
       res.status(500).json({ message: "Failed to perform legal search" });
+    }
+  });
+
+  // News comparison and analysis endpoints
+  app.get("/api/news/analysis/:articleId", async (req, res) => {
+    try {
+      const articleId = parseInt(req.params.articleId);
+      const analysis = await newsComparison.performCrossSourceAnalysis(articleId);
+      res.json(analysis);
+    } catch (error) {
+      console.error("Error performing news analysis:", error);
+      res.status(500).json({ message: "Failed to analyze article" });
+    }
+  });
+
+  app.get("/api/news/comparison/:articleId", async (req, res) => {
+    try {
+      const articleId = parseInt(req.params.articleId);
+      const comparison = await newsComparison.performCrossSourceAnalysis(articleId);
+      res.json({
+        sourceComparison: comparison.crossSourceAnalysis.sourceComparison,
+        consensusFacts: comparison.crossSourceAnalysis.consensusFacts,
+        contradictions: comparison.crossSourceAnalysis.contradictions,
+        reliabilityScore: comparison.crossSourceAnalysis.reliabilityScore
+      });
+    } catch (error) {
+      console.error("Error performing news comparison:", error);
+      res.status(500).json({ message: "Failed to compare sources" });
+    }
+  });
+
+  app.get("/api/news/fact-check/:articleId", async (req, res) => {
+    try {
+      const articleId = parseInt(req.params.articleId);
+      const analysis = await newsComparison.performCrossSourceAnalysis(articleId);
+      res.json({
+        factCheckResults: analysis.factCheckResults,
+        credibilityAssessment: analysis.credibilityAssessment,
+        publicInterestScore: analysis.publicInterestScore
+      });
+    } catch (error) {
+      console.error("Error performing fact check:", error);
+      res.status(500).json({ message: "Failed to fact-check article" });
+    }
+  });
+
+  app.get("/api/news/bias-detection/:articleId", async (req, res) => {
+    try {
+      const articleId = parseInt(req.params.articleId);
+      const analysis = await newsComparison.performCrossSourceAnalysis(articleId);
+      res.json({
+        mediaManipulation: analysis.crossSourceAnalysis.mediaManipulation,
+        biasLevel: analysis.credibilityAssessment.biasLevel,
+        sourceDiversity: analysis.credibilityAssessment.sourceDiversity,
+        recommendations: analysis.crossSourceAnalysis.recommendations
+      });
+    } catch (error) {
+      console.error("Error detecting bias:", error);
+      res.status(500).json({ message: "Failed to analyze bias" });
     }
   });
 
