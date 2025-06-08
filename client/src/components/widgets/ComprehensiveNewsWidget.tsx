@@ -208,13 +208,13 @@ export default function ComprehensiveNewsWidget() {
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-muted-foreground">Factuality:</span>
                     <span className={getFactualityColor(source.avgFactuality)}>
-                      {source.avgFactuality.toFixed(1)}%
+                      {typeof source.avgFactuality === 'number' ? source.avgFactuality.toFixed(1) : '0.0'}%
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-muted-foreground">Credibility:</span>
                     <span className={getFactualityColor(source.avgCredibility)}>
-                      {source.avgCredibility.toFixed(1)}%
+                      {typeof source.avgCredibility === 'number' ? source.avgCredibility.toFixed(1) : '0.0'}%
                     </span>
                   </div>
                 </div>

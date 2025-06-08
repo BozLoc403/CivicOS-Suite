@@ -113,6 +113,7 @@ export function NewsAnalysisWidget() {
   };
 
   const getBiasColor = (bias: string) => {
+    if (!bias) return 'text-gray-600';
     switch (bias.toLowerCase()) {
       case 'left': return 'text-blue-600';
       case 'right': return 'text-red-600';

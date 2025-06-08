@@ -364,7 +364,7 @@ export const forumPosts = pgTable("forum_posts", {
   id: serial("id").primaryKey(),
   title: varchar("title").notNull(),
   content: text("content").notNull(),
-  authorId: varchar("author_id").notNull().references(() => users.id),
+  userId: varchar("user_id").notNull().references(() => users.id),
   categoryId: integer("category_id").notNull().references(() => forumCategories.id),
   billId: integer("bill_id").references(() => bills.id), // if discussing a bill
   isSticky: boolean("is_sticky").default(false),
@@ -373,6 +373,8 @@ export const forumPosts = pgTable("forum_posts", {
   likeCount: integer("like_count").default(0),
   replyCount: integer("reply_count").default(0),
   topic: varchar("topic"),
+  moderationStatus: varchar("moderation_status"),
+  moderationReason: varchar("moderation_reason"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

@@ -651,11 +651,11 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
       const userId = (req.user as any)?.claims?.sub;
       const { title, content, category, isVerificationRequired } = req.body;
       
-      const [discussion] = await db.insert(schema.discussions).values({
-        authorId: userId,
+      const [discussion] = await db.insert(schema.forumPosts).values({
+        userId: userId,
         title,
         content,
-        type: category,
+        categoryId: 1, // Default category
       }).returning();
 
       res.json(discussion);
@@ -1568,7 +1568,7 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
       
       let query = db.select()
         .from(forumPosts)
-        .leftJoin(users, eq(forumPosts.authorId, users.id))
+        .leftJoin(users, eq(forumPosts.userId, users.id))
         .leftJoin(forumCategories, eq(forumPosts.categoryId, forumCategories.id))
         .leftJoin(bills, eq(forumPosts.billId, bills.id));
 
