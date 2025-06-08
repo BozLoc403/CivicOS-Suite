@@ -171,6 +171,7 @@ export const insertBillSchema = createInsertSchema(bills).omit({
 
 export const insertVoteSchema = createInsertSchema(votes).omit({
   id: true,
+  userId: true,
   timestamp: true,
   isVerified: true,
   verificationId: true,

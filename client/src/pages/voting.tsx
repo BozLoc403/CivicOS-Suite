@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { VotingModal } from "@/components/VotingModal";
-import { Clock, ExternalLink, AlertCircle } from "lucide-react";
+import { Clock, MapPin, Scale, AlertCircle, Vote, FileText } from "lucide-react";
 import { useState } from "react";
 import type { Bill } from "@shared/schema";
 
@@ -22,16 +22,72 @@ export default function Voting() {
     setIsVotingModalOpen(true);
   };
 
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'active':
+        return 'bg-green-100 text-green-800 border-green-200';
+      case 'first reading':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'second reading':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'third reading':
+        return 'bg-orange-100 text-orange-800 border-orange-200';
+      case 'royal assent':
+        return 'bg-purple-100 text-purple-800 border-purple-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  const getCategoryIcon = (category: string) => {
+    switch (category.toLowerCase()) {
+      case 'finance & economy':
+        return '💰';
+      case 'healthcare':
+        return '🏥';
+      case 'environment':
+        return '🌍';
+      case 'education':
+        return '📚';
+      case 'defence & security':
+        return '🛡️';
+      case 'infrastructure':
+        return '🏗️';
+      default:
+        return '📋';
+    }
+  };
+
   const formatTimeRemaining = (deadline: string) => {
     const now = new Date();
     const end = new Date(deadline);
     const diffTime = end.getTime() - now.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
-    if (diffDays > 1) return `${diffDays} days`;
-    if (diffDays === 1) return "1 day";
-    return "Less than 24 hours";
+    if (diffDays < 0) return 'Voting closed';
+    if (diffDays === 0) return 'Last day to vote';
+    if (diffDays === 1) return '1 day remaining';
+    return `${diffDays} days remaining`;
   };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-CA', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  // Group bills by jurisdiction and category
+  const federalBills = bills.filter(bill => bill.jurisdiction === 'Canada' || bill.jurisdiction === 'Federal');
+  const provincialBills = bills.filter(bill => !['Canada', 'Federal'].includes(bill.jurisdiction));
+  
+  const billsByCategory = bills.reduce((acc, bill) => {
+    const category = bill.category || 'General Legislation';
+    if (!acc[category]) acc[category] = [];
+    acc[category].push(bill);
+    return acc;
+  }, {} as Record<string, Bill[]>);
 
   if (isLoading) {
     return (

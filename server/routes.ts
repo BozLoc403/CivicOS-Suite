@@ -134,11 +134,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Generate verification ID and block hash
-      const verificationId = `VR-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
-      const blockHash = `0x${crypto.randomBytes(16).toString('hex')}`;
+      const verificationId = `VR-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substr(2, 4).toUpperCase()}`;
+      const blockHash = `0x${Date.now().toString(16)}${Math.random().toString(16).substr(2, 8)}`;
 
       const vote = await storage.createVote({
-        ...voteData,
+        billId: voteData.billId,
+        voteValue: voteData.voteValue,
+        reasoning: voteData.reasoning,
         userId,
         verificationId,
         blockHash,

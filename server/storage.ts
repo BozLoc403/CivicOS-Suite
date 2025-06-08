@@ -118,7 +118,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Vote operations
-  async createVote(voteData: InsertVote & { verificationId: string; blockHash: string }): Promise<Vote> {
+  async createVote(voteData: InsertVote & { userId: string; verificationId: string; blockHash: string }): Promise<Vote> {
     const [vote] = await db.insert(votes).values(voteData).returning();
     return vote;
   }
