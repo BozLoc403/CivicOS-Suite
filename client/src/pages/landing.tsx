@@ -1,44 +1,69 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Shield, Vote, Users, FileText } from "lucide-react";
+import { Shield, Vote, Users, FileText, Crown, Lock, BarChart3, Zap } from "lucide-react";
+import dominionEmblem from "@assets/EFE54ED9-DEE5-4F72-88D4-4441CE2D11CB_1_105_c_1749411960407.jpeg";
 
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+      {/* Professional Header */}
+      <header className="bg-gradient-to-r from-slate-800 via-slate-700 to-slate-900 shadow-2xl border-b border-slate-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <Vote className="text-civic-blue text-2xl mr-3" />
-              <h1 className="text-xl font-bold civic-gray">CivicOS</h1>
+          <div className="flex justify-between items-center h-20">
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-slate-700 via-slate-600 to-slate-800 flex items-center justify-center shadow-lg border border-slate-500">
+                <img 
+                  src={dominionEmblem} 
+                  alt="Dominion Intelligence" 
+                  className="w-8 h-8 object-contain filter brightness-125 contrast-125"
+                />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold font-serif text-slate-100">CivicOS</h1>
+                <p className="text-sm text-slate-400 font-medium tracking-wider">DOMINION INTELLIGENCE</p>
+              </div>
             </div>
             <Button 
               onClick={() => window.location.href = '/api/login'}
-              className="bg-civic-blue hover:bg-blue-700"
+              className="bg-slate-700 hover:bg-slate-600 text-slate-100 border-slate-500 px-6 py-2 font-medium"
+              variant="outline"
             >
-              Sign In
+              <Lock className="w-4 h-4 mr-2" />
+              SECURE ACCESS
             </Button>
           </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold civic-gray mb-4">
-            Secure Democratic Platform
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="text-center mb-20">
+          <div className="flex justify-center mb-8">
+            <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900 flex items-center justify-center shadow-2xl border border-slate-600">
+              <img 
+                src={dominionEmblem} 
+                alt="Dominion Intelligence" 
+                className="w-16 h-16 object-contain filter brightness-125 contrast-125"
+              />
+            </div>
+          </div>
+          <h2 className="text-6xl font-bold font-serif text-slate-900 dark:text-slate-100 mb-6">
+            Dominion Intelligence
           </h2>
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            Your voice matters. Participate in real-time democracy with 
-            cryptographic security, AI-powered bill analysis, and complete transparency.
+          <h3 className="text-2xl font-medium text-slate-700 dark:text-slate-300 mb-8 tracking-wide">
+            CLASSIFIED DEMOCRATIC PLATFORM
+          </h3>
+          <p className="text-xl text-slate-600 dark:text-slate-400 mb-12 max-w-4xl mx-auto leading-relaxed">
+            Access sovereign digital democracy infrastructure with military-grade security, 
+            real-time intelligence analysis, and comprehensive governmental oversight capabilities.
           </p>
           <Button 
             size="lg"
             onClick={() => window.location.href = '/api/login'}
-            className="bg-civic-blue hover:bg-blue-700 text-lg px-8 py-3"
+            className="bg-slate-800 hover:bg-slate-700 text-slate-100 text-lg px-12 py-4 font-semibold shadow-xl"
           >
-            Get Started
+            <Crown className="w-5 h-5 mr-3" />
+            REQUEST ACCESS
           </Button>
         </div>
 

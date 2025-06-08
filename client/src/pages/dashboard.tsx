@@ -102,21 +102,30 @@ export default function Dashboard() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
-      {/* Luxury Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-4xl font-bold font-serif text-foreground mb-2">
-            Civic Intelligence Command Center
-          </h1>
-          <p className="text-lg text-muted-foreground">
-            Your sovereign digital democracy workspace
-          </p>
+      {/* Professional Dominion Header */}
+      <div className="flex items-center justify-between bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700 shadow-lg">
+        <div className="flex items-center space-x-4">
+          <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900 flex items-center justify-center shadow-lg border border-slate-600">
+            <img 
+              src={dominionEmblem} 
+              alt="Dominion Intelligence" 
+              className="w-10 h-10 object-contain filter brightness-125 contrast-125"
+            />
+          </div>
+          <div>
+            <h1 className="text-4xl font-bold font-serif text-slate-900 dark:text-slate-100 mb-1">
+              Dominion Intelligence Center
+            </h1>
+            <p className="text-lg text-slate-600 dark:text-slate-400 font-medium tracking-wide">
+              SOVEREIGN DIGITAL DEMOCRACY WORKSPACE
+            </p>
+          </div>
         </div>
         
         <div className="flex items-center space-x-4">
-          <Badge variant="outline" className="text-sm px-3 py-1">
-            <Crown className="w-4 h-4 mr-2" />
-            Sovereign Access
+          <Badge variant="outline" className="text-sm px-4 py-2 bg-slate-800 text-slate-100 border-slate-600">
+            <Shield className="w-4 h-4 mr-2" />
+            CLASSIFIED ACCESS
           </Badge>
           <Badge variant="secondary" className="text-sm px-3 py-1">
             <Activity className="w-4 h-4 mr-2" />
