@@ -9,6 +9,7 @@ import { insertBillSchema, insertVoteSchema, insertPoliticianSchema } from "@sha
 import { summarizeBill, analyzePoliticianStatement } from "./claude";
 import { dataVerification } from "./dataVerification";
 import { aggressiveScraper } from "./aggressiveDataScraper";
+import { comprehensiveAnalytics } from "./comprehensiveAnalytics";
 import crypto from "crypto";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -899,6 +900,39 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
     } catch (error) {
       console.error("Error performing comprehensive scraping:", error);
       res.status(500).json({ message: "Failed to perform comprehensive scraping" });
+    }
+  });
+
+  // Comprehensive analytics endpoints
+  app.get('/api/analytics/comprehensive', async (req, res) => {
+    try {
+      const analytics = await comprehensiveAnalytics.generateComprehensiveAnalytics();
+      res.json(analytics);
+    } catch (error) {
+      console.error("Error generating comprehensive analytics:", error);
+      res.status(500).json({ message: "Failed to generate comprehensive analytics" });
+    }
+  });
+
+  app.get('/api/analytics/politician/:id', async (req, res) => {
+    try {
+      const politicianId = parseInt(req.params.id);
+      const analytics = await comprehensiveAnalytics.generateDetailedPoliticianAnalytics(politicianId);
+      res.json(analytics);
+    } catch (error) {
+      console.error("Error generating politician analytics:", error);
+      res.status(500).json({ message: "Failed to generate politician analytics" });
+    }
+  });
+
+  app.get('/api/analytics/legislative/:id', async (req, res) => {
+    try {
+      const billId = parseInt(req.params.id);
+      const analytics = await comprehensiveAnalytics.generateLegislativeImpactAnalysis(billId);
+      res.json(analytics);
+    } catch (error) {
+      console.error("Error generating legislative analytics:", error);
+      res.status(500).json({ message: "Failed to generate legislative analytics" });
     }
   });
 
