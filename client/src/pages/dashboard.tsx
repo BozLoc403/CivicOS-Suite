@@ -6,6 +6,8 @@ import { LivePulseFeed } from "@/components/layout/LivePulseFeed";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { 
   Users, 
@@ -18,7 +20,8 @@ import {
   Vote, 
   Crown,
   Pin,
-  Plus
+  Plus,
+  ExternalLink
 } from "lucide-react";
 import type { Bill } from "@shared/schema";
 
@@ -33,6 +36,9 @@ interface DashboardWidget {
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const [, setLocation] = useLocation();
+  const [selectedBill, setSelectedBill] = useState<Bill | null>(null);
+  const [isVotingModalOpen, setIsVotingModalOpen] = useState(false);
   const [pinnedWidgets, setPinnedWidgets] = useState<string[]>(['pulse', 'bills', 'politicians', 'news']);
   const [availableWidgets] = useState<DashboardWidget[]>([
     { id: 'pulse', title: 'Live Civic Pulse', component: LivePulseFeed, size: 'medium', category: 'intelligence', pinned: true },
@@ -70,6 +76,27 @@ export default function Dashboard() {
         ? prev.filter(id => id !== widgetId)
         : [...prev, widgetId]
     );
+  };
+
+  const handleQuickVote = () => {
+    if (Array.isArray(bills) && bills.length > 0) {
+      setSelectedBill(bills[0]);
+      setIsVotingModalOpen(true);
+    } else {
+      setLocation('/voting');
+    }
+  };
+
+  const handleJoinDiscussion = () => {
+    setLocation('/discussions');
+  };
+
+  const handleSubmitPetition = () => {
+    setLocation('/petitions');
+  };
+
+  const handleContactOfficial = () => {
+    setLocation('/contacts');
   };
 
   return (
@@ -168,19 +195,35 @@ export default function Dashboard() {
           
           <LuxuryCard title="Quick Actions" variant="dark">
             <div className="grid grid-cols-2 gap-3">
-              <Button variant="outline" className="h-12 text-xs">
+              <Button 
+                variant="outline" 
+                className="h-12 text-xs"
+                onClick={handleQuickVote}
+              >
                 <Vote className="w-4 h-4 mr-2" />
                 Cast Vote
               </Button>
-              <Button variant="outline" className="h-12 text-xs">
+              <Button 
+                variant="outline" 
+                className="h-12 text-xs"
+                onClick={handleJoinDiscussion}
+              >
                 <MessageSquare className="w-4 h-4 mr-2" />
                 Join Discussion
               </Button>
-              <Button variant="outline" className="h-12 text-xs">
+              <Button 
+                variant="outline" 
+                className="h-12 text-xs"
+                onClick={handleSubmitPetition}
+              >
                 <FileText className="w-4 h-4 mr-2" />
                 Submit Petition
               </Button>
-              <Button variant="outline" className="h-12 text-xs">
+              <Button 
+                variant="outline" 
+                className="h-12 text-xs"
+                onClick={handleContactOfficial}
+              >
                 <Users className="w-4 h-4 mr-2" />
                 Contact Official
               </Button>
@@ -209,6 +252,80 @@ export default function Dashboard() {
           </LuxuryCard>
         </div>
       </div>
+
+      {/* Voting Modal */}
+      <Dialog open={isVotingModalOpen} onOpenChange={setIsVotingModalOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-serif">Cast Your Vote</DialogTitle>
+          </DialogHeader>
+          {selectedBill && (
+            <div className="space-y-6">
+              <div className="p-4 bg-muted/50 rounded-lg">
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="font-medium">{selectedBill.billNumber}</h3>
+                  <Badge variant="secondary" className="text-xs">
+                    {selectedBill.status}
+                  </Badge>
+                </div>
+                <p className="text-sm text-muted-foreground mb-3">
+                  {selectedBill.title}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {selectedBill.summary?.slice(0, 200)}...
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-3 gap-3">
+                <Button 
+                  className="h-12 bg-green-600 hover:bg-green-700 text-white"
+                  onClick={() => {
+                    // Handle vote submission
+                    setIsVotingModalOpen(false);
+                    setSelectedBill(null);
+                  }}
+                >
+                  <Vote className="w-4 h-4 mr-2" />
+                  Support
+                </Button>
+                <Button 
+                  className="h-12 bg-red-600 hover:bg-red-700 text-white"
+                  onClick={() => {
+                    // Handle vote submission
+                    setIsVotingModalOpen(false);
+                    setSelectedBill(null);
+                  }}
+                >
+                  <Vote className="w-4 h-4 mr-2" />
+                  Oppose
+                </Button>
+                <Button 
+                  variant="outline"
+                  className="h-12"
+                  onClick={() => {
+                    // Handle abstain
+                    setIsVotingModalOpen(false);
+                    setSelectedBill(null);
+                  }}
+                >
+                  Abstain
+                </Button>
+              </div>
+              
+              <div className="flex justify-end space-x-2">
+                <Button 
+                  variant="outline"
+                  onClick={() => setLocation('/voting')}
+                  className="text-xs"
+                >
+                  <ExternalLink className="w-3 h-3 mr-1" />
+                  View All Bills
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
