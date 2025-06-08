@@ -2189,10 +2189,12 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
         // News summary using OpenAI analyzer
         (async () => {
           try {
-            const { openaiNewsAnalyzer } = await import("./openaiNewsAnalyzer");
-            return { rows: [await openaiNewsAnalyzer.getNewsAnalytics()] };
+            const { revolutionaryNewsAggregator } = await import("./revolutionaryNewsAggregator");
+            await revolutionaryNewsAggregator.performComprehensiveAggregation();
+            return { rows: [await revolutionaryNewsAggregator.getNewsAnalytics()] };
           } catch (error) {
-            return { rows: [{ total: 0, avgCredibility: 50, avgSentiment: 0, recent: 0 }] };
+            console.error("Error fetching news analytics:", error);
+            return { rows: [{ totalArticles: 0, averageCredibility: 0, averageSentiment: 0, sourceDistribution: [], topTopics: [], biasDistribution: [] }] };
           }
         })(),
         
