@@ -266,13 +266,13 @@ export default function Discussions() {
             </p>
           </div>
 
-        <Dialog open={showCreatePost} onOpenChange={setShowCreatePost}>
-          <DialogTrigger asChild>
-            <Button className="bg-blue-600 hover:bg-blue-700">
-              <Plus className="h-4 w-4 mr-2" />
-              New Discussion
-            </Button>
-          </DialogTrigger>
+          <Dialog open={showCreatePost} onOpenChange={setShowCreatePost}>
+            <DialogTrigger asChild>
+              <Button className="bg-blue-600 hover:bg-blue-700">
+                <Plus className="h-4 w-4 mr-2" />
+                New Discussion
+              </Button>
+            </DialogTrigger>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Start a New Discussion</DialogTitle>

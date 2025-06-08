@@ -1791,18 +1791,18 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
 
       // Check if already liked
       const existingLike = await db.select()
-        .from(forumReplyLikes)
+        .from(forumLikes)
         .where(and(
-          eq(forumReplyLikes.replyId, replyId),
-          eq(forumReplyLikes.userId, userId)
+          eq(forumLikes.replyId, replyId),
+          eq(forumLikes.userId, userId)
         ));
 
       if (existingLike.length > 0) {
         // Remove like
-        await db.delete(forumReplyLikes)
+        await db.delete(forumLikes)
           .where(and(
-            eq(forumReplyLikes.replyId, replyId),
-            eq(forumReplyLikes.userId, userId)
+            eq(forumLikes.replyId, replyId),
+            eq(forumLikes.userId, userId)
           ));
         
         await db.update(forumReplies)
@@ -1810,7 +1810,7 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
           .where(eq(forumReplies.id, replyId));
       } else {
         // Add like
-        await db.insert(forumReplyLikes).values({
+        await db.insert(forumLikes).values({
           userId,
           replyId
         });
