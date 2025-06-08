@@ -318,6 +318,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // AI Chat routes
+  app.post('/api/ai/chat', isAuthenticated, async (req, res) => {
+    try {
+      const { query, region, conversationHistory } = req.body;
+      
+      if (!query) {
+        return res.status(400).json({ message: "Query is required" });
+      }
+
+      const { civicAI } = await import('./civicAI');
+      const response = await civicAI.processQuery({
+        query,
+        region,
+        conversationHistory
+      });
+
+      res.json(response);
+    } catch (error) {
+      console.error("AI chat error:", error);
+      res.status(500).json({ 
+        message: "AI analysis failed",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   // Function to check vote thresholds and auto-create petitions
   async function checkVotePetitionThreshold(billId: number) {
     try {
