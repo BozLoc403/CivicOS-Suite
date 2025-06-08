@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertBillSchema, insertVoteSchema, insertPoliticianSchema } from "@shared/schema";
-import { summarizeBill, analyzePoliticianStatement } from "./openai";
+import { summarizeBill, analyzePoliticianStatement } from "./claude";
 import crypto from "crypto";
 
 export async function registerRoutes(app: Express): Promise<Server> {
