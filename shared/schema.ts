@@ -367,15 +367,12 @@ export const forumPosts = pgTable("forum_posts", {
   authorId: varchar("author_id").notNull().references(() => users.id),
   categoryId: integer("category_id").notNull().references(() => forumCategories.id),
   billId: integer("bill_id").references(() => bills.id), // if discussing a bill
-  petitionId: integer("petition_id").references(() => petitions.id), // if discussing a petition
-  isPinned: boolean("is_pinned").default(false),
+  isSticky: boolean("is_sticky").default(false),
   isLocked: boolean("is_locked").default(false),
   viewCount: integer("view_count").default(0),
   likeCount: integer("like_count").default(0),
   replyCount: integer("reply_count").default(0),
-  lastActivityAt: timestamp("last_activity_at").defaultNow(),
-  moderationStatus: varchar("moderation_status").default("approved"), // approved, flagged, removed
-  moderationReason: varchar("moderation_reason"),
+  topic: varchar("topic"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

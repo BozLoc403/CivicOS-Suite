@@ -1521,20 +1521,20 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
         id: row.forum_posts.id,
         title: row.forum_posts.title,
         content: row.forum_posts.content,
-        authorId: row.forum_posts.authorId,
-        categoryId: row.forum_posts.categoryId,
-        billId: row.forum_posts.billId,
-        createdAt: row.forum_posts.createdAt,
-        updatedAt: row.forum_posts.updatedAt,
-        viewCount: row.forum_posts.viewCount,
-        isSticky: row.forum_posts.isSticky || false,
-        isLocked: row.forum_posts.isLocked || false,
-        replyCount: row.forum_posts.replyCount || 0,
-        likeCount: row.forum_posts.likeCount || 0,
+        authorId: row.forum_posts.author_id,
+        categoryId: row.forum_posts.category_id,
+        billId: row.forum_posts.bill_id,
+        createdAt: row.forum_posts.created_at,
+        updatedAt: row.forum_posts.updated_at,
+        viewCount: row.forum_posts.view_count || 0,
+        isSticky: row.forum_posts.is_sticky || false,
+        isLocked: row.forum_posts.is_locked || false,
+        replyCount: row.forum_posts.reply_count || 0,
+        likeCount: row.forum_posts.like_count || 0,
         author: row.users ? {
-          firstName: row.users.firstName,
+          firstName: row.users.first_name,
           email: row.users.email,
-          profileImageUrl: row.users.profileImageUrl
+          profileImageUrl: row.users.profile_image_url
         } : null,
         category: row.forum_categories ? {
           name: row.forum_categories.name,
@@ -1543,7 +1543,7 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
         } : null,
         bill: row.bills ? {
           title: row.bills.title,
-          billNumber: row.bills.billNumber
+          billNumber: row.bills.bill_number
         } : null
       }));
 
