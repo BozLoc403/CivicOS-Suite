@@ -211,9 +211,16 @@ export function LegalSystemWidget() {
                     </div>
                   ))}
                   
-                  {filteredCriminalCode.length === 0 && (
+                  {filteredCriminalCode.length === 0 && !loadingCriminal && (
                     <div className="text-center py-8">
-                      <p className="text-sm text-muted-foreground">No criminal code sections found</p>
+                      <AlertTriangle className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+                      <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
+                        Criminal Code System Loading
+                      </h3>
+                      <p className="text-xs text-gray-500 max-w-sm mx-auto">
+                        Accessing authentic Canadian Criminal Code from official government sources. 
+                        Only verified sections with accurate legal text and penalties will be displayed.
+                      </p>
                     </div>
                   )}
                 </div>

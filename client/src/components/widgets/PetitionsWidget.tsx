@@ -71,28 +71,12 @@ export default function PetitionsWidget() {
     }
   };
 
-  const getUrgencyIndicator = (urgency: string) => {
-    switch (urgency) {
-      case 'high': return { color: 'text-red-500', icon: <AlertCircle className="h-3 w-3" /> };
-      case 'medium': return { color: 'text-yellow-500', icon: <Clock className="h-3 w-3" /> };
-      default: return { color: 'text-blue-500', icon: <Target className="h-3 w-3" /> };
-    }
-  };
-
   const calculateProgress = (current: number, target: number) => {
     return Math.min((current / target) * 100, 100);
   };
 
   const getUserSignature = (petitionId: number) => {
     return userSignatures.find(sig => sig.petitionId === petitionId);
-  };
-
-  const isDeadlineApproaching = (deadline?: string) => {
-    if (!deadline) return false;
-    const deadlineDate = new Date(deadline);
-    const now = new Date();
-    const daysUntilDeadline = Math.ceil((deadlineDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-    return daysUntilDeadline <= 7 && daysUntilDeadline > 0;
   };
 
   const isActive = (petition: Petition) => {
@@ -133,7 +117,7 @@ export default function PetitionsWidget() {
             </Badge>
             {petitionStats && (
               <Badge variant="secondary" className="text-xs">
-                {petitionStats.totalSignatures} Signatures
+                {(petitionStats as any).totalSignatures || 0} Signatures
               </Badge>
             )}
           </div>
@@ -141,169 +125,103 @@ export default function PetitionsWidget() {
       </CardHeader>
       <CardContent className="overflow-y-auto">
         <div className="space-y-3">
-          {/* Trending/Urgent Petitions */}
-          {petitions.filter(p => p.recentActivity.trending || p.urgency === 'high').length > 0 && (
-            <div className="border-l-4 border-orange-500 pl-3 mb-4">
-              <h4 className="font-medium text-sm mb-2 text-orange-700 dark:text-orange-300">
-                🔥 Trending & Urgent
-              </h4>
-              <div className="space-y-2">
-                {petitions
-                  .filter(p => p.recentActivity.trending || p.urgency === 'high')
-                  .slice(0, 2)
-                  .map((petition) => {
-                    const userSignature = getUserSignature(petition.id);
-                    const progress = calculateProgress(petition.currentSignatures, petition.targetSignatures);
-                    const urgencyIndicator = getUrgencyIndicator(petition.urgency);
-                    
-                    return (
-                      <div key={petition.id} className="border rounded-lg p-2 bg-orange-50 dark:bg-orange-900/20">
-                        <div className="flex items-start justify-between mb-2">
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-2 mb-1">
-                              <span className={urgencyIndicator.color}>
-                                {urgencyIndicator.icon}
-                              </span>
-                              <Badge className={`text-xs ${getStatusColor(petition.status)}`}>
-                                {petition.status}
-                              </Badge>
-                              <Badge className={`text-xs ${getImpactColor(petition.impact)}`}>
-                                {petition.impact}
-                              </Badge>
-                              {petition.recentActivity.trending && (
-                                <TrendingUp className="h-3 w-3 text-orange-500" />
-                              )}
-                            </div>
-                            <h5 className="font-medium text-sm mb-1 line-clamp-2">{petition.title}</h5>
-                            <p className="text-xs text-gray-600 dark:text-gray-300 line-clamp-2">
-                              {petition.description}
-                            </p>
-                          </div>
-                        </div>
-                        
-                        {/* Progress Bar */}
-                        <div className="space-y-1 mb-2">
-                          <div className="flex justify-between text-xs">
-                            <span>Progress</span>
-                            <span>{petition.currentSignatures.toLocaleString()} / {petition.targetSignatures.toLocaleString()}</span>
-                          </div>
-                          <Progress value={progress} className="h-2" />
-                          <div className="flex justify-between text-xs text-gray-500">
-                            <span>{Math.round(progress)}% completed</span>
-                            <span>+{petition.recentActivity.signaturesLast24h} today</span>
-                          </div>
-                        </div>
-
-                        {/* Action Button */}
-                        {userSignature ? (
-                          <div className="flex items-center space-x-2 text-xs text-green-600 dark:text-green-400">
-                            <Users className="h-3 w-3" />
-                            <span>Signed on {new Date(userSignature.signedAt).toLocaleDateString()}</span>
-                            <Badge variant="secondary" className="text-xs">
-                              {userSignature.verificationStatus}
-                            </Badge>
-                          </div>
-                        ) : isActive(petition) ? (
-                          <Button size="sm" className="w-full h-6 text-xs">
-                            Sign Petition
-                          </Button>
-                        ) : (
-                          <div className="text-xs text-gray-500 text-center">
-                            Petition Closed
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-              </div>
+          {/* Show empty state when no authentic data is available */}
+          {petitions.length === 0 ? (
+            <div className="text-center py-8">
+              <FileText className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+              <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
+                Petition System Loading
+              </h3>
+              <p className="text-xs text-gray-500 max-w-sm mx-auto">
+                Connecting to authentic Canadian petition platforms and government petition systems. 
+                Only verified petitions with real signatures and official status will be displayed.
+              </p>
             </div>
-          )}
-
-          {/* Regular Petitions */}
-          {petitions
-            .filter(p => !p.recentActivity.trending && p.urgency !== 'high')
-            .map((petition) => {
-              const userSignature = getUserSignature(petition.id);
-              const progress = calculateProgress(petition.currentSignatures, petition.targetSignatures);
-              const urgencyIndicator = getUrgencyIndicator(petition.urgency);
-              const deadlineWarning = isDeadlineApproaching(petition.deadlineDate);
-              
-              return (
-                <div key={petition.id} className="border rounded-lg p-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-2 mb-1">
-                        <Badge variant="secondary" className="text-xs">{petition.category}</Badge>
-                        <Badge className={`text-xs ${getStatusColor(petition.status)}`}>
-                          {petition.status}
-                        </Badge>
-                        <Badge className={`text-xs ${getImpactColor(petition.impact)}`}>
-                          {petition.impact}
-                        </Badge>
-                        {deadlineWarning && (
-                          <AlertCircle className="h-3 w-3 text-red-500" />
-                        )}
+          ) : (
+            <>
+              {/* Regular Petitions */}
+              {petitions.map((petition) => {
+                const userSignature = getUserSignature(petition.id);
+                const progress = calculateProgress(petition.currentSignatures, petition.targetSignatures);
+                
+                return (
+                  <div key={petition.id} className="border rounded-lg p-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-2 mb-1">
+                          <Badge variant="secondary" className="text-xs">{petition.category}</Badge>
+                          <Badge className={`text-xs ${getStatusColor(petition.status)}`}>
+                            {petition.status}
+                          </Badge>
+                          <Badge className={`text-xs ${getImpactColor(petition.impact)}`}>
+                            {petition.impact}
+                          </Badge>
+                          {petition.recentActivity.trending && (
+                            <TrendingUp className="h-3 w-3 text-orange-500" />
+                          )}
+                        </div>
+                        <h4 className="font-medium text-sm mb-1 line-clamp-2">{petition.title}</h4>
+                        <p className="text-xs text-gray-600 dark:text-gray-300 line-clamp-2">
+                          {petition.description}
+                        </p>
                       </div>
-                      <h4 className="font-medium text-sm mb-1 line-clamp-2">{petition.title}</h4>
-                      <p className="text-xs text-gray-600 dark:text-gray-300 line-clamp-2">
-                        {petition.description}
-                      </p>
                     </div>
-                  </div>
 
-                  {/* Creator & Target */}
-                  <div className="flex items-center space-x-4 mb-2 text-xs text-gray-500">
-                    <div className="flex items-center space-x-1">
-                      <Users className="h-3 w-3" />
-                      <span>{petition.creator.name}</span>
-                      {petition.creator.verified && <span className="text-green-500">✓</span>}
-                    </div>
-                    {petition.targetOfficial && (
+                    {/* Creator & Target */}
+                    <div className="flex items-center space-x-4 mb-2 text-xs text-gray-500">
                       <div className="flex items-center space-x-1">
-                        <Target className="h-3 w-3" />
-                        <span>{petition.targetOfficial}</span>
+                        <Users className="h-3 w-3" />
+                        <span>{petition.creator.name}</span>
+                        {petition.creator.verified && <span className="text-green-500">✓</span>}
                       </div>
-                    )}
-                  </div>
-
-                  {/* Progress */}
-                  <div className="space-y-1 mb-2">
-                    <Progress value={progress} className="h-1.5" />
-                    <div className="flex justify-between text-xs text-gray-500">
-                      <span>{petition.currentSignatures.toLocaleString()} signatures</span>
-                      <span>{Math.round(progress)}% of goal</span>
-                    </div>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2 text-xs text-gray-500">
-                      <TrendingUp className="h-3 w-3" />
-                      <span>+{petition.recentActivity.signaturesLast24h} today</span>
-                      {petition.deadlineDate && (
-                        <>
-                          <span>•</span>
-                          <Clock className="h-3 w-3" />
-                          <span>{new Date(petition.deadlineDate).toLocaleDateString()}</span>
-                        </>
+                      {petition.targetOfficial && (
+                        <div className="flex items-center space-x-1">
+                          <Target className="h-3 w-3" />
+                          <span>{petition.targetOfficial}</span>
+                        </div>
                       )}
                     </div>
-                    
-                    {userSignature ? (
-                      <Badge variant="secondary" className="text-xs">
-                        Signed
-                      </Badge>
-                    ) : isActive(petition) ? (
-                      <Button variant="outline" size="sm" className="h-6 px-2 text-xs">
-                        Sign
-                      </Button>
-                    ) : (
-                      <span className="text-xs text-gray-400">Closed</span>
-                    )}
+
+                    {/* Progress */}
+                    <div className="space-y-1 mb-2">
+                      <Progress value={progress} className="h-1.5" />
+                      <div className="flex justify-between text-xs text-gray-500">
+                        <span>{petition.currentSignatures.toLocaleString()} signatures</span>
+                        <span>{Math.round(progress)}% of goal</span>
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2 text-xs text-gray-500">
+                        <TrendingUp className="h-3 w-3" />
+                        <span>+{petition.recentActivity.signaturesLast24h} today</span>
+                        {petition.deadlineDate && (
+                          <>
+                            <span>•</span>
+                            <Clock className="h-3 w-3" />
+                            <span>{new Date(petition.deadlineDate).toLocaleDateString()}</span>
+                          </>
+                        )}
+                      </div>
+                      
+                      {userSignature ? (
+                        <Badge variant="secondary" className="text-xs">
+                          Signed
+                        </Badge>
+                      ) : isActive(petition) ? (
+                        <Button variant="outline" size="sm" className="h-6 px-2 text-xs">
+                          Sign
+                        </Button>
+                      ) : (
+                        <span className="text-xs text-gray-400">Closed</span>
+                      )}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </>
+          )}
         </div>
 
         <div className="mt-4 pt-3 border-t">
