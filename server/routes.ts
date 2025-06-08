@@ -684,6 +684,56 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
     }
   });
 
+  // Media credibility analysis
+  app.post('/api/news/analyze-credibility', async (req, res) => {
+    try {
+      const { articleText, sourceName } = req.body;
+      
+      if (!articleText || !sourceName) {
+        return res.status(400).json({ message: "Article text and source name required" });
+      }
+
+      const { analyzeArticleCredibility } = await import('./mediaCredibility');
+      const analysis = await analyzeArticleCredibility(articleText, sourceName);
+      
+      res.json(analysis);
+    } catch (error) {
+      console.error("Error analyzing article credibility:", error);
+      res.status(500).json({ message: "Failed to analyze article credibility" });
+    }
+  });
+
+  // Get media outlet profile and funding information
+  app.get('/api/news/outlet/:name', async (req, res) => {
+    try {
+      const sourceName = req.params.name;
+      const { getMediaOutletProfile, getMediaOutletFunding } = await import('./mediaCredibility');
+      
+      const profile = getMediaOutletProfile(sourceName);
+      const funding = getMediaOutletFunding(sourceName);
+      
+      if (!profile) {
+        return res.status(404).json({ message: "Media outlet not found in database" });
+      }
+      
+      res.json({ profile, funding });
+    } catch (error) {
+      console.error("Error fetching media outlet info:", error);
+      res.status(500).json({ message: "Failed to fetch media outlet information" });
+    }
+  });
+
+  // Get all media outlets for comparison
+  app.get('/api/news/outlets', async (req, res) => {
+    try {
+      const { canadianMediaOutlets } = await import('./mediaCredibility');
+      res.json(canadianMediaOutlets);
+    } catch (error) {
+      console.error("Error fetching media outlets:", error);
+      res.status(500).json({ message: "Failed to fetch media outlets" });
+    }
+  });
+
   // Comprehensive contacts directory with extensive real contact information
   app.get('/api/contacts/comprehensive', async (req, res) => {
     try {

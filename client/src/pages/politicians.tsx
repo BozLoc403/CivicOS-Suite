@@ -44,7 +44,7 @@ export default function Politicians() {
     const matchesSearch = politician.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          politician.constituency?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesParty = partyFilter === "all" || politician.party === partyFilter;
-    const matchesLevel = levelFilter === "all" || politician.level === levelFilter;
+    const matchesLevel = levelFilter === "all" || politician.jurisdiction === levelFilter;
     
     return matchesSearch && matchesParty && matchesLevel;
   });
