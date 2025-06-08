@@ -1824,6 +1824,39 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
     }
   });
 
+  // Initialize comprehensive legal system - removes duplicates and populates exhaustive content
+  app.post('/api/legal/initialize', async (req, res) => {
+    try {
+      console.log("Starting comprehensive legal system initialization...");
+      await legalSystemOrganizer.initializeLegalSystem();
+      res.json({ 
+        message: "Legal system initialized successfully with exhaustive Canadian law content",
+        status: "complete",
+        timestamp: new Date().toISOString(),
+        features: [
+          "Duplicate removal completed",
+          "Criminal Code sections populated",
+          "Federal legislation acts populated", 
+          "Landmark legal cases populated"
+        ]
+      });
+    } catch (error) {
+      console.error("Error initializing legal system:", error);
+      res.status(500).json({ message: "Failed to initialize legal system" });
+    }
+  });
+
+  // Get comprehensive legal hierarchy
+  app.get('/api/legal/hierarchy', async (req, res) => {
+    try {
+      const hierarchy = await legalSystemOrganizer.getLegalHierarchy();
+      res.json(hierarchy);
+    } catch (error) {
+      console.error("Error fetching legal hierarchy:", error);
+      res.status(500).json({ message: "Failed to fetch legal hierarchy" });
+    }
+  });
+
   // Enhanced news articles with AI analysis
   app.get("/api/news/articles", async (req, res) => {
     try {
