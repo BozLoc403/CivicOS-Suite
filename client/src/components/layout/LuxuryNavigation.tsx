@@ -72,8 +72,8 @@ const navigationSections = [
     title: "Legal Oversight Grid",
     items: [
       { title: "Legal System", href: "/legal", icon: Gavel },
+      { title: "Your Rights", href: "/rights", icon: Shield, badge: "Charter" },
       { title: "Constitutional Cases", href: "/cases", icon: Scale },
-      { title: "Charter Monitor", href: "/charter", icon: Shield },
       { title: "Legal Search", href: "/legal-search", icon: Search }
     ]
   },
