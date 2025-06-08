@@ -39,6 +39,7 @@ function Router() {
           <Route path="/services" component={Services} />
           <Route path="/elections" component={Elections} />
           <Route path="/news" component={News} />
+          <Route path="/contacts" component={Contacts} />
         </>
       )}
       <Route component={NotFound} />

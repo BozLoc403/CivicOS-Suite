@@ -36,6 +36,14 @@ export default function Dashboard() {
     queryKey: ["/api/politicians"],
   });
 
+  const { data: comprehensiveContacts = [] } = useQuery({
+    queryKey: ["/api/contacts/comprehensive"],
+  });
+
+  const { data: newsArticles = [] } = useQuery({
+    queryKey: ["/api/news/articles"],
+  });
+
   const handleVoteClick = (bill: Bill) => {
     setSelectedBill(bill);
     setIsVotingModalOpen(true);

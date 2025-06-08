@@ -119,6 +119,24 @@ export function NavigationHeader() {
                   Gov Services
                 </a>
               </Link>
+              <Link href="/contacts">
+                <a className={`px-1 pb-4 text-sm font-medium transition-colors ${
+                  isActive("/contacts") 
+                    ? "civic-blue border-b-2 border-civic-blue" 
+                    : "text-gray-500 hover:text-gray-700"
+                }`}>
+                  Contacts
+                </a>
+              </Link>
+              <Link href="/news">
+                <a className={`px-1 pb-4 text-sm font-medium transition-colors ${
+                  isActive("/news") 
+                    ? "civic-blue border-b-2 border-civic-blue" 
+                    : "text-gray-500 hover:text-gray-700"
+                }`}>
+                  News Analysis
+                </a>
+              </Link>
 
             </nav>
           </div>
