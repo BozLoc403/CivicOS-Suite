@@ -4,6 +4,7 @@ import { setupVite, serveStatic, log } from "./vite";
 import { initializeDataSync } from "./dataSync";
 import { initializeNewsAnalysis } from "./newsAnalyzer";
 import { realTimeMonitoring } from "./realTimeMonitoring";
+import { legalDataPopulator } from "./legalDataPopulator";
 
 const app = express();
 app.use(express.json());
@@ -78,5 +79,10 @@ app.use((req, res, next) => {
     
     // Start real-time platform monitoring
     realTimeMonitoring.startMonitoring();
+    
+    // Initialize comprehensive legal database
+    setTimeout(() => {
+      legalDataPopulator.populateAllLegalData().catch(console.error);
+    }, 5000);
   });
 })();

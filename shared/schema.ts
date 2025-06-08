@@ -392,7 +392,7 @@ export const userMessages = pgTable("user_messages", {
   content: text("content").notNull(),
   isRead: boolean("is_read").default(false),
   readAt: timestamp("read_at"),
-  parentMessageId: integer("parent_message_id").references(() => userMessages.id),
+  parentMessageId: integer("parent_message_id"), // remove self-reference for now
   isDeleted: boolean("is_deleted").default(false),
   createdAt: timestamp("created_at").defaultNow(),
 });
