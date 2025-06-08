@@ -8,6 +8,7 @@ import { NavigationHeader } from "@/components/NavigationHeader";
 import { VotingModal } from "@/components/VotingModal";
 import { BadgeDisplay } from "@/components/BadgeDisplay";
 import { DailyChallenges } from "@/components/DailyChallenges";
+import { AIStatusBanner } from "@/components/AIStatusBanner";
 import { Vote, Clock, Shield, Users, ExternalLink, AlertCircle, MapPin, Trophy, Zap, TrendingUp } from "lucide-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
@@ -40,6 +41,10 @@ export default function Dashboard() {
 
   const { data: comprehensiveContacts = [] } = useQuery({
     queryKey: ["/api/contacts/comprehensive"],
+  });
+
+  const { data: aiStatus } = useQuery({
+    queryKey: ['/api/ai/status'],
   });
 
   const { data: newsArticles = [] } = useQuery({
@@ -148,6 +153,9 @@ export default function Dashboard() {
       <NavigationHeader />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* AI Status Banner */}
+        <AIStatusBanner hasApiKey={!!aiStatus?.enabled} className="mb-6" />
+        
         {/* Welcome Section */}
         <div className="mb-8 bg-gradient-to-br from-civic-green via-civic-blue to-civic-purple text-white p-10 rounded-2xl shadow-2xl border border-white/10 backdrop-blur-sm">
           <h1 className="text-luxury text-5xl font-bold mb-6 tracking-tight">
