@@ -595,7 +595,7 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
       const { title, content, category, isVerificationRequired } = req.body;
       
       const [discussion] = await db.insert(schema.discussions).values({
-        userId,
+        creatorId: userId,
         title,
         content,
         category,
@@ -805,7 +805,7 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
         petitionId,
         userId,
         signedAt: new Date(),
-        isVerified: true
+        verificationId: `verified-${Date.now()}`
       });
 
       // Update petition signature count
