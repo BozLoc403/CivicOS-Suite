@@ -312,17 +312,23 @@ export default function Dashboard() {
                   Quick Actions
                 </h3>
                 <div className="space-y-2">
-                  <Button variant="outline" size="sm" className="w-full justify-start">
-                    <BarChart3 className="h-4 w-4 mr-2" />
-                    View Analytics
+                  <Button variant="outline" size="sm" className="w-full justify-start" asChild>
+                    <a href="/voting">
+                      <BarChart3 className="h-4 w-4 mr-2" />
+                      View Analytics
+                    </a>
                   </Button>
-                  <Button variant="outline" size="sm" className="w-full justify-start">
-                    <Globe className="h-4 w-4 mr-2" />
-                    Explore Maps
+                  <Button variant="outline" size="sm" className="w-full justify-start" asChild>
+                    <a href="/politicians">
+                      <Globe className="h-4 w-4 mr-2" />
+                      Explore Politicians
+                    </a>
                   </Button>
-                  <Button variant="outline" size="sm" className="w-full justify-start">
-                    <MessageSquare className="h-4 w-4 mr-2" />
-                    Join Discussions
+                  <Button variant="outline" size="sm" className="w-full justify-start" asChild>
+                    <a href="/discussions">
+                      <MessageSquare className="h-4 w-4 mr-2" />
+                      Join Discussions
+                    </a>
                   </Button>
                 </div>
               </CardContent>

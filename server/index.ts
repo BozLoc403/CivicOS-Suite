@@ -3,6 +3,7 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { initializeDataSync } from "./dataSync";
 import { initializeNewsAnalysis } from "./newsAnalyzer";
+import { comprehensiveNewsAnalyzer } from "./comprehensiveNewsAnalyzer";
 import { realTimeMonitoring } from "./realTimeMonitoring";
 import { legalDataPopulator } from "./legalDataPopulator";
 

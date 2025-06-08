@@ -698,27 +698,38 @@ export const newsArticles = pgTable("news_articles", {
   scrapedAt: timestamp("scraped_at").defaultNow(),
   category: varchar("category"), // politics, economy, health, etc
   
-  // Analysis scores
+  // Enhanced analysis scores
   truthScore: decimal("truth_score", { precision: 5, scale: 2 }), // 0-100
   biasScore: decimal("bias_score", { precision: 5, scale: 2 }), // -100 to 100 (left to right)
   propagandaRisk: varchar("propaganda_risk"), // low, medium, high
   credibilityScore: decimal("credibility_score", { precision: 5, scale: 2 }), // 0-100
+  bias: varchar("bias").default("center"), // left, center, right
+  factualityScore: integer("factuality_score").default(50), // 0-100
+  emotionalTone: varchar("emotional_tone").default("neutral"), // neutral, positive, negative, angry, fearful, hopeful
   
-  // Content analysis
+  // Enhanced content analysis
   sentiment: varchar("sentiment"), // positive, negative, neutral
+  sentimentScore: integer("sentiment_score").default(0), // -100 to 100
   emotionalLanguage: boolean("emotional_language").default(false),
   factualClaims: text("factual_claims").array(), // extracted claims
   verifiedFacts: text("verified_facts").array(), // fact-checked claims
   falseStatements: text("false_statements").array(), // debunked claims
+  propagandaTechniques: text("propaganda_techniques").array(), // propaganda techniques identified
+  keyTopics: text("key_topics").array(), // main topics covered
+  claims: jsonb("claims"), // structured claims analysis
   
   // Political connections
   mentionedPoliticians: text("mentioned_politicians").array(),
+  politiciansInvolved: text("politicians_involved").array(),
   mentionedParties: text("mentioned_parties").array(),
   relatedBills: text("related_bills").array(),
   
   // Meta analysis
   analysisNotes: text("analysis_notes"),
+  analysisDate: timestamp("analysis_date").defaultNow(),
   lastAnalyzed: timestamp("last_analyzed").defaultNow(),
+  isVerified: boolean("is_verified").default(false),
+  publicImpact: integer("public_impact").default(50), // 0-100
 });
 
 export const newsSourceCredibility = pgTable("news_source_credibility", {
@@ -742,6 +753,23 @@ export const newsSourceCredibility = pgTable("news_source_credibility", {
   
   lastEvaluated: timestamp("last_evaluated").defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),
+});
+
+// News comparisons and cross-source analysis
+export const newsComparisons = pgTable("news_comparisons", {
+  id: serial("id").primaryKey(),
+  topic: varchar("topic").notNull().unique(),
+  sources: text("sources").array().notNull(), // array of news source names
+  consensusLevel: integer("consensus_level").notNull(), // 0-100 agreement level
+  majorDiscrepancies: text("major_discrepancies").array(),
+  propagandaPatterns: text("propaganda_patterns").array(),
+  factualAccuracy: integer("factual_accuracy").notNull(), // 0-100
+  politicalBias: jsonb("political_bias").notNull(), // {left: 30, center: 40, right: 30}
+  mediaManipulation: text("media_manipulation"),
+  publicImpact: text("public_impact"),
+  recommendedAction: text("recommended_action"),
+  analysisDate: timestamp("analysis_date").defaultNow(),
+  articleCount: integer("article_count").default(0),
 });
 
 export const politicianTruthTracking = pgTable("politician_truth_tracking", {
