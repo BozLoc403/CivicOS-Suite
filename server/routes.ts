@@ -28,6 +28,25 @@ import { legalSystemOrganizer } from "./legalSystemOrganizer";
 import { newsComparison } from "./newsComparison";
 import crypto from "crypto";
 
+// Extend Express User interface to include claims
+declare global {
+  namespace Express {
+    interface User {
+      claims?: {
+        sub: string;
+        email?: string;
+        first_name?: string;
+        last_name?: string;
+        profile_image_url?: string;
+        exp?: number;
+      };
+      access_token?: string;
+      refresh_token?: string;
+      expires_at?: number;
+    }
+  }
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
@@ -909,6 +928,19 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
     } catch (error) {
       console.error("Error getting voting results:", error);
       res.status(500).json({ message: "Failed to get voting results" });
+    }
+  });
+
+  // Civic AI endpoints using OpenAI
+  app.post('/api/civic-ai/query', isAuthenticated, async (req, res) => {
+    try {
+      const { query, region } = req.body;
+      const { openaiCivicAI } = await import("./openaiCivicAI");
+      const response = await openaiCivicAI.processQuery({ query, region });
+      res.json(response);
+    } catch (error) {
+      console.error("Error processing civic AI query:", error);
+      res.status(500).json({ message: "Failed to process civic AI query" });
     }
   });
 
