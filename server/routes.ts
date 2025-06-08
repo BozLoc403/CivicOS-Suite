@@ -1591,15 +1591,15 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
       const replies = rawReplies.map((row: any) => ({
         id: row.forum_replies.id,
         content: row.forum_replies.content,
-        authorId: row.forum_replies.authorId,
-        postId: row.forum_replies.postId,
-        parentReplyId: row.forum_replies.parentReplyId,
-        createdAt: row.forum_replies.createdAt,
-        likeCount: row.forum_replies.likeCount || 0,
+        authorId: row.forum_replies.author_id,
+        postId: row.forum_replies.post_id,
+        parentReplyId: row.forum_replies.parent_id,
+        createdAt: row.forum_replies.created_at,
+        likeCount: row.forum_replies.like_count || 0,
         author: row.users ? {
-          firstName: row.users.firstName,
+          firstName: row.users.first_name,
           email: row.users.email,
-          profileImageUrl: row.users.profileImageUrl
+          profileImageUrl: row.users.profile_image_url
         } : null
       }));
 
@@ -1623,7 +1623,7 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
         authorId: userId,
         content,
         postId: parseInt(postId),
-        parentReplyId: parentReplyId ? parseInt(parentReplyId) : null
+        parentId: parentReplyId ? parseInt(parentReplyId) : null
       }).returning();
 
       // Update reply count on the post
