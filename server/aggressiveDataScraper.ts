@@ -604,7 +604,7 @@ export class AggressiveDataScraper {
           level: level,
           constituency: politicianData.constituency,
           contact: contact,
-          lastUpdated: new Date()
+          updatedAt: new Date()
         }
       });
     } catch (error) {
@@ -635,9 +635,10 @@ export class AggressiveDataScraper {
         await db.insert(bills).values({
           billNumber: billData.billNumber,
           title: billData.title,
-          summary: billData.summary,
+          description: billData.summary,
           status: billData.status,
           category: billData.category,
+          jurisdiction: 'Federal',
           votingDeadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days from now
         });
       }
