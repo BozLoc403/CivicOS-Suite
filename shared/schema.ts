@@ -286,6 +286,25 @@ export const legalSections = pgTable("legal_sections", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Add missing politician controversies table
+export const politicianControversies = pgTable("politician_controversies", {
+  id: serial("id").primaryKey(),
+  politicianId: integer("politician_id").notNull().references(() => politicians.id),
+  title: varchar("title").notNull(),
+  description: text("description").notNull(),
+  category: varchar("category").notNull(), // ethics, scandal, policy_flip, etc.
+  severity: varchar("severity").default("medium"), // low, medium, high, critical
+  dateOccurred: timestamp("date_occurred"),
+  sourceUrl: varchar("source_url"),
+  verified: boolean("verified").default(false),
+  impactScore: integer("impact_score").default(0), // 0-100
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Add missing legislative acts table (aliased from legalActs)
+export const legislativeActs = legalActs;
+
 export const legalCases = pgTable("legal_cases", {
   id: serial("id").primaryKey(),
   caseName: varchar("case_name").notNull(),
