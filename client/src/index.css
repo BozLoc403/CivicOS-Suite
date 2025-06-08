@@ -3,61 +3,91 @@
 @tailwind utilities;
 
 :root {
+  /* Luxury Political Platform - Light Theme */
   --background: hsl(0, 0%, 100%);
-  --foreground: hsl(20, 14.3%, 4.1%);
-  --muted: hsl(60, 4.8%, 95.9%);
-  --muted-foreground: hsl(25, 5.3%, 44.7%);
+  --foreground: hsl(220, 26%, 14%);
+  --muted: hsl(213, 31%, 91%);
+  --muted-foreground: hsl(215, 25%, 27%);
   --popover: hsl(0, 0%, 100%);
-  --popover-foreground: hsl(20, 14.3%, 4.1%);
+  --popover-foreground: hsl(220, 26%, 14%);
   --card: hsl(0, 0%, 100%);
-  --card-foreground: hsl(20, 14.3%, 4.1%);
-  --border: hsl(20, 5.9%, 90%);
-  --input: hsl(20, 5.9%, 90%);
-  --primary: hsl(207, 90%, 54%);
-  --primary-foreground: hsl(211, 100%, 99%);
-  --secondary: hsl(60, 4.8%, 95.9%);
-  --secondary-foreground: hsl(24, 9.8%, 10%);
-  --accent: hsl(60, 4.8%, 95.9%);
-  --accent-foreground: hsl(24, 9.8%, 10%);
-  --destructive: hsl(0, 84.2%, 60.2%);
-  --destructive-foreground: hsl(60, 9.1%, 97.8%);
-  --ring: hsl(20, 14.3%, 4.1%);
-  --radius: 0.5rem;
+  --card-foreground: hsl(220, 26%, 14%);
+  --border: hsl(213, 31%, 91%);
+  --input: hsl(213, 31%, 91%);
+  --primary: hsl(142, 86%, 28%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(213, 31%, 91%);
+  --secondary-foreground: hsl(220, 26%, 14%);
+  --accent: hsl(142, 86%, 28%);
+  --accent-foreground: hsl(0, 0%, 100%);
+  --destructive: hsl(0, 84%, 60%);
+  --destructive-foreground: hsl(0, 0%, 100%);
+  --ring: hsl(142, 86%, 28%);
+  --radius: 0.75rem;
   
-  /* CivicOS Custom Colors */
-  --civic-blue: hsl(207, 90%, 54%);
-  --civic-green: hsl(156, 81%, 29%);
-  --civic-red: hsl(0, 73%, 41%);
+  /* Political Brand Colors */
+  --civic-blue: hsl(220, 91%, 51%);
+  --civic-green: hsl(142, 86%, 28%);
+  --civic-red: hsl(0, 84%, 60%);
+  --civic-gold: hsl(45, 93%, 58%);
+  --civic-purple: hsl(259, 94%, 51%);
   --civic-gray: hsl(210, 11%, 25%);
+  
+  /* Trust Score Colors */
+  --trust-high: hsl(142, 86%, 28%);
+  --trust-medium: hsl(45, 93%, 58%);
+  --trust-low: hsl(0, 84%, 60%);
+  
+  /* Party Colors */
+  --liberal-red: hsl(0, 73%, 41%);
+  --conservative-blue: hsl(220, 91%, 51%);
+  --ndp-orange: hsl(24, 100%, 50%);
+  --bloc-cyan: hsl(195, 53%, 79%);
+  --green-party: hsl(142, 86%, 28%);
 }
 
 .dark {
-  --background: hsl(240, 10%, 3.9%);
-  --foreground: hsl(0, 0%, 98%);
-  --muted: hsl(240, 3.7%, 15.9%);
-  --muted-foreground: hsl(240, 5%, 64.9%);
-  --popover: hsl(240, 10%, 3.9%);
-  --popover-foreground: hsl(0, 0%, 98%);
-  --card: hsl(240, 10%, 3.9%);
-  --card-foreground: hsl(0, 0%, 98%);
-  --border: hsl(240, 3.7%, 15.9%);
-  --input: hsl(240, 3.7%, 15.9%);
-  --primary: hsl(207, 90%, 54%);
-  --primary-foreground: hsl(211, 100%, 99%);
-  --secondary: hsl(240, 3.7%, 15.9%);
-  --secondary-foreground: hsl(0, 0%, 98%);
-  --accent: hsl(240, 3.7%, 15.9%);
-  --accent-foreground: hsl(0, 0%, 98%);
-  --destructive: hsl(0, 62.8%, 30.6%);
-  --destructive-foreground: hsl(0, 0%, 98%);
-  --ring: hsl(240, 4.9%, 83.9%);
-  --radius: 0.5rem;
+  /* Luxury Political Platform - Dark Theme */
+  --background: hsl(220, 26%, 14%);
+  --foreground: hsl(213, 31%, 91%);
+  --muted: hsl(215, 25%, 27%);
+  --muted-foreground: hsl(217, 19%, 75%);
+  --popover: hsl(217, 32%, 17%);
+  --popover-foreground: hsl(213, 31%, 91%);
+  --card: hsl(217, 32%, 17%);
+  --card-foreground: hsl(213, 31%, 91%);
+  --border: hsl(215, 25%, 27%);
+  --input: hsl(215, 25%, 27%);
+  --primary: hsl(142, 86%, 28%);
+  --primary-foreground: hsl(355, 25%, 95%);
+  --secondary: hsl(215, 25%, 27%);
+  --secondary-foreground: hsl(213, 31%, 91%);
+  --accent: hsl(142, 86%, 28%);
+  --accent-foreground: hsl(355, 25%, 95%);
+  --destructive: hsl(0, 84%, 60%);
+  --destructive-foreground: hsl(210, 40%, 98%);
+  --ring: hsl(142, 86%, 28%);
+  --radius: 0.75rem;
   
-  /* CivicOS Custom Colors - Dark Mode */
-  --civic-blue: hsl(207, 90%, 54%);
-  --civic-green: hsl(156, 81%, 29%);
-  --civic-red: hsl(0, 73%, 41%);
+  /* Enhanced dark luxury colors */
+  --civic-blue: hsl(220, 91%, 51%);
+  --civic-green: hsl(142, 86%, 28%);
+  --civic-red: hsl(0, 84%, 60%);
+  --civic-gold: hsl(45, 93%, 58%);
+  --civic-purple: hsl(259, 94%, 51%);
   --civic-gray: hsl(210, 11%, 71%);
+  
+  /* Trust Score Colors - Dark Mode */
+  --trust-high: hsl(142, 86%, 35%);
+  --trust-medium: hsl(45, 93%, 65%);
+  --trust-low: hsl(0, 84%, 65%);
+  
+  /* Party Colors - Dark Mode */
+  --liberal-red: hsl(0, 73%, 50%);
+  --conservative-blue: hsl(220, 91%, 60%);
+  --ndp-orange: hsl(24, 100%, 60%);
+  --bloc-cyan: hsl(195, 53%, 85%);
+  --green-party: hsl(142, 86%, 35%);
 }
 
 @layer base {
@@ -71,43 +101,88 @@
 }
 
 @layer utilities {
-  .civic-blue {
-    color: var(--civic-blue);
+  /* Political Brand Colors */
+  .civic-blue { color: var(--civic-blue); }
+  .bg-civic-blue { background-color: var(--civic-blue); }
+  .border-civic-blue { border-color: var(--civic-blue); }
+  
+  .civic-green { color: var(--civic-green); }
+  .bg-civic-green { background-color: var(--civic-green); }
+  .border-civic-green { border-color: var(--civic-green); }
+  
+  .civic-red { color: var(--civic-red); }
+  .bg-civic-red { background-color: var(--civic-red); }
+  .border-civic-red { border-color: var(--civic-red); }
+  
+  .civic-gold { color: var(--civic-gold); }
+  .bg-civic-gold { background-color: var(--civic-gold); }
+  .border-civic-gold { border-color: var(--civic-gold); }
+  
+  .civic-purple { color: var(--civic-purple); }
+  .bg-civic-purple { background-color: var(--civic-purple); }
+  .border-civic-purple { border-color: var(--civic-purple); }
+  
+  .civic-gray { color: var(--civic-gray); }
+  .bg-civic-gray { background-color: var(--civic-gray); }
+  .border-civic-gray { border-color: var(--civic-gray); }
+  
+  /* Trust Score Indicators */
+  .trust-high { color: var(--trust-high); }
+  .bg-trust-high { background-color: var(--trust-high); }
+  .trust-medium { color: var(--trust-medium); }
+  .bg-trust-medium { background-color: var(--trust-medium); }
+  .trust-low { color: var(--trust-low); }
+  .bg-trust-low { background-color: var(--trust-low); }
+  
+  /* Party Colors */
+  .liberal-red { color: var(--liberal-red); }
+  .bg-liberal-red { background-color: var(--liberal-red); }
+  .conservative-blue { color: var(--conservative-blue); }
+  .bg-conservative-blue { background-color: var(--conservative-blue); }
+  .ndp-orange { color: var(--ndp-orange); }
+  .bg-ndp-orange { background-color: var(--ndp-orange); }
+  .bloc-cyan { color: var(--bloc-cyan); }
+  .bg-bloc-cyan { background-color: var(--bloc-cyan); }
+  .green-party { color: var(--green-party); }
+  .bg-green-party { background-color: var(--green-party); }
+  
+  /* Luxury glass morphism effects */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
   }
   
-  .bg-civic-blue {
-    background-color: var(--civic-blue);
+  /* Premium gradients */
+  .gradient-liberal { background: linear-gradient(135deg, #DC143C 0%, #8B0000 100%); }
+  .gradient-conservative { background: linear-gradient(135deg, #0066CC 0%, #003366 100%); }
+  .gradient-ndp { background: linear-gradient(135deg, #FF6600 0%, #CC3300 100%); }
+  .gradient-bloc { background: linear-gradient(135deg, #87CEEB 0%, #4682B4 100%); }
+  .gradient-green { background: linear-gradient(135deg, #228B22 0%, #006400 100%); }
+  
+  /* Luxury animations */
+  .fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
   }
   
-  .civic-green {
-    color: var(--civic-green);
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
   }
   
-  .bg-civic-green {
-    background-color: var(--civic-green);
+  .pulse-glow {
+    animation: pulseGlow 2s infinite;
   }
   
-  .civic-red {
-    color: var(--civic-red);
-  }
-  
-  .bg-civic-red {
-    background-color: var(--civic-red);
-  }
-  
-  .civic-gray {
-    color: var(--civic-gray);
-  }
-  
-  .bg-civic-gray {
-    background-color: var(--civic-gray);
-  }
-  
-  .border-civic-blue {
-    border-color: var(--civic-blue);
-  }
-  
-  .border-civic-green {
-    border-color: var(--civic-green);
+  @keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 0 5px rgba(34, 139, 34, 0.5); }
+    50% { box-shadow: 0 0 20px rgba(34, 139, 34, 0.8); }
   }
 }
+
+/* Premium scrollbars */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: hsl(var(--background)); }
+::-webkit-scrollbar-thumb { background: hsl(var(--primary)); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: hsl(var(--accent)); }

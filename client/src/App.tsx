@@ -16,6 +16,7 @@ import Legal from "@/pages/legal";
 import Services from "@/pages/services";
 import Elections from "@/pages/elections";
 import News from "@/pages/news";
+import Contacts from "@/pages/contacts";
 
 import NotFound from "@/pages/not-found";
 
