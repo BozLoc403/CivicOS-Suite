@@ -1945,13 +1945,13 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
     try {
       const trending = await db.execute(sql`
         SELECT 
-          topic, COUNT(*) as mentions, 
-          AVG(credibility_score) as "avgCredibility",
-          STRING_AGG(DISTINCT source, ', ') as sources
-        FROM news_articles 
-        WHERE published_at >= NOW() - INTERVAL '24 hours'
-        GROUP BY topic
-        HAVING COUNT(*) >= 2
+          na.title as topic, COUNT(*) as mentions, 
+          AVG(na.credibility_score) as "avgCredibility",
+          STRING_AGG(DISTINCT na.source, ', ') as sources
+        FROM news_articles na
+        WHERE na.published_at >= NOW() - INTERVAL '24 hours'
+        GROUP BY na.title
+        HAVING COUNT(*) >= 1
         ORDER BY mentions DESC, "avgCredibility" DESC
         LIMIT 10
       `);
