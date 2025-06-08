@@ -239,7 +239,7 @@ export class RealTimeMonitoringService {
     `);
 
     return {
-      activeUsers: uniqueVoters.rows[0]?.count || 0,
+      activeUsers: Number(uniqueVoters.rows[0]?.count) || 0,
       totalVotesCast: totalVotes[0]?.count || 0,
       averageSessionDuration: 425, // seconds - would track from sessions table
       peakUsageTime: '19:00-21:00' // Evening peak hours

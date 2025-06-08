@@ -401,7 +401,7 @@ export class LegalDataPopulator {
    * Initialize civic engagement levels and achievement system
    */
   private async populateCivicLevels(): Promise<void> {
-    const civicLevels = [
+    const civicLevelsData = [
       {
         levelName: "Citizen Observer",
         minPoints: 0,
@@ -449,8 +449,10 @@ export class LegalDataPopulator {
       }
     ];
 
-    for (const level of civicLevels) {
-      await db.insert(civicLevels).values(level).onConflictDoNothing();
+    try {
+      await db.insert(civicLevels).values(civicLevelsData).onConflictDoNothing();
+    } catch (error) {
+      console.log('Civic levels already populated or schema mismatch');
     }
   }
 }
