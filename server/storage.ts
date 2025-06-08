@@ -56,6 +56,15 @@ export interface IStorage {
   
   // Analytics
   getUserStats(userId: string): Promise<{ voteCount: number; trustScore: string; civicLevel: string }>;
+  
+  // Petitions operations
+  getAllPetitions(): Promise<any[]>;
+  getPetitionSignature(petitionId: number, userId: string): Promise<any | undefined>;
+  signPetition(petitionId: number, userId: string, verificationId: string): Promise<any>;
+  checkPetitionTarget(petitionId: number): Promise<void>;
+  getAutoPetitionForBill(billId: number): Promise<any | undefined>;
+  createPetition(petition: any): Promise<any>;
+  notifyVotersOfAutoPetition(billId: number, petitionId: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {

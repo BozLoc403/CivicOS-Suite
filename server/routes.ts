@@ -249,7 +249,125 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Petitions endpoints
+  app.get("/api/petitions", async (req, res) => {
+    try {
+      const petitions = await storage.getAllPetitions();
+      res.json(petitions);
+    } catch (error) {
+      console.error("Error fetching petitions:", error);
+      res.status(500).json({ message: "Failed to fetch petitions" });
+    }
+  });
 
+  app.post("/api/petitions/:id/sign", isAuthenticated, async (req: any, res) => {
+    try {
+      const petitionId = parseInt(req.params.id);
+      const userId = req.user.claims.sub;
+      
+      // Check if user already signed
+      const existingSignature = await storage.getPetitionSignature(petitionId, userId);
+      if (existingSignature) {
+        return res.status(400).json({ message: "You have already signed this petition" });
+      }
+      
+      // Create signature with verification
+      const verificationId = `petition_${petitionId}_${userId}_${Date.now()}`;
+      const signature = await storage.signPetition(petitionId, userId, verificationId);
+      
+      // Check if petition reached target and notify
+      await storage.checkPetitionTarget(petitionId);
+      
+      res.json({ message: "Petition signed successfully", signature });
+    } catch (error) {
+      console.error("Error signing petition:", error);
+      res.status(500).json({ message: "Failed to sign petition" });
+    }
+  });
+
+  // Enhanced voting endpoint with petition threshold checking
+  app.post("/api/votes", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const voteData = insertVoteSchema.parse(req.body);
+      
+      // Check if user already voted on this bill
+      const existingVote = await storage.getVoteByUserAndBill(userId, voteData.billId);
+      if (existingVote) {
+        return res.status(400).json({ message: "You have already voted on this bill" });
+      }
+      
+      // Create verification ID and block hash for vote integrity
+      const verificationId = `vote_${userId}_${voteData.billId}_${Date.now()}`;
+      const blockHash = `block_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+      
+      const vote = await storage.createVote({
+        ...voteData,
+        userId,
+        verificationId,
+        blockHash,
+      });
+      
+      // Check if votes against this bill have reached petition threshold (500 "no" votes)
+      await checkVotePetitionThreshold(voteData.billId);
+      
+      res.json(vote);
+    } catch (error) {
+      console.error("Error creating vote:", error);
+      res.status(500).json({ message: "Failed to create vote" });
+    }
+  });
+
+  // Function to check vote thresholds and auto-create petitions
+  async function checkVotePetitionThreshold(billId: number) {
+    try {
+      const bill = await storage.getBill(billId);
+      if (!bill) return;
+      
+      const voteStats = await storage.getBillVoteStats(billId);
+      const PETITION_THRESHOLD = 500; // Canadian e-petition minimum
+      
+      // Check if "no" votes meet petition threshold
+      if (voteStats.no >= PETITION_THRESHOLD) {
+        // Check if auto-petition already exists for this bill
+        const existingPetition = await storage.getAutoPetitionForBill(billId);
+        if (existingPetition) return;
+        
+        // Create automatic petition
+        const petitionTitle = `Petition Against Bill ${bill.billNumber}: ${bill.title}`;
+        const petitionDescription = `This petition was automatically created when ${PETITION_THRESHOLD} citizens voted against Bill ${bill.billNumber}. 
+        
+Bill Summary: ${bill.description || 'No description available'}
+
+We, the undersigned citizens, respectfully petition Parliament to reconsider this legislation based on the overwhelming citizen opposition demonstrated through the democratic voting process.
+
+The legislation in question affects ${bill.category || 'various aspects of Canadian society'} and has received significant citizen opposition. We request that MPs carefully review the concerns raised by their constituents.`;
+
+        // Use first opposing voter as creator (system user)
+        const systemUserId = "system_auto_petition";
+        
+        const autoPetition = await storage.createPetition({
+          title: petitionTitle,
+          description: petitionDescription,
+          relatedBillId: billId,
+          creatorId: systemUserId,
+          targetSignatures: PETITION_THRESHOLD,
+          currentSignatures: 0,
+          status: "active",
+          autoCreated: true,
+          voteThresholdMet: new Date(),
+          deadlineDate: new Date(Date.now() + 120 * 24 * 60 * 60 * 1000), // 120 days deadline
+        });
+        
+        // Create notification for all users who voted "no"
+        await storage.notifyVotersOfAutoPetition(billId, autoPetition.id);
+        
+        console.log(`Auto-petition created for Bill ${bill.billNumber} after ${voteStats.no} opposing votes`);
+      }
+    } catch (error) {
+      console.error("Error checking vote petition threshold:", error);
+    }
+  }
 
   const httpServer = createServer(app);
   return httpServer;
