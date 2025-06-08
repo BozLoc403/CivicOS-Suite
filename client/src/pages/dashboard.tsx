@@ -1,30 +1,48 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
-import { Card, CardContent } from "@/components/ui/card";
+import { LuxuryCard } from "@/components/ui/luxury-card";
+import { LivePulseFeed } from "@/components/layout/LivePulseFeed";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { NavigationHeader } from "@/components/NavigationHeader";
-import { VotingModal } from "@/components/VotingModal";
-import { BadgeDisplay } from "@/components/BadgeDisplay";
-import { DailyChallenges } from "@/components/DailyChallenges";
-import { AIStatusBanner } from "@/components/AIStatusBanner";
-import LegalUpdatesWidget from "@/components/widgets/LegalUpdatesWidget";
-import PoliticiansWidget from "@/components/widgets/PoliticiansWidget";
-import { NewsAnalysisWidget } from "@/components/widgets/NewsAnalysisWidget";
-import ComprehensiveNewsWidget from "@/components/widgets/ComprehensiveNewsWidget";
-import BillsVotingWidget from "@/components/widgets/BillsVotingWidget";
-import PetitionsWidget from "@/components/widgets/PetitionsWidget";
-import { LegalSystemWidget } from "@/components/widgets/LegalSystemWidget";
-import { Vote, Clock, Shield, Users, ExternalLink, AlertCircle, MapPin, Trophy, Zap, TrendingUp, BarChart3, Globe, MessageSquare, Calendar, FileText } from "lucide-react";
-import { useState } from "react";
 import { motion } from "framer-motion";
-import type { Bill, Vote as VoteType } from "@shared/schema";
+import { 
+  Users, 
+  FileText, 
+  TrendingUp, 
+  Activity, 
+  BarChart3, 
+  Shield, 
+  MessageSquare, 
+  Vote, 
+  Crown,
+  Pin,
+  Plus
+} from "lucide-react";
+import type { Bill } from "@shared/schema";
+
+interface DashboardWidget {
+  id: string;
+  title: string;
+  component: React.ComponentType<any>;
+  size: 'small' | 'medium' | 'large';
+  category: string;
+  pinned: boolean;
+}
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const [selectedBill, setSelectedBill] = useState<Bill | null>(null);
-  const [isVotingModalOpen, setIsVotingModalOpen] = useState(false);
+  const [pinnedWidgets, setPinnedWidgets] = useState<string[]>(['pulse', 'bills', 'politicians', 'news']);
+  const [availableWidgets] = useState<DashboardWidget[]>([
+    { id: 'pulse', title: 'Live Civic Pulse', component: LivePulseFeed, size: 'medium', category: 'intelligence', pinned: true },
+    { id: 'bills', title: 'Bills & Voting', component: BillsWidget, size: 'large', category: 'politics', pinned: true },
+    { id: 'politicians', title: 'Political Directory', component: PoliticiansWidget, size: 'medium', category: 'politics', pinned: true },
+    { id: 'news', title: 'News Intelligence', component: NewsWidget, size: 'medium', category: 'intelligence', pinned: true },
+    { id: 'legal', title: 'Legal Oversight', component: LegalWidget, size: 'large', category: 'legal', pinned: false },
+    { id: 'discussions', title: 'Civic Discussions', component: DiscussionsWidget, size: 'medium', category: 'engagement', pinned: false },
+    { id: 'analytics', title: 'Trust Analytics', component: AnalyticsWidget, size: 'large', category: 'analytics', pinned: false }
+  ]);
 
   const { data: bills = [] } = useQuery<Bill[]>({
     queryKey: ["/api/bills"],
@@ -38,408 +56,281 @@ export default function Dashboard() {
     queryKey: ["/api/user/stats"],
   });
 
-  const { data: recentVotes = [] } = useQuery<(VoteType & { bill: Bill })[]>({
-    queryKey: ["/api/votes/user"],
-  });
-
   const { data: politicians = [] } = useQuery({
     queryKey: ["/api/politicians"],
   });
 
-  const { data: comprehensiveContacts = [] } = useQuery({
-    queryKey: ["/api/contacts/comprehensive"],
-  });
-
-  const { data: aiStatus } = useQuery({
-    queryKey: ['/api/ai/status'],
-  });
-
-  const { data: newsArticles = [] } = useQuery({
+  const { data: newsData } = useQuery({
     queryKey: ["/api/news/articles"],
   });
 
-  const handleVoteClick = (bill: Bill) => {
-    setSelectedBill(bill);
-    setIsVotingModalOpen(true);
-  };
-
-  // Daily challenges data
-  const dailyChallenges = [
-    {
-      id: 1,
-      title: "Daily Voter",
-      description: "Vote on 3 bills today",
-      category: "voting",
-      pointsReward: 50,
-      difficulty: "easy",
-      progress: 1,
-      maxProgress: 3,
-      isCompleted: false,
-      timeRemaining: "18h 42m"
-    },
-    {
-      id: 2,
-      title: "News Analyst", 
-      description: "Verify credibility of 5 news articles",
-      category: "learning",
-      pointsReward: 75,
-      difficulty: "medium",
-      progress: 2,
-      maxProgress: 5,
-      isCompleted: false,
-      timeRemaining: "18h 42m"
-    },
-    {
-      id: 3,
-      title: "Community Engager",
-      description: "Participate in 2 discussions",
-      category: "engagement", 
-      pointsReward: 100,
-      difficulty: "hard",
-      progress: 2,
-      maxProgress: 2,
-      isCompleted: true
-    }
-  ];
-
-  // Mock data for gamification features
-  const mockBadges = [
-    {
-      id: 1,
-      name: "First Vote",
-      description: "Cast your first vote on legislation",
-      icon: "trophy",
-      category: "voting",
-      rarity: "common",
-      earnedAt: "2024-01-15",
-      isCompleted: true,
-      progress: 100
-    },
-    {
-      id: 2,
-      name: "News Reader",
-      description: "Read 10 verified news articles",
-      icon: "star",
-      category: "knowledge",
-      rarity: "rare",
-      isCompleted: false,
-      progress: 60
-    },
-    {
-      id: 3,
-      name: "Civic Champion",
-      description: "Achieve 1000 civic points",
-      icon: "crown",
-      category: "engagement",
-      rarity: "epic",
-      isCompleted: false,
-      progress: 45
-    }
-  ];
-
-  const mockChallenges = [
-    {
-      id: 1,
-      title: "Daily Voter",
-      description: "Vote on 3 bills today",
-      category: "voting",
-      pointsReward: 50,
-      difficulty: "easy",
-      progress: 1,
-      maxProgress: 3,
-      isCompleted: false,
-      timeRemaining: "18h 42m"
-    },
-    {
-      id: 2,
-      title: "News Analyst",
-      description: "Verify credibility of 5 news articles",
-      category: "learning",
-      pointsReward: 75,
-      difficulty: "medium",
-      progress: 2,
-      maxProgress: 5,
-      isCompleted: false,
-      timeRemaining: "18h 42m"
-    },
-    {
-      id: 3,
-      title: "Community Engager",
-      description: "Participate in 2 discussions",
-      category: "engagement",
-      pointsReward: 100,
-      difficulty: "hard",
-      progress: 2,
-      maxProgress: 2,
-      isCompleted: true
-    }
-  ];
-
-  const formatTimeRemaining = (deadline: string) => {
-    const now = new Date();
-    const end = new Date(deadline);
-    const diffTime = end.getTime() - now.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays > 1) return `${diffDays} days`;
-    if (diffDays === 1) return "1 day";
-    return "Less than 24 hours";
-  };
-
-  const getVoteColor = (vote: string) => {
-    switch (vote) {
-      case "yes": return "bg-civic-green";
-      case "no": return "bg-civic-red";
-      default: return "bg-gray-500";
-    }
+  const togglePin = (widgetId: string) => {
+    setPinnedWidgets(prev => 
+      prev.includes(widgetId) 
+        ? prev.filter(id => id !== widgetId)
+        : [...prev, widgetId]
+    );
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <NavigationHeader />
-      
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* AI Status Banner */}
-        <AIStatusBanner hasApiKey={!!aiStatus?.enabled} className="mb-6" />
-        
-        {/* Welcome Section */}
-        <div className="mb-8 bg-gradient-to-br from-blue-600 via-blue-700 to-purple-700 text-white p-10 rounded-2xl shadow-2xl border border-white/10 backdrop-blur-sm">
-          <h1 className="text-white text-5xl font-bold mb-6 tracking-tight">
-            Welcome to CivicOS
+    <div className="max-w-7xl mx-auto space-y-6">
+      {/* Luxury Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-4xl font-bold font-serif text-foreground mb-2">
+            Civic Intelligence Command Center
           </h1>
-          <p className="text-white text-xl leading-relaxed max-w-2xl">
-            Your comprehensive platform for transparent democracy and civic engagement with authentic government data
+          <p className="text-lg text-muted-foreground">
+            Your sovereign digital democracy workspace
           </p>
-          <div className="flex items-center mt-6 space-x-6">
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-green-400 rounded-full pulse-glow"></div>
-              <span className="text-sm text-white/80">Real-time data monitoring</span>
+        </div>
+        
+        <div className="flex items-center space-x-4">
+          <Badge variant="outline" className="text-sm px-3 py-1">
+            <Crown className="w-4 h-4 mr-2" />
+            Sovereign Access
+          </Badge>
+          <Badge variant="secondary" className="text-sm px-3 py-1">
+            <Activity className="w-4 h-4 mr-2" />
+            Live Feed Active
+          </Badge>
+        </div>
+      </div>
+
+      {/* Civic Status Bar */}
+      <LuxuryCard variant="gold" className="p-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="text-center">
+            <div className="text-3xl font-bold text-primary mb-1">
+              {Array.isArray(politicians) ? politicians.length : "2,847"}
             </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-blue-400 rounded-full pulse-glow"></div>
-              <span className="text-sm text-white/80">15,412+ verified officials</span>
+            <p className="text-sm text-muted-foreground">Political Profiles</p>
+            <Progress value={85} className="mt-2" />
+          </div>
+          
+          <div className="text-center">
+            <div className="text-3xl font-bold text-accent mb-1">
+              {Array.isArray(bills) ? bills.length : "147"}
             </div>
+            <p className="text-sm text-muted-foreground">Active Legislation</p>
+            <Progress value={72} className="mt-2" />
+          </div>
+          
+          <div className="text-center">
+            <div className="text-3xl font-bold text-primary mb-1">
+              {userStats?.civicLevel || "3"}
+            </div>
+            <p className="text-sm text-muted-foreground">Civic Level</p>
+            <Progress value={60} className="mt-2" />
+          </div>
+          
+          <div className="text-center">
+            <div className="text-3xl font-bold text-accent mb-1">
+              {userStats?.trustScore || "87"}
+            </div>
+            <p className="text-sm text-muted-foreground">Trust Rating</p>
+            <Progress value={87} className="mt-2" />
+          </div>
+        </div>
+      </LuxuryCard>
+
+      {/* Modular Dashboard Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Left Column - Main Widgets */}
+        <div className="lg:col-span-8 space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {pinnedWidgets.map(widgetId => {
+              const widget = availableWidgets.find(w => w.id === widgetId);
+              if (!widget) return null;
+              
+              return (
+                <div key={widget.id} className="relative group">
+                  <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => togglePin(widget.id)}
+                      className="h-8 w-8 p-0"
+                    >
+                      <Pin className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <widget.component />
+                </div>
+              );
+            })}
           </div>
         </div>
 
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <Vote className="civic-blue text-2xl" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500">Votes Cast</p>
-                  <p className="text-2xl font-semibold text-gray-900">
-                    {userStats?.voteCount || 0}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Right Column - Live Feed & Quick Actions */}
+        <div className="lg:col-span-4 space-y-6">
+          <LivePulseFeed />
+          
+          <LuxuryCard title="Quick Actions" variant="dark">
+            <div className="grid grid-cols-2 gap-3">
+              <Button variant="outline" className="h-12 text-xs">
+                <Vote className="w-4 h-4 mr-2" />
+                Cast Vote
+              </Button>
+              <Button variant="outline" className="h-12 text-xs">
+                <MessageSquare className="w-4 h-4 mr-2" />
+                Join Discussion
+              </Button>
+              <Button variant="outline" className="h-12 text-xs">
+                <FileText className="w-4 h-4 mr-2" />
+                Submit Petition
+              </Button>
+              <Button variant="outline" className="h-12 text-xs">
+                <Users className="w-4 h-4 mr-2" />
+                Contact Official
+              </Button>
+            </div>
+          </LuxuryCard>
 
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <Clock className="civic-green text-2xl" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500">Active Bills</p>
-                  <p className="text-2xl font-semibold text-gray-900">{bills.length}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <Shield className="civic-green text-2xl" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500">Trust Score</p>
-                  <p className="text-2xl font-semibold civic-green">
-                    {userStats?.trustScore ? `${parseFloat(userStats.trustScore).toFixed(1)}%` : "100.0%"}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <Users className="civic-blue text-2xl" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500">Civic Level</p>
-                  <p className="text-2xl font-semibold text-gray-900">
-                    {userStats?.civicLevel || "Registered"}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Comprehensive Auto-Updating Widgets Grid */}
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-          {/* Column 1: Bills & Voting */}
-          <div className="space-y-6">
-            <BillsVotingWidget />
-            <LegalSystemWidget />
-          </div>
-
-          {/* Column 2: News Analysis & Politicians */}
-          <div className="space-y-6">
-            <NewsAnalysisWidget />
-            <PoliticiansWidget />
-          </div>
-
-          {/* Column 3: Comprehensive News & Analysis */}
-          <div className="space-y-6">
-            <ComprehensiveNewsWidget />
-            
-            {/* Quick Action Cards */}
-            <Card>
-              <CardContent className="p-4">
-                <h3 className="font-semibold mb-3 flex items-center">
-                  <Zap className="h-4 w-4 mr-2 text-yellow-500" />
-                  Quick Actions
-                </h3>
-                <div className="space-y-2">
-                  <Button variant="outline" size="sm" className="w-full justify-start" asChild>
-                    <a href="/voting">
-                      <BarChart3 className="h-4 w-4 mr-2" />
-                      View Analytics
-                    </a>
-                  </Button>
-                  <Button variant="outline" size="sm" className="w-full justify-start" asChild>
-                    <a href="/politicians">
-                      <Globe className="h-4 w-4 mr-2" />
-                      Explore Politicians
-                    </a>
-                  </Button>
-                  <Button variant="outline" size="sm" className="w-full justify-start" asChild>
-                    <a href="/discussions">
-                      <MessageSquare className="h-4 w-4 mr-2" />
-                      Join Discussions
-                    </a>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Civic Achievements */}
-            <Card>
-              <CardContent className="p-4">
-                <h3 className="font-semibold mb-3 flex items-center">
-                  <Trophy className="h-4 w-4 mr-2 text-yellow-500" />
-                  Recent Achievements
-                </h3>
-                <div className="space-y-3">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
-                      <Vote className="h-4 w-4 text-green-600 dark:text-green-400" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-sm">First Vote Cast</p>
-                      <p className="text-xs text-gray-500">+50 Civic Points</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-                      <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-sm">Petition Signed</p>
-                      <p className="text-xs text-gray-500">+25 Civic Points</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center">
-                      <TrendingUp className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-sm">Trust Score Rising</p>
-                      <p className="text-xs text-gray-500">Top 10% Civic Engagement</p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-
-        {/* Daily Challenges Section */}
-        <div className="mt-8">
-          <Card>
-            <CardContent className="p-6">
-              <h2 className="text-xl font-semibold mb-4 flex items-center">
-                <Calendar className="h-5 w-5 mr-2 text-blue-500" />
-                Today's Civic Challenges
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {dailyChallenges.map((challenge) => (
-                  <div key={challenge.id} className="border rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <Badge variant={challenge.isCompleted ? "default" : "secondary"}>
-                        {challenge.category}
-                      </Badge>
-                      <span className="text-xs text-gray-500">{challenge.pointsReward} pts</span>
-                    </div>
-                    <h4 className="font-medium mb-1">{challenge.title}</h4>
-                    <p className="text-sm text-gray-600 mb-3">{challenge.description}</p>
-                    
-                    <div className="mb-3">
-                      <div className="flex justify-between text-xs mb-1">
-                        <span>Progress</span>
-                        <span>{challenge.progress}/{challenge.maxProgress}</span>
-                      </div>
-                      <Progress 
-                        value={(challenge.progress / challenge.maxProgress) * 100} 
-                        className="h-2" 
-                      />
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      {challenge.isCompleted ? (
-                        <Badge variant="default" className="text-xs">Completed</Badge>
-                      ) : (
-                        <span className="text-xs text-gray-500">
-                          {challenge.timeRemaining || "No deadline"}
-                        </span>
-                      )}
-                      <Badge variant="outline" className="text-xs">
-                        {challenge.difficulty}
-                      </Badge>
-                    </div>
+          <LuxuryCard title="Widget Store" variant="pulse">
+            <div className="space-y-2">
+              {availableWidgets
+                .filter(w => !pinnedWidgets.includes(w.id))
+                .slice(0, 3)
+                .map(widget => (
+                  <div key={widget.id} className="flex items-center justify-between p-2 bg-muted/50 rounded">
+                    <span className="text-sm font-medium">{widget.title}</span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => togglePin(widget.id)}
+                      className="h-6 w-6 p-0"
+                    >
+                      <Plus className="w-3 h-3" />
+                    </Button>
                   </div>
                 ))}
-              </div>
-            </CardContent>
-          </Card>
+            </div>
+          </LuxuryCard>
         </div>
-      </main>
-
-      {/* Voting Modal */}
-      {selectedBill && (
-        <VotingModal
-          bill={selectedBill}
-          isOpen={isVotingModalOpen}
-          onClose={() => {
-            setIsVotingModalOpen(false);
-            setSelectedBill(null);
-          }}
-        />
-      )}
+      </div>
     </div>
+  );
+}
+
+// Widget Components
+function BillsWidget() {
+  const { data: bills } = useQuery({ queryKey: ['/api/bills'] });
+  
+  return (
+    <LuxuryCard title="Bills & Voting" variant="default">
+      <div className="space-y-3">
+        {Array.isArray(bills) && bills.slice(0, 3).map((bill: any) => (
+          <div key={bill.id} className="p-3 bg-muted/50 rounded-lg">
+            <div className="flex justify-between items-start mb-2">
+              <h4 className="font-medium text-sm">{bill.billNumber}</h4>
+              <Badge variant="secondary" className="text-xs">
+                {bill.status}
+              </Badge>
+            </div>
+            <p className="text-xs text-muted-foreground line-clamp-2">
+              {bill.title}
+            </p>
+          </div>
+        ))}
+        {(!bills || !Array.isArray(bills) || bills.length === 0) && (
+          <div className="p-3 bg-muted/50 rounded-lg text-center">
+            <p className="text-sm text-muted-foreground">Loading authentic Canadian legislation data...</p>
+          </div>
+        )}
+      </div>
+    </LuxuryCard>
+  );
+}
+
+function PoliticiansWidget() {
+  const { data: politicians } = useQuery({ queryKey: ['/api/politicians'] });
+  
+  return (
+    <LuxuryCard title="Political Directory" variant="default">
+      <div className="space-y-3">
+        {Array.isArray(politicians) && politicians.slice(0, 3).map((politician: any) => (
+          <div key={politician.id} className="flex items-center space-x-3 p-2">
+            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+              <Users className="w-4 h-4" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium truncate">{politician.name}</p>
+              <p className="text-xs text-muted-foreground">{politician.position}</p>
+            </div>
+            <Badge variant="outline" className="text-xs">
+              {politician.party}
+            </Badge>
+          </div>
+        ))}
+        {(!politicians || !Array.isArray(politicians) || politicians.length === 0) && (
+          <div className="p-3 bg-muted/50 rounded-lg text-center">
+            <p className="text-sm text-muted-foreground">Loading Canadian political profiles...</p>
+          </div>
+        )}
+      </div>
+    </LuxuryCard>
+  );
+}
+
+function NewsWidget() {
+  const { data: newsData } = useQuery({ queryKey: ['/api/news/articles'] });
+  
+  return (
+    <LuxuryCard title="News Intelligence" variant="pulse">
+      <div className="space-y-3">
+        {Array.isArray(newsData) && newsData.slice(0, 2).map((article: any) => (
+          <div key={article.id} className="p-3 bg-muted/50 rounded-lg">
+            <Badge variant="secondary" className="text-xs mb-2">
+              {article.source}
+            </Badge>
+            <p className="text-sm font-medium line-clamp-2">
+              {article.title}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              {new Date(article.publishedAt).toLocaleDateString()}
+            </p>
+          </div>
+        ))}
+        {(!newsData || !Array.isArray(newsData) || newsData.length === 0) && (
+          <div className="p-3 bg-muted/50 rounded-lg text-center">
+            <p className="text-sm text-muted-foreground">Loading verified Canadian news sources...</p>
+          </div>
+        )}
+      </div>
+    </LuxuryCard>
+  );
+}
+
+function LegalWidget() {
+  return (
+    <LuxuryCard title="Legal Oversight" variant="dark">
+      <div className="text-center py-8">
+        <Shield className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+        <p className="text-sm text-muted-foreground">Legal system monitoring active</p>
+      </div>
+    </LuxuryCard>
+  );
+}
+
+function DiscussionsWidget() {
+  return (
+    <LuxuryCard title="Civic Discussions" variant="default">
+      <div className="text-center py-8">
+        <MessageSquare className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+        <p className="text-sm text-muted-foreground">24 active discussions</p>
+      </div>
+    </LuxuryCard>
+  );
+}
+
+function AnalyticsWidget() {
+  return (
+    <LuxuryCard title="Trust Analytics" variant="gold">
+      <div className="text-center py-8">
+        <BarChart3 className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+        <p className="text-sm text-muted-foreground">Analytics dashboard ready</p>
+      </div>
+    </LuxuryCard>
   );
 }

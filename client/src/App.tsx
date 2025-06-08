@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import { FloatingCivicBot } from "@/components/FloatingCivicBot";
+import { LuxuryNavigation } from "@/components/layout/LuxuryNavigation";
 import Landing from "@/pages/landing";
 import Dashboard from "@/pages/dashboard";
 import Voting from "@/pages/voting";
@@ -27,29 +28,41 @@ function Router() {
   const { isAuthenticated, isLoading } = useAuth();
 
   return (
-    <Switch>
-      {isLoading || !isAuthenticated ? (
-        <Route path="/" component={Landing} />
+    <div className="min-h-screen bg-background">
+      {(isAuthenticated && !isLoading) ? (
+        <div className="flex">
+          <LuxuryNavigation />
+          <main className="flex-1 bg-gradient-civic-ambient min-h-screen overflow-x-auto">
+            <div className="p-6">
+              <Switch>
+                <Route path="/" component={Dashboard} />
+                <Route path="/voting" component={Voting} />
+                <Route path="/ledger" component={Ledger} />
+                <Route path="/politicians" component={Politicians} />
+                <Route path="/petitions" component={Petitions} />
+                <Route path="/discussions" component={Discussions} />
+                <Route path="/legal" component={Legal} />
+                <Route path="/legal-search" component={LegalSearch} />
+                <Route path="/services" component={Services} />
+                <Route path="/elections" component={Elections} />
+                <Route path="/news" component={News} />
+                <Route path="/contacts" component={Contacts} />
+                <Route path="/profile" component={Profile} />
+                <Route path="/settings" component={Settings} />
+                <Route component={NotFound} />
+              </Switch>
+            </div>
+          </main>
+        </div>
       ) : (
-        <>
-          <Route path="/" component={Dashboard} />
-          <Route path="/voting" component={Voting} />
-          <Route path="/ledger" component={Ledger} />
-          <Route path="/politicians" component={Politicians} />
-          <Route path="/petitions" component={Petitions} />
-          <Route path="/discussions" component={Discussions} />
-          <Route path="/legal" component={Legal} />
-          <Route path="/legal-search" component={LegalSearch} />
-          <Route path="/services" component={Services} />
-          <Route path="/elections" component={Elections} />
-          <Route path="/news" component={News} />
-          <Route path="/contacts" component={Contacts} />
-          <Route path="/profile" component={Profile} />
-          <Route path="/settings" component={Settings} />
-        </>
+        <main>
+          <Switch>
+            <Route path="/" component={Landing} />
+            <Route component={NotFound} />
+          </Switch>
+        </main>
       )}
-      <Route component={NotFound} />
-    </Switch>
+    </div>
   );
 }
 
