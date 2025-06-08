@@ -409,7 +409,7 @@ export async function populateSampleElectionData(): Promise<void> {
         districtNumber: "35079",
         province: "Ontario",
         population: 109435,
-        area: "8.89",
+        area: 8.89,
         keyIssues: ["Housing Affordability", "Transit", "Climate Change"],
         majorCities: ["Toronto"],
         currentRepresentative: "Chrystia Freeland",

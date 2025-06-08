@@ -371,6 +371,135 @@ export const pollingSites = pgTable("polling_sites", {
   coordinates: varchar("coordinates"), // lat,lng for mapping
 });
 
+// News analysis and propaganda detection
+export const newsArticles = pgTable("news_articles", {
+  id: serial("id").primaryKey(),
+  title: varchar("title").notNull(),
+  content: text("content").notNull(),
+  summary: text("summary"),
+  url: varchar("url").notNull().unique(),
+  source: varchar("source").notNull(), // CBC, Globe and Mail, etc
+  author: varchar("author"),
+  publishedAt: timestamp("published_at").notNull(),
+  scrapedAt: timestamp("scraped_at").defaultNow(),
+  category: varchar("category"), // politics, economy, health, etc
+  
+  // Analysis scores
+  truthScore: decimal("truth_score", { precision: 5, scale: 2 }), // 0-100
+  biasScore: decimal("bias_score", { precision: 5, scale: 2 }), // -100 to 100 (left to right)
+  propagandaRisk: varchar("propaganda_risk"), // low, medium, high
+  credibilityScore: decimal("credibility_score", { precision: 5, scale: 2 }), // 0-100
+  
+  // Content analysis
+  sentiment: varchar("sentiment"), // positive, negative, neutral
+  emotionalLanguage: boolean("emotional_language").default(false),
+  factualClaims: text("factual_claims").array(), // extracted claims
+  verifiedFacts: text("verified_facts").array(), // fact-checked claims
+  falseStatements: text("false_statements").array(), // debunked claims
+  
+  // Political connections
+  mentionedPoliticians: text("mentioned_politicians").array(),
+  mentionedParties: text("mentioned_parties").array(),
+  relatedBills: text("related_bills").array(),
+  
+  // Meta analysis
+  analysisNotes: text("analysis_notes"),
+  lastAnalyzed: timestamp("last_analyzed").defaultNow(),
+});
+
+export const newsSourceCredibility = pgTable("news_source_credibility", {
+  id: serial("id").primaryKey(),
+  sourceName: varchar("source_name").notNull().unique(),
+  overallCredibility: decimal("overall_credibility", { precision: 5, scale: 2 }).notNull(), // 0-100
+  factualReporting: decimal("factual_reporting", { precision: 5, scale: 2 }).notNull(), // 0-100
+  biasRating: decimal("bias_rating", { precision: 5, scale: 2 }).notNull(), // -100 to 100
+  propagandaFrequency: decimal("propaganda_frequency", { precision: 5, scale: 2 }).notNull(), // 0-100
+  
+  // Historical performance
+  totalArticles: integer("total_articles").default(0),
+  accurateReports: integer("accurate_reports").default(0),
+  misleadingReports: integer("misleading_reports").default(0),
+  falseReports: integer("false_reports").default(0),
+  
+  // Analysis details
+  commonBiases: text("common_biases").array(),
+  propagandaTechniques: text("propaganda_techniques").array(),
+  reliabilityNotes: text("reliability_notes"),
+  
+  lastEvaluated: timestamp("last_evaluated").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const politicianTruthTracking = pgTable("politician_truth_tracking", {
+  id: serial("id").primaryKey(),
+  politicianId: integer("politician_id").notNull().references(() => politicians.id),
+  
+  // Truth scores
+  overallTruthScore: decimal("overall_truth_score", { precision: 5, scale: 2 }).default("100.00"), // 0-100
+  promiseKeepingScore: decimal("promise_keeping_score", { precision: 5, scale: 2 }).default("100.00"),
+  factualAccuracyScore: decimal("factual_accuracy_score", { precision: 5, scale: 2 }).default("100.00"),
+  consistencyScore: decimal("consistency_score", { precision: 5, scale: 2 }).default("100.00"),
+  
+  // Statement tracking
+  totalStatements: integer("total_statements").default(0),
+  truthfulStatements: integer("truthful_statements").default(0),
+  misleadingStatements: integer("misleading_statements").default(0),
+  falseStatements: integer("false_statements").default(0),
+  contradictoryStatements: integer("contradictory_statements").default(0),
+  
+  // Promise tracking
+  totalPromises: integer("total_promises").default(0),
+  keptPromises: integer("kept_promises").default(0),
+  brokenPromises: integer("broken_promises").default(0),
+  pendingPromises: integer("pending_promises").default(0),
+  
+  // Analysis details
+  commonMisleadingTopics: text("common_misleading_topics").array(),
+  frequentContradictions: text("frequent_contradictions").array(),
+  reliabilityTrend: varchar("reliability_trend"), // improving, declining, stable
+  
+  lastUpdated: timestamp("last_updated").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const factChecks = pgTable("fact_checks", {
+  id: serial("id").primaryKey(),
+  articleId: integer("article_id").references(() => newsArticles.id),
+  politicianId: integer("politician_id").references(() => politicians.id),
+  billId: integer("bill_id").references(() => bills.id),
+  
+  originalClaim: text("original_claim").notNull(),
+  verificationResult: varchar("verification_result").notNull(), // true, false, misleading, unverifiable
+  evidenceSources: text("evidence_sources").array(),
+  factCheckSummary: text("fact_check_summary").notNull(),
+  
+  // Scoring
+  confidenceLevel: decimal("confidence_level", { precision: 5, scale: 2 }).notNull(), // 0-100
+  severityScore: decimal("severity_score", { precision: 5, scale: 2 }), // impact of misinformation
+  
+  checkedBy: varchar("checked_by").notNull(), // AI system or human reviewer
+  checkedAt: timestamp("checked_at").defaultNow(),
+});
+
+export const propagandaDetection = pgTable("propaganda_detection", {
+  id: serial("id").primaryKey(),
+  articleId: integer("article_id").notNull().references(() => newsArticles.id),
+  
+  // Propaganda techniques detected
+  techniques: text("techniques").array(), // bandwagon, fear mongering, ad hominem, etc
+  riskLevel: varchar("risk_level").notNull(), // low, medium, high, extreme
+  confidenceScore: decimal("confidence_score", { precision: 5, scale: 2 }).notNull(),
+  
+  // Analysis details
+  emotionalTriggers: text("emotional_triggers").array(),
+  manipulativePhrases: text("manipulative_phrases").array(),
+  logicalFallacies: text("logical_fallacies").array(),
+  missingContext: text("missing_context").array(),
+  
+  analysisDetails: text("analysis_details").notNull(),
+  detectedAt: timestamp("detected_at").defaultNow(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   votes: many(votes),
