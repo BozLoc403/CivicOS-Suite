@@ -61,6 +61,45 @@ export default function Dashboard() {
     setIsVotingModalOpen(true);
   };
 
+  // Daily challenges data
+  const dailyChallenges = [
+    {
+      id: 1,
+      title: "Daily Voter",
+      description: "Vote on 3 bills today",
+      category: "voting",
+      pointsReward: 50,
+      difficulty: "easy",
+      progress: 1,
+      maxProgress: 3,
+      isCompleted: false,
+      timeRemaining: "18h 42m"
+    },
+    {
+      id: 2,
+      title: "News Analyst", 
+      description: "Verify credibility of 5 news articles",
+      category: "learning",
+      pointsReward: 75,
+      difficulty: "medium",
+      progress: 2,
+      maxProgress: 5,
+      isCompleted: false,
+      timeRemaining: "18h 42m"
+    },
+    {
+      id: 3,
+      title: "Community Engager",
+      description: "Participate in 2 discussions",
+      category: "engagement", 
+      pointsReward: 100,
+      difficulty: "hard",
+      progress: 2,
+      maxProgress: 2,
+      isCompleted: true
+    }
+  ];
+
   // Mock data for gamification features
   const mockBadges = [
     {
