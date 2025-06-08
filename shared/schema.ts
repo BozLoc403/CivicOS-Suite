@@ -44,6 +44,27 @@ export const users = pgTable("users", {
   isVerified: boolean("is_verified").default(false),
   civicLevel: varchar("civic_level").default("Registered"),
   trustScore: decimal("trust_score", { precision: 5, scale: 2 }).default("100.00"),
+  // Enhanced geolocation and profile validation
+  latitude: decimal("latitude", { precision: 10, scale: 8 }),
+  longitude: decimal("longitude", { precision: 11, scale: 8 }),
+  city: varchar("city"),
+  province: varchar("province"),
+  postalCode: varchar("postal_code"),
+  country: varchar("country").default("Canada"),
+  federalRiding: varchar("federal_riding"),
+  provincialRiding: varchar("provincial_riding"),
+  municipalWard: varchar("municipal_ward"),
+  addressVerified: boolean("address_verified").default(false),
+  locationAccuracy: integer("location_accuracy"), // GPS accuracy in meters
+  locationTimestamp: timestamp("location_timestamp"),
+  ipAddress: varchar("ip_address"),
+  deviceFingerprint: varchar("device_fingerprint"),
+  authenticationHistory: jsonb("authentication_history"),
+  profileCompleteness: integer("profile_completeness").default(0), // percentage 0-100
+  identityVerificationScore: decimal("identity_verification_score", { precision: 5, scale: 2 }).default("0.00"),
+  residencyVerified: boolean("residency_verified").default(false),
+  citizenshipStatus: varchar("citizenship_status"), // citizen, permanent_resident, temporary_resident, visitor
+  voterRegistrationStatus: varchar("voter_registration_status"), // registered, not_registered, unknown
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
