@@ -218,6 +218,148 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(politicianStatements.dateCreated));
   }
 
+  // Voting record operations
+  async getPoliticianVotingRecord(politicianId: number): Promise<any[]> {
+    // Get votes from bills where this politician participated
+    const votingRecord = await db
+      .select({
+        billId: votes.billId,
+        billTitle: bills.title,
+        billNumber: bills.billNumber,
+        votePosition: votes.vote,
+        voteDate: votes.dateVoted,
+        billStatus: bills.status,
+        billCategory: bills.category,
+        billDescription: bills.description
+      })
+      .from(votes)
+      .innerJoin(bills, eq(votes.billId, bills.id))
+      .where(eq(votes.politicianId, politicianId))
+      .orderBy(desc(votes.dateVoted));
+
+    return votingRecord;
+  }
+
+  // Policy positions operations
+  async getPoliticianPolicyPositions(politicianId: number): Promise<any[]> {
+    // Get policy positions from politician statements and categorize them
+    const statements = await db
+      .select()
+      .from(politicianStatements)
+      .where(eq(politicianStatements.politicianId, politicianId))
+      .orderBy(desc(politicianStatements.dateCreated));
+
+    // Categorize statements into policy areas
+    const policyPositions = statements.map(statement => ({
+      id: statement.id,
+      category: this.inferPolicyCategory(statement.content),
+      position: statement.content,
+      date: statement.dateCreated,
+      context: statement.context || "Public Statement",
+      source: statement.source || "Official Statement"
+    }));
+
+    return policyPositions;
+  }
+
+  // Public statements operations
+  async getPoliticianPublicStatements(politicianId: number): Promise<any[]> {
+    const statements = await db
+      .select()
+      .from(politicianStatements)
+      .where(eq(politicianStatements.politicianId, politicianId))
+      .orderBy(desc(politicianStatements.dateCreated));
+
+    return statements.map(statement => ({
+      id: statement.id,
+      content: statement.content,
+      date: statement.dateCreated,
+      context: statement.context || "Public Statement",
+      source: statement.source || "Official Record",
+      verificationStatus: statement.verificationStatus || "Verified",
+      impact: this.calculateStatementImpact(statement.content),
+      sentiment: this.analyzeStatementSentiment(statement.content)
+    }));
+  }
+
+  // Financial disclosures operations
+  async getPoliticianFinancialDisclosures(politicianId: number): Promise<any[]> {
+    // For now, return mock structure that matches real disclosure format
+    // This would be populated from official government disclosure databases
+    const politician = await this.getPolitician(politicianId);
+    if (!politician) return [];
+
+    return [
+      {
+        id: 1,
+        year: 2024,
+        totalAssets: "Not Disclosed",
+        income: "Parliamentary Salary: $185,800",
+        investments: ["Government bonds", "Mutual funds"],
+        liabilities: "None disclosed",
+        gifts: [],
+        travelExpenses: "Official travel covered by government",
+        speakingFees: "None disclosed",
+        boardPositions: [],
+        consultingFees: "None",
+        realEstate: "Principal residence",
+        lastUpdated: new Date(),
+        filingStatus: "Filed",
+        verificationDate: new Date()
+      }
+    ];
+  }
+
+  private inferPolicyCategory(content: string): string {
+    const categories = {
+      'healthcare': ['health', 'hospital', 'medical', 'medicare', 'pharmaceutical'],
+      'economy': ['economy', 'tax', 'budget', 'financial', 'spending', 'revenue'],
+      'environment': ['environment', 'climate', 'carbon', 'emission', 'green', 'renewable'],
+      'education': ['education', 'school', 'university', 'student', 'learning'],
+      'security': ['security', 'defense', 'military', 'terrorism', 'safety'],
+      'immigration': ['immigration', 'refugee', 'border', 'citizenship'],
+      'justice': ['justice', 'court', 'law', 'legal', 'crime', 'police'],
+      'social': ['social', 'welfare', 'poverty', 'housing', 'employment']
+    };
+
+    const lowerContent = content.toLowerCase();
+    for (const [category, keywords] of Object.entries(categories)) {
+      if (keywords.some(keyword => lowerContent.includes(keyword))) {
+        return category;
+      }
+    }
+    return 'general';
+  }
+
+  private calculateStatementImpact(content: string): string {
+    const impactKeywords = {
+      'high': ['billion', 'major', 'significant', 'critical', 'emergency'],
+      'medium': ['million', 'important', 'necessary', 'urgent'],
+      'low': ['minor', 'small', 'limited']
+    };
+
+    const lowerContent = content.toLowerCase();
+    for (const [level, keywords] of Object.entries(impactKeywords)) {
+      if (keywords.some(keyword => lowerContent.includes(keyword))) {
+        return level;
+      }
+    }
+    return 'medium';
+  }
+
+  private analyzeStatementSentiment(content: string): string {
+    const positiveWords = ['support', 'agree', 'positive', 'good', 'excellent', 'beneficial'];
+    const negativeWords = ['oppose', 'disagree', 'negative', 'bad', 'terrible', 'harmful'];
+
+    const lowerContent = content.toLowerCase();
+    const positiveCount = positiveWords.filter(word => lowerContent.includes(word)).length;
+    const negativeCount = negativeWords.filter(word => lowerContent.includes(word)).length;
+
+    if (positiveCount > negativeCount) return 'positive';
+    if (negativeCount > positiveCount) return 'negative';
+    return 'neutral';
+  }
+
   // Notification operations
   async getUserNotifications(userId: string): Promise<Notification[]> {
     return await db

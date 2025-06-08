@@ -195,6 +195,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get politician voting record
+  app.get('/api/politicians/:id/voting-record', async (req, res) => {
+    try {
+      const politicianId = parseInt(req.params.id);
+      const votingRecord = await storage.getPoliticianVotingRecord(politicianId);
+      res.json(votingRecord);
+    } catch (error) {
+      console.error("Error fetching voting record:", error);
+      res.status(500).json({ message: "Failed to fetch voting record" });
+    }
+  });
+
+  // Get politician policy positions
+  app.get('/api/politicians/:id/policy-positions', async (req, res) => {
+    try {
+      const politicianId = parseInt(req.params.id);
+      const policyPositions = await storage.getPoliticianPolicyPositions(politicianId);
+      res.json(policyPositions);
+    } catch (error) {
+      console.error("Error fetching policy positions:", error);
+      res.status(500).json({ message: "Failed to fetch policy positions" });
+    }
+  });
+
+  // Get politician public statements
+  app.get('/api/politicians/:id/public-statements', async (req, res) => {
+    try {
+      const politicianId = parseInt(req.params.id);
+      const statements = await storage.getPoliticianPublicStatements(politicianId);
+      res.json(statements);
+    } catch (error) {
+      console.error("Error fetching public statements:", error);
+      res.status(500).json({ message: "Failed to fetch public statements" });
+    }
+  });
+
+  // Get politician financial disclosures
+  app.get('/api/politicians/:id/financial-disclosures', async (req, res) => {
+    try {
+      const politicianId = parseInt(req.params.id);
+      const disclosures = await storage.getPoliticianFinancialDisclosures(politicianId);
+      res.json(disclosures);
+    } catch (error) {
+      console.error("Error fetching financial disclosures:", error);
+      res.status(500).json({ message: "Failed to fetch financial disclosures" });
+    }
+  });
+
   app.post('/api/politicians/:id/statements', isAuthenticated, async (req: any, res) => {
     try {
       const politicianId = parseInt(req.params.id);

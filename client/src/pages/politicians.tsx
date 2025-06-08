@@ -1,14 +1,52 @@
 import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { NavigationHeader } from "@/components/NavigationHeader";
-import { Users, AlertTriangle, CheckCircle, AlertCircle } from "lucide-react";
+import { Users, AlertTriangle, CheckCircle, AlertCircle, MapPin, Phone, Mail, Globe, Calendar, FileText, Vote, DollarSign, Eye, TrendingUp, Award } from "lucide-react";
+import { useState } from "react";
 import type { Politician } from "@shared/schema";
 
 export default function Politicians() {
+  const [selectedPolitician, setSelectedPolitician] = useState<Politician | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [partyFilter, setPartyFilter] = useState("all");
+  const [levelFilter, setLevelFilter] = useState("all");
+
   const { data: politicians = [], isLoading } = useQuery<Politician[]>({
     queryKey: ["/api/politicians"],
+  });
+
+  const { data: votingRecord = [], isLoading: votingLoading } = useQuery({
+    queryKey: ["/api/politicians", selectedPolitician?.id, "voting-record"],
+    enabled: !!selectedPolitician,
+  });
+
+  const { data: policyPositions = [], isLoading: policyLoading } = useQuery({
+    queryKey: ["/api/politicians", selectedPolitician?.id, "policy-positions"],
+    enabled: !!selectedPolitician,
+  });
+
+  const { data: publicStatements = [], isLoading: statementsLoading } = useQuery({
+    queryKey: ["/api/politicians", selectedPolitician?.id, "public-statements"],
+    enabled: !!selectedPolitician,
+  });
+
+  const { data: financialDisclosures = [], isLoading: financialLoading } = useQuery({
+    queryKey: ["/api/politicians", selectedPolitician?.id, "financial-disclosures"],
+    enabled: !!selectedPolitician,
+  });
+
+  const filteredPoliticians = politicians.filter(politician => {
+    const matchesSearch = politician.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         politician.constituency?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesParty = partyFilter === "all" || politician.party === partyFilter;
+    const matchesLevel = levelFilter === "all" || politician.level === levelFilter;
+    
+    return matchesSearch && matchesParty && matchesLevel;
   });
 
   const getTrustScoreColor = (score: string) => {
@@ -23,6 +61,18 @@ export default function Politicians() {
     if (numScore >= 80) return <CheckCircle className="w-5 h-5 civic-green" />;
     if (numScore >= 60) return <AlertTriangle className="w-5 h-5 text-yellow-600" />;
     return <AlertCircle className="w-5 h-5 civic-red" />;
+  };
+
+  const getPartyColor = (party?: string) => {
+    if (!party) return "bg-gray-500";
+    switch (party.toLowerCase()) {
+      case "liberal": return "bg-red-600";
+      case "conservative": return "bg-blue-600";
+      case "ndp": case "new democratic": return "bg-orange-500";
+      case "bloc québécois": case "bloc quebecois": return "bg-cyan-600";
+      case "green": return "bg-green-600";
+      default: return "bg-gray-600";
+    }
   };
 
   if (isLoading) {
