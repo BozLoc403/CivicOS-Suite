@@ -1,11 +1,9 @@
 import { db } from "./db";
 import { politicians, bills, votes, politicianStatements } from "@shared/schema";
 import { eq, desc, and, gte } from "drizzle-orm";
-import Anthropic from '@anthropic-ai/sdk';
+import { mistralAI } from './mistral';
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
+// Using Mistral AI for data verification instead of Anthropic
 
 interface DataVerificationResult {
   isValid: boolean;
@@ -239,39 +237,15 @@ export class DataVerificationService {
    */
   private async analyzeDataAuthenticity(data: any): Promise<{ confidence: number; issues: string[] }> {
     try {
-      const response = await anthropic.messages.create({
-        model: 'claude-sonnet-4-20250514', // the newest Anthropic model is "claude-sonnet-4-20250514" which was released May 14, 2025. Use this by default unless user has already selected claude-3-7-sonnet-20250219
-        max_tokens: 1024,
-        system: `You are an expert in Canadian government data verification. Analyze the provided politician data for authenticity, consistency, and accuracy against known Canadian political structures and naming conventions.
-
-Verify:
-1. Name format consistency with Canadian political records
-2. Position title accuracy for jurisdiction level
-3. Party affiliation validity for current political landscape
-4. Constituency name accuracy and geographic consistency
-5. Jurisdiction-level position alignment
-
-Respond ONLY with valid JSON in this exact format: {"confidence": number_0_to_1, "issues": ["list", "of", "concerns"]}`,
-        messages: [{
-          role: 'user',
-          content: JSON.stringify(data)
-        }]
-      });
-
-      const content = response.content[0];
-      if (content.type !== 'text') {
-        throw new Error('Expected text response from Claude');
-      }
+      const result = await mistralAI.analyzeContentAuthenticity(
+        JSON.stringify(data),
+        'Canadian Government Database'
+      );
       
-      // Clean the response text to extract JSON
-      let cleanText = content.text.trim();
-      if (cleanText.includes('```json')) {
-        cleanText = cleanText.split('```json')[1].split('```')[0].trim();
-      } else if (cleanText.includes('```')) {
-        cleanText = cleanText.split('```')[1].split('```')[0].trim();
-      }
-      
-      return JSON.parse(cleanText);
+      return {
+        confidence: result.credibilityScore / 100,
+        issues: result.issues
+      };
     } catch (error) {
       console.error('AI verification error:', error);
       return { confidence: 0.8, issues: [] }; // Default to high confidence for verified politicians

@@ -1,4 +1,4 @@
-import Anthropic from '@anthropic-ai/sdk';
+import { mistralAI } from './mistral';
 import { db } from './db';
 import { eq, and, sql } from 'drizzle-orm';
 
@@ -63,29 +63,28 @@ export class ContentSimplifier {
    */
   async simplifyContent(request: SimplificationRequest): Promise<SimplificationResult> {
     try {
-      const systemPrompt = this.buildSystemPrompt(request.type, request.targetAudience, request.complexity);
-      
-      const response = await anthropic.messages.create({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 2000,
-        system: systemPrompt,
-        messages: [
-          {
-            role: 'user',
-            content: `Please simplify this ${request.type} content:\n\n${request.content}`
-          }
-        ],
-      });
-
-      const responseText = response.content[0].text;
-      const result = this.parseSimplificationResponse(responseText, request.content);
+      const result = await mistralAI.simplifyContent(
+        request.content,
+        request.type,
+        request.targetAudience
+      );
 
       // Extract politician information if present
+      let politiciansInvolved: any[] = [];
       if (request.type === 'news_article' || request.type === 'political_statement') {
-        result.politiciansInvolved = await this.extractPoliticianStances(request.content);
+        politiciansInvolved = await this.extractPoliticianStances(request.content);
       }
 
-      return result;
+      return {
+        simplifiedContent: result.simplifiedContent,
+        keyPoints: result.keyPoints,
+        summary: result.summary,
+        readingLevel: result.readingLevel,
+        confidence: 0.9,
+        originalLength: request.content.length,
+        simplifiedLength: result.simplifiedContent.length,
+        politiciansInvolved
+      };
     } catch (error) {
       console.error('Content simplification error:', error);
       throw new Error('Failed to simplify content');
