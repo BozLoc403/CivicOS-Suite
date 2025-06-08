@@ -272,7 +272,7 @@ export default function Dashboard() {
                   {selectedBill.title}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {selectedBill.summary?.slice(0, 200)}...
+                  {selectedBill.aiSummary?.slice(0, 200) || selectedBill.description?.slice(0, 200)}...
                 </p>
               </div>
               
