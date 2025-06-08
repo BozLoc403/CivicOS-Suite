@@ -1626,7 +1626,7 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
       }
 
       const [post] = await db.insert(forumPosts).values({
-        authorId: userId,
+        userId: userId,
         title,
         content,
         categoryId: parseInt(categoryId),
@@ -1690,7 +1690,7 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
         authorId: userId,
         content,
         postId: parseInt(postId),
-        parentId: parentReplyId ? parseInt(parentReplyId) : null
+        parentReplyId: parentReplyId ? parseInt(parentReplyId) : null
       }).returning();
 
       // Update reply count on the post
@@ -1766,7 +1766,7 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
         .from(forumPosts)
         .where(eq(forumPosts.id, postId));
 
-      if (!post || post.authorId !== userId) {
+      if (!post || post.userId !== userId) {
         return res.status(403).json({ message: "Not authorized to delete this post" });
       }
 

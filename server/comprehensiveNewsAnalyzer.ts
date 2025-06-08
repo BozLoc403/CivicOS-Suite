@@ -485,7 +485,7 @@ Focus on:
         content: article.content,
         publishedAt: article.publishedAt,
         bias: article.bias,
-        credibilityScore: article.credibilityScore,
+        credibilityScore: article.credibilityScore.toString(),
         propagandaTechniques: article.propagandaTechniques,
         keyTopics: article.keyTopics,
         politiciansInvolved: article.politiciansInvolved,
@@ -495,12 +495,12 @@ Focus on:
         analysisDate: new Date(),
         isVerified: true,
         publicImpact: this.calculatePublicImpact(article),
-        biasScore: this.calculateBiasScore(article.bias),
+        biasScore: this.calculateBiasScore(article.bias).toString(),
         sentimentScore: this.calculateSentimentScore(article.emotionalTone)
       }).onConflictDoUpdate({
         target: newsArticles.url,
         set: {
-          credibilityScore: article.credibilityScore,
+          credibilityScore: article.credibilityScore.toString(),
           propagandaTechniques: article.propagandaTechniques,
           factualityScore: article.factualityScore,
           analysisDate: new Date()
