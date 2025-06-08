@@ -1411,6 +1411,21 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
     }
   });
 
+  // AI status endpoint
+  app.get('/api/ai/status', (req, res) => {
+    res.json({
+      enabled: !!process.env.ANTHROPIC_API_KEY,
+      provider: 'Anthropic Claude',
+      model: 'claude-sonnet-4-20250514',
+      features: {
+        billSummarization: !!process.env.ANTHROPIC_API_KEY,
+        politicianAnalysis: !!process.env.ANTHROPIC_API_KEY,
+        civicChat: !!process.env.ANTHROPIC_API_KEY,
+        newsAnalysis: !!process.env.ANTHROPIC_API_KEY
+      }
+    });
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

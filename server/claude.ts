@@ -40,43 +40,42 @@ ${billText}`
 }
 
 export async function analyzePoliticianStatement(
-  newStatement: string, 
-  existingStatements: PoliticianStatement[]
-): Promise<{ isContradiction: boolean; details: string | null }> {
-  try {
-    const statementsContext = existingStatements
-      .slice(0, 10) // Limit to recent statements to avoid token limits
-      .map(s => `${s.dateCreated?.toISOString()}: ${s.statement}`)
-      .join('\n');
+  statementText: string, 
+  politicianName: string, 
+  party: string
+): Promise<string> {
+  if (!process.env.ANTHROPIC_API_KEY) {
+    throw new Error("AI features require Anthropic API key configuration");
+  }
 
+  try {
     const message = await anthropic.messages.create({
       max_tokens: 1024,
       messages: [
         {
           role: 'user',
-          content: `You are a political fact-checker. Analyze the new statement for logical contradictions with previous statements. Be objective and cite specific examples. Respond in JSON format with 'isContradiction' (boolean) and 'details' (string explanation or null).
+          content: `You are an expert political analyst. Analyze these statements from ${politicianName} (${party}) and provide insights into their political consistency, key positions, and any notable patterns or contradictions.
 
-New statement: "${newStatement}"
+Statements to analyze:
+${statementText}
 
-Previous statements:
-${statementsContext}
+Provide a comprehensive analysis covering:
+1. Key political positions and themes
+2. Consistency across statements
+3. Any contradictions or evolving positions
+4. Communication style and rhetoric
+5. Alignment with party positions
 
-Analyze if the new statement contradicts any previous statements. Provide specific details if contradictions exist.`
+Be factual and unbiased in your analysis.`
         }
       ],
       model: 'claude-sonnet-4-20250514',
     });
 
-    const content = message.content[0].type === 'text' ? message.content[0].text : '{"isContradiction": false, "details": null}';
-    const result = JSON.parse(content);
-    
-    return {
-      isContradiction: Boolean(result.isContradiction),
-      details: result.details || null
-    };
+    return message.content[0].type === 'text' ? message.content[0].text : "Analysis could not be generated.";
   } catch (error) {
     console.error("Error analyzing politician statement:", error);
-    return { isContradiction: false, details: null };
+    throw new Error("Failed to generate politician analysis");
   }
 }
 

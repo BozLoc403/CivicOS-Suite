@@ -31,7 +31,18 @@ interface AIResponse {
 }
 
 export class CivicAIService {
-  
+  private anthropic: Anthropic;
+
+  constructor() {
+    if (!process.env.ANTHROPIC_API_KEY) {
+      throw new Error('ANTHROPIC_API_KEY environment variable is required for AI features');
+    }
+    
+    this.anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY,
+    });
+  }
+
   async processQuery(request: AIRequest): Promise<AIResponse> {
     const { query, region } = request;
     
