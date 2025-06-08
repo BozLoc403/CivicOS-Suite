@@ -36,6 +36,11 @@ export const users = pgTable("users", {
   profileImageUrl: varchar("profile_image_url"),
   electoralDistrict: varchar("electoral_district"),
   phoneNumber: varchar("phone_number"),
+  dateOfBirth: timestamp("date_of_birth"),
+  governmentIdVerified: boolean("government_id_verified").default(false),
+  governmentIdType: varchar("government_id_type"), // passport, drivers_license, health_card
+  verificationLevel: varchar("verification_level").default("unverified"), // unverified, basic, government_id, enhanced
+  communicationStyle: varchar("communication_style").default("auto"), // auto, simple, casual, formal, technical
   isVerified: boolean("is_verified").default(false),
   civicLevel: varchar("civic_level").default("Registered"),
   trustScore: decimal("trust_score", { precision: 5, scale: 2 }).default("100.00"),
@@ -170,6 +175,200 @@ export const notifications = pgTable("notifications", {
   relatedBillId: integer("related_bill_id").references(() => bills.id),
   relatedPetitionId: integer("related_petition_id").references(() => petitions.id),
   createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Discussion board system
+export const discussions = pgTable("discussions", {
+  id: serial("id").primaryKey(),
+  billId: integer("bill_id").notNull().references(() => bills.id),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  title: varchar("title").notNull(),
+  content: text("content").notNull(),
+  type: varchar("type").default("general"), // general, analysis, question, debate
+  isVerified: boolean("is_verified").default(false), // government ID verified user
+  likesCount: integer("likes_count").default(0),
+  repliesCount: integer("replies_count").default(0),
+  isPinned: boolean("is_pinned").default(false),
+  isModerated: boolean("is_moderated").default(false),
+  moderationReason: text("moderation_reason"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const discussionReplies = pgTable("discussion_replies", {
+  id: serial("id").primaryKey(),
+  discussionId: integer("discussion_id").notNull().references(() => discussions.id),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  parentReplyId: integer("parent_reply_id"), // for nested replies
+  content: text("content").notNull(),
+  isVerified: boolean("is_verified").default(false),
+  likesCount: integer("likes_count").default(0),
+  isModerated: boolean("is_moderated").default(false),
+  moderationReason: text("moderation_reason"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const discussionLikes = pgTable("discussion_likes", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  discussionId: integer("discussion_id").references(() => discussions.id),
+  replyId: integer("reply_id").references(() => discussionReplies.id),
+  likeType: varchar("like_type").default("like"), // like, dislike, support, oppose
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Legal transparency tables
+export const lawUpdates = pgTable("law_updates", {
+  id: serial("id").primaryKey(),
+  lawType: varchar("law_type").notNull(), // criminal_code, civil_code, statute, regulation
+  title: varchar("title").notNull(),
+  description: text("description").notNull(),
+  changeType: varchar("change_type").notNull(), // new, amended, repealed
+  effectiveDate: timestamp("effective_date").notNull(),
+  jurisdiction: varchar("jurisdiction").notNull(), // federal, provincial, municipal
+  province: varchar("province"),
+  legalReference: varchar("legal_reference").notNull(),
+  fullText: text("full_text"),
+  summary: text("summary"),
+  impactAnalysis: text("impact_analysis"),
+  publicConsultationDeadline: timestamp("public_consultation_deadline"),
+  sourceUrl: varchar("source_url"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const governmentServices = pgTable("government_services", {
+  id: serial("id").primaryKey(),
+  serviceName: varchar("service_name").notNull(),
+  department: varchar("department").notNull(),
+  description: text("description").notNull(),
+  serviceType: varchar("service_type").notNull(), // application, information, complaint, emergency
+  jurisdiction: varchar("jurisdiction").notNull(), // federal, provincial, municipal
+  province: varchar("province"),
+  city: varchar("city"),
+  phoneNumber: varchar("phone_number"),
+  email: varchar("email"),
+  websiteUrl: varchar("website_url"),
+  physicalAddress: text("physical_address"),
+  hoursOfOperation: text("hours_of_operation"),
+  onlineAccessible: boolean("online_accessible").default(false),
+  applicationRequired: boolean("application_required").default(false),
+  fees: text("fees"),
+  processingTime: varchar("processing_time"),
+  requiredDocuments: text("required_documents").array(),
+  keywords: text("keywords").array(),
+  lastUpdated: timestamp("last_updated").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const criminalCodeSections = pgTable("criminal_code_sections", {
+  id: serial("id").primaryKey(),
+  sectionNumber: varchar("section_number").notNull(),
+  title: varchar("title").notNull(),
+  fullText: text("full_text").notNull(),
+  summary: text("summary"),
+  penalties: text("penalties"),
+  recentChanges: text("recent_changes"),
+  relatedSections: text("related_sections").array(),
+  caseExamples: text("case_examples"),
+  lastUpdated: timestamp("last_updated").defaultNow(),
+});
+
+// Election and candidate tracking
+export const elections = pgTable("elections", {
+  id: serial("id").primaryKey(),
+  electionName: varchar("election_name").notNull(),
+  electionType: varchar("election_type").notNull(), // federal, provincial, municipal, by-election
+  jurisdiction: varchar("jurisdiction").notNull(),
+  province: varchar("province"),
+  municipality: varchar("municipality"),
+  electionDate: timestamp("election_date").notNull(),
+  registrationDeadline: timestamp("registration_deadline"),
+  advanceVotingStart: timestamp("advance_voting_start"),
+  advanceVotingEnd: timestamp("advance_voting_end"),
+  isCompleted: boolean("is_completed").default(false),
+  totalVoters: integer("total_voters"),
+  voterTurnout: decimal("voter_turnout", { precision: 5, scale: 2 }),
+  status: varchar("status").default("upcoming"), // upcoming, active, completed, cancelled
+  officialResultsUrl: varchar("official_results_url"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const candidates = pgTable("candidates", {
+  id: serial("id").primaryKey(),
+  electionId: integer("election_id").notNull().references(() => elections.id),
+  name: varchar("name").notNull(),
+  party: varchar("party"),
+  constituency: varchar("constituency").notNull(),
+  biography: text("biography"),
+  website: varchar("website"),
+  email: varchar("email"),
+  phoneNumber: varchar("phone_number"),
+  campaignWebsite: varchar("campaign_website"),
+  socialMediaTwitter: varchar("social_media_twitter"),
+  socialMediaFacebook: varchar("social_media_facebook"),
+  socialMediaInstagram: varchar("social_media_instagram"),
+  occupation: varchar("occupation"),
+  education: text("education"),
+  previousExperience: text("previous_experience"),
+  keyPlatformPoints: text("key_platform_points").array(),
+  campaignPromises: text("campaign_promises").array(),
+  votesReceived: integer("votes_received"),
+  votePercentage: decimal("vote_percentage", { precision: 5, scale: 2 }),
+  isIncumbent: boolean("is_incumbent").default(false),
+  isElected: boolean("is_elected").default(false),
+  endorsements: text("endorsements").array(),
+  financialDisclosure: text("financial_disclosure"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const candidatePolicies = pgTable("candidate_policies", {
+  id: serial("id").primaryKey(),
+  candidateId: integer("candidate_id").notNull().references(() => candidates.id),
+  policyArea: varchar("policy_area").notNull(), // healthcare, economy, environment, etc
+  policyTitle: varchar("policy_title").notNull(),
+  policyDescription: text("policy_description").notNull(),
+  implementationPlan: text("implementation_plan"),
+  estimatedCost: varchar("estimated_cost"),
+  timeline: varchar("timeline"),
+  priority: varchar("priority").default("medium"), // high, medium, low
+  sourceDocument: varchar("source_document"),
+  lastVerified: timestamp("last_verified").defaultNow(),
+});
+
+export const electoralDistricts = pgTable("electoral_districts", {
+  id: serial("id").primaryKey(),
+  districtName: varchar("district_name").notNull(),
+  districtNumber: varchar("district_number"),
+  province: varchar("province").notNull(),
+  population: integer("population"),
+  area: decimal("area", { precision: 10, scale: 2 }), // square kilometers
+  demographics: jsonb("demographics"), // age groups, income levels, etc
+  economicProfile: text("economic_profile"),
+  keyIssues: text("key_issues").array(),
+  historicalVoting: jsonb("historical_voting"), // past election results
+  boundaries: text("boundaries"), // geographic description
+  majorCities: text("major_cities").array(),
+  currentRepresentative: varchar("current_representative"),
+  lastElectionTurnout: decimal("last_election_turnout", { precision: 5, scale: 2 }),
+  isUrban: boolean("is_urban").default(false),
+  isRural: boolean("is_rural").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const pollingSites = pgTable("polling_sites", {
+  id: serial("id").primaryKey(),
+  electionId: integer("election_id").notNull().references(() => elections.id),
+  districtId: integer("district_id").references(() => electoralDistricts.id),
+  siteName: varchar("site_name").notNull(),
+  address: text("address").notNull(),
+  city: varchar("city").notNull(),
+  postalCode: varchar("postal_code").notNull(),
+  accessibility: text("accessibility"), // wheelchair accessible, parking, etc
+  hoursOpen: varchar("hours_open"),
+  isAdvancePolling: boolean("is_advance_polling").default(false),
+  specialInstructions: text("special_instructions"),
+  coordinates: varchar("coordinates"), // lat,lng for mapping
 });
 
 // Relations
