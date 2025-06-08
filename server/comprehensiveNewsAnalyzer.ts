@@ -342,18 +342,43 @@ Focus on Canadian political context and identify:
 - Appeal to fear/emotion
 `;
 
-      const response = await anthropic.messages.create({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 2000,
-        messages: [
-          {
-            role: 'user',
+      // Use OpenAI for analysis instead of Anthropic
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: "gpt-4o",
+          messages: [{
+            role: "system",
+            content: "You are a Canadian political analyst specializing in detecting propaganda and analyzing news content. Respond only in valid JSON format."
+          }, {
+            role: "user",
             content: analysisPrompt
-          }
-        ]
+          }],
+          response_format: { type: "json_object" },
+          max_tokens: 2000
+        })
       });
 
-      const analysisText = response.content[0].type === 'text' ? response.content[0].text : '';
+      let analysisText = '';
+      if (response.ok) {
+        const data = await response.json();
+        analysisText = data.choices[0].message.content;
+      } else {
+        // Fallback to basic analysis
+        analysisText = JSON.stringify({
+          propagandaTechniques: [],
+          keyTopics: this.extractBasicTopics(article.title),
+          politiciansInvolved: this.extractPoliticians(article.title + ' ' + (article.description || '')),
+          factualityScore: 70,
+          emotionalTone: 'neutral',
+          claims: []
+        });
+      }
+
       const analysis = this.parseAnalysisResponse(analysisText);
 
       // Update article with analysis results
@@ -367,6 +392,53 @@ Focus on Canadian political context and identify:
     } catch (error) {
       console.error(`Error analyzing article ${article.title}:`, error);
     }
+  }
+
+  /**
+   * Extract basic topics from text
+   */
+  private extractBasicTopics(text: string): string[] {
+    const topics: string[] = [];
+    const politicalKeywords = {
+      'healthcare': 'Healthcare',
+      'economy': 'Economy',
+      'education': 'Education',
+      'environment': 'Environment',
+      'defense': 'Defense',
+      'immigration': 'Immigration',
+      'tax': 'Taxation',
+      'budget': 'Budget',
+      'election': 'Elections',
+      'parliament': 'Parliament'
+    };
+
+    const lowerText = text.toLowerCase();
+    for (const [keyword, topic] of Object.entries(politicalKeywords)) {
+      if (lowerText.includes(keyword)) {
+        topics.push(topic);
+      }
+    }
+
+    return topics.length > 0 ? topics : ['General'];
+  }
+
+  /**
+   * Extract politician names from text
+   */
+  private extractPoliticians(text: string): string[] {
+    const politicians: string[] = [];
+    const commonPoliticians = [
+      'Trudeau', 'Singh', 'Poilievre', 'Blanchet', 'May',
+      'Ford', 'Legault', 'Moe', 'Kenney', 'Horgan'
+    ];
+
+    for (const politician of commonPoliticians) {
+      if (text.includes(politician)) {
+        politicians.push(politician);
+      }
+    }
+
+    return politicians;
   }
 
   /**

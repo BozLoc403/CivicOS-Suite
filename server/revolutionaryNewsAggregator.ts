@@ -3,6 +3,7 @@ import fetch from 'node-fetch';
 import { parseStringPromise } from 'xml2js';
 import { db } from './db';
 import { newsArticles, newsOutlets, newsComparisons } from '@shared/schema';
+import { openaiNewsAnalyzer } from './openaiNewsAnalyzer';
 
 interface NewsSource {
   id: string;
