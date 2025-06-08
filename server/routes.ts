@@ -1658,19 +1658,16 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
       const { jurisdiction, category, search } = req.query;
       
       let whereClause = "WHERE 1=1";
-      const params = [];
+      let queryParams = [];
       
       if (jurisdiction) {
-        whereClause += " AND jurisdiction = $" + (params.length + 1);
-        params.push(jurisdiction);
+        whereClause += ` AND jurisdiction = '${jurisdiction}'`;
       }
       if (category) {
-        whereClause += " AND category = $" + (params.length + 1);
-        params.push(category);
+        whereClause += ` AND category = '${category}'`;
       }
       if (search) {
-        whereClause += " AND (title ILIKE $" + (params.length + 1) + " OR summary ILIKE $" + (params.length + 1) + ")";
-        params.push(`%${search}%`);
+        whereClause += ` AND (title ILIKE '%${search}%' OR summary ILIKE '%${search}%')`;
       }
       
       const queryText = `
@@ -1697,22 +1694,18 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
       const { court, jurisdiction, search } = req.query;
       
       let whereClause = "WHERE 1=1";
-      const params = [];
       
       if (court) {
-        whereClause += " AND court = $" + (params.length + 1);
-        params.push(court);
+        whereClause += ` AND court = '${court}'`;
       }
       if (jurisdiction) {
-        whereClause += " AND jurisdiction = $" + (params.length + 1);
-        params.push(jurisdiction);
+        whereClause += ` AND jurisdiction = '${jurisdiction}'`;
       }
       if (search) {
-        whereClause += " AND (case_name ILIKE $" + (params.length + 1) + " OR summary ILIKE $" + (params.length + 1) + ")";
-        params.push(`%${search}%`);
+        whereClause += ` AND (case_name ILIKE '%${search}%' OR summary ILIKE '%${search}%')`;
       }
       
-      const query = `
+      const queryText = `
         SELECT 
           id, case_name as "caseName", case_number as "caseNumber", court, 
           jurisdiction, date_decided as "dateDecided", judge, parties,
@@ -1723,7 +1716,7 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
         ORDER BY date_decided DESC
       `;
       
-      const cases = await db.execute(sql.raw(query, params));
+      const cases = await db.execute(sql.raw(queryText));
       res.json(cases.rows);
     } catch (error) {
       console.error("Error fetching legal cases:", error);
