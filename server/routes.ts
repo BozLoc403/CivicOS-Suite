@@ -1622,22 +1622,31 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
     try {
       const { search, section } = req.query;
       
-      let query = db.select().from(criminalCodeSections);
+      let whereClause = "WHERE 1=1";
+      const params = [];
       
       if (section) {
-        query = query.where(eq(criminalCodeSections.sectionNumber, section as string));
+        whereClause += " AND section_number = $" + (params.length + 1);
+        params.push(section);
       } else if (search) {
-        query = query.where(
-          or(
-            ilike(criminalCodeSections.title, `%${search}%`),
-            ilike(criminalCodeSections.content, `%${search}%`),
-            ilike(criminalCodeSections.offense, `%${search}%`)
-          )
-        );
+        whereClause += " AND (title ILIKE $" + (params.length + 1) + " OR content ILIKE $" + (params.length + 1) + " OR offense ILIKE $" + (params.length + 1) + ")";
+        params.push(`%${search}%`);
       }
       
-      const sections = await query.orderBy(criminalCodeSections.sectionNumber);
-      res.json(sections);
+      const queryText = `
+        SELECT 
+          id, section_number as "sectionNumber", title, offense, content,
+          max_penalty as "maxPenalty", min_penalty as "minPenalty",
+          is_summary as "isSummary", is_indictable as "isIndictable", is_hybrid as "isHybrid",
+          explanation_simple as "explanationSimple", common_examples as "commonExamples",
+          defenses, related_sections as "relatedSections", amendments
+        FROM criminal_code_sections 
+        ${whereClause}
+        ORDER BY section_number::integer
+      `;
+      
+      const sections = await db.execute(sql.raw(queryText));
+      res.json(sections.rows);
     } catch (error) {
       console.error("Error fetching criminal code sections:", error);
       res.status(500).json({ message: "Failed to fetch criminal code sections" });
@@ -1648,30 +1657,35 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
     try {
       const { jurisdiction, category, search } = req.query;
       
-      let query = db.select().from(legalActs);
+      let whereClause = "WHERE 1=1";
+      const params = [];
       
-      const conditions = [];
       if (jurisdiction) {
-        conditions.push(eq(legalActs.jurisdiction, jurisdiction as string));
+        whereClause += " AND jurisdiction = $" + (params.length + 1);
+        params.push(jurisdiction);
       }
       if (category) {
-        conditions.push(eq(legalActs.category, category as string));
+        whereClause += " AND category = $" + (params.length + 1);
+        params.push(category);
       }
       if (search) {
-        conditions.push(
-          or(
-            ilike(legalActs.title, `%${search}%`),
-            ilike(legalActs.summary, `%${search}%`)
-          )
-        );
+        whereClause += " AND (title ILIKE $" + (params.length + 1) + " OR summary ILIKE $" + (params.length + 1) + ")";
+        params.push(`%${search}%`);
       }
       
-      if (conditions.length > 0) {
-        query = query.where(and(...conditions));
-      }
+      const queryText = `
+        SELECT 
+          id, title, short_title as "shortTitle", act_number as "actNumber",
+          jurisdiction, category, date_enacted as "dateEnacted", 
+          last_amended as "lastAmended", summary, key_provisions as "keyProvisions",
+          related_acts as "relatedActs", source_url as "sourceUrl", province
+        FROM legal_acts 
+        ${whereClause}
+        ORDER BY date_enacted DESC
+      `;
       
-      const acts = await query.orderBy(legalActs.dateEnacted);
-      res.json(acts);
+      const acts = await db.execute(sql.raw(queryText));
+      res.json(acts.rows);
     } catch (error) {
       console.error("Error fetching legal acts:", error);
       res.status(500).json({ message: "Failed to fetch legal acts" });
@@ -1682,30 +1696,35 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
     try {
       const { court, jurisdiction, search } = req.query;
       
-      let query = db.select().from(legalCases);
+      let whereClause = "WHERE 1=1";
+      const params = [];
       
-      const conditions = [];
       if (court) {
-        conditions.push(eq(legalCases.court, court as string));
+        whereClause += " AND court = $" + (params.length + 1);
+        params.push(court);
       }
       if (jurisdiction) {
-        conditions.push(eq(legalCases.jurisdiction, jurisdiction as string));
+        whereClause += " AND jurisdiction = $" + (params.length + 1);
+        params.push(jurisdiction);
       }
       if (search) {
-        conditions.push(
-          or(
-            ilike(legalCases.caseName, `%${search}%`),
-            ilike(legalCases.summary, `%${search}%`)
-          )
-        );
+        whereClause += " AND (case_name ILIKE $" + (params.length + 1) + " OR summary ILIKE $" + (params.length + 1) + ")";
+        params.push(`%${search}%`);
       }
       
-      if (conditions.length > 0) {
-        query = query.where(and(...conditions));
-      }
+      const query = `
+        SELECT 
+          id, case_name as "caseName", case_number as "caseNumber", court, 
+          jurisdiction, date_decided as "dateDecided", judge, parties,
+          summary, ruling, precedent_set as "precedentSet", 
+          key_quotes as "keyQuotes", significance, source_url as "sourceUrl"
+        FROM legal_cases 
+        ${whereClause}
+        ORDER BY date_decided DESC
+      `;
       
-      const cases = await query.orderBy(desc(legalCases.dateDecided));
-      res.json(cases);
+      const cases = await db.execute(sql.raw(query, params));
+      res.json(cases.rows);
     } catch (error) {
       console.error("Error fetching legal cases:", error);
       res.status(500).json({ message: "Failed to fetch legal cases" });
