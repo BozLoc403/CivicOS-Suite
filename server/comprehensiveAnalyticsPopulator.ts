@@ -466,12 +466,11 @@ export class ComprehensiveAnalyticsPopulator {
       }
     ];
   }
-}
 
   /**
    * Fallback methods for when database queries fail
    */
-  private getFallbackPartyDistribution() {
+  getFallbackPartyDistribution() {
     return [
       { party: "Liberal Party of Canada", count: 158, percentage: 47 },
       { party: "Conservative Party of Canada", count: 119, percentage: 35 },
@@ -482,7 +481,7 @@ export class ComprehensiveAnalyticsPopulator {
     ];
   }
 
-  private getFallbackJurisdictionalBreakdown() {
+  getFallbackJurisdictionalBreakdown() {
     return [
       { jurisdiction: "Federal", count: 338, officials: [] },
       { jurisdiction: "Provincial", count: 429, officials: [] },
@@ -490,7 +489,7 @@ export class ComprehensiveAnalyticsPopulator {
     ];
   }
 
-  private getFallbackPositionHierarchy() {
+  getFallbackPositionHierarchy() {
     return [
       { position: "Member of Parliament", count: 338, averageTrustScore: 68 },
       { position: "Member of Legislative Assembly", count: 429, averageTrustScore: 65 },
@@ -499,7 +498,7 @@ export class ComprehensiveAnalyticsPopulator {
     ];
   }
 
-  private getFallbackBillsByCategory() {
+  getFallbackBillsByCategory() {
     return [
       { category: "Budget and Finance", count: 127, passRate: 78 },
       { category: "Health and Safety", count: 89, passRate: 82 },
@@ -510,7 +509,7 @@ export class ComprehensiveAnalyticsPopulator {
     ];
   }
 
-  private getFallbackVotingPatterns() {
+  getFallbackVotingPatterns() {
     return [
       { billId: 1, billTitle: "Budget Implementation Act, 2024", yesVotes: 178, noVotes: 151, abstentions: 9 },
       { billId: 2, billTitle: "Canada Health Transfer Act", yesVotes: 267, noVotes: 65, abstentions: 6 },
@@ -518,7 +517,7 @@ export class ComprehensiveAnalyticsPopulator {
     ];
   }
 
-  private getFallbackLegislativeEfficiency() {
+  getFallbackLegislativeEfficiency() {
     return {
       averagePassageTime: 127,
       billsInProgress: 43,
@@ -526,7 +525,7 @@ export class ComprehensiveAnalyticsPopulator {
     };
   }
 
-  private getFallbackTopPerformers() {
+  getFallbackTopPerformers() {
     return [
       { id: 1, name: "Chrystia Freeland", trustScore: "89", votingParticipation: 96 },
       { id: 2, name: "Pierre Poilievre", trustScore: "84", votingParticipation: 94 },
@@ -536,7 +535,7 @@ export class ComprehensiveAnalyticsPopulator {
     ];
   }
 
-  private getFallbackPartyAlignment() {
+  getFallbackPartyAlignment() {
     return [
       { party: "Liberal Party of Canada", cohesionScore: 87, disciplineRate: 94 },
       { party: "Conservative Party of Canada", cohesionScore: 92, disciplineRate: 96 },
@@ -545,7 +544,7 @@ export class ComprehensiveAnalyticsPopulator {
     ];
   }
 
-  private getFallbackRegionalInfluence() {
+  getFallbackRegionalInfluence() {
     return [
       { region: "Ontario", keyFigures: [], majorIssues: ["Healthcare", "Housing", "Economy"] },
       { region: "Quebec", keyFigures: [], majorIssues: ["Language Rights", "Sovereignty", "Environment"] },
@@ -554,7 +553,7 @@ export class ComprehensiveAnalyticsPopulator {
     ];
   }
 
-  private getFallbackIssueTracking() {
+  getFallbackIssueTracking() {
     return [
       { issue: "Healthcare", publicSupport: 87, politicalSupport: 76, gap: 11 },
       { issue: "Climate Change", publicSupport: 73, politicalSupport: 68, gap: 5 },
@@ -563,7 +562,7 @@ export class ComprehensiveAnalyticsPopulator {
     ];
   }
 
-  private getFallbackMediaInfluence() {
+  getFallbackMediaInfluence() {
     return [
       { outlet: "CBC News", credibilityScore: 87, biasRating: "center-left", influence: 92 },
       { outlet: "Global News", credibilityScore: 83, biasRating: "center", influence: 89 },
@@ -572,7 +571,7 @@ export class ComprehensiveAnalyticsPopulator {
     ];
   }
 
-  private getFallbackTrendAnalysis() {
+  getFallbackTrendAnalysis() {
     return [
       { period: "2024 Q1", keyEvents: ["Budget 2024", "Healthcare Summit"], politicalShifts: [] },
       { period: "2023 Q4", keyEvents: ["Climate Conference", "Trade Agreement"], politicalShifts: [] },
@@ -580,7 +579,7 @@ export class ComprehensiveAnalyticsPopulator {
     ];
   }
 
-  private getFallbackElectionCycles() {
+  getFallbackElectionCycles() {
     return [
       { year: 2021, participationRate: 62.9, outcomes: [] },
       { year: 2019, participationRate: 66.0, outcomes: [] },
@@ -588,7 +587,7 @@ export class ComprehensiveAnalyticsPopulator {
     ];
   }
 
-  private getFallbackPolicyEvolution() {
+  getFallbackPolicyEvolution() {
     return [
       { policy: "Climate Policy", historicalPositions: [], currentStatus: "Active Development" },
       { policy: "Healthcare Reform", historicalPositions: [], currentStatus: "Implementation Phase" },
@@ -596,7 +595,7 @@ export class ComprehensiveAnalyticsPopulator {
     ];
   }
 
-  private getCompleteFallbackAnalytics(): PopulatedAnalytics {
+  getCompleteFallbackAnalytics(): PopulatedAnalytics {
     return {
       politicalLandscape: {
         partyDistribution: this.getFallbackPartyDistribution(),
