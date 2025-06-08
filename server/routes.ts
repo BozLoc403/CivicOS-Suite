@@ -4,7 +4,8 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { db } from "./db";
 import * as schema from "@shared/schema";
-import { eq, or, like, ilike, desc, sql, and } from "drizzle-orm";
+import { eq, or, like, ilike, desc, sql, and, gte } from "drizzle-orm";
+import { comprehensiveNewsAnalyzer } from "./comprehensiveNewsAnalyzer";
 
 // Destructure needed tables from schema
 const {

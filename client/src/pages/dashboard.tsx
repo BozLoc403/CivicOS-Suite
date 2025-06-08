@@ -12,6 +12,7 @@ import { AIStatusBanner } from "@/components/AIStatusBanner";
 import LegalUpdatesWidget from "@/components/widgets/LegalUpdatesWidget";
 import PoliticiansWidget from "@/components/widgets/PoliticiansWidget";
 import { NewsAnalysisWidget } from "@/components/widgets/NewsAnalysisWidget";
+import ComprehensiveNewsWidget from "@/components/widgets/ComprehensiveNewsWidget";
 import BillsVotingWidget from "@/components/widgets/BillsVotingWidget";
 import PetitionsWidget from "@/components/widgets/PetitionsWidget";
 import { LegalSystemWidget } from "@/components/widgets/LegalSystemWidget";
@@ -300,9 +301,9 @@ export default function Dashboard() {
             <PoliticiansWidget />
           </div>
 
-          {/* Column 3: News & Analysis */}
+          {/* Column 3: Comprehensive News & Analysis */}
           <div className="space-y-6">
-            <NewsAnalysisWidget />
+            <ComprehensiveNewsWidget />
             
             {/* Quick Action Cards */}
             <Card>
