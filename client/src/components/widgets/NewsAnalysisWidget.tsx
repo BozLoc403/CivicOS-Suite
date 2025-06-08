@@ -476,7 +476,7 @@ export function NewsAnalysisWidget() {
                 <h4 className="font-medium text-sm mb-2">{article.title}</h4>
                 <div className="flex items-center gap-3 text-xs text-muted-foreground">
                   <span>{article.source}</span>
-                  <Badge variant="outline" size="sm" className={getBiasColor(article.bias)}>
+                  <Badge variant="outline" className={getBiasColor(article.bias)}>
                     {article.bias}
                   </Badge>
                   <span className={getCredibilityColor(article.credibilityScore)}>

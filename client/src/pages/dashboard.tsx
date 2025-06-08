@@ -11,7 +11,7 @@ import { DailyChallenges } from "@/components/DailyChallenges";
 import { AIStatusBanner } from "@/components/AIStatusBanner";
 import LegalUpdatesWidget from "@/components/widgets/LegalUpdatesWidget";
 import PoliticiansWidget from "@/components/widgets/PoliticiansWidget";
-import NewsAnalysisWidget from "@/components/widgets/NewsAnalysisWidget";
+import { NewsAnalysisWidget } from "@/components/widgets/NewsAnalysisWidget";
 import BillsVotingWidget from "@/components/widgets/BillsVotingWidget";
 import PetitionsWidget from "@/components/widgets/PetitionsWidget";
 import { LegalSystemWidget } from "@/components/widgets/LegalSystemWidget";
