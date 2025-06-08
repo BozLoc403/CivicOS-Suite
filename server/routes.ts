@@ -688,6 +688,128 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
     }
   });
 
+  // Legal data endpoints
+  app.get('/api/legal/criminal-code', async (req, res) => {
+    try {
+      const sections = await db.select().from(schema.criminalCodeSections);
+      res.json(sections);
+    } catch (error) {
+      console.error("Error fetching criminal code sections:", error);
+      res.status(500).json({ message: "Failed to fetch criminal code sections" });
+    }
+  });
+
+  app.get('/api/legal/updates', async (req, res) => {
+    try {
+      const updates = await db.select().from(schema.lawUpdates)
+        .orderBy(desc(schema.lawUpdates.createdAt));
+      res.json(updates);
+    } catch (error) {
+      console.error("Error fetching law updates:", error);
+      res.status(500).json({ message: "Failed to fetch law updates" });
+    }
+  });
+
+  app.get('/api/legal/services', async (req, res) => {
+    try {
+      const services = await db.select().from(schema.governmentServices)
+        .orderBy(desc(schema.governmentServices.lastUpdated));
+      res.json(services);
+    } catch (error) {
+      console.error("Error fetching government services:", error);
+      res.status(500).json({ message: "Failed to fetch government services" });
+    }
+  });
+
+  // Enhanced petition routes
+  app.post('/api/petitions', isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+
+      const {
+        title,
+        description,
+        targetLevel,
+        targetOfficial,
+        targetDepartment,
+        category,
+        targetSignatures,
+        deadline,
+        tags
+      } = req.body;
+
+      const [petition] = await db.insert(schema.petitions).values({
+        title,
+        description,
+        targetLevel,
+        targetOfficial,
+        targetDepartment,
+        category,
+        targetSignatures,
+        deadline,
+        tags,
+        creatorId: userId,
+        currentSignatures: 0,
+        status: 'active',
+        isVerified: false,
+        isPromoted: false,
+        priority: 'medium'
+      }).returning();
+
+      res.json(petition);
+    } catch (error) {
+      console.error("Error creating petition:", error);
+      res.status(500).json({ message: "Failed to create petition" });
+    }
+  });
+
+  app.post('/api/petitions/:id/sign', isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const petitionId = parseInt(req.params.id);
+
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+
+      // Check if user already signed
+      const existingSignature = await db.select()
+        .from(schema.petitionSignatures)
+        .where(and(
+          eq(schema.petitionSignatures.petitionId, petitionId),
+          eq(schema.petitionSignatures.userId, userId)
+        ));
+
+      if (existingSignature.length > 0) {
+        return res.status(400).json({ message: "You have already signed this petition" });
+      }
+
+      // Add signature
+      await db.insert(schema.petitionSignatures).values({
+        petitionId,
+        userId,
+        signedAt: new Date(),
+        isVerified: true
+      });
+
+      // Update petition signature count
+      const [updatedPetition] = await db.update(schema.petitions)
+        .set({
+          currentSignatures: sql`${schema.petitions.currentSignatures} + 1`
+        })
+        .where(eq(schema.petitions.id, petitionId))
+        .returning();
+
+      res.json(updatedPetition);
+    } catch (error) {
+      console.error("Error signing petition:", error);
+      res.status(500).json({ message: "Failed to sign petition" });
+    }
+  });
+
   // Media credibility analysis
   app.post('/api/news/analyze-credibility', async (req, res) => {
     try {

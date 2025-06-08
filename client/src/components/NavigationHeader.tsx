@@ -110,6 +110,15 @@ export function NavigationHeader() {
                   Legal System
                 </a>
               </Link>
+              <Link href="/legal-search">
+                <a className={`px-1 pb-4 text-sm font-medium transition-colors ${
+                  isActive("/legal-search") 
+                    ? "civic-blue border-b-2 border-civic-blue" 
+                    : "text-gray-500 hover:text-gray-700"
+                }`}>
+                  Legal Research
+                </a>
+              </Link>
               <Link href="/services">
                 <a className={`px-1 pb-4 text-sm font-medium transition-colors ${
                   isActive("/services") 
