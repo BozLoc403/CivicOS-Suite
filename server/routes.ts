@@ -23,6 +23,7 @@ import { dataVerification } from "./dataVerification";
 import { aggressiveScraper } from "./aggressiveDataScraper";
 import { comprehensiveAnalytics } from "./comprehensiveAnalytics";
 import { realTimeMonitoring } from "./realTimeMonitoring";
+import { legalSystemOrganizer } from "./legalSystemOrganizer";
 import crypto from "crypto";
 
 export async function registerRoutes(app: Express): Promise<Server> {
