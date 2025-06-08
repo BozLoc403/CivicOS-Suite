@@ -195,6 +195,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Featured politician endpoint - must come before parameterized route
+  app.get("/api/politicians/featured", async (req, res) => {
+    try {
+      const featured = await db.execute(sql`
+        SELECT 
+          p.id, p.name, p.position, p.party, p.level, p.constituency,
+          p.trust_score as "trustScore", p.contact, p.profile_image as "profileImage",
+          COUNT(ps.id) as "recentStatements"
+        FROM politicians p
+        LEFT JOIN politician_statements ps ON p.id = ps.politician_id 
+          AND ps.date_created >= NOW() - INTERVAL '7 days'
+        WHERE p.trust_score IS NOT NULL AND p.id IS NOT NULL
+        GROUP BY p.id, p.name, p.position, p.party, p.level, p.constituency, p.trust_score, p.contact, p.profile_image
+        ORDER BY CAST(p.trust_score AS DECIMAL) DESC, "recentStatements" DESC
+        LIMIT 1
+      `);
+
+      if (featured.rows.length > 0) {
+        const politician = featured.rows[0];
+        politician.contact = typeof politician.contact === 'string' 
+          ? JSON.parse(politician.contact || '{}') 
+          : politician.contact || {};
+        res.json(politician);
+      } else {
+        res.json(null);
+      }
+    } catch (error) {
+      console.error("Error fetching featured politician:", error);
+      res.json(null);
+    }
+  });
+
   app.get('/api/politicians/:id', async (req, res) => {
     try {
       const politicianId = parseInt(req.params.id);
@@ -595,11 +627,11 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
       const { title, content, category, isVerificationRequired } = req.body;
       
       const [discussion] = await db.insert(schema.discussions).values({
-        creatorId: userId,
+        userId,
         title,
         content,
-        category,
-        isVerificationRequired: isVerificationRequired || false,
+        billId: null,
+        type: category,
       }).returning();
 
       res.json(discussion);
@@ -1966,37 +1998,7 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
     }
   });
 
-  // Featured politician endpoint
-  app.get("/api/politicians/featured", async (req, res) => {
-    try {
-      const featured = await db.execute(sql`
-        SELECT 
-          p.id, p.name, p.position, p.party, p.level, p.constituency,
-          p.trust_score as "trustScore", p.contact, p.profile_image as "profileImage",
-          COUNT(ps.id) as "recentStatements"
-        FROM politicians p
-        LEFT JOIN politician_statements ps ON p.id = ps.politician_id 
-          AND ps.date_created >= NOW() - INTERVAL '7 days'
-        WHERE p.trust_score IS NOT NULL AND p.id IS NOT NULL
-        GROUP BY p.id, p.name, p.position, p.party, p.level, p.constituency, p.trust_score, p.contact, p.profile_image
-        ORDER BY CAST(p.trust_score AS DECIMAL) DESC, "recentStatements" DESC
-        LIMIT 1
-      `);
 
-      if (featured.rows.length > 0) {
-        const politician = featured.rows[0];
-        politician.contact = typeof politician.contact === 'string' 
-          ? JSON.parse(politician.contact || '{}') 
-          : politician.contact || {};
-        res.json(politician);
-      } else {
-        res.json(null);
-      }
-    } catch (error) {
-      console.error("Error fetching featured politician:", error);
-      res.json(null);
-    }
-  });
 
   const httpServer = createServer(app);
   return httpServer;
