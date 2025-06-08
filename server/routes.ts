@@ -247,26 +247,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin route to populate database with real government data
-  app.post("/api/admin/populate-data", async (req, res) => {
-    try {
-      console.log("Starting database population with real government data...");
-      
-      // Import scraper functions
-      const { populateRealData } = await import("./scrapers");
-      
-      // Populate with real scraped data
-      await populateRealData();
-      
-      res.json({ message: "Database successfully populated with real government data" });
-    } catch (error) {
-      console.error("Error populating database:", error);
-      res.status(500).json({ 
-        message: "Failed to populate database", 
-        error: error instanceof Error ? error.message : "Unknown error" 
-      });
-    }
-  });
+
 
   const httpServer = createServer(app);
   return httpServer;

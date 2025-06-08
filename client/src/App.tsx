@@ -9,7 +9,7 @@ import Dashboard from "@/pages/dashboard";
 import Voting from "@/pages/voting";
 import Ledger from "@/pages/ledger";
 import Politicians from "@/pages/politicians";
-import Admin from "@/pages/admin";
+
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -25,7 +25,7 @@ function Router() {
           <Route path="/voting" component={Voting} />
           <Route path="/ledger" component={Ledger} />
           <Route path="/politicians" component={Politicians} />
-          <Route path="/admin" component={Admin} />
+
         </>
       )}
       <Route component={NotFound} />
