@@ -580,26 +580,47 @@ export class AggressiveDataScraper {
 
   private async storePolitician(politicianData: any): Promise<void> {
     try {
-      // Check if politician already exists
-      const existing = await db
-        .select()
-        .from(politicians)
-        .where(eq(politicians.name, politicianData.name))
-        .limit(1);
+      const level = this.determineLevel(politicianData.position);
+      const contact = politicianData.contactInfo ? {
+        phone: politicianData.contactInfo.phone,
+        email: politicianData.contactInfo.email,
+        website: politicianData.contactInfo.website,
+        office: politicianData.contactInfo.office
+      } : null;
 
-      if (existing.length === 0) {
-        await db.insert(politicians).values({
-          name: politicianData.name,
-          position: politicianData.position,
+      await db.insert(politicians).values({
+        name: politicianData.name,
+        position: politicianData.position,
+        party: politicianData.party,
+        level: level,
+        constituency: politicianData.constituency,
+        jurisdiction: politicianData.jurisdiction,
+        contact: contact,
+        trustScore: '75.00'
+      }).onConflictDoUpdate({
+        target: [politicians.name],
+        set: {
           party: politicianData.party,
+          level: level,
           constituency: politicianData.constituency,
-          jurisdiction: politicianData.jurisdiction,
-          trustScore: '75.00' // Default trust score
-        });
-      }
+          contact: contact,
+          lastUpdated: new Date()
+        }
+      });
     } catch (error) {
       console.error('Error storing politician:', error);
     }
+  }
+
+  private determineLevel(position: string): string {
+    if (position.includes('Member of Parliament') || position.includes('MP') || position.includes('Senator')) {
+      return 'Federal';
+    } else if (position.includes('Premier') || position.includes('MLA') || position.includes('MPP') || position.includes('MNA')) {
+      return 'Provincial';
+    } else if (position.includes('Mayor') || position.includes('Councillor') || position.includes('Alderman')) {
+      return 'Municipal';
+    }
+    return 'Federal';
   }
 
   private async storeBill(billData: any): Promise<void> {
