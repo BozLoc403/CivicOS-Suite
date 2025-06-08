@@ -330,9 +330,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       try {
         const existingStatements = await storage.getPoliticianStatements(politicianId);
-        const analysis = await analyzePoliticianStatement(statement, existingStatements);
-        isContradiction = analysis.isContradiction;
-        contradictionDetails = analysis.details;
+        const analysis = await analyzePoliticianStatement(statement, JSON.stringify(existingStatements), politicianId.toString());
+        const analysisResult = JSON.parse(analysis);
+        isContradiction = analysisResult.isContradiction || false;
+        contradictionDetails = analysisResult.details || '';
       } catch (aiError) {
         console.error("Error analyzing statement:", aiError);
       }
@@ -647,14 +648,13 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
 
   app.post('/api/discussions', isAuthenticated, async (req, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = (req.user as any)?.claims?.sub;
       const { title, content, category, isVerificationRequired } = req.body;
       
       const [discussion] = await db.insert(schema.discussions).values({
-        userId,
+        authorId: userId,
         title,
         content,
-        billId: null,
         type: category,
       }).returning();
 

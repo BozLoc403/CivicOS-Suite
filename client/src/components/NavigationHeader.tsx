@@ -72,11 +72,9 @@ export function NavigationHeader() {
           <div className="flex items-center">
             <MobileNavigation />
             <div className="flex-shrink-0 ml-3 md:ml-0">
-              <Link href="/">
-                <a className="flex items-center text-2xl font-bold text-civic-blue hover:text-civic-dark transition-colors">
-                  <Vote className="h-8 w-8 mr-2" />
-                  CivicOS
-                </a>
+              <Link href="/" className="flex items-center text-2xl font-bold text-civic-blue hover:text-civic-dark transition-colors">
+                <Vote className="h-8 w-8 mr-2" />
+                CivicOS
               </Link>
             </div>
             
@@ -92,14 +90,16 @@ export function NavigationHeader() {
                       <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                         <div className="py-1">
                           {group.items.map((item) => (
-                            <Link key={item.href} href={item.href}>
-                              <a className={`block px-4 py-2 text-sm transition-colors ${
+                            <Link 
+                              key={item.href} 
+                              href={item.href}
+                              className={`block px-4 py-2 text-sm transition-colors ${
                                 isActive(item.href)
                                   ? "bg-civic-blue text-white"
                                   : "text-gray-700 hover:bg-gray-100"
-                              }`}>
-                                {item.label}
-                              </a>
+                              }`}
+                            >
+                              {item.label}
                             </Link>
                           ))}
                         </div>
