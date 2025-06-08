@@ -21,6 +21,8 @@ import Elections from "@/pages/elections";
 import Finance from "@/pages/finance";
 import Lobbyists from "@/pages/lobbyists";
 import Procurement from "@/pages/procurement";
+import Memory from "@/pages/memory";
+import Cases from "@/pages/cases";
 import News from "@/pages/news";
 import Contacts from "@/pages/contacts";
 import Profile from "@/pages/profile";
@@ -57,6 +59,8 @@ function Router() {
                 <Route path="/finance" component={Finance} />
                 <Route path="/lobbyists" component={Lobbyists} />
                 <Route path="/procurement" component={Procurement} />
+                <Route path="/memory" component={Memory} />
+                <Route path="/cases" component={Cases} />
                 <Route component={NotFound} />
               </Switch>
             </div>
