@@ -1630,7 +1630,12 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
         title,
         content,
         categoryId: parseInt(categoryId),
-        billId: billId ? parseInt(billId) : null
+        billId: billId ? parseInt(billId) : null,
+        viewCount: 0,
+        replyCount: 0,
+        likeCount: 0,
+        isSticky: false,
+        isLocked: false
       }).returning();
 
       res.json(post);
@@ -1703,7 +1708,11 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
   app.post("/api/forum/posts/:id/like", isAuthenticated, async (req: any, res) => {
     try {
       const postId = parseInt(req.params.id);
-      const userId = req.user.claims.sub;
+      const userId = req.user?.claims?.sub;
+
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
 
       // Check if already liked
       const existingLike = await db.select()
@@ -1740,6 +1749,113 @@ The legislation in question affects ${bill.category || 'various aspects of Canad
     } catch (error) {
       console.error("Error toggling post like:", error);
       res.status(500).json({ message: "Failed to toggle like" });
+    }
+  });
+
+  app.delete("/api/forum/posts/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const postId = parseInt(req.params.id);
+      const userId = req.user?.claims?.sub;
+
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+
+      // Check if user owns the post
+      const [post] = await db.select()
+        .from(forumPosts)
+        .where(eq(forumPosts.id, postId));
+
+      if (!post || post.authorId !== userId) {
+        return res.status(403).json({ message: "Not authorized to delete this post" });
+      }
+
+      // Delete the post
+      await db.delete(forumPosts).where(eq(forumPosts.id, postId));
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting post:", error);
+      res.status(500).json({ message: "Failed to delete post" });
+    }
+  });
+
+  app.post("/api/forum/replies/:id/like", isAuthenticated, async (req: any, res) => {
+    try {
+      const replyId = parseInt(req.params.id);
+      const userId = req.user?.claims?.sub;
+
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+
+      // Check if already liked
+      const existingLike = await db.select()
+        .from(forumReplyLikes)
+        .where(and(
+          eq(forumReplyLikes.replyId, replyId),
+          eq(forumReplyLikes.userId, userId)
+        ));
+
+      if (existingLike.length > 0) {
+        // Remove like
+        await db.delete(forumReplyLikes)
+          .where(and(
+            eq(forumReplyLikes.replyId, replyId),
+            eq(forumReplyLikes.userId, userId)
+          ));
+        
+        await db.update(forumReplies)
+          .set({ likeCount: sql`${forumReplies.likeCount} - 1` })
+          .where(eq(forumReplies.id, replyId));
+      } else {
+        // Add like
+        await db.insert(forumReplyLikes).values({
+          userId,
+          replyId
+        });
+        
+        await db.update(forumReplies)
+          .set({ likeCount: sql`${forumReplies.likeCount} + 1` })
+          .where(eq(forumReplies.id, replyId));
+      }
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error toggling reply like:", error);
+      res.status(500).json({ message: "Failed to toggle like" });
+    }
+  });
+
+  app.delete("/api/forum/replies/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const replyId = parseInt(req.params.id);
+      const userId = req.user?.claims?.sub;
+
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+
+      // Check if user owns the reply
+      const [reply] = await db.select()
+        .from(forumReplies)
+        .where(eq(forumReplies.id, replyId));
+
+      if (!reply || reply.authorId !== userId) {
+        return res.status(403).json({ message: "Not authorized to delete this reply" });
+      }
+
+      // Delete the reply and update post reply count
+      await db.delete(forumReplies).where(eq(forumReplies.id, replyId));
+      
+      await db.update(forumPosts)
+        .set({ replyCount: sql`${forumPosts.replyCount} - 1` })
+        .where(eq(forumPosts.id, reply.postId));
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting reply:", error);
+      res.status(500).json({ message: "Failed to delete reply" });
     }
   });
 
