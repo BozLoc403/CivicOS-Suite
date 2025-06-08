@@ -187,8 +187,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Politicians routes
   app.get('/api/politicians', async (req, res) => {
     try {
-      const politicians = await storage.getAllPoliticians();
-      res.json(politicians);
+      const politicians = await db.execute(sql`
+        SELECT 
+          id, name, position, party, jurisdiction, constituency, level,
+          trust_score as "trustScore", 
+          profile_image_url as "profileImageUrl",
+          contact,
+          created_at as "createdAt",
+          updated_at as "updatedAt"
+        FROM politicians 
+        WHERE name IS NOT NULL AND position IS NOT NULL
+        ORDER BY CAST(trust_score AS DECIMAL) DESC
+        LIMIT 100
+      `);
+      
+      const formattedPoliticians = politicians.rows.map(politician => ({
+        ...politician,
+        contact: typeof politician.contact === 'string' 
+          ? JSON.parse(politician.contact || '{}') 
+          : politician.contact || {}
+      }));
+      
+      res.json(formattedPoliticians);
     } catch (error) {
       console.error("Error fetching politicians:", error);
       res.status(500).json({ message: "Failed to fetch politicians" });
