@@ -98,8 +98,51 @@ export default function Politicians() {
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Politician Tracker</h2>
           <p className="text-gray-600">
-            Monitor political statements, track consistency, and view trust scores
+            Access authentic voting records, policy positions, and financial disclosures
           </p>
+        </div>
+
+        {/* Filters */}
+        <div className="mb-6 grid gap-4 md:grid-cols-4">
+          <Input
+            placeholder="Search politicians or constituencies..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          
+          <Select value={partyFilter} onValueChange={setPartyFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder="Filter by party" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Parties</SelectItem>
+              <SelectItem value="Liberal">Liberal</SelectItem>
+              <SelectItem value="Conservative">Conservative</SelectItem>
+              <SelectItem value="NDP">NDP</SelectItem>
+              <SelectItem value="Bloc Québécois">Bloc Québécois</SelectItem>
+              <SelectItem value="Green">Green</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={levelFilter} onValueChange={setLevelFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder="Filter by level" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Levels</SelectItem>
+              <SelectItem value="Canada">Federal</SelectItem>
+              <SelectItem value="Ontario">Provincial</SelectItem>
+              <SelectItem value="Municipal">Municipal</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Button variant="outline" onClick={() => {
+            setSearchTerm("");
+            setPartyFilter("all");
+            setLevelFilter("all");
+          }}>
+            Clear Filters
+          </Button>
         </div>
 
         {/* Trust Score Explanation */}
@@ -192,17 +235,19 @@ export default function Politicians() {
                   {/* Action Buttons */}
                   <div className="space-y-2">
                     <Button 
+                      onClick={() => setSelectedPolitician(politician)}
                       variant="outline" 
                       className="w-full text-civic-blue border-civic-blue hover:bg-civic-blue hover:text-white"
                     >
-                      View Statements
+                      View Complete Profile
                     </Button>
                     <Button 
+                      onClick={() => setSelectedPolitician(politician)}
                       variant="outline" 
                       size="sm" 
                       className="w-full text-gray-600 border-gray-300 hover:bg-gray-50"
                     >
-                      Track Voting Record
+                      Voting Records & Financial Data
                     </Button>
                   </div>
                 </CardContent>
@@ -240,7 +285,302 @@ export default function Politicians() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Politician Detail Modal */}
+        {selectedPolitician && (
+          <PoliticianDetailModal 
+            politician={selectedPolitician} 
+            onClose={() => setSelectedPolitician(null)} 
+          />
+        )}
       </main>
+    </div>
+  );
+}
+
+interface PoliticianDetailModalProps {
+  politician: Politician;
+  onClose: () => void;
+}
+
+function PoliticianDetailModal({ politician, onClose }: PoliticianDetailModalProps) {
+  const { data: votingRecord = [] } = useQuery({
+    queryKey: ["/api/politicians", politician.id, "voting-record"],
+    enabled: !!politician.id
+  });
+
+  const { data: policyPositions = [] } = useQuery({
+    queryKey: ["/api/politicians", politician.id, "policy-positions"], 
+    enabled: !!politician.id
+  });
+
+  const { data: financialDisclosures = [] } = useQuery({
+    queryKey: ["/api/politicians", politician.id, "financial-disclosures"],
+    enabled: !!politician.id
+  });
+
+  const { data: publicStatements = [] } = useQuery({
+    queryKey: ["/api/politicians", politician.id, "statements"],
+    enabled: !!politician.id
+  });
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] overflow-hidden">
+        <div className="p-6 border-b border-gray-200">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 bg-civic-blue rounded-full flex items-center justify-center">
+                <span className="text-white text-xl font-semibold">
+                  {politician.name.split(' ').map(n => n[0]).join('')}
+                </span>
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">{politician.name}</h2>
+                <p className="text-gray-600">{politician.position}</p>
+                <div className="flex items-center gap-2 mt-1">
+                  {politician.party && (
+                    <Badge variant="outline">{politician.party}</Badge>
+                  )}
+                  <Badge variant="secondary">{politician.jurisdiction}</Badge>
+                </div>
+              </div>
+            </div>
+            <Button variant="outline" onClick={onClose}>Close</Button>
+          </div>
+        </div>
+
+        <div className="overflow-y-auto max-h-[calc(90vh-120px)]">
+          <Tabs defaultValue="overview" className="p-6">
+            <TabsList className="grid w-full grid-cols-5">
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="voting">Voting Record</TabsTrigger>
+              <TabsTrigger value="policies">Policy Positions</TabsTrigger>
+              <TabsTrigger value="financial">Financial Data</TabsTrigger>
+              <TabsTrigger value="statements">Public Statements</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="overview" className="space-y-6 mt-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <MapPin className="w-5 h-5" />
+                      Constituency Information
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div>
+                      <p className="text-sm font-medium text-gray-700">Constituency</p>
+                      <p className="text-gray-900">{politician.constituency || "N/A"}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-700">Jurisdiction</p>
+                      <p className="text-gray-900">{politician.jurisdiction}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-700">Party Affiliation</p>
+                      <p className="text-gray-900">{politician.party || "Independent"}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Award className="w-5 h-5" />
+                      Trust & Performance
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div>
+                      <p className="text-sm font-medium text-gray-700">Trust Score</p>
+                      <p className="text-2xl font-bold civic-blue">{politician.trustScore || "N/A"}%</p>
+                      <p className="text-xs text-gray-500">Based on statement consistency and promise fulfillment</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recent Activity Summary</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="bg-blue-50 rounded-lg p-4">
+                    <p className="text-blue-700 text-sm">
+                      Comprehensive politician data is being synchronized with official government sources.
+                      This includes authentic voting records, verified statements, and official financial disclosures.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="voting" className="space-y-6 mt-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Vote className="w-5 h-5" />
+                    Official Voting Record
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {votingRecord.length === 0 ? (
+                    <div className="bg-blue-50 rounded-lg p-6 text-center">
+                      <Vote className="w-12 h-12 text-blue-500 mx-auto mb-3" />
+                      <h3 className="font-semibold text-blue-900 mb-2">Voting Records Loading</h3>
+                      <p className="text-blue-700 text-sm">
+                        Official voting records are being synchronized from parliamentary databases.
+                        This will include votes on bills, amendments, and committee decisions.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {votingRecord.map((vote: any, index: number) => (
+                        <div key={index} className="border border-gray-200 rounded-lg p-4">
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <h4 className="font-semibold text-gray-900">{vote.billTitle}</h4>
+                              <p className="text-sm text-gray-600 mt-1">{vote.description}</p>
+                            </div>
+                            <Badge variant={vote.voteType === "Yes" ? "default" : vote.voteType === "No" ? "destructive" : "secondary"}>
+                              {vote.voteType}
+                            </Badge>
+                          </div>
+                          <div className="mt-3 text-xs text-gray-500">
+                            Voted on {new Date(vote.date).toLocaleDateString()}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="policies" className="space-y-6 mt-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="w-5 h-5" />
+                    Policy Positions & Stances
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {policyPositions.length === 0 ? (
+                    <div className="bg-green-50 rounded-lg p-6 text-center">
+                      <FileText className="w-12 h-12 text-green-500 mx-auto mb-3" />
+                      <h3 className="font-semibold text-green-900 mb-2">Policy Analysis in Progress</h3>
+                      <p className="text-green-700 text-sm">
+                        Policy positions are being analyzed from official statements, voting patterns, and public declarations.
+                        This will include positions on healthcare, economy, environment, and social issues.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {policyPositions.map((position: any, index: number) => (
+                        <div key={index} className="border border-gray-200 rounded-lg p-4">
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <h4 className="font-semibold text-gray-900">{position.category}</h4>
+                              <p className="text-sm text-gray-600 mt-1">{position.position}</p>
+                            </div>
+                            <Badge variant="outline">{position.source}</Badge>
+                          </div>
+                          <div className="mt-3 text-xs text-gray-500">
+                            Last updated: {new Date(position.date).toLocaleDateString()}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="financial" className="space-y-6 mt-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <DollarSign className="w-5 h-5" />
+                    Financial Disclosures & Assets
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {financialDisclosures.length === 0 ? (
+                    <div className="bg-purple-50 rounded-lg p-6 text-center">
+                      <DollarSign className="w-12 h-12 text-purple-500 mx-auto mb-3" />
+                      <h3 className="font-semibold text-purple-900 mb-2">Financial Data Compilation</h3>
+                      <p className="text-purple-700 text-sm">
+                        Financial disclosure information is being compiled from official ethics filings.
+                        This will include assets, investments, income sources, and potential conflicts of interest.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {financialDisclosures.map((disclosure: any, index: number) => (
+                        <div key={index} className="border border-gray-200 rounded-lg p-4">
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <h4 className="font-semibold text-gray-900">{disclosure.category}</h4>
+                              <p className="text-sm text-gray-600 mt-1">{disclosure.description}</p>
+                            </div>
+                            <Badge variant="outline">{disclosure.year}</Badge>
+                          </div>
+                          <div className="mt-3 text-xs text-gray-500">
+                            Filed: {new Date(disclosure.filingDate).toLocaleDateString()}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="statements" className="space-y-6 mt-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Calendar className="w-5 h-5" />
+                    Public Statements & Communications
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {publicStatements.length === 0 ? (
+                    <div className="bg-yellow-50 rounded-lg p-6 text-center">
+                      <Calendar className="w-12 h-12 text-yellow-500 mx-auto mb-3" />
+                      <h3 className="font-semibold text-yellow-900 mb-2">Statement Tracking Active</h3>
+                      <p className="text-yellow-700 text-sm">
+                        Public statements are being monitored from official sources including parliament,
+                        press releases, and verified communications channels.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {publicStatements.map((statement: any, index: number) => (
+                        <div key={index} className="border border-gray-200 rounded-lg p-4">
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <p className="text-gray-900">{statement.content}</p>
+                              <p className="text-sm text-gray-600 mt-2">{statement.context}</p>
+                            </div>
+                            <Badge variant="outline">{statement.source}</Badge>
+                          </div>
+                          <div className="mt-3 text-xs text-gray-500">
+                            {new Date(statement.date).toLocaleDateString()}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </div>
     </div>
   );
 }
