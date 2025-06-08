@@ -32,6 +32,19 @@ interface NewsArticle {
     oppositionPercent: number;
     neutralPercent: number;
   };
+  crossSourceAnalysis?: {
+    sourceComparison: Array<{
+      source: string;
+      angle: string;
+      bias: string;
+      credibility: number;
+    }>;
+    aiSummary: string;
+    factCheck: {
+      verified: boolean;
+      discrepancies: string[];
+    };
+  };
 }
 
 interface Controversy {
