@@ -189,10 +189,8 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Right Column - Live Feed & Quick Actions */}
+        {/* Right Column - Quick Actions */}
         <div className="lg:col-span-4 space-y-6">
-          <LivePulseFeed />
-          
           <LuxuryCard title="Quick Actions" variant="dark">
             <div className="grid grid-cols-2 gap-3">
               <Button 
