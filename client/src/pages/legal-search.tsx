@@ -120,7 +120,7 @@ export default function LegalSearchPage() {
               ) : (
                 <ScrollArea className="h-96">
                   <div className="space-y-4">
-                    {searchResults?.map((result: any, index: number) => (
+                    {searchResults.map((result: any, index: number) => (
                       <div key={index} className="p-4 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
@@ -160,8 +160,8 @@ export default function LegalSearchPage() {
         {/* Legal Database Browse */}
         <Tabs defaultValue="acts" className="w-full">
           <TabsList className="grid w-full grid-cols-2 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm">
-            <TabsTrigger value="acts">Legal Acts ({legalActs?.length || 0})</TabsTrigger>
-            <TabsTrigger value="cases">Court Cases ({legalCases?.length || 0})</TabsTrigger>
+            <TabsTrigger value="acts">Legal Acts ({legalActs.length})</TabsTrigger>
+            <TabsTrigger value="cases">Court Cases ({legalCases.length})</TabsTrigger>
           </TabsList>
 
           <TabsContent value="acts" className="mt-6">
@@ -178,7 +178,7 @@ export default function LegalSearchPage() {
               <CardContent>
                 <ScrollArea className="h-96">
                   <div className="space-y-4">
-                    {legalActs?.slice(0, 20).map((act: any) => (
+                    {legalActs.slice(0, 20).map((act: any) => (
                       <div key={act.id} className="p-4 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
@@ -238,7 +238,7 @@ export default function LegalSearchPage() {
               <CardContent>
                 <ScrollArea className="h-96">
                   <div className="space-y-4">
-                    {legalCases?.slice(0, 20).map((case_item: any) => (
+                    {legalCases.slice(0, 20).map((case_item: any) => (
                       <div key={case_item.id} className="p-4 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
