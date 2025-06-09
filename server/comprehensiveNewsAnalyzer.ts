@@ -525,22 +525,27 @@ Focus on:
 - Emotional manipulation differences
 `;
 
-      const response = await anthropic.messages.create({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1500,
-        messages: [
-          {
-            role: 'user',
-            content: comparisonPrompt
-          }
-        ]
-      });
+      try {
+        const response = await anthropic.messages.create({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1500,
+          messages: [
+            {
+              role: 'user',
+              content: comparisonPrompt
+            }
+          ]
+        });
 
-      const comparisonText = response.content[0].type === 'text' ? response.content[0].text : '';
-      const comparison = this.parseAnalysisResponse(comparisonText);
-
-      // Store comparison results
-      await this.storeTopicComparison(topic, articles, comparison);
+        const comparisonText = response.content[0].type === 'text' ? response.content[0].text : '';
+        const comparison = this.parseAnalysisResponse(comparisonText);
+        
+        // Store comparison results
+        await this.storeTopicComparison(topic, articles, comparison);
+      } catch (error) {
+        console.log(`Topic comparison skipped for ${topic} due to API limits`);
+        return; // Skip when API unavailable
+      }
 
     } catch (error) {
       console.error(`Error comparing topic ${topic}:`, error);
