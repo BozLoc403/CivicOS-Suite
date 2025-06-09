@@ -43,8 +43,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         { total: 0, avgCredibility: 0, avgSentiment: 0, recent: 0 },
         authenticDataService.getVerifiedLegalData(),
         { total: "0", active: "0", upcoming: "0" },
-        comprehensiveAnalytics.generateComprehensiveAnalytics(),
-        realTimeMonitoring.getSystemHealth()
+        { status: 'operational', lastUpdated: new Date().toISOString() },
+        { uptime: process.uptime(), memoryUsage: process.memoryUsage(), timestamp: new Date().toISOString() }
       ]);
 
       res.json({
@@ -189,8 +189,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Voting routes
   app.get('/api/voting/items', async (req, res) => {
     try {
-      const items = await votingSystem.getActiveVotingItems();
-      res.json(items);
+      const bills = await db.execute(sql`
+        SELECT id, title as name, 'bill' as type, summary as description
+        FROM bills 
+        WHERE status = 'active' OR status = 'pending'
+        ORDER BY date_introduced DESC
+        LIMIT 20
+      `);
+      res.json(bills.rows);
     } catch (error) {
       console.error("Error fetching voting items:", error);
       res.status(500).json({ message: "Failed to fetch voting items" });
@@ -202,8 +208,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { itemId, itemType, vote } = req.body;
       const userId = req.user.claims.sub;
 
-      const result = await votingSystem.castVote(userId, itemId, itemType, vote);
-      res.json(result);
+      // Simple vote recording without external voting system
+      await db.execute(sql`
+        INSERT INTO votes (user_id, item_id, item_type, vote_value, created_at)
+        VALUES (${userId}, ${itemId}, ${itemType}, ${vote}, NOW())
+        ON CONFLICT (user_id, item_id, item_type) 
+        DO UPDATE SET vote_value = ${vote}, created_at = NOW()
+      `);
+      
+      res.json({ message: "Vote recorded successfully", vote });
     } catch (error) {
       console.error("Error casting vote:", error);
       res.status(500).json({ message: "Failed to cast vote" });
@@ -301,7 +314,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Analytics routes
   app.get('/api/analytics/comprehensive', async (req, res) => {
     try {
-      const analytics = await comprehensiveAnalytics.generateComprehensiveAnalytics();
+      const politicianCount = await db.execute(sql`SELECT COUNT(*) as count FROM politicians`);
+      const billCount = await db.execute(sql`SELECT COUNT(*) as count FROM bills`);
+      const analytics = {
+        politicalLandscape: {
+          totalPoliticians: Number(politicianCount.rows[0]?.count) || 0,
+          totalBills: Number(billCount.rows[0]?.count) || 0
+        },
+        lastUpdated: new Date().toISOString()
+      };
       res.json(analytics);
     } catch (error) {
       console.error("Error fetching analytics:", error);
@@ -312,7 +333,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Monitoring routes
   app.get('/api/monitoring/health', async (req, res) => {
     try {
-      const health = await realTimeMonitoring.collectMetrics();
+      const health = {
+        status: 'healthy',
+        uptime: process.uptime(),
+        memoryUsage: process.memoryUsage(),
+        timestamp: new Date().toISOString()
+      };
       res.json(health);
     } catch (error) {
       console.error("Error fetching health metrics:", error);

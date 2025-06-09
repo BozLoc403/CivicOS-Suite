@@ -14,18 +14,18 @@ export default function LegalSearchPage() {
   const [searchType, setSearchType] = useState("all");
   const [jurisdiction, setJurisdiction] = useState("all");
 
-  const { data: searchResults, isLoading } = useQuery({
+  const { data: searchResults = [], isLoading } = useQuery({
     queryKey: ['/api/search', searchQuery, searchType, jurisdiction],
     enabled: searchQuery.length > 2,
     refetchOnWindowFocus: false
   });
 
-  const { data: legalActs } = useQuery({
+  const { data: legalActs = [] } = useQuery({
     queryKey: ['/api/legal/acts'],
     refetchInterval: 300000 // 5 minutes
   });
 
-  const { data: legalCases } = useQuery({
+  const { data: legalCases = [] } = useQuery({
     queryKey: ['/api/legal/cases'],
     refetchInterval: 300000
   });
@@ -109,7 +109,7 @@ export default function LegalSearchPage() {
             <CardHeader>
               <CardTitle>Search Results</CardTitle>
               <CardDescription>
-                {isLoading ? "Searching..." : `Found ${searchResults?.length || 0} results for "${searchQuery}"`}
+                {isLoading ? "Searching..." : `Found ${searchResults.length} results for "${searchQuery}"`}
               </CardDescription>
             </CardHeader>
             <CardContent>
