@@ -52,7 +52,7 @@ export class AuthenticDataService {
   async getVerifiedLegalData() {
     try {
       const criminalCode = await db.execute(sql`
-        SELECT COUNT(*) as total FROM criminal_code_sections
+        SELECT COUNT(*) as total FROM legal_acts WHERE title LIKE '%Criminal Code%'
       `);
       
       const legalActs = await db.execute(sql`
@@ -64,16 +64,16 @@ export class AuthenticDataService {
       `);
 
       return {
-        criminalCode: criminalCode.rows[0]?.total || 0,
-        legalActs: legalActs.rows[0]?.total || 0,
-        courtCases: legalCases.rows[0]?.total || 0
+        criminalSections: Number(criminalCode.rows[0]?.total) || 0,
+        acts: String(Number(legalActs.rows[0]?.total) || 0),
+        cases: String(Number(legalCases.rows[0]?.total) || 0)
       };
     } catch (error) {
       console.error("Error fetching verified legal data:", error);
       return {
-        criminalCode: 0,
-        legalActs: 0,
-        courtCases: 0
+        criminalSections: 0,
+        acts: "0",
+        cases: "0"
       };
     }
   }
