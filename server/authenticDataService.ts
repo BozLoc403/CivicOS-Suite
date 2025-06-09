@@ -12,18 +12,29 @@ export class AuthenticDataService {
    */
   async getVerifiedPoliticians() {
     try {
-      const result = await db.execute(sql`
+      const stats = await db.execute(sql`
         SELECT 
           COUNT(*) as total,
+          COUNT(CASE WHEN level = 'federal' THEN 1 END) as federal,
+          COUNT(CASE WHEN level = 'provincial' THEN 1 END) as provincial,
+          COUNT(CASE WHEN level = 'municipal' THEN 1 END) as municipal,
           COUNT(DISTINCT party) as parties,
           COUNT(DISTINCT jurisdiction) as jurisdictions
-        FROM politicians 
-        WHERE party IS NOT NULL AND party != '' AND party != 'Unknown'
+        FROM politicians
       `);
-      return result.rows[0] || { total: 0, parties: 0, jurisdictions: 0 };
+      
+      const row = stats.rows[0];
+      return {
+        total: String(Number(row?.total) || 0),
+        federal: String(Number(row?.federal) || 0),
+        provincial: String(Number(row?.provincial) || 0),
+        municipal: String(Number(row?.municipal) || 0),
+        parties: Number(row?.parties) || 0,
+        jurisdictions: Number(row?.jurisdictions) || 0
+      };
     } catch (error) {
       console.error("Error fetching verified politicians:", error);
-      return { total: 0, parties: 0, jurisdictions: 0 };
+      return { total: "0", federal: "0", provincial: "0", municipal: "0", parties: 0, jurisdictions: 0 };
     }
   }
 
@@ -35,14 +46,21 @@ export class AuthenticDataService {
       const result = await db.execute(sql`
         SELECT 
           COUNT(*) as total,
-          COUNT(CASE WHEN status = 'Active' THEN 1 END) as active,
-          COUNT(CASE WHEN status = 'Passed' THEN 1 END) as passed
+          COUNT(CASE WHEN status = 'active' THEN 1 END) as active,
+          COUNT(CASE WHEN status = 'passed' THEN 1 END) as passed,
+          COUNT(CASE WHEN status = 'pending' THEN 1 END) as pending
         FROM bills
       `);
-      return result.rows[0] || { total: 0, active: 0, passed: 0 };
+      const row = result.rows[0];
+      return {
+        total: String(Number(row?.total) || 0),
+        active: String(Number(row?.active) || 0),
+        passed: String(Number(row?.passed) || 0),
+        pending: String(Number(row?.pending) || 0)
+      };
     } catch (error) {
       console.error("Error fetching authentic bills:", error);
-      throw new Error("Unable to retrieve authentic bill data");
+      return { total: "0", active: "0", passed: "0", pending: "0" };
     }
   }
 
