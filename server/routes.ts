@@ -40,7 +40,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       ] = await Promise.all([
         authenticDataService.getVerifiedPoliticians(),
         authenticDataService.getAuthenticBills(),
-        { total: 0, avgCredibility: 0, avgSentiment: 0, recent: 0 },
+        await authenticDataService.getNewsAnalytics(),
         authenticDataService.getVerifiedLegalData(),
         { total: "0", active: "0", upcoming: "0" },
         { status: 'operational', lastUpdated: new Date().toISOString() },

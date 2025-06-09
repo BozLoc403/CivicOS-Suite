@@ -141,6 +141,33 @@ export class AuthenticDataService {
   }
 
   /**
+   * Get news analytics from authentic Canadian sources
+   */
+  async getNewsAnalytics() {
+    try {
+      const result = await db.execute(sql`
+        SELECT 
+          COUNT(*) as total,
+          COUNT(CASE WHEN published_at > NOW() - INTERVAL '24 hours' THEN 1 END) as recent,
+          ROUND(AVG(CASE WHEN credibility_score IS NOT NULL THEN credibility_score END), 1) as avgCredibility,
+          ROUND(AVG(CASE WHEN sentiment_score IS NOT NULL THEN sentiment_score END), 2) as avgSentiment
+        FROM news_articles
+      `);
+      
+      const row = result.rows[0];
+      return {
+        total: Number(row?.total) || 0,
+        recent: Number(row?.recent) || 0,
+        avgCredibility: Number(row?.avgCredibility) || 0,
+        avgSentiment: Number(row?.avgSentiment) || 0
+      };
+    } catch (error) {
+      console.error("Error fetching news analytics:", error);
+      return { total: 0, recent: 0, avgCredibility: 0, avgSentiment: 0 };
+    }
+  }
+
+  /**
    * Get comprehensive dashboard analytics using only authentic data
    */
   async getComprehensiveDashboardData() {
