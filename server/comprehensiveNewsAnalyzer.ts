@@ -198,7 +198,8 @@ export class ComprehensiveNewsAnalyzer {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
+        console.log(`${source.name} returned ${response.status}, skipping for now`);
+        return [];
       }
 
       const rssText = await response.text();
@@ -242,6 +243,7 @@ export class ComprehensiveNewsAnalyzer {
 
     } catch (error) {
       console.error(`Error scraping ${source.name}:`, error);
+      return [];
     }
 
     return articles;
@@ -365,14 +367,14 @@ Focus on Canadian political context and identify:
 
       let analysisText = '';
       if (response.ok) {
-        const data = await response.json();
-        analysisText = data.choices[0].message.content;
+        const data = await response.json() as any;
+        analysisText = data.choices?.[0]?.message?.content || '';
       } else {
-        // Fallback to basic analysis
+        // Basic content extraction when AI analysis unavailable
         analysisText = JSON.stringify({
           propagandaTechniques: [],
           keyTopics: this.extractBasicTopics(article.title),
-          politiciansInvolved: this.extractPoliticians(article.title + ' ' + (article.description || '')),
+          politiciansInvolved: this.extractPoliticians(article.title + ' ' + (article.content || '')),
           factualityScore: 70,
           emotionalTone: 'neutral',
           claims: []
