@@ -6,6 +6,8 @@ import { initializeNewsAnalysis } from "./newsAnalyzer";
 import { comprehensiveNewsAnalyzer } from "./comprehensiveNewsAnalyzer";
 import { realTimeMonitoring } from "./realTimeMonitoring";
 import { legalDataPopulator } from "./legalDataPopulator";
+import { parliamentAPI } from "./parliamentAPI";
+import { statisticsCanadaAPI } from "./statisticsCanadaAPI";
 
 const app = express();
 app.use(express.json());
@@ -74,6 +76,35 @@ app.use((req, res, next) => {
     
     // Initialize automatic government data sync
     initializeDataSync();
+    
+    // Initialize official government API data collection
+    async function initializeGovernmentAPIs() {
+      console.log("Initializing official Canadian government APIs...");
+      
+      // Parliament of Canada API integration
+      setInterval(async () => {
+        try {
+          await parliamentAPI.performParliamentSync();
+        } catch (error) {
+          console.error("Parliament API sync error:", error);
+        }
+      }, 6 * 60 * 60 * 1000); // Every 6 hours
+      
+      // Statistics Canada API integration
+      setInterval(async () => {
+        try {
+          await statisticsCanadaAPI.performStatCanSync();
+        } catch (error) {
+          console.error("Statistics Canada API sync error:", error);
+        }
+      }, 24 * 60 * 60 * 1000); // Daily
+      
+      // Initial sync
+      parliamentAPI.performParliamentSync();
+      statisticsCanadaAPI.performStatCanSync();
+    }
+    
+    initializeGovernmentAPIs();
     
     // Initialize daily news analysis and propaganda detection
     initializeNewsAnalysis();

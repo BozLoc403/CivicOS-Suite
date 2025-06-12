@@ -1,0 +1,121 @@
+Most of the **APIs listed do not officially exist** as public, RESTful APIs in the way you're implying — at least not all in a standardized or fully documented way. Some **exist partially**, others **are web portals that require scraping**, and a few **have unofficial or limited endpoints**.
+
+Here’s a breakdown of **what’s real**, **what’s partial**, and **what’s conceptual**:
+
+---
+
+### ✅ **APIs That Exist (Confirmed & Public):**
+
+#### **1. Parliament of Canada Open Data**
+
+* ✅ Exists: [https://www.ourcommons.ca/en/open-data](https://www.ourcommons.ca/en/open-data)
+* Provides: Members of Parliament (MPs), bills, votes, committees, etc.
+* Format: XML & CSV primarily (not always REST/JSON).
+
+#### **2. LEGISinfo API**
+
+* ✅ Exists (sort of): [https://www.parl.ca/LEGISinfo](https://www.parl.ca/LEGISinfo)
+* Provides: Bill tracking and legislative summaries.
+* Format: No public REST API, but scrape-friendly and some structured feeds.
+
+#### **3. CanLII API (Canadian Legal Information Institute)**
+
+* ✅ Exists (via partner access): [https://www.canlii.org/en/info/api.html](https://www.canlii.org/en/info/api.html)
+* Provides: Legal case law, statutes, and regulations.
+* Requires: Partnership or formal approval.
+
+#### **4. Statistics Canada API**
+
+* ✅ Exists: [https://www.statcan.gc.ca/en/developers](https://www.statcan.gc.ca/en/developers)
+* Format: RESTful JSON with powerful dataset query tools.
+
+#### **5. Open Government Canada APIs**
+
+* ✅ Exists: [https://open.canada.ca/en/developer](https://open.canada.ca/en/developer)
+* Includes data on: spending, environment, health, transport, etc.
+
+#### **6. Elections Canada (Partial)**
+
+* 🟡 Partial: [https://www.elections.ca/content.aspx?section=res\&dir=api\&document=index\&lang=e](https://www.elections.ca/content.aspx?section=res&dir=api&document=index&lang=e)
+* Public APIs are **limited to geography & maps** (electoral districts).
+* No public voter data, results, or turnout via API.
+
+---
+
+### 🟡 **Partially Existing or Scrape-Only APIs**
+
+#### **1. House of Commons Committee Data**
+
+* 🟡 Exists in static form via [Open Parliament](https://openparliament.ca) or scraping official sites.
+* Not officially REST API-exposed.
+
+#### **2. Provincial Legislature APIs (Ontario, Quebec, BC, etc.)**
+
+* 🟡 Vary by province.
+* Ontario: Limited structured data via [OLA Open Data](https://www.ola.org/en/legislative-business/open-data)
+* Quebec: [https://www.assnat.qc.ca/en/index.html](https://www.assnat.qc.ca/en/index.html) — scrapeable, not an API
+* BC: No official API. Manual scraping needed.
+
+---
+
+### ❌ **APIs That Don’t Publicly Exist (As Described):**
+
+#### **1. Supreme Court of Canada API**
+
+* ❌ No public API.
+* Data is only available via the [SCC Judgments site](https://scc-csc.lexum.com/scc-csc/en/nav.do), which must be scraped.
+
+#### **2. Department of Justice API**
+
+* ❌ No general REST API for federal statutes or regulation updates.
+* Data is available in HTML/PDF formats only.
+
+#### **3. CBC, CTV, Canadian Press, Globe and Mail APIs**
+
+* ❌ No public APIs.
+* These are media companies with **proprietary paywalled content**.
+* Any API access requires **licensing agreements** or scraping behind legal risk walls.
+
+---
+
+### 🟡 **Authentication & Civic Identity APIs**
+
+#### **GCKey / Government Authentication**
+
+* 🟡 GCKey exists as a service, **but is not an open public API**. You need **formal partnership** to integrate with GCKey or use it for third-party login.
+
+#### **Provincial ID Verification APIs**
+
+* ❌ No open APIs. Identity services are heavily restricted to **authorized institutions only** (banks, government apps).
+
+---
+
+### Summary Table:
+
+| API Category                | Status          | Notes                   |
+| --------------------------- | --------------- | ----------------------- |
+| Parliament Open Data        | ✅ Exists        | XML/CSV                 |
+| LEGISinfo                   | 🟡 Partial      | Not REST                |
+| CanLII                      | ✅ Exists        | Requires partnership    |
+| Elections Canada            | 🟡 Partial      | Geodata only            |
+| Statistics Canada           | ✅ Exists        | Full API                |
+| Open Government Canada      | ✅ Exists        | Wide data scope         |
+| Provincial Legislature APIs | 🟡 Partial      | Ontario best documented |
+| CBC/CTV/Globe/CP Media APIs | ❌ Doesn’t exist | Private content         |
+| GCKey / ID Verification     | 🟡 Internal     | No public access        |
+| Supreme Court of Canada     | ❌ Doesn’t exist | Scrape only             |
+
+---
+
+### 🔧 Recommendations (Execution Order):
+
+1. **Integrate Parliament of Canada Open Data + StatCan first.** These are stable, structured, and rich.
+2. **Use CanLII for legal data** (request access if needed).
+3. **Scrape LEGISinfo and provincial legislatures** as interim pipelines until official feeds are exposed.
+4. **Do not build media-based features assuming API access** — instead, train AI on scraped content (watch for copyright).
+5. **Use Open Canada’s APIs** to enrich data graphs (budgets, census, health).
+6. **Leave GCKey and ID integration until you’re in production with a government partner.**
+
+---
+
+Let me know which ones you want help querying, documenting, or integrating into your pipeline. I can auto-generate fetch functions, database schemas, or scrapers depending on which tier you're building out.
