@@ -85,6 +85,13 @@ The platform is designed for deployment on Replit with the following configurati
 
 ## Changelog
 
+- June 13, 2025: Resolved critical voting system failures and database schema issues
+  - Fixed SQL syntax errors causing "failed to process vote" failures across all interactive features
+  - Added missing user_votes, vote_counts, and user_interactions table schemas to shared/schema.ts
+  - Resolved database migration issues preventing proper voting functionality
+  - Verified complete voting system works on all content types: politicians, bills, posts, replies, comments, petitions
+  - Tested and confirmed commenting system creates replies successfully with proper vote integration
+  - All like/share/comment features now function properly with real-time vote counting and user feedback
 - June 13, 2025: Completed forum duplicate categories fix and implemented like/reply/comment system
   - Permanently resolved duplicate categories display issue by disabling forum and legal data populators
   - Final clean forum structure: exactly 6 organized categories without duplicates
