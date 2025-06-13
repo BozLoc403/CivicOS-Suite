@@ -121,7 +121,7 @@ export default function VotingPage() {
                       <CheckCircle className="w-5 h-5 text-green-600" />
                       <div>
                         <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-                          {votingStats.totalVotes || 0}
+                          {(votingStats?.totalVotes || 0).toLocaleString()}
                         </p>
                         <p className="text-sm text-slate-600 dark:text-slate-400">Total Votes Cast</p>
                       </div>
@@ -135,7 +135,7 @@ export default function VotingPage() {
                       <Users className="w-5 h-5 text-blue-600" />
                       <div>
                         <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-                          {votingStats.activeUsers || 0}
+                          {(votingStats?.activeUsers || 0).toLocaleString()}
                         </p>
                         <p className="text-sm text-slate-600 dark:text-slate-400">Active Participants</p>
                       </div>
@@ -149,7 +149,7 @@ export default function VotingPage() {
                       <TrendingUp className="w-5 h-5 text-purple-600" />
                       <div>
                         <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-                          {votingStats.engagementRate || "0"}%
+                          {(votingStats?.engagementRate || 0)}%
                         </p>
                         <p className="text-sm text-slate-600 dark:text-slate-400">Engagement Rate</p>
                       </div>
@@ -163,7 +163,7 @@ export default function VotingPage() {
                       <BarChart3 className="w-5 h-5 text-emerald-600" />
                       <div>
                         <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-                          {votingStats.consensusRate || "0"}%
+                          {(votingStats?.consensusRate || 0)}%
                         </p>
                         <p className="text-sm text-slate-600 dark:text-slate-400">Consensus Rate</p>
                       </div>
