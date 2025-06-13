@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { NavigationHeader } from "@/components/NavigationHeader";
+import { InteractiveContent } from "@/components/InteractiveContent";
 import { AlertTriangle, CheckCircle, AlertCircle, DollarSign, Users, Globe, TrendingUp, Eye, Shield, FileText } from "lucide-react";
 import { useState } from "react";
 import { apiRequest } from "@/lib/queryClient";
@@ -510,6 +511,19 @@ export default function News() {
                     <div className="mt-4 p-3 bg-blue-50 rounded">
                       <h4 className="font-medium text-blue-900">Recommendation:</h4>
                       <p className="text-blue-800 text-sm mt-1">{credibilityMutation.data.recommendation}</p>
+                    </div>
+                    
+                    {/* Interactive Features for Analysis */}
+                    <div className="mt-6">
+                      <InteractiveContent
+                        targetType="news"
+                        targetId={Date.now()} // Use timestamp as unique ID for analysis
+                        title={`Analysis: ${analysisSource}`}
+                        description="News credibility analysis and fact-checking"
+                        showVoting={true}
+                        showComments={true}
+                        showSharing={true}
+                      />
                     </div>
                   </div>
                 )}

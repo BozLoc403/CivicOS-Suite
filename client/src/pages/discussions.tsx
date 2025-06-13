@@ -528,6 +528,19 @@ export default function Discussions() {
                     <div className="prose dark:prose-invert max-w-none">
                       <p>{selectedPost.content}</p>
                     </div>
+                    
+                    {/* Interactive Features for Post */}
+                    <div className="mt-4">
+                      <InteractiveContent
+                        targetType="post"
+                        targetId={selectedPost.id}
+                        title={selectedPost.title}
+                        description={`Discussion in ${selectedPost.category?.name || 'General'}`}
+                        showVoting={true}
+                        showComments={true}
+                        showSharing={true}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
