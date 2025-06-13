@@ -121,50 +121,49 @@ export function RevolutionaryDashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          <PoliticiansWidget data={dashboardData?.politicians} />
-          <BillsWidget data={dashboardData?.bills} />
-          <NewsWidget data={dashboardData?.news} />
-          <LegalWidget data={dashboardData?.legal} />
-          <ElectionsWidget data={dashboardData?.elections} />
-          <AnalyticsWidget data={dashboardData?.analytics} />
-        </div>
+        <PoliticiansWidget data={dashboardData?.politicians} />
+        <BillsWidget data={dashboardData?.bills} />
+        <NewsWidget data={dashboardData?.news} />
+        <LegalWidget data={dashboardData?.legal} />
+        <ElectionsWidget data={dashboardData?.elections} />
+        <AnalyticsWidget data={dashboardData?.analytics} />
+      </div>
 
-        <div className="mt-8">
-          <Tabs defaultValue="overview" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 md:grid-cols-6 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="transparency">Transparency</TabsTrigger>
-              <TabsTrigger value="rights">Rights</TabsTrigger>
-              <TabsTrigger value="democracy">Democracy</TabsTrigger>
-              <TabsTrigger value="intelligence">Intelligence</TabsTrigger>
-              <TabsTrigger value="monitoring">Monitoring</TabsTrigger>
-            </TabsList>
+      <div className="mt-8">
+        <Tabs defaultValue="overview" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-6 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="transparency">Transparency</TabsTrigger>
+            <TabsTrigger value="rights">Rights</TabsTrigger>
+            <TabsTrigger value="democracy">Democracy</TabsTrigger>
+            <TabsTrigger value="intelligence">Intelligence</TabsTrigger>
+            <TabsTrigger value="monitoring">Monitoring</TabsTrigger>
+          </TabsList>
 
-            <TabsContent value="overview" className="mt-6">
-              <ComprehensiveOverview data={dashboardData} />
-            </TabsContent>
+          <TabsContent value="overview" className="mt-6">
+            <ComprehensiveOverview data={dashboardData} />
+          </TabsContent>
 
-            <TabsContent value="transparency" className="mt-6">
-              <TransparencyPortal data={dashboardData} />
-            </TabsContent>
+          <TabsContent value="transparency" className="mt-6">
+            <TransparencyPortal data={dashboardData} />
+          </TabsContent>
 
-            <TabsContent value="rights" className="mt-6">
-              <RightsEducationCenter />
-            </TabsContent>
+          <TabsContent value="rights" className="mt-6">
+            <RightsEducationCenter />
+          </TabsContent>
 
-            <TabsContent value="democracy" className="mt-6">
-              <DemocracyMonitor data={dashboardData} />
-            </TabsContent>
+          <TabsContent value="democracy" className="mt-6">
+            <DemocracyMonitor data={dashboardData} />
+          </TabsContent>
 
-            <TabsContent value="intelligence" className="mt-6">
-              <IntelligenceCenter data={dashboardData} />
-            </TabsContent>
+          <TabsContent value="intelligence" className="mt-6">
+            <IntelligenceCenter data={dashboardData} />
+          </TabsContent>
 
-            <TabsContent value="monitoring" className="mt-6">
-              <RealTimeMonitoring />
-            </TabsContent>
-          </Tabs>
-        </div>
+          <TabsContent value="monitoring" className="mt-6">
+            <RealTimeMonitoring />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
@@ -616,7 +615,6 @@ function RealTimeMonitoring() {
           <div className="text-sm">AI Models</div>
         </Card>
       </div>
-    </div>
     </div>
   );
 }
