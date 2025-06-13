@@ -12,20 +12,32 @@ interface LikeButtonProps {
   className?: string;
 }
 
+interface VoteData {
+  upvotes: number;
+  downvotes: number;
+  totalScore: number;
+  hasVoted?: boolean;
+}
+
 export function LikeButton({ itemId, itemType, variant = "heart", className = "" }: LikeButtonProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
-  const { data: voteData } = useQuery({
+  const { data: voteData } = useQuery<VoteData>({
     queryKey: [`/api/vote/${itemType}/${itemId}`],
   });
 
+  const votes: VoteData = voteData || { upvotes: 0, downvotes: 0, totalScore: 0 };
+
   const voteMutation = useMutation({
     mutationFn: async ({ vote }: { vote: number }) => {
-      return apiRequest(`/api/votes`, {
+      const response = await fetch("/api/votes", {
         method: "POST",
-        body: { itemId, itemType, vote }
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ itemId, itemType, vote })
       });
+      if (!response.ok) throw new Error("Failed to vote");
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/vote/${itemType}/${itemId}`] });
@@ -57,7 +69,7 @@ export function LikeButton({ itemId, itemType, variant = "heart", className = ""
         className={`text-gray-500 hover:text-red-500 transition-colors ${className}`}
       >
         <Heart className="h-4 w-4 mr-1" />
-        <span className="text-sm">{voteData?.upvotes || 0}</span>
+        <span className="text-sm">{votes.upvotes}</span>
       </Button>
     );
   }
@@ -72,7 +84,7 @@ export function LikeButton({ itemId, itemType, variant = "heart", className = ""
         className="text-gray-500 hover:text-green-500 transition-colors"
       >
         <ThumbsUp className="h-4 w-4" />
-        <span className="text-sm ml-1">{voteData?.upvotes || 0}</span>
+        <span className="text-sm ml-1">{votes.upvotes}</span>
       </Button>
       <Button
         variant="ghost"
@@ -82,7 +94,7 @@ export function LikeButton({ itemId, itemType, variant = "heart", className = ""
         className="text-gray-500 hover:text-red-500 transition-colors"
       >
         <ThumbsDown className="h-4 w-4" />
-        <span className="text-sm ml-1">{voteData?.downvotes || 0}</span>
+        <span className="text-sm ml-1">{votes.downvotes}</span>
       </Button>
     </div>
   );
