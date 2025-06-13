@@ -85,6 +85,13 @@ The platform is designed for deployment on Replit with the following configurati
 
 ## Changelog
 
+- June 13, 2025: Implemented one-vote-per-user restriction across all voting systems
+  - Added backend validation preventing duplicate votes per user per content item
+  - Updated frontend components with proper error handling for voting restrictions
+  - Fixed SQL syntax errors in multi-line template literals causing 500 errors
+  - Verified voting system works correctly: first vote succeeds, subsequent votes blocked
+  - All voting components now show user-friendly messages when attempting duplicate votes
+  - Platform enforces democratic integrity with proper vote counting and user restrictions
 - June 13, 2025: Complete resolution of all voting and commenting system issues - Platform fully operational
   - Fixed frontend fetch parameter order in apiRequest function (url, method, data)
   - Resolved SQL syntax errors by properly formatting multi-line WHERE clauses
