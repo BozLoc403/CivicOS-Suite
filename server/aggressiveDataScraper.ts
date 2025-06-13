@@ -95,6 +95,133 @@ export class AggressiveDataScraper {
       type: 'provincial',
       dataTypes: ['politicians', 'voting_records'],
       scrapeFrequency: 24
+    },
+    
+    // Maritime Provinces
+    {
+      name: 'Nova Scotia Legislature',
+      url: 'https://nslegislature.ca/members/profiles-members-63rd-assembly',
+      type: 'provincial',
+      dataTypes: ['politicians', 'voting_records'],
+      scrapeFrequency: 24
+    },
+    {
+      name: 'New Brunswick Legislature',
+      url: 'https://www.gnb.ca/legis/bios/index-e.asp',
+      type: 'provincial',
+      dataTypes: ['politicians', 'voting_records'],
+      scrapeFrequency: 24
+    },
+    {
+      name: 'Prince Edward Island Legislature',
+      url: 'https://www.assembly.pe.ca/members/',
+      type: 'provincial',
+      dataTypes: ['politicians', 'voting_records'],
+      scrapeFrequency: 24
+    },
+    {
+      name: 'Newfoundland and Labrador House of Assembly',
+      url: 'https://www.assembly.nl.ca/members/',
+      type: 'provincial',
+      dataTypes: ['politicians', 'voting_records'],
+      scrapeFrequency: 24
+    },
+    
+    // Prairie Provinces
+    {
+      name: 'Saskatchewan Legislature',
+      url: 'https://www.legassembly.sk.ca/mlas/',
+      type: 'provincial',
+      dataTypes: ['politicians', 'voting_records'],
+      scrapeFrequency: 24
+    },
+    {
+      name: 'Manitoba Legislature',
+      url: 'https://www.gov.mb.ca/legislature/members/',
+      type: 'provincial',
+      dataTypes: ['politicians', 'voting_records'],
+      scrapeFrequency: 24
+    },
+    
+    // Territories
+    {
+      name: 'Northwest Territories Legislative Assembly',
+      url: 'https://www.assembly.gov.nt.ca/members',
+      type: 'provincial',
+      dataTypes: ['politicians', 'voting_records'],
+      scrapeFrequency: 24
+    },
+    {
+      name: 'Yukon Legislative Assembly',
+      url: 'https://yukonassembly.ca/mlas',
+      type: 'provincial',
+      dataTypes: ['politicians', 'voting_records'],
+      scrapeFrequency: 24
+    },
+    {
+      name: 'Nunavut Legislative Assembly',
+      url: 'https://www.assembly.nu.ca/members',
+      type: 'provincial',
+      dataTypes: ['politicians', 'voting_records'],
+      scrapeFrequency: 24
+    },
+    
+    // Major Municipal Sources
+    {
+      name: 'City of Toronto Council',
+      url: 'https://www.toronto.ca/city-government/council/',
+      type: 'municipal',
+      dataTypes: ['politicians', 'council_records'],
+      scrapeFrequency: 48
+    },
+    {
+      name: 'City of Vancouver Council',
+      url: 'https://vancouver.ca/your-government/city-council.aspx',
+      type: 'municipal',
+      dataTypes: ['politicians', 'council_records'],
+      scrapeFrequency: 48
+    },
+    {
+      name: 'City of Montreal Council',
+      url: 'https://montreal.ca/en/borough-city-councillors',
+      type: 'municipal',
+      dataTypes: ['politicians', 'council_records'],
+      scrapeFrequency: 48
+    },
+    {
+      name: 'City of Calgary Council',
+      url: 'https://www.calgary.ca/council/councillors.html',
+      type: 'municipal',
+      dataTypes: ['politicians', 'council_records'],
+      scrapeFrequency: 48
+    },
+    {
+      name: 'City of Ottawa Council',
+      url: 'https://ottawa.ca/en/city-hall/mayor-and-city-councillors',
+      type: 'municipal',
+      dataTypes: ['politicians', 'council_records'],
+      scrapeFrequency: 48
+    },
+    {
+      name: 'City of Edmonton Council',
+      url: 'https://www.edmonton.ca/city_government/city_organization/mayor-councillors',
+      type: 'municipal',
+      dataTypes: ['politicians', 'council_records'],
+      scrapeFrequency: 48
+    },
+    {
+      name: 'City of Winnipeg Council',
+      url: 'https://winnipeg.ca/council/',
+      type: 'municipal',
+      dataTypes: ['politicians', 'council_records'],
+      scrapeFrequency: 48
+    },
+    {
+      name: 'Halifax Regional Council',
+      url: 'https://www.halifax.ca/city-hall/regional-council',
+      type: 'municipal',
+      dataTypes: ['politicians', 'council_records'],
+      scrapeFrequency: 48
     }
   ];
 

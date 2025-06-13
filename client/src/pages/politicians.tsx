@@ -8,7 +8,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { VotingButtons } from "@/components/VotingButtons";
 import { InteractiveContent } from "@/components/InteractiveContent";
-import { LuxuryNavigation } from "@/components/layout/LuxuryNavigation";
 import { 
   Users, AlertTriangle, CheckCircle, AlertCircle, MapPin, Phone, Mail, 
   Globe, Calendar, FileText, Vote, DollarSign, Eye, TrendingUp, Award, 
