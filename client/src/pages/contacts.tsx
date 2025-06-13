@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { NavigationHeader } from "@/components/NavigationHeader";
+import { LuxuryNavigation } from "@/components/layout/LuxuryNavigation";
 import { Phone, Mail, MapPin, Globe, Clock, User, Building2, Calendar, FileText, ExternalLink, Shield, DollarSign, Heart, Users, Home, Car, Baby, ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import { Link } from "wouter";

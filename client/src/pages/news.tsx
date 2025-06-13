@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { NavigationHeader } from "@/components/NavigationHeader";
+import { LuxuryNavigation } from "@/components/layout/LuxuryNavigation";
 import { InteractiveContent } from "@/components/InteractiveContent";
 import { AlertTriangle, CheckCircle, AlertCircle, DollarSign, Users, Globe, TrendingUp, Eye, Shield, FileText } from "lucide-react";
 import { useState } from "react";
@@ -122,7 +122,7 @@ export default function News() {
   if (outletsLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <NavigationHeader />
+        <LuxuryNavigation />
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-civic-blue mx-auto"></div>
@@ -135,7 +135,7 @@ export default function News() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <NavigationHeader />
+      <LuxuryNavigation />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}

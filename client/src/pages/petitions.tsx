@@ -9,7 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { NavigationHeader } from "@/components/NavigationHeader";
+import { LuxuryNavigation } from "@/components/layout/LuxuryNavigation";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { 
@@ -193,7 +193,7 @@ export default function Petitions() {
 
   return (
     <div>
-      <NavigationHeader />
+      <LuxuryNavigation />
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         <div className="flex justify-between items-center mb-8">
           <div>
