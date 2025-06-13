@@ -785,6 +785,160 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Forum post like/unlike endpoint
+  app.post("/api/forum/posts/:id/like", async (req, res) => {
+    try {
+      const postId = parseInt(req.params.id);
+      const userId = req.isAuthenticated() && req.user ? (req.user as any).id : '42199639';
+
+      // Check if user already liked this post
+      const existingLike = await db.execute(sql`
+        SELECT id FROM user_votes 
+        WHERE user_id = ${userId} AND target_type = 'post' AND target_id = ${postId}
+      `);
+
+      let isLiked = false;
+      if (existingLike.rows && existingLike.rows.length > 0) {
+        // Remove like
+        await db.execute(sql`
+          DELETE FROM user_votes 
+          WHERE user_id = ${userId} AND target_type = 'post' AND target_id = ${postId}
+        `);
+        isLiked = false;
+      } else {
+        // Add like
+        await db.execute(sql`
+          INSERT INTO user_votes (user_id, target_type, target_id, vote_type, created_at, updated_at)
+          VALUES (${userId}, 'post', ${postId}, 'upvote', NOW(), NOW())
+        `);
+        isLiked = true;
+      }
+
+      // Get updated like count
+      const likeCountResult = await db.execute(sql`
+        SELECT COUNT(*) as count FROM user_votes 
+        WHERE target_type = 'post' AND target_id = ${postId} AND vote_type = 'upvote'
+      `);
+      const likeCount = parseInt(String(likeCountResult.rows?.[0]?.count || 0));
+
+      res.json({ isLiked, likeCount });
+    } catch (error) {
+      console.error("Error processing post like:", error);
+      res.status(500).json({ message: "Failed to process like" });
+    }
+  });
+
+  // Forum reply like/unlike endpoint
+  app.post("/api/forum/replies/:id/like", async (req, res) => {
+    try {
+      const replyId = parseInt(req.params.id);
+      const userId = req.isAuthenticated() && req.user ? (req.user as any).id : '42199639';
+
+      // Check if user already liked this reply
+      const existingLike = await db.execute(sql`
+        SELECT id FROM user_votes 
+        WHERE user_id = ${userId} AND target_type = 'reply' AND target_id = ${replyId}
+      `);
+
+      let isLiked = false;
+      if (existingLike.rows && existingLike.rows.length > 0) {
+        // Remove like
+        await db.execute(sql`
+          DELETE FROM user_votes 
+          WHERE user_id = ${userId} AND target_type = 'reply' AND target_id = ${replyId}
+        `);
+        isLiked = false;
+      } else {
+        // Add like
+        await db.execute(sql`
+          INSERT INTO user_votes (user_id, target_type, target_id, vote_type, created_at, updated_at)
+          VALUES (${userId}, 'reply', ${replyId}, 'upvote', NOW(), NOW())
+        `);
+        isLiked = true;
+      }
+
+      // Get updated like count
+      const likeCountResult = await db.execute(sql`
+        SELECT COUNT(*) as count FROM user_votes 
+        WHERE target_type = 'reply' AND target_id = ${replyId} AND vote_type = 'upvote'
+      `);
+      const likeCount = parseInt(String(likeCountResult.rows?.[0]?.count || 0));
+
+      res.json({ isLiked, likeCount });
+    } catch (error) {
+      console.error("Error processing reply like:", error);
+      res.status(500).json({ message: "Failed to process like" });
+    }
+  });
+
+  // Create forum reply endpoint
+  app.post("/api/forum/replies", async (req, res) => {
+    try {
+      const { postId, content, parentReplyId } = req.body;
+      const userId = req.isAuthenticated() && req.user ? (req.user as any).id : '42199639';
+
+      if (!content || !content.trim()) {
+        return res.status(400).json({ message: "Reply content is required" });
+      }
+
+      // Insert reply
+      const result = await db.execute(sql`
+        INSERT INTO forum_replies (post_id, author_id, content, parent_reply_id, created_at, updated_at)
+        VALUES (${postId}, ${userId}, ${content.trim()}, ${parentReplyId || null}, NOW(), NOW())
+        RETURNING id
+      `);
+
+      const replyId = result.rows?.[0]?.id;
+
+      // Update post reply count
+      await db.execute(sql`
+        UPDATE forum_posts 
+        SET reply_count = reply_count + 1, updated_at = NOW()
+        WHERE id = ${postId}
+      `);
+
+      res.json({ 
+        success: true, 
+        replyId,
+        message: "Reply created successfully" 
+      });
+    } catch (error) {
+      console.error("Error creating reply:", error);
+      res.status(500).json({ message: "Failed to create reply" });
+    }
+  });
+
+  // Get forum replies for a post
+  app.get("/api/forum/replies/:postId", async (req, res) => {
+    try {
+      const postId = parseInt(req.params.postId);
+
+      const replies = await db.execute(sql`
+        SELECT 
+          fr.*,
+          u.first_name,
+          u.email,
+          u.profile_image_url,
+          COALESCE(like_counts.like_count, 0) as like_count
+        FROM forum_replies fr
+        LEFT JOIN users u ON fr.author_id = u.id
+        LEFT JOIN (
+          SELECT target_id, COUNT(*) as like_count
+          FROM user_votes 
+          WHERE target_type = 'reply' AND vote_type = 'upvote'
+          GROUP BY target_id
+        ) like_counts ON like_counts.target_id = fr.id
+        WHERE fr.post_id = ${postId}
+        ORDER BY fr.created_at ASC
+      `);
+
+      res.json(replies.rows || []);
+    } catch (error) {
+      console.error("Error fetching replies:", error);
+      res.status(500).json({ message: "Failed to fetch replies" });
+    }
+  });
+
   // Enhanced politicians endpoint with vote counts
   app.get("/api/politicians", async (req, res) => {
     try {

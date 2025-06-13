@@ -1,101 +1,107 @@
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Heart, ThumbsUp, ThumbsDown } from "lucide-react";
+import { Heart } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 interface LikeButtonProps {
   itemId: number;
-  itemType: string;
-  variant?: "heart" | "thumbs";
+  itemType: "post" | "reply" | "comment";
+  initialLikeCount: number;
+  initialIsLiked?: boolean;
+  size?: "sm" | "md" | "lg";
+  variant?: "default" | "ghost" | "outline";
   className?: string;
 }
 
-interface VoteData {
-  upvotes: number;
-  downvotes: number;
-  totalScore: number;
-  hasVoted?: boolean;
-}
-
-export function LikeButton({ itemId, itemType, variant = "heart", className = "" }: LikeButtonProps) {
+export function LikeButton({
+  itemId,
+  itemType,
+  initialLikeCount,
+  initialIsLiked = false,
+  size = "md",
+  variant = "ghost",
+  className
+}: LikeButtonProps) {
+  const [isLiked, setIsLiked] = useState(initialIsLiked);
+  const [likeCount, setLikeCount] = useState(initialLikeCount);
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  
-  const { data: voteData } = useQuery<VoteData>({
-    queryKey: [`/api/vote/${itemType}/${itemId}`],
-  });
 
-  const votes: VoteData = voteData || { upvotes: 0, downvotes: 0, totalScore: 0 };
-
-  const voteMutation = useMutation({
-    mutationFn: async ({ vote }: { vote: number }) => {
-      const response = await fetch("/api/votes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ itemId, itemType, vote })
-      });
-      if (!response.ok) throw new Error("Failed to vote");
-      return response.json();
+  const likeMutation = useMutation({
+    mutationFn: async () => {
+      const endpoint = `/api/forum/${itemType}s/${itemId}/like`;
+      return await apiRequest(endpoint, "POST");
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/vote/${itemType}/${itemId}`] });
-      toast({
-        title: "Vote recorded",
-        description: "Your vote has been recorded successfully",
-      });
+    onMutate: () => {
+      // Optimistic update
+      setIsLiked(!isLiked);
+      setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
     },
-    onError: () => {
+    onSuccess: (data) => {
+      // Update with server response
+      setIsLiked(data.isLiked);
+      setLikeCount(data.likeCount);
+      
+      // Invalidate relevant queries
+      queryClient.invalidateQueries({ queryKey: ["/api/forum/posts"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/forum/replies"] });
+    },
+    onError: (error: Error) => {
+      // Revert optimistic update
+      setIsLiked(!isLiked);
+      setLikeCount(prev => isLiked ? prev + 1 : prev - 1);
+      
       toast({
-        title: "Vote failed",
-        description: "Failed to record your vote. Please try again.",
-        variant: "destructive",
+        title: "Error",
+        description: error.message || "Failed to update like",
+        variant: "destructive"
       });
     }
   });
 
-  const handleVote = (voteValue: number) => {
-    voteMutation.mutate({ vote: voteValue });
+  const handleLike = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    likeMutation.mutate();
   };
 
-  if (variant === "heart") {
-    return (
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => handleVote(1)}
-        disabled={voteMutation.isPending}
-        className={`text-gray-500 hover:text-red-500 transition-colors ${className}`}
-      >
-        <Heart className="h-4 w-4 mr-1" />
-        <span className="text-sm">{votes.upvotes}</span>
-      </Button>
-    );
-  }
+  const sizeClasses = {
+    sm: "h-6 w-6 text-xs",
+    md: "h-8 w-8 text-sm", 
+    lg: "h-10 w-10 text-base"
+  };
+
+  const iconSizes = {
+    sm: "h-3 w-3",
+    md: "h-4 w-4",
+    lg: "h-5 w-5"
+  };
 
   return (
-    <div className={`flex items-center gap-1 ${className}`}>
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => handleVote(1)}
-        disabled={voteMutation.isPending}
-        className="text-gray-500 hover:text-green-500 transition-colors"
-      >
-        <ThumbsUp className="h-4 w-4" />
-        <span className="text-sm ml-1">{votes.upvotes}</span>
-      </Button>
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => handleVote(-1)}
-        disabled={voteMutation.isPending}
-        className="text-gray-500 hover:text-red-500 transition-colors"
-      >
-        <ThumbsDown className="h-4 w-4" />
-        <span className="text-sm ml-1">{votes.downvotes}</span>
-      </Button>
-    </div>
+    <Button
+      variant={variant}
+      size="sm"
+      onClick={handleLike}
+      disabled={likeMutation.isPending}
+      className={cn(
+        "flex items-center space-x-1 transition-colors",
+        sizeClasses[size],
+        isLiked && "text-red-500 hover:text-red-600",
+        !isLiked && "text-gray-500 hover:text-red-500",
+        className
+      )}
+    >
+      <Heart 
+        className={cn(
+          iconSizes[size],
+          "transition-all",
+          isLiked && "fill-current",
+          likeMutation.isPending && "animate-pulse"
+        )} 
+      />
+      <span className="font-medium">{likeCount}</span>
+    </Button>
   );
 }

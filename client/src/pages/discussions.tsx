@@ -14,6 +14,8 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { VotingButtons } from "@/components/VotingButtons";
 import { InteractiveContent } from "@/components/InteractiveContent";
+import { LikeButton } from "@/components/ui/like-button";
+import { ReplyButton } from "@/components/ui/reply-button";
 import { 
   MessageCircle, 
   Heart, 
@@ -496,16 +498,18 @@ export default function Discussions() {
                             <span>{post.viewCount || 0}</span>
                           </div>
 
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleLikePost(post.id);
-                            }}
-                            className="flex items-center space-x-1 hover:text-red-500 transition-colors"
-                          >
-                            <Heart className="h-4 w-4" />
-                            <span>{post.likeCount || 0}</span>
-                          </button>
+                          <LikeButton
+                            itemId={post.id}
+                            itemType="post"
+                            initialLikeCount={post.likeCount || 0}
+                            size="sm"
+                          />
+                          
+                          <ReplyButton
+                            postId={post.id}
+                            replyCount={post.replyCount || 0}
+                            size="sm"
+                          />
                         </div>
                       </div>
                     </div>
