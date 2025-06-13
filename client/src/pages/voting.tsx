@@ -290,8 +290,9 @@ export default function VotingPage() {
                       <LikeButton
                         itemId={bill.id}
                         itemType="bill"
-                        variant="thumbs"
+                        variant="outline"
                         className="ml-auto"
+                        initialLikeCount={0}
                       />
                       
                       <Button 

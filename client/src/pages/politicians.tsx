@@ -220,8 +220,9 @@ export default function Politicians() {
                       <LikeButton
                         itemId={politician.id}
                         itemType="politician"
-                        variant="heart"
+                        variant="outline"
                         className="flex-shrink-0"
+                        initialLikeCount={0}
                       />
                       <Button 
                         variant="outline" 
