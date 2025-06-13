@@ -378,9 +378,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const petitions = await db.execute(sql`
         SELECT 
           id, petition_number, title, description, target_signatures,
-          current_signatures, status, deadline, created_date
+          current_signatures, status, deadline, created_at
         FROM petitions 
-        ORDER BY created_date DESC
+        ORDER BY created_at DESC
       `);
       res.json(petitions.rows);
     } catch (error) {
@@ -518,7 +518,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         INSERT INTO user_votes (user_id, target_type, target_id, vote_type, created_at, updated_at)
         VALUES (${userId}, ${targetType}, ${targetId}, ${voteType}, NOW(), NOW())
         ON CONFLICT (user_id, target_type, target_id) 
-        DO UPDATE SET vote_type = EXCLUDED.vote_type, updated_at = NOW()
+        DO UPDATE SET vote_type = EXCLUDED.vote_type, updated_at = EXCLUDED.updated_at
       `);
 
       // Update vote counts
@@ -544,7 +544,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           upvotes = EXCLUDED.upvotes,
           downvotes = EXCLUDED.downvotes,
           total_score = EXCLUDED.total_score,
-          updated_at = NOW()
+          updated_at = EXCLUDED.updated_at
       `);
 
       // Track user interaction

@@ -592,15 +592,17 @@ function PoliticianDetailModal({ politician, onClose }: PoliticianDetailModalPro
           </Tabs>
 
           {/* Interactive Features */}
-          <InteractiveContent
-            targetType="politician"
-            targetId={selectedPolitician.id}
-            title={selectedPolitician.name}
-            description={`${selectedPolitician.position} - ${selectedPolitician.party}`}
-            showVoting={true}
-            showComments={true}
-            showSharing={true}
-          />
+          <div className="mt-6">
+            <InteractiveContent
+              targetType="politician"
+              targetId={politician.id}
+              title={politician.name}
+              description={`${politician.position} - ${politician.party}`}
+              showVoting={true}
+              showComments={true}
+              showSharing={true}
+            />
+          </div>
         </div>
       </div>
     </div>

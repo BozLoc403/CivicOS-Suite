@@ -12,6 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { VotingButtons } from "@/components/VotingButtons";
+import { InteractiveContent } from "@/components/InteractiveContent";
 import { 
   MessageCircle, 
   Heart, 
