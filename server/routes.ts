@@ -880,7 +880,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Insert reply
       const result = await db.execute(sql`
-        INSERT INTO forum_replies (post_id, author_id, content, parent_reply_id, created_at, updated_at)
+        INSERT INTO forum_replies (post_id, author_id, content, parent_id, created_at, updated_at)
         VALUES (${postId}, ${userId}, ${content.trim()}, ${parentReplyId || null}, NOW(), NOW())
         RETURNING id
       `);

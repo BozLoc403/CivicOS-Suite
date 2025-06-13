@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 
 interface LikeButtonProps {
   itemId: number;
-  itemType: "post" | "reply" | "comment";
+  itemType: "post" | "reply" | "comment" | "politician" | "bill" | "petition";
   initialLikeCount: number;
   initialIsLiked?: boolean;
   size?: "sm" | "md" | "lg";
@@ -45,9 +45,10 @@ export function LikeButton({
       setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
     },
     onSuccess: (data: any) => {
-      // Update with server response
-      setIsLiked(data.isLiked);
-      setLikeCount(data.likeCount);
+      // Update with server response from unified voting API
+      const isCurrentlyLiked = data.userVote === 'upvote';
+      setIsLiked(isCurrentlyLiked);
+      setLikeCount(data.upvotes || 0);
       
       // Invalidate relevant queries
       queryClient.invalidateQueries({ queryKey: ["/api/forum/posts"] });
