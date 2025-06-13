@@ -365,7 +365,7 @@ export const forumPosts = pgTable("forum_posts", {
   id: serial("id").primaryKey(),
   title: varchar("title").notNull(),
   content: text("content").notNull(),
-  userId: varchar("user_id").notNull().references(() => users.id),
+  authorId: varchar("author_id").notNull().references(() => users.id),
   categoryId: integer("category_id").notNull().references(() => forumCategories.id),
   billId: integer("bill_id").references(() => bills.id), // if discussing a bill
   isSticky: boolean("is_sticky").default(false),

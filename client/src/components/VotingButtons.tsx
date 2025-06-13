@@ -69,10 +69,10 @@ export function VotingButtons({
     voteMutation.mutate(voteType);
   };
 
-  const upvotes = voteData?.upvotes || 0;
-  const downvotes = voteData?.downvotes || 0;
-  const totalScore = voteData?.totalScore || 0;
-  const userVote = voteData?.userVote;
+  const upvotes = (voteData as any)?.upvotes || 0;
+  const downvotes = (voteData as any)?.downvotes || 0;
+  const totalScore = (voteData as any)?.totalScore || 0;
+  const userVote = (voteData as any)?.userVote;
 
   const buttonSizes = {
     sm: "h-7 w-7",

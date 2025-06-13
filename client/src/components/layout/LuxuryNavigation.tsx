@@ -58,7 +58,7 @@ const navigationSections = [
     items: [
       { title: "Discussions", href: "/discussions", icon: MessageSquare, badge: "24" },
       { title: "Petitions", href: "/petitions", icon: FileText },
-      { title: "Services", href: "/services", icon: Building },
+
       { title: "Contact Officials", href: "/contacts", icon: Users }
     ]
   },

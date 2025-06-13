@@ -230,7 +230,7 @@ How have digital government services worked for you? What improvements would mak
         await db.insert(forumPosts).values({
           title: topic.title,
           content: topic.content,
-          userId: adminId,
+          authorId: adminId,
           categoryId: topic.categoryId,
           billId: topic.billId || null,
           isSticky: topic.isSticky || false,

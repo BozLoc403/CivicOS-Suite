@@ -16,7 +16,7 @@ import Discussions from "@/pages/discussions";
 import Legal from "@/pages/legal";
 import LegalSearch from "@/pages/legal-search";
 import Rights from "@/pages/rights";
-import Services from "@/pages/services";
+
 import Elections from "@/pages/elections";
 import Finance from "@/pages/finance";
 import Lobbyists from "@/pages/lobbyists";
@@ -59,7 +59,7 @@ function Router() {
                 <Route path="/legal" component={Legal} />
                 <Route path="/legal-search" component={LegalSearch} />
                 <Route path="/rights" component={Rights} />
-                <Route path="/services" component={Services} />
+
                 <Route path="/elections" component={Elections} />
                 <Route path="/news" component={News} />
                 <Route path="/contacts" component={Contacts} />
