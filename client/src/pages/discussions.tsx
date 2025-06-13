@@ -69,6 +69,18 @@ interface ForumCategory {
   icon: string;
   sortOrder: number;
   postCount?: number;
+  subcategories?: ForumSubcategory[];
+}
+
+interface ForumSubcategory {
+  id: number;
+  categoryId: number;
+  name: string;
+  description: string;
+  color: string;
+  icon: string;
+  sortOrder: number;
+  postCount?: number;
 }
 
 interface ForumReply {
@@ -98,6 +110,7 @@ const categoryIcons = {
 
 export default function Discussions() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string>("all");
   const [sortBy, setSortBy] = useState<string>("recent");
   const [showCreatePost, setShowCreatePost] = useState(false);
   const [selectedPost, setSelectedPost] = useState<ForumPost | null>(null);
@@ -105,6 +118,7 @@ export default function Discussions() {
     title: "",
     content: "",
     categoryId: "",
+    subcategoryId: "",
     billId: ""
   });
   const [newReply, setNewReply] = useState("");
@@ -117,9 +131,15 @@ export default function Discussions() {
     queryKey: ["/api/forum/categories"]
   });
 
+  // Fetch forum subcategories
+  const { data: subcategories = [] } = useQuery<ForumSubcategory[]>({
+    queryKey: ["/api/forum/subcategories"],
+    enabled: !!categories.length
+  });
+
   // Fetch forum posts
   const { data: posts = [], isLoading: postsLoading } = useQuery<ForumPost[]>({
-    queryKey: ["/api/forum/posts", selectedCategory, sortBy],
+    queryKey: ["/api/forum/posts", selectedCategory, selectedSubcategory, sortBy],
     enabled: !!categories.length
   });
 

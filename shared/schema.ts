@@ -356,15 +356,30 @@ export const criminalCodeSections = pgTable("criminal_code_sections", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Discussion forum system
+// Discussion forum system with subcategories
 export const forumCategories = pgTable("forum_categories", {
   id: serial("id").primaryKey(),
   name: varchar("name").notNull(),
   description: text("description"),
   color: varchar("color"),
   icon: varchar("icon"),
+  parentCategoryId: integer("parent_category_id"), // For subcategories
   isVisible: boolean("is_visible").default(true),
   sortOrder: integer("sort_order").default(0),
+  postCount: integer("post_count").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const forumSubcategories = pgTable("forum_subcategories", {
+  id: serial("id").primaryKey(),
+  categoryId: integer("category_id").notNull().references(() => forumCategories.id),
+  name: varchar("name").notNull(),
+  description: text("description"),
+  color: varchar("color"),
+  icon: varchar("icon"),
+  isVisible: boolean("is_visible").default(true),
+  sortOrder: integer("sort_order").default(0),
+  postCount: integer("post_count").default(0),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -374,6 +389,7 @@ export const forumPosts = pgTable("forum_posts", {
   content: text("content").notNull(),
   authorId: varchar("author_id").notNull().references(() => users.id),
   categoryId: integer("category_id").notNull().references(() => forumCategories.id),
+  subcategoryId: integer("subcategory_id").references(() => forumSubcategories.id),
   billId: integer("bill_id").references(() => bills.id), // if discussing a bill
   isSticky: boolean("is_sticky").default(false),
   isLocked: boolean("is_locked").default(false),

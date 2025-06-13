@@ -1,19 +1,27 @@
 import { db } from "./db";
-import { forumCategories, forumPosts, bills, users } from "@shared/schema";
+import { forumCategories, forumSubcategories, forumPosts, bills, users } from "@shared/schema";
 import { eq } from "drizzle-orm";
 
 /**
- * Populate forum with initial civic discussion topics
+ * Populate forum with comprehensive categories, subcategories, and initial civic discussion topics
  */
 export class ForumPopulator {
   
   async populateInitialDiscussions(): Promise<void> {
-    console.log('Populating forum with civic discussion topics...');
+    console.log('Populating forum with civic discussion categories and topics...');
     
     try {
+      // First, create comprehensive categories and subcategories
+      await this.createCategories();
+      await this.createSubcategories();
+      
       // Get categories
       const categories = await db.select().from(forumCategories);
       const categoryMap = new Map(categories.map(c => [c.name, c.id]));
+      
+      // Get subcategories
+      const subcategories = await db.select().from(forumSubcategories);
+      const subcategoryMap = new Map(subcategories.map(s => [s.name, s.id]));
       
       // Get sample bills for discussion
       const recentBills = await db.select().from(bills).limit(5);
@@ -21,7 +29,7 @@ export class ForumPopulator {
       // Get admin user for initial posts
       const adminUser = await db.select().from(users).where(eq(users.email, 'jordan@iron-oak.ca')).limit(1);
       const adminId = adminUser[0]?.id || '42199639';
-      
+
       const discussionTopics = [
         {
           title: "Federal Budget 2024: Impact on Canadian Families",
@@ -41,6 +49,7 @@ Key Questions:
 
 Share your analysis and local perspective on these federal initiatives.`,
           categoryId: categoryMap.get("Federal Politics") || 1,
+          subcategoryId: subcategoryMap.get("Prime Minister & Cabinet"),
           isSticky: true
         },
         {
@@ -99,151 +108,287 @@ Legal Questions:
 - Are current laws adequate for protecting digital rights?
 - What role should government play in regulating tech companies?
 
-Recent developments include new privacy legislation and debates over encryption. How do you think we should protect Charter rights while adapting to technological change?`,
-          categoryId: categoryMap.get("Legal Research") || 4
+Share your thoughts on how Charter rights should apply in the digital age. What protections do you think are most important?`,
+          categoryId: categoryMap.get("Legal & Rights") || 4,
+          subcategoryId: subcategoryMap.get("Charter of Rights")
         },
         {
-          title: "Climate Action: Federal vs Provincial Jurisdiction",
-          content: `Climate policy involves complex federal-provincial dynamics:
+          title: "Provincial Healthcare Negotiations: Federal vs Provincial Roles",
+          content: `Healthcare negotiations between federal and provincial governments continue to evolve:
 
-Federal Measures:
-• Carbon pricing/tax
-• Clean fuel standards
-• Electric vehicle incentives
-• International commitments
+Key Issues:
+• Federal health transfer payments
+• Provincial autonomy in healthcare delivery
+• Wait times and access to services
+• Mental health and addiction services
+• Long-term care standards
 
-Provincial Responses:
-• Some provinces challenge federal carbon tax
-• Different approaches to emissions reduction
-• Varying support for clean energy projects
-• Regional economic considerations
+Provincial Perspectives:
+- Some provinces want more federal funding
+- Others prioritize provincial autonomy
+- Different approaches to private healthcare
+- Varying success with healthcare innovation
 
-Discussion:
-How effective is Canada's multi-level approach to climate action? Should there be more federal coordination or more provincial autonomy? Share examples from your province.`,
-          categoryId: categoryMap.get("Federal Politics") || 1
-        },
-        {
-          title: "Indigenous Reconciliation: Progress and Challenges",
-          content: `Truth and Reconciliation Commission calls to action continue to guide policy:
-
-Recent Developments:
-• Missing and Murdered Indigenous Women and Girls inquiry
-• First Nations child welfare reform
-• Land acknowledgments and territorial recognition
-• Indigenous languages preservation
-
-Policy Areas:
-- Education and cultural programs
-- Economic development and partnerships
-- Justice system reform
-- Healthcare access improvements
-
-What progress do you see in your community? What more needs to be done to advance reconciliation? Share respectful perspectives on this crucial national conversation.`,
-          categoryId: categoryMap.get("Federal Politics") || 1,
+How do you think healthcare responsibilities should be divided between federal and provincial governments? What's working well in your province?`,
+          categoryId: categoryMap.get("Provincial & Territorial") || 2,
           isSticky: true
         },
         {
-          title: "Healthcare System Strain: Solutions and Innovations",
-          content: `Canadian healthcare faces significant challenges post-pandemic:
+          title: "Civic Engagement: How to Make Your Voice Heard",
+          content: `Democracy works best when citizens are actively engaged. Here are ways to participate:
 
-System Pressures:
-• Staffing shortages across provinces
-• Emergency room wait times
-• Surgical backlogs
-• Mental health service gaps
+Formal Channels:
+• Voting in all elections (federal, provincial, municipal)
+• Contacting your representatives
+• Participating in public consultations
+• Attending town halls and council meetings
 
-Proposed Solutions:
-- Increased federal health transfers
-- Private-public partnerships
-- Technology and telemedicine
-- International healthcare worker recruitment
+Informal Engagement:
+• Community organizing
+• Advocacy groups and petitions
+• Social media and public discourse
+• Volunteer work and community service
 
-Provincial Variations:
-Each province is trying different approaches. What's working in your area? What innovations have you seen that could be scaled up?`,
-          categoryId: categoryMap.get("Provincial Politics") || 2
-        },
-        {
-          title: "Electoral Reform: Is Our System Working?",
-          content: `Canada continues to debate electoral reform:
+Discussion:
+- What barriers prevent people from participating?
+- How can we improve civic education?
+- What new forms of engagement should we explore?
 
-Current System (FPTP):
-• Advantages: Stability, accountability
-• Disadvantages: Vote splitting, strategic voting
-
-Alternatives Discussed:
-• Proportional representation
-• Mixed-member proportional
-• Ranked ballot/instant runoff
-• Status quo with reforms
-
-Key Questions:
-- Does our current system represent voters fairly?
-- Would proportional representation improve democracy?
-- How important is local representation vs party proportionality?
-
-What's your experience with the current electoral system? Have you seen examples of successful reforms elsewhere?`,
+Share your experiences with civic engagement. What has worked for you? What challenges have you faced?`,
           categoryId: categoryMap.get("Civic Engagement") || 6
         },
         {
-          title: "Immigration Policy: Economic vs Humanitarian Priorities",
-          content: `Canada's immigration system balances multiple objectives:
+          title: "Climate Policy: Federal Carbon Tax vs Provincial Alternatives",
+          content: `Climate policy remains a contentious issue across Canada:
 
-Current Priorities:
-• Economic immigrants (Express Entry)
-• Family reunification
-• Refugee protection
-• Francophone immigration targets
+Federal Approach:
+• National carbon pricing framework
+• Clean fuel standards
+• Investment in clean technology
+• International climate commitments
 
-Policy Debates:
-- Immigration levels and regional distribution
-- Temporary foreign worker programs
-- Provincial nominee programs
-- Integration and settlement services
+Provincial Variations:
+• Some provinces have their own carbon pricing
+• Others oppose federal carbon tax
+• Different approaches to energy transition
+• Regional economic impacts vary
 
-How well is immigration policy serving your community? Are there changes you'd like to see in federal immigration priorities?`,
-          categoryId: categoryMap.get("Federal Politics") || 1
-        },
-        {
-          title: "Digital Government Services: Progress and Privacy",
-          content: `Government digitization accelerated during the pandemic:
+Questions for Discussion:
+- Is a national approach to carbon pricing necessary?
+- How should we balance environmental goals with economic concerns?
+- What role should provinces play in climate policy?
 
-New Services:
-• Online benefit applications
-• Digital ID and verification
-• Mobile government apps
-• Automated decision systems
-
-Privacy Concerns:
-- Data collection and retention
-- Cross-agency information sharing
-- Security of personal information
-- Algorithmic bias and transparency
-
-User Experience:
-How have digital government services worked for you? What improvements would make government more accessible and efficient while protecting privacy?`,
+What climate policies do you think would be most effective for Canada?`,
           categoryId: categoryMap.get("General Discussion") || 7
         }
       ];
 
-      // Insert initial discussion posts
+      // Create initial discussion posts
       for (const topic of discussionTopics) {
         await db.insert(forumPosts).values({
-          title: topic.title,
-          content: topic.content,
-          authorId: adminId,
-          categoryId: topic.categoryId,
-          billId: topic.billId || null,
-          isSticky: topic.isSticky || false,
-          viewCount: Math.floor(Math.random() * 150) + 25,
-          likeCount: Math.floor(Math.random() * 20) + 5,
-          replyCount: Math.floor(Math.random() * 15) + 2
-        });
+          ...topic,
+          authorId: adminId
+        }).onConflictDoNothing();
       }
 
       console.log(`Created ${discussionTopics.length} initial forum discussions`);
-      
     } catch (error) {
       console.error('Error populating forum discussions:', error);
+    }
+  }
+
+  /**
+   * Create comprehensive forum categories
+   */
+  private async createCategories(): Promise<void> {
+    const categories = [
+      {
+        name: "Federal Politics",
+        description: "Discussions about federal government, Parliament, federal elections, and national policies",
+        color: "#DC2626",
+        icon: "flag",
+        sortOrder: 1
+      },
+      {
+        name: "Provincial & Territorial",
+        description: "Provincial and territorial government matters, legislation, and regional policies",
+        color: "#2563EB",
+        icon: "map",
+        sortOrder: 2
+      },
+      {
+        name: "Municipal Affairs",
+        description: "Local government, city councils, municipal elections, and community issues",
+        color: "#059669",
+        icon: "building",
+        sortOrder: 3
+      },
+      {
+        name: "Legal & Rights",
+        description: "Charter rights, court cases, legal analysis, and constitutional matters",
+        color: "#7C3AED",
+        icon: "scale",
+        sortOrder: 4
+      },
+      {
+        name: "Bill Analysis",
+        description: "In-depth discussion and analysis of current and proposed legislation",
+        color: "#EA580C",
+        icon: "file-text",
+        sortOrder: 5
+      },
+      {
+        name: "Civic Engagement",
+        description: "Voting, petitions, public consultations, and citizen participation",
+        color: "#0891B2",
+        icon: "users",
+        sortOrder: 6
+      },
+      {
+        name: "General Discussion",
+        description: "Open discussions about Canadian politics, current events, and civic issues",
+        color: "#6B7280",
+        icon: "message-circle",
+        sortOrder: 7
+      }
+    ];
+
+    for (const category of categories) {
+      await db.insert(forumCategories).values(category).onConflictDoNothing();
+    }
+  }
+
+  /**
+   * Create detailed subcategories for organized discussions
+   */
+  private async createSubcategories(): Promise<void> {
+    const categories = await db.select().from(forumCategories);
+    const categoryMap = new Map(categories.map(c => [c.name, c.id]));
+
+    const subcategoriesData = [
+      // Federal Politics subcategories
+      {
+        categoryId: categoryMap.get("Federal Politics"),
+        name: "Parliament & House of Commons",
+        description: "MPs, parliamentary procedures, Question Period, committees",
+        color: "#F87171",
+        icon: "building",
+        sortOrder: 1
+      },
+      {
+        categoryId: categoryMap.get("Federal Politics"),
+        name: "Senate",
+        description: "Senate discussions, appointments, legislation review",
+        color: "#FB7185",
+        icon: "users",
+        sortOrder: 2
+      },
+      {
+        categoryId: categoryMap.get("Federal Politics"),
+        name: "Federal Elections",
+        description: "Election campaigns, party platforms, electoral reform",
+        color: "#F472B6",
+        icon: "flag",
+        sortOrder: 3
+      },
+      {
+        categoryId: categoryMap.get("Federal Politics"),
+        name: "Prime Minister & Cabinet",
+        description: "PMO, ministers, government announcements, policy direction",
+        color: "#A78BFA",
+        icon: "star",
+        sortOrder: 4
+      },
+      
+      // Provincial & Territorial subcategories
+      {
+        categoryId: categoryMap.get("Provincial & Territorial"),
+        name: "Ontario",
+        description: "Ontario government, Queen's Park, provincial issues",
+        color: "#60A5FA",
+        icon: "map-pin",
+        sortOrder: 1
+      },
+      {
+        categoryId: categoryMap.get("Provincial & Territorial"),
+        name: "Quebec",
+        description: "Quebec government, National Assembly, provincial matters",
+        color: "#34D399",
+        icon: "map-pin",
+        sortOrder: 2
+      },
+      {
+        categoryId: categoryMap.get("Provincial & Territorial"),
+        name: "British Columbia",
+        description: "BC government, legislature, provincial policies",
+        color: "#FBBF24",
+        icon: "map-pin",
+        sortOrder: 3
+      },
+      {
+        categoryId: categoryMap.get("Provincial & Territorial"),
+        name: "Alberta",
+        description: "Alberta government, legislature, oil & gas policy",
+        color: "#F87171",
+        icon: "map-pin",
+        sortOrder: 4
+      },
+      {
+        categoryId: categoryMap.get("Provincial & Territorial"),
+        name: "Maritime Provinces",
+        description: "Nova Scotia, New Brunswick, PEI government matters",
+        color: "#06B6D4",
+        icon: "anchor",
+        sortOrder: 5
+      },
+      {
+        categoryId: categoryMap.get("Provincial & Territorial"),
+        name: "Territories",
+        description: "Yukon, NWT, Nunavut territorial governments",
+        color: "#8B5CF6",
+        icon: "snowflake",
+        sortOrder: 6
+      },
+      
+      // Legal & Rights subcategories
+      {
+        categoryId: categoryMap.get("Legal & Rights"),
+        name: "Charter of Rights",
+        description: "Charter challenges, fundamental freedoms, constitutional law",
+        color: "#EC4899",
+        icon: "shield",
+        sortOrder: 1
+      },
+      {
+        categoryId: categoryMap.get("Legal & Rights"),
+        name: "Supreme Court",
+        description: "Supreme Court decisions, appeals, constitutional cases",
+        color: "#8B5CF6",
+        icon: "scale",
+        sortOrder: 2
+      },
+      {
+        categoryId: categoryMap.get("Legal & Rights"),
+        name: "Criminal Law",
+        description: "Criminal Code, justice system, law enforcement",
+        color: "#EF4444",
+        icon: "shield-alert",
+        sortOrder: 3
+      },
+      {
+        categoryId: categoryMap.get("Legal & Rights"),
+        name: "Civil Rights",
+        description: "Human rights, discrimination, accessibility, privacy",
+        color: "#10B981",
+        icon: "heart",
+        sortOrder: 4
+      }
+    ];
+
+    for (const subcategory of subcategoriesData) {
+      if (subcategory.categoryId) {
+        await db.insert(forumSubcategories).values(subcategory).onConflictDoNothing();
+      }
     }
   }
 }
