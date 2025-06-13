@@ -198,70 +198,94 @@ What climate policies do you think would be most effective for Canada?`,
   }
 
   /**
-   * Create comprehensive forum categories
+   * Create comprehensive forum categories (only if they don't exist)
    */
   private async createCategories(): Promise<void> {
+    // Check if categories already exist
+    const existingCategories = await db.select().from(forumCategories);
+    if (existingCategories.length > 0) {
+      console.log(`Forum categories already exist (${existingCategories.length} found), skipping creation`);
+      return;
+    }
+
     const categories = [
       {
         name: "Federal Politics",
         description: "Discussions about federal government, Parliament, federal elections, and national policies",
         color: "#DC2626",
         icon: "flag",
-        sortOrder: 1
+        sortOrder: 1,
+        isVisible: true
       },
       {
-        name: "Provincial & Territorial",
+        name: "Provincial & Territorial", 
         description: "Provincial and territorial government matters, legislation, and regional policies",
         color: "#2563EB",
         icon: "map",
-        sortOrder: 2
+        sortOrder: 2,
+        isVisible: true
       },
       {
-        name: "Municipal Affairs",
-        description: "Local government, city councils, municipal elections, and community issues",
-        color: "#059669",
-        icon: "building",
-        sortOrder: 3
-      },
-      {
-        name: "Legal & Rights",
-        description: "Charter rights, court cases, legal analysis, and constitutional matters",
+        name: "Legal Research",
+        description: "Legal analysis, court cases, and constitutional matters",
         color: "#7C3AED",
         icon: "scale",
-        sortOrder: 4
+        sortOrder: 3,
+        isVisible: true
       },
       {
         name: "Bill Analysis",
         description: "In-depth discussion and analysis of current and proposed legislation",
         color: "#EA580C",
         icon: "file-text",
-        sortOrder: 5
+        sortOrder: 4,
+        isVisible: true
       },
       {
         name: "Civic Engagement",
         description: "Voting, petitions, public consultations, and citizen participation",
         color: "#0891B2",
         icon: "users",
-        sortOrder: 6
+        sortOrder: 5,
+        isVisible: true
       },
       {
         name: "General Discussion",
         description: "Open discussions about Canadian politics, current events, and civic issues",
         color: "#6B7280",
         icon: "message-circle",
-        sortOrder: 7
+        sortOrder: 6,
+        isVisible: true
+      },
+      {
+        name: "Legal & Rights",
+        description: "Charter rights, court cases, legal analysis, and constitutional matters",
+        color: "#7C3AED",
+        icon: "scale",
+        sortOrder: 7,
+        isVisible: true
       }
     ];
 
-    for (const category of categories) {
-      await db.insert(forumCategories).values(category).onConflictDoNothing();
+    try {
+      await db.insert(forumCategories).values(categories);
+      console.log(`Created ${categories.length} forum categories`);
+    } catch (error) {
+      console.log('Categories may already exist, continuing...');
     }
   }
 
   /**
-   * Create detailed subcategories for organized discussions
+   * Create detailed subcategories for organized discussions (only if they don't exist)
    */
   private async createSubcategories(): Promise<void> {
+    // Check if subcategories already exist
+    const existingSubcategories = await db.select().from(forumSubcategories);
+    if (existingSubcategories.length > 0) {
+      console.log(`Forum subcategories already exist (${existingSubcategories.length} found), skipping creation`);
+      return;
+    }
+
     const categories = await db.select().from(forumCategories);
     const categoryMap = new Map(categories.map(c => [c.name, c.id]));
 
