@@ -699,7 +699,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         INSERT INTO user_votes (user_id, target_type, target_id, vote_type, created_at, updated_at)
         VALUES (${userId}, ${targetType}, ${targetId}, ${voteType}, NOW(), NOW())
         ON CONFLICT (user_id, target_type, target_id) 
-        DO UPDATE SET vote_type = EXCLUDED.vote_type, updated_at = NOW()
+        DO UPDATE SET 
+          vote_type = EXCLUDED.vote_type, 
+          updated_at = NOW()
       `);
 
       // Update vote counts
