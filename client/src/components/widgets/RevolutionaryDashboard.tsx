@@ -486,7 +486,7 @@ function TransparencyPortal({ data }: { data: any }) {
         <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
           Access to public records and accountability measures
         </p>
-        <Link href="/transparency">
+        <Link href="/corruption">
           <Button className="w-full">View Reports</Button>
         </Link>
       </Card>
