@@ -377,7 +377,8 @@ Focus on Canadian political context and identify:
           };
         }
       } catch (error) {
-        console.log(`OpenAI analysis failed for ${article.title}, using basic extraction`);
+        console.error(`OpenAI analysis failed for ${article.title}:`, error);
+        console.log(`Using basic extraction for ${article.title}`);
       }
       
       // Basic content extraction when AI analysis unavailable
