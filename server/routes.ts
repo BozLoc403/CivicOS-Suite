@@ -697,7 +697,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check for existing vote
       const existingVote = await db.execute(sql`
         SELECT id FROM user_votes 
-        WHERE user_id = ${userId} AND target_type = ${targetType} AND target_id = ${targetId}
+        WHERE user_id = ${userId} 
+          AND target_type = ${targetType} 
+          AND target_id = ${targetId}
       `);
 
       if (existingVote.rows.length > 0) {
@@ -705,7 +707,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await db.execute(sql`
           UPDATE user_votes 
           SET vote_type = ${voteType}, updated_at = NOW()
-          WHERE user_id = ${userId} AND target_type = ${targetType} AND target_id = ${targetId}
+          WHERE user_id = ${userId} 
+            AND target_type = ${targetType} 
+            AND target_id = ${targetId}
         `);
       } else {
         // Insert new vote
