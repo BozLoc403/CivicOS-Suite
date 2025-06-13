@@ -85,42 +85,42 @@ export function RevolutionaryDashboard() {
           
           <div className="flex flex-col sm:flex-row gap-2">
             <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300">
-                <Activity className="w-3 h-3 mr-1" />
-                Live Data Active
-              </Badge>
-              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-300">
-                <Shield className="w-3 h-3 mr-1" />
-                Secure Connection
-              </Badge>
-            </div>
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
-              <Input
-                placeholder="Search politicians, bills, laws, cases..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm"
-              />
-            </div>
-            <select
-              value={selectedRegion}
-              onChange={(e) => setSelectedRegion(e.target.value)}
-              className="px-4 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm"
-            >
-              <option value="all">All Jurisdictions</option>
-              <option value="federal">Federal</option>
-              <option value="ontario">Ontario</option>
-              <option value="quebec">Quebec</option>
-              <option value="bc">British Columbia</option>
-              <option value="alberta">Alberta</option>
-            </select>
+              <Activity className="w-3 h-3 mr-1" />
+              Live Data Active
+            </Badge>
+            <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-300">
+              <Shield className="w-3 h-3 mr-1" />
+              Secure Connection
+            </Badge>
           </div>
         </div>
+      </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+          <Input
+            placeholder="Search politicians, bills, laws, cases..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm"
+          />
+        </div>
+        <select
+          value={selectedRegion}
+          onChange={(e) => setSelectedRegion(e.target.value)}
+          className="px-4 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm"
+        >
+          <option value="all">All Jurisdictions</option>
+          <option value="federal">Federal</option>
+          <option value="ontario">Ontario</option>
+          <option value="quebec">Quebec</option>
+          <option value="bc">British Columbia</option>
+          <option value="alberta">Alberta</option>
+        </select>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
           <PoliticiansWidget data={dashboardData?.politicians} />
           <BillsWidget data={dashboardData?.bills} />
           <NewsWidget data={dashboardData?.news} />
