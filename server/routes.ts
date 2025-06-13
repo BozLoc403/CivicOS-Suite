@@ -690,7 +690,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid vote type" });
       }
 
-      if (!['politician', 'bill', 'post', 'comment', 'petition'].includes(targetType)) {
+      if (!['politician', 'bill', 'post', 'reply', 'comment', 'petition'].includes(targetType)) {
         return res.status(400).json({ message: "Invalid target type" });
       }
 
@@ -978,83 +978,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Comprehensive voting system for all content types
-  app.post('/api/vote', isAuthenticated, async (req: any, res) => {
-    try {
-      const { targetType, targetId, voteType } = req.body;
-      const userId = req.user.claims.sub;
-
-      if (!['politician', 'bill', 'post', 'comment', 'petition', 'news'].includes(targetType)) {
-        return res.status(400).json({ message: "Invalid target type" });
-      }
-
-      if (!['upvote', 'downvote'].includes(voteType)) {
-        return res.status(400).json({ message: "Invalid vote type" });
-      }
-
-      // Check for existing vote
-      const existingVote = await db.execute(sql`
-        SELECT * FROM user_votes 
-        WHERE user_id = ${userId} AND target_type = ${targetType} AND target_id = ${targetId}
-      `);
-
-      if (existingVote.rows.length > 0) {
-        const existing = existingVote.rows[0] as any;
-        if (existing.vote_type === voteType) {
-          // Remove vote if clicking same button
-          await db.execute(sql`
-            DELETE FROM user_votes 
-            WHERE user_id = ${userId} AND target_type = ${targetType} AND target_id = ${targetId}
-          `);
-        } else {
-          // Update vote type
-          await db.execute(sql`
-            UPDATE user_votes 
-            SET vote_type = ${voteType}, created_at = NOW()
-            WHERE user_id = ${userId} AND target_type = ${targetType} AND target_id = ${targetId}
-          `);
-        }
-      } else {
-        // Create new vote
-        await db.execute(sql`
-          INSERT INTO user_votes (user_id, target_type, target_id, vote_type)
-          VALUES (${userId}, ${targetType}, ${targetId}, ${voteType})
-        `);
-      }
-
-      // Update vote counts
-      const voteCounts = await db.execute(sql`
-        SELECT 
-          COUNT(CASE WHEN vote_type = 'upvote' THEN 1 END) as upvotes,
-          COUNT(CASE WHEN vote_type = 'downvote' THEN 1 END) as downvotes
-        FROM user_votes 
-        WHERE target_type = ${targetType} AND target_id = ${targetId}
-      `);
-
-      const counts = voteCounts.rows[0] as any;
-      
-      // Update or insert vote_counts table
-      await db.execute(sql`
-        INSERT INTO vote_counts (target_type, target_id, upvotes, downvotes, total_score)
-        VALUES (${targetType}, ${targetId}, ${counts.upvotes}, ${counts.downvotes}, ${counts.upvotes - counts.downvotes})
-        ON CONFLICT (target_type, target_id)
-        DO UPDATE SET 
-          upvotes = ${counts.upvotes},
-          downvotes = ${counts.downvotes},
-          total_score = ${counts.upvotes - counts.downvotes},
-          updated_at = NOW()
-      `);
-
-      res.json({ 
-        upvotes: counts.upvotes, 
-        downvotes: counts.downvotes, 
-        totalScore: counts.upvotes - counts.downvotes 
-      });
-    } catch (error) {
-      console.error("Error processing vote:", error);
-      res.status(500).json({ message: "Failed to process vote" });
-    }
-  });
+  // Duplicate voting endpoint removed - using the unified one above
 
   // Get vote counts and user's vote for specific content
   app.get('/api/vote/:targetType/:targetId', async (req, res) => {
