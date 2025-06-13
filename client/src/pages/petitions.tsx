@@ -61,6 +61,7 @@ export default function Petitions() {
   const [showCreatePetition, setShowCreatePetition] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [sortBy, setSortBy] = useState<string>("recent");
+  const [selectedPetition, setSelectedPetition] = useState<Petition | null>(null);
   const [newPetition, setNewPetition] = useState({
     title: "",
     description: "",
@@ -460,6 +461,15 @@ export default function Petitions() {
                     </div>
 
                     <div className="flex items-center space-x-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => setSelectedPetition(petition)}
+                      >
+                        <Eye className="h-4 w-4 mr-1" />
+                        View Details
+                      </Button>
+                      
                       <Button variant="outline" size="sm">
                         <Share2 className="h-4 w-4 mr-1" />
                         Share

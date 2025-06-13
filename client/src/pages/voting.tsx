@@ -294,7 +294,11 @@ export default function VotingPage() {
                         className="ml-auto"
                       />
                       
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => setSelectedBill(bill)}
+                      >
                         View Details →
                       </Button>
                     </div>

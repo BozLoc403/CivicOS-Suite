@@ -223,7 +223,12 @@ export default function Politicians() {
                         variant="heart"
                         className="flex-shrink-0"
                       />
-                      <Button variant="outline" size="sm" className="flex-1">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="flex-1"
+                        onClick={() => setSelectedPolitician(politician)}
+                      >
                         <ArrowRight className="w-3 h-3 mr-2" />
                         View Details
                       </Button>
