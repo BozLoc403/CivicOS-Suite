@@ -1,14 +1,14 @@
-import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
 
-// the newest Anthropic model is "claude-sonnet-4-20250514" which was released May 14, 2025. Use this by default unless user has already selected claude-3-7-sonnet-20250219
+// the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
 import { storage } from './storage';
 import { db } from './db';
 import { bills, politicians, votes, politicianStatements } from '@shared/schema';
 import { eq, and, sql, desc, like } from 'drizzle-orm';
 
-// the newest Anthropic model is "claude-sonnet-4-20250514" which was released May 14, 2025. Use this by default unless user has already selected claude-3-7-sonnet-20250219
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
+// the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 interface AIRequest {
@@ -31,15 +31,15 @@ interface AIResponse {
 }
 
 export class CivicAIService {
-  private anthropic: Anthropic;
+  private openai: OpenAI;
 
   constructor() {
-    if (!process.env.ANTHROPIC_API_KEY) {
-      throw new Error('ANTHROPIC_API_KEY environment variable is required for AI features');
+    if (!process.env.OPENAI_API_KEY) {
+      throw new Error('OPENAI_API_KEY environment variable is required for AI features');
     }
     
-    this.anthropic = new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY,
+    this.openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
     });
   }
 
@@ -77,17 +77,15 @@ Respond in JSON format with: {
   "keywords": []
 }`;
 
-    const response = await this.anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+    const response = await this.openai.chat.completions.create({
+      model: 'gpt-4o',
       max_tokens: 1024,
       messages: [{ role: 'user', content: analysisPrompt }],
+      response_format: { type: "json_object" }
     });
 
     try {
-      const content = response.content[0];
-      if (content.type === 'text') {
-        return JSON.parse(content.text);
-      }
+      return JSON.parse(response.choices[0].message.content || '{}');
     } catch {
       // Fallback analysis
       return {
@@ -229,11 +227,11 @@ Answer the query with complete honesty and provide specific evidence for any cla
 
 Analyze this using the government data provided. Be direct and factual. If politicians are lying or being inconsistent, call it out with specific examples. Focus on facts, voting records, and documented statements.`;
 
-    const response = await this.anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+    const response = await this.openai.chat.completions.create({
+      model: 'gpt-4o',
       max_tokens: 2000,
       messages: [
-        { role: 'user', content: systemPrompt },
+        { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt }
       ],
     });
@@ -242,8 +240,7 @@ Analyze this using the government data provided. Be direct and factual. If polit
     const confidence = this.calculateConfidence(data);
     const sources = this.extractSources(data);
 
-    const content = response.content[0];
-    const responseText = content.type === 'text' ? (content as any).text : 'Analysis failed';
+    const responseText = response.choices[0].message.content || 'Analysis failed';
 
     return {
       response: responseText,
