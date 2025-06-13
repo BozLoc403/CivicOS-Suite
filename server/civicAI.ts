@@ -181,11 +181,10 @@ Respond in JSON format with: {
   private async getVotingData(billsData: any[]) {
     if (billsData.length === 0) return [];
 
-    const billIds = billsData.map(b => b.id);
+    // Get recent votes for analysis
     return await db.select()
       .from(votes)
-      .where(sql`${votes.billId} = ANY(${billIds})`)
-      .limit(100);
+      .limit(50);
   }
 
   private async getPoliticianStatements(politiciansData: any[]) {
@@ -194,7 +193,7 @@ Respond in JSON format with: {
     const politicianIds = politiciansData.map(p => p.id);
     return await db.select()
       .from(politicianStatements)
-      .where(sql`${politicianStatements.politicianId} = ANY(${politicianIds})`)
+      .where(sql`${politicianStatements.politicianId} = ANY(ARRAY[${politicianIds.join(',')}])`)
       .orderBy(desc(politicianStatements.dateCreated))
       .limit(50);
   }

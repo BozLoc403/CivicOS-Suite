@@ -77,16 +77,13 @@ export function FloatingCivicBot() {
 
   const sendMessageMutation = useMutation({
     mutationFn: async (query: string) => {
-      const response = await apiRequest('/api/civic-ai/analyze', {
-        method: 'POST',
-        body: JSON.stringify({
-          query,
-          conversationHistory: messages.slice(-5).map(m => ({
-            role: m.role,
-            content: m.content
-          })),
-          userId: user?.id
-        })
+      const response = await apiRequest('/api/civic/chat', 'POST', {
+        query,
+        region: 'canada',
+        conversationHistory: messages.slice(-5).map(m => ({
+          role: m.role,
+          content: m.content
+        }))
       });
       return response as AIResponse;
     },
