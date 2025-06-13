@@ -78,6 +78,7 @@ function Router() {
                 <Route path="/trust" component={Trust} />
                 <Route path="/maps" component={Maps} />
                 <Route path="/notifications" component={Notifications} />
+                <Route path="/users/:userId" component={UserProfile} />
                 <Route component={NotFound} />
               </Switch>
             </div>
