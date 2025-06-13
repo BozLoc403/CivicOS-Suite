@@ -167,6 +167,8 @@ export const bills = pgTable("bills", {
   jurisdiction: varchar("jurisdiction").notNull(), // Federal, Provincial, Municipal
   status: varchar("status").default("Active"), // Active, Passed, Failed, Withdrawn
   votingDeadline: timestamp("voting_deadline"),
+  dateIntroduced: timestamp("date_introduced"),
+  sponsor: varchar("sponsor"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -194,6 +196,10 @@ export const politicians = pgTable("politicians", {
   constituency: varchar("constituency"),
   level: varchar("level"), // Federal, Provincial, Municipal
   contact: jsonb("contact"), // contact information
+  email: varchar("email"),
+  phone: varchar("phone"),
+  office_address: varchar("office_address"),
+  website: varchar("website"),
   trustScore: decimal("trust_score", { precision: 5, scale: 2 }).default("50.00"),
   profileImageUrl: varchar("profile_image_url"),
   createdAt: timestamp("created_at").defaultNow(),
