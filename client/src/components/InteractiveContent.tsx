@@ -177,7 +177,7 @@ export function InteractiveContent({
                 </Badge>
                 <span className="text-xs text-gray-500 flex items-center">
                   <Clock className="w-3 h-3 mr-1" />
-                  {formatDistanceToNow(new Date(comment.createdAt))} ago
+                  {comment.createdAt ? formatDistanceToNow(new Date(comment.createdAt)) : 'Just now'} ago
                 </span>
               </div>
               
