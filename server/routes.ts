@@ -1460,6 +1460,281 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Rights API endpoints
+  app.get('/api/rights/charter', async (req, res) => {
+    try {
+      const charterRights = [
+        {
+          id: "1",
+          section: 1,
+          title: "Guarantee of Rights and Freedoms",
+          category: "fundamental",
+          text: "The Canadian Charter of Rights and Freedoms guarantees the rights and freedoms set out in it subject only to such reasonable limits prescribed by law as can be demonstrably justified in a free and democratic society.",
+          plainLanguage: "Your rights are protected, but they can have reasonable limits that are justified in a democratic society.",
+          examples: ["Laws against hate speech", "Safety regulations", "Court orders"],
+          limitations: ["Must be reasonable", "Must be justified in a free and democratic society", "Must be prescribed by law"],
+          relatedSections: [2, 7, 15]
+        },
+        {
+          id: "2",
+          section: 2,
+          title: "Fundamental Freedoms",
+          category: "fundamental",
+          text: "Everyone has the following fundamental freedoms: (a) freedom of conscience and religion; (b) freedom of thought, belief, opinion and expression, including freedom of the press and other media; (c) freedom of peaceful assembly; (d) freedom of association.",
+          plainLanguage: "You can believe what you want, say what you think, gather peacefully, and join groups.",
+          examples: ["Religious worship", "Peaceful protests", "Joining unions", "Free press", "Publishing opinions"],
+          limitations: ["Cannot incite violence", "Cannot spread hate speech", "Must be peaceful assembly"],
+          relatedSections: [1, 15]
+        },
+        {
+          id: "3",
+          section: 3,
+          title: "Democratic Rights - Voting",
+          category: "democratic",
+          text: "Every citizen of Canada has the right to vote in an election of members of the House of Commons or of a legislative assembly and to be qualified for membership therein.",
+          plainLanguage: "Every Canadian citizen can vote in federal and provincial elections and can run for office.",
+          examples: ["Federal elections", "Provincial elections", "Running for MP", "Running for MLA"],
+          limitations: ["Must be a Canadian citizen", "Must meet age requirements", "Cannot be disqualified by law"],
+          relatedSections: [4, 5]
+        },
+        {
+          id: "4",
+          section: 4,
+          title: "Maximum Duration of Legislative Bodies",
+          category: "democratic",
+          text: "No House of Commons and no legislative assembly shall continue for longer than five years from the date fixed for the return of the writs at a general election of its members.",
+          plainLanguage: "Elections must be held at least every five years.",
+          examples: ["Federal election every 5 years maximum", "Provincial elections every 5 years maximum"],
+          limitations: ["Can be extended only in time of war, invasion or insurrection"],
+          relatedSections: [3, 5]
+        },
+        {
+          id: "5",
+          section: 5,
+          title: "Annual Sitting of Legislative Bodies",
+          category: "democratic",
+          text: "There shall be a sitting of Parliament and of each legislature at least once every twelve months.",
+          plainLanguage: "Parliament and provincial legislatures must meet at least once per year.",
+          examples: ["Parliamentary sessions", "Legislative sessions", "Budget discussions"],
+          limitations: ["Must sit at least annually"],
+          relatedSections: [3, 4]
+        },
+        {
+          id: "6",
+          section: 6,
+          title: "Mobility Rights",
+          category: "mobility",
+          text: "(1) Every citizen of Canada has the right to enter, remain in and leave Canada. (2) Every citizen of Canada and every person who has the status of a permanent resident of Canada has the right to move to and take up residence in any province and to pursue the gaining of a livelihood in any province.",
+          plainLanguage: "You can travel freely within Canada, leave and return to Canada, live anywhere in Canada, and work anywhere in Canada.",
+          examples: ["Moving between provinces", "Working in any province", "Traveling freely", "Leaving and returning to Canada"],
+          limitations: ["Some professional licensing requirements", "Residency requirements for some benefits"],
+          relatedSections: [15]
+        },
+        {
+          id: "7",
+          section: 7,
+          title: "Life, Liberty and Security",
+          category: "legal",
+          text: "Everyone has the right to life, liberty and security of the person and the right not to be deprived thereof except in accordance with the principles of fundamental justice.",
+          plainLanguage: "You have the right to life, freedom, and safety. These can only be taken away through fair legal processes.",
+          examples: ["Right to medical treatment", "Protection from arbitrary detention", "Fair criminal trials"],
+          limitations: ["Must follow principles of fundamental justice", "Can be limited by proper legal procedures"],
+          relatedSections: [8, 9, 10, 11, 12]
+        },
+        {
+          id: "8",
+          section: 8,
+          title: "Search or Seizure",
+          category: "legal",
+          text: "Everyone has the right to be secure against unreasonable search or seizure.",
+          plainLanguage: "Police need good reasons and usually a warrant to search you or your property.",
+          examples: ["Need warrant for home searches", "Reasonable grounds for searches", "Protection of privacy"],
+          limitations: ["Reasonable searches allowed", "Emergency exceptions", "Border searches"],
+          relatedSections: [7, 9]
+        },
+        {
+          id: "9",
+          section: 9,
+          title: "Detention or Imprisonment",
+          category: "legal",
+          text: "Everyone has the right not to be arbitrarily detained or imprisoned.",
+          plainLanguage: "You cannot be arrested or held without good legal reasons.",
+          examples: ["Need grounds for arrest", "Cannot be held indefinitely", "Proper legal process required"],
+          limitations: ["Must have reasonable grounds", "Preventive detention in some cases"],
+          relatedSections: [7, 8, 10]
+        },
+        {
+          id: "10",
+          section: 10,
+          title: "Arrest or Detention Rights",
+          category: "legal",
+          text: "Everyone has the right on arrest or detention (a) to be informed promptly of the reasons therefor; (b) to retain and instruct counsel without delay and to be informed of that right; (c) to have the validity of the detention determined by way of habeas corpus and to be released if the detention is not lawful.",
+          plainLanguage: "If arrested, you must be told why, you can call a lawyer, and you can challenge your detention in court.",
+          examples: ["Right to know charges", "Right to call a lawyer", "Habeas corpus applications"],
+          limitations: ["Must be informed promptly", "Reasonable access to counsel"],
+          relatedSections: [7, 9, 11]
+        },
+        {
+          id: "11",
+          section: 11,
+          title: "Criminal Trial Rights",
+          category: "legal",
+          text: "Any person charged with an offence has the right to be presumed innocent until proven guilty according to law in a fair and public hearing by an independent and impartial tribunal, to be informed without unreasonable delay of the specific offence, to be tried within a reasonable time, to not be compelled to be a witness in proceedings against that person in respect of the offence, to be presumed innocent until proven guilty, and if finally acquitted of the offence, not to be tried for it again.",
+          plainLanguage: "In criminal cases, you're innocent until proven guilty, get a fair trial, can't be forced to testify against yourself, and can't be tried twice for the same crime.",
+          examples: ["Presumption of innocence", "Right to fair trial", "No double jeopardy", "Right to remain silent"],
+          limitations: ["Must be criminal charges", "Reasonable timeframes apply"],
+          relatedSections: [7, 10, 12]
+        },
+        {
+          id: "12",
+          section: 12,
+          title: "Cruel and Unusual Treatment",
+          category: "legal",
+          text: "Everyone has the right not to be subjected to any cruel and unusual treatment or punishment.",
+          plainLanguage: "You cannot be tortured or subjected to cruel punishments.",
+          examples: ["No torture", "Humane prison conditions", "Proportionate sentences"],
+          limitations: ["Must be cruel and unusual", "Context matters"],
+          relatedSections: [7, 11]
+        },
+        {
+          id: "15",
+          section: 15,
+          title: "Equality Rights",
+          category: "equality",
+          text: "(1) Every individual is equal before and under the law and has the right to the equal protection and equal benefit of the law without discrimination and, in particular, without discrimination based on race, national or ethnic origin, colour, religion, sex, age or mental or physical disability. (2) Subsection (1) does not preclude any law, program or activity that has as its object the amelioration of conditions of disadvantaged individuals or groups including those that are disadvantaged because of race, national or ethnic origin, colour, religion, sex, age or mental or physical disability.",
+          plainLanguage: "Everyone is equal under the law regardless of race, religion, sex, age, or disability. Programs to help disadvantaged groups are allowed.",
+          examples: ["Equal employment opportunities", "Anti-discrimination laws", "Affirmative action programs"],
+          limitations: ["Allows programs for disadvantaged groups", "Reasonable distinctions may apply"],
+          relatedSections: [1, 2, 6]
+        },
+        {
+          id: "16",
+          section: 16,
+          title: "Official Languages",
+          category: "language",
+          text: "(1) English and French are the official languages of Canada and have equality of status and equal rights and privileges as to their use in all institutions of the Parliament and government of Canada.",
+          plainLanguage: "English and French are both official languages with equal status in federal institutions.",
+          examples: ["Bilingual federal services", "Parliamentary proceedings", "Federal court cases"],
+          limitations: ["Applies primarily to federal institutions", "Some exceptions for practical reasons"],
+          relatedSections: [17, 18, 19, 20]
+        }
+      ];
+      
+      res.json(charterRights);
+    } catch (error) {
+      console.error("Error fetching charter rights:", error);
+      res.status(500).json({ message: "Failed to fetch charter rights" });
+    }
+  });
+
+  app.get('/api/rights/provincial', async (req, res) => {
+    try {
+      const provincialRights = [
+        {
+          id: "bc-1",
+          province: "British Columbia",
+          title: "Human Rights Code Protection",
+          category: "equality",
+          description: "Protection against discrimination in employment, housing, and services based on protected characteristics.",
+          plainLanguage: "In BC, you cannot be discriminated against for your race, religion, gender, sexual orientation, age, or disability in jobs, housing, or services.",
+          examples: ["Equal employment opportunities", "Fair housing practices", "Accessible services"],
+          relatedCharter: [15],
+          sourceAct: "Human Rights Code",
+          sourceSection: "Section 8"
+        },
+        {
+          id: "on-1",
+          province: "Ontario",
+          title: "Ontario Human Rights Code",
+          category: "equality",
+          description: "Comprehensive protection against discrimination and harassment in employment, housing, services, and facilities.",
+          plainLanguage: "Ontario law protects you from discrimination and harassment in work, housing, and public places based on many personal characteristics.",
+          examples: ["Workplace harassment protection", "Accessible housing", "Equal service provision"],
+          relatedCharter: [15],
+          sourceAct: "Human Rights Code",
+          sourceSection: "Section 1"
+        },
+        {
+          id: "qc-1",
+          province: "Quebec",
+          title: "Charter of Human Rights and Freedoms",
+          category: "fundamental",
+          description: "Quebec's own charter providing fundamental rights and freedoms, including unique provisions for French language protection.",
+          plainLanguage: "Quebec has its own charter that protects your rights and freedoms, with special protections for the French language.",
+          examples: ["French language rights", "Cultural protection", "Religious freedom"],
+          relatedCharter: [2, 16],
+          sourceAct: "Charter of Human Rights and Freedoms",
+          sourceSection: "Section 1"
+        },
+        {
+          id: "ab-1",
+          province: "Alberta",
+          title: "Individual Rights Protection Act",
+          category: "equality",
+          description: "Protection against discrimination in employment, accommodation, and public services.",
+          plainLanguage: "Alberta law protects you from unfair treatment based on personal characteristics in jobs, housing, and services.",
+          examples: ["Employment equity", "Fair housing", "Public accommodation"],
+          relatedCharter: [15],
+          sourceAct: "Alberta Human Rights Act",
+          sourceSection: "Section 4"
+        },
+        {
+          id: "ns-1",
+          province: "Nova Scotia",
+          title: "Human Rights Act",
+          category: "equality",
+          description: "Protection against discrimination and promotion of equal opportunity in employment, accommodation, and services.",
+          plainLanguage: "Nova Scotia ensures equal treatment and opportunities regardless of personal characteristics.",
+          examples: ["Equal employment", "Fair housing", "Accessible services"],
+          relatedCharter: [15],
+          sourceAct: "Human Rights Act",
+          sourceSection: "Section 5"
+        },
+        {
+          id: "mb-1",
+          province: "Manitoba",
+          title: "Human Rights Code",
+          category: "equality",
+          description: "Comprehensive human rights protection including employment, housing, and public services.",
+          plainLanguage: "Manitoba protects your right to equal treatment in work, housing, and public places.",
+          examples: ["Workplace equality", "Housing rights", "Service accessibility"],
+          relatedCharter: [15],
+          sourceAct: "Human Rights Code",
+          sourceSection: "Section 9"
+        },
+        {
+          id: "sk-1",
+          province: "Saskatchewan",
+          title: "Saskatchewan Human Rights Code",
+          category: "equality",
+          description: "Protection against discrimination and promotion of human rights in employment, housing, and public accommodation.",
+          plainLanguage: "Saskatchewan ensures you are treated fairly regardless of personal characteristics.",
+          examples: ["Employment protection", "Housing equality", "Public service access"],
+          relatedCharter: [15],
+          sourceAct: "Saskatchewan Human Rights Code",
+          sourceSection: "Section 12"
+        },
+        {
+          id: "nb-1",
+          province: "New Brunswick",
+          title: "Human Rights Act",
+          category: "equality",
+          description: "Protection against discrimination and harassment in employment, accommodation, and services, with official bilingual status.",
+          plainLanguage: "New Brunswick protects your rights in both English and French, ensuring equal treatment everywhere.",
+          examples: ["Bilingual services", "Employment equity", "Fair housing"],
+          relatedCharter: [15, 16],
+          sourceAct: "Human Rights Act",
+          sourceSection: "Section 4"
+        }
+      ];
+      
+      res.json(provincialRights);
+    } catch (error) {
+      console.error("Error fetching provincial rights:", error);
+      res.status(500).json({ message: "Failed to fetch provincial rights" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
