@@ -188,9 +188,9 @@ export default function Settings() {
             <CardContent className="space-y-4">
               <div className="flex items-center space-x-6">
                 <Avatar className="w-24 h-24">
-                  <AvatarImage src={imagePreview || user?.profileImageUrl} />
+                  <AvatarImage src={imagePreview || (user as any)?.profileImageUrl} />
                   <AvatarFallback className="text-2xl">
-                    {user?.firstName?.[0] || 'U'}
+                    {(user as any)?.firstName?.[0] || 'U'}
                   </AvatarFallback>
                 </Avatar>
                 
@@ -245,7 +245,7 @@ export default function Settings() {
                   <Label htmlFor="firstName">First Name</Label>
                   <Input
                     id="firstName"
-                    defaultValue={user?.firstName || ''}
+                    defaultValue={(user as any)?.firstName || ''}
                     placeholder="Enter your first name"
                   />
                 </div>
@@ -253,7 +253,7 @@ export default function Settings() {
                   <Label htmlFor="lastName">Last Name</Label>
                   <Input
                     id="lastName"
-                    defaultValue={user?.lastName || ''}
+                    defaultValue={(user as any)?.lastName || ''}
                     placeholder="Enter your last name"
                   />
                 </div>
@@ -263,7 +263,7 @@ export default function Settings() {
                 <Input
                   id="email"
                   type="email"
-                  defaultValue={user?.email || ''}
+                  defaultValue={(user as any)?.email || ''}
                   placeholder="Enter your email"
                 />
               </div>

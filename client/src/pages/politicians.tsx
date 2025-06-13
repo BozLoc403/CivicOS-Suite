@@ -436,7 +436,7 @@ function PoliticianDetailModal({ politician, onClose }: PoliticianDetailModalPro
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  {votingRecord.length === 0 ? (
+                  {(votingRecord as any[])?.length === 0 ? (
                     <div className="bg-blue-50 rounded-lg p-6 text-center">
                       <Vote className="w-12 h-12 text-blue-500 mx-auto mb-3" />
                       <h3 className="font-semibold text-blue-900 mb-2">Voting Records Loading</h3>
@@ -447,7 +447,7 @@ function PoliticianDetailModal({ politician, onClose }: PoliticianDetailModalPro
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      {votingRecord.map((vote: any, index: number) => (
+                      {(votingRecord as any[])?.map((vote: any, index: number) => (
                         <div key={index} className="border border-gray-200 rounded-lg p-4">
                           <div className="flex items-start justify-between">
                             <div>
