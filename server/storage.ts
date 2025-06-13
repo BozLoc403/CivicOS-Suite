@@ -169,13 +169,16 @@ export class DatabaseStorage implements IStorage {
         count: count(),
       })
       .from(votes)
-      .where(eq(votes.billId, billId))
+      .where(and(eq(votes.itemId, billId), eq(votes.itemType, 'bill')))
       .groupBy(votes.voteValue);
 
     const stats = { yes: 0, no: 0, abstain: 0, total: 0 };
     
     result.forEach(({ voteValue, count: voteCount }) => {
-      stats[voteValue as keyof typeof stats] = voteCount;
+      // Map numeric values to text for compatibility
+      if (voteValue === 1) stats.yes = voteCount;
+      else if (voteValue === -1) stats.no = voteCount;
+      else if (voteValue === 0) stats.abstain = voteCount;
       stats.total += voteCount;
     });
 

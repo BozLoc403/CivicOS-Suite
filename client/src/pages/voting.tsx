@@ -287,6 +287,12 @@ export default function VotingPage() {
                         targetType="bill"
                         targetId={bill.id}
                       />
+                      <LikeButton
+                        itemId={bill.id}
+                        itemType="bill"
+                        variant="thumbs"
+                        className="ml-auto"
+                      />
                       
                       <Button variant="outline" size="sm">
                         View Details →

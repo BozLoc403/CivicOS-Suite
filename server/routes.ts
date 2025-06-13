@@ -364,11 +364,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         WHERE item_id = ${parseInt(itemId)} AND item_type = ${itemType}
       `);
       
-      const result = votes.rows[0] || { upvotes: 0, downvotes: 0, totalScore: 0 };
+      const result = votes.rows[0] || { upvotes: 0, downvotes: 0, totalscore: 0 };
       res.json({
         upvotes: Number(result.upvotes || 0),
         downvotes: Number(result.downvotes || 0),
-        totalScore: Number(result.totalScore || 0),
+        totalScore: Number(result.totalscore || 0),
         hasVoted: false
       });
     } catch (error) {

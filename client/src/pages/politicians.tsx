@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { LikeButton } from "@/components/ui/like-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { VotingButtons } from "@/components/VotingButtons";
 import { InteractiveContent } from "@/components/InteractiveContent";

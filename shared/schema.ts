@@ -173,12 +173,13 @@ export const bills = pgTable("bills", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Votes table
+// Universal votes table - supports voting on any content type
 export const votes = pgTable("votes", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").notNull().references(() => users.id),
-  billId: integer("bill_id").notNull().references(() => bills.id),
-  voteValue: varchar("vote_value").notNull(), // "yes", "no", "abstain"
+  itemId: integer("item_id").notNull(), // ID of the item being voted on
+  itemType: varchar("item_type").notNull(), // "bill", "politician", "petition", "news", "comment"
+  voteValue: integer("vote_value").notNull(), // 1 for upvote/like, -1 for downvote/dislike, 0 for abstain
   reasoning: text("reasoning"),
   verificationId: varchar("verification_id").notNull().unique(),
   blockHash: varchar("block_hash").notNull(),
@@ -945,10 +946,6 @@ export const votesRelations = relations(votes, ({ one }) => ({
   user: one(users, {
     fields: [votes.userId],
     references: [users.id],
-  }),
-  bill: one(bills, {
-    fields: [votes.billId],
-    references: [bills.id],
   }),
 }));
 
