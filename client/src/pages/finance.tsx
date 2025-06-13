@@ -399,9 +399,10 @@ export default function FinancePage() {
                     <div className="flex items-center gap-2">
                       <LikeButton
                         itemId={record.id}
-                        itemType="finance"
-                        variant="thumbs"
+                        itemType="comment"
+                        variant="outline"
                         className="flex-shrink-0"
+                        initialLikeCount={0}
                       />
                       <Button variant="outline" size="sm" asChild>
                         <a href={record.sourceUrl} target="_blank" rel="noopener noreferrer">
