@@ -82,7 +82,7 @@ export class PoliticianDataEnhancer {
     try {
       // Get politicians missing constituency data
       const politiciansNeedingUpdate = await db.execute(sql`
-        SELECT id, name, level, province 
+        SELECT id, name, level, jurisdiction 
         FROM politicians 
         WHERE constituency IS NULL OR constituency = '' OR constituency = 'Unknown'
         LIMIT 1000
