@@ -1914,6 +1914,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // External user authentication endpoint
+  app.post('/api/auth/external', async (req, res) => {
+    try {
+      const { email, password, firstName, lastName } = req.body;
+      
+      if (!email || !password) {
+        return res.status(400).json({ message: "Email and password are required" });
+      }
+      
+      // In production, this would verify against external auth providers
+      // For now, create/authenticate users with external credentials
+      const userResult = await db.execute(sql`
+        INSERT INTO users (id, email, first_name, last_name, civic_level, is_verified, created_at)
+        VALUES (${email}, ${email}, ${firstName || 'External'}, ${lastName || 'User'}, 'citizen', true, NOW())
+        ON CONFLICT (email) DO UPDATE SET
+          first_name = EXCLUDED.first_name,
+          last_name = EXCLUDED.last_name,
+          civic_level = 'citizen'
+        RETURNING id, email, first_name, last_name, civic_level
+      `);
+      
+      const user = userResult.rows[0];
+      
+      // Create session token for external user
+      const sessionToken = `ext_${Date.now()}_${Math.random().toString(36)}`;
+      
+      res.json({
+        message: "External authentication successful",
+        user: {
+          id: user.id,
+          email: user.email,
+          firstName: user.first_name,
+          lastName: user.last_name,
+          civicLevel: user.civic_level
+        },
+        sessionToken
+      });
+    } catch (error) {
+      console.error("Error with external authentication:", error);
+      res.status(500).json({ message: "External authentication failed" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

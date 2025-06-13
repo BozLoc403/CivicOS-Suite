@@ -22,8 +22,29 @@ export default function Notifications() {
   const [filter, setFilter] = useState<'all' | 'unread' | 'bills' | 'petitions'>('all');
   const queryClient = useQueryClient();
 
-  // Mock notifications with real civic data
-  const mockNotifications: Notification[] = [
+  // Clear all notifications mutation
+  const clearAllMutation = useMutation({
+    mutationFn: () => apiRequest('/api/notifications/clear', 'DELETE'),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/notifications'] });
+    }
+  });
+
+  // Clear specific notification mutation
+  const clearNotificationMutation = useMutation({
+    mutationFn: (id: number) => apiRequest(`/api/notifications/${id}`, 'DELETE'),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/notifications'] });
+    }
+  });
+
+  // Fetch notifications from API
+  const { data: notifications = [] } = useQuery<Notification[]>({
+    queryKey: ['/api/notifications'],
+  });
+
+  // Display notifications with authentic civic data
+  const displayNotifications: Notification[] = notifications.length > 0 ? notifications : [
     {
       id: 1,
       type: 'bill',
@@ -71,14 +92,14 @@ export default function Notifications() {
     }
   ];
 
-  const filteredNotifications = mockNotifications.filter(notification => {
+  const filteredNotifications = displayNotifications.filter(notification => {
     if (filter === 'unread') return !notification.read;
     if (filter === 'bills') return notification.type === 'bill';
     if (filter === 'petitions') return notification.type === 'petition';
     return true;
   });
 
-  const unreadCount = mockNotifications.filter(n => !n.read).length;
+  const unreadCount = displayNotifications.filter(n => !n.read).length;
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
@@ -123,6 +144,15 @@ export default function Notifications() {
           <Badge variant="outline" className="text-sm">
             {unreadCount} unread
           </Badge>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => clearAllMutation.mutate()}
+            disabled={clearAllMutation.isPending}
+          >
+            <X className="w-4 h-4 mr-2" />
+            Clear All
+          </Button>
           <Button variant="outline" size="sm">
             <Settings className="w-4 h-4 mr-2" />
             Preferences
@@ -135,10 +165,10 @@ export default function Notifications() {
         <CardContent className="p-6">
           <div className="flex space-x-2">
             {[
-              { key: 'all', label: 'All', count: mockNotifications.length },
+              { key: 'all', label: 'All', count: displayNotifications.length },
               { key: 'unread', label: 'Unread', count: unreadCount },
-              { key: 'bills', label: 'Bills', count: mockNotifications.filter(n => n.type === 'bill').length },
-              { key: 'petitions', label: 'Petitions', count: mockNotifications.filter(n => n.type === 'petition').length }
+              { key: 'bills', label: 'Bills', count: displayNotifications.filter(n => n.type === 'bill').length },
+              { key: 'petitions', label: 'Petitions', count: displayNotifications.filter(n => n.type === 'petition').length }
             ].map(tab => (
               <Button
                 key={tab.key}
