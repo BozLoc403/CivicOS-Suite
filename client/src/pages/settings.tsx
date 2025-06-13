@@ -139,6 +139,77 @@ export default function Settings() {
             </CardContent>
           </Card>
 
+          {/* Password Security */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Lock className="h-5 w-5" />
+                <span>Password Security</span>
+              </CardTitle>
+              <CardDescription>Change your account password</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handlePasswordChange} className="space-y-4">
+                {passwordError && (
+                  <Alert variant="destructive">
+                    <AlertDescription>{passwordError}</AlertDescription>
+                  </Alert>
+                )}
+                
+                {passwordSuccess && (
+                  <Alert className="border-green-200 bg-green-50 text-green-800">
+                    <Check className="h-4 w-4" />
+                    <AlertDescription>Password changed successfully!</AlertDescription>
+                  </Alert>
+                )}
+
+                <div className="space-y-2">
+                  <Label htmlFor="currentPassword">Current Password</Label>
+                  <Input
+                    id="currentPassword"
+                    type="password"
+                    value={passwordForm.currentPassword}
+                    onChange={(e) => setPasswordForm(prev => ({ ...prev, currentPassword: e.target.value }))}
+                    placeholder="Enter current password"
+                    disabled={changePasswordMutation.isPending}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="newPassword">New Password</Label>
+                  <Input
+                    id="newPassword"
+                    type="password"
+                    value={passwordForm.newPassword}
+                    onChange={(e) => setPasswordForm(prev => ({ ...prev, newPassword: e.target.value }))}
+                    placeholder="Enter new password (min 6 characters)"
+                    disabled={changePasswordMutation.isPending}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                  <Input
+                    id="confirmPassword"
+                    type="password"
+                    value={passwordForm.confirmPassword}
+                    onChange={(e) => setPasswordForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                    placeholder="Confirm new password"
+                    disabled={changePasswordMutation.isPending}
+                  />
+                </div>
+
+                <Button 
+                  type="submit" 
+                  disabled={changePasswordMutation.isPending}
+                  className="bg-slate-800 hover:bg-slate-700"
+                >
+                  {changePasswordMutation.isPending ? "Updating..." : "Change Password"}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+
           {/* Notification Preferences */}
           <Card>
             <CardHeader>
