@@ -238,7 +238,9 @@ export class ComprehensiveNewsAnalyzer {
 
       // Analyze each article with AI
       for (const article of articles) {
-        await this.analyzeArticleContent(article);
+        const analyzedArticle = await this.analyzeArticleContent(article);
+        // Update the article in the array with analyzed content
+        Object.assign(article, analyzedArticle);
         await this.delay(1000); // Rate limiting
       }
 

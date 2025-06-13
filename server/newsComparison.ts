@@ -1,11 +1,11 @@
-import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
 import { db } from './db';
 import { newsArticles } from '@shared/schema';
 import { eq, and, gte, desc } from 'drizzle-orm';
 
-// the newest Anthropic model is "claude-sonnet-4-20250514" which was released May 14, 2025. Use this by default unless user has already selected claude-3-7-sonnet-20250219
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
+// the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 interface CrossSourceAnalysis {
@@ -167,16 +167,20 @@ Provide analysis in JSON format with:
 7. recommendations: Advice for readers on interpreting this story
 `;
 
-    const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o',
       max_tokens: 3000,
-      system: "You are an expert media analyst specializing in detecting bias, propaganda, and providing unbiased news analysis. Focus on Canadian media and political context.",
       messages: [
+        { 
+          role: 'system', 
+          content: "You are an expert media analyst specializing in detecting bias, propaganda, and providing unbiased news analysis. Focus on Canadian media and political context. Respond only in valid JSON format."
+        },
         { role: 'user', content: analysisPrompt }
       ],
+      response_format: { type: "json_object" }
     });
 
-    return JSON.parse(response.content[0].text);
+    return JSON.parse(response.choices[0]?.message?.content || '{}');
   }
 
   /**
@@ -203,16 +207,20 @@ Respond in JSON format with:
 - unsupportedStatements: Claims lacking evidence
 `;
 
-    const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o',
       max_tokens: 2000,
-      system: "You are a professional fact-checker with expertise in Canadian politics and government. Verify claims against official sources.",
       messages: [
+        { 
+          role: 'system', 
+          content: "You are a professional fact-checker with expertise in Canadian politics and government. Verify claims against official sources. Respond only in valid JSON format."
+        },
         { role: 'user', content: factCheckPrompt }
       ],
+      response_format: { type: "json_object" }
     });
 
-    return JSON.parse(response.content[0].text);
+    return JSON.parse(response.choices[0]?.message?.content || '{}');
   }
 
   /**

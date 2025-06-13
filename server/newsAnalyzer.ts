@@ -3,11 +3,11 @@ import fetch from 'node-fetch';
 import { db } from './db';
 import * as schema from '@shared/schema';
 import { eq } from 'drizzle-orm';
-import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
 
-// the newest Anthropic model is "claude-sonnet-4-20250514" which was released May 14, 2025. Use this by default unless user has already selected claude-3-7-sonnet-20250219
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
+// the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 interface NewsSource {
@@ -392,17 +392,20 @@ Respond in JSON format with these exact keys:
   "analysisNotes": "detailed analysis explanation"
 }`;
 
-    const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o',
       max_tokens: 2000,
-      messages: [{ role: 'user', content: prompt }],
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a Canadian news analyst. Respond only in valid JSON format.'
+        },
+        { role: 'user', content: prompt }
+      ],
+      response_format: { type: "json_object" }
     });
 
-    const content = response.content[0];
-    if (content.type !== 'text') {
-      throw new Error('Unexpected response type from AI');
-    }
-    const analysisText = content.text;
+    const analysisText = response.choices[0]?.message?.content || '{}';
     const analysis = JSON.parse(analysisText);
     
     return {
