@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { LikeButton } from "@/components/ui/like-button";
 import { InteractiveContent } from "@/components/InteractiveContent";
 import { 
   DollarSign, TrendingUp, AlertTriangle, Search, Filter, Crown, Building2, 
@@ -396,6 +397,12 @@ export default function FinancePage() {
                     </div>
                     
                     <div className="flex items-center gap-2">
+                      <LikeButton
+                        itemId={record.id}
+                        itemType="finance"
+                        variant="thumbs"
+                        className="flex-shrink-0"
+                      />
                       <Button variant="outline" size="sm" asChild>
                         <a href={record.sourceUrl} target="_blank" rel="noopener noreferrer">
                           <ExternalLink className="w-4 h-4 mr-2" />
