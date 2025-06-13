@@ -486,17 +486,20 @@ Respond in JSON format:
   "analysisDetails": "detailed explanation"
 }`;
 
-    const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o',
       max_tokens: 1500,
-      messages: [{ role: 'user', content: prompt }],
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a propaganda detection expert. Respond only in valid JSON format.'
+        },
+        { role: 'user', content: prompt }
+      ],
+      response_format: { type: "json_object" }
     });
 
-    const content = response.content[0];
-    if (content.type !== 'text') {
-      throw new Error('Unexpected response type from AI');
-    }
-    const analysisText = content.text;
+    const analysisText = response.choices[0]?.message?.content || '{}';
     const analysis = JSON.parse(analysisText);
     
     return {

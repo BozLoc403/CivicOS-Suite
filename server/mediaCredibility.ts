@@ -1,8 +1,8 @@
-import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
 
-// the newest Anthropic model is "claude-sonnet-4-20250514" which was released May 14, 2025. Use this by default unless user has already selected claude-3-7-sonnet-20250219
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
+// the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 interface MediaOutlet {
@@ -296,30 +296,31 @@ export async function analyzeArticleCredibility(articleText: string, sourceName:
   );
 
   try {
-    const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      system: `You are an expert media literacy analyst. Analyze this news article for credibility, bias, and propaganda techniques. Respond in JSON format with these exact keys:
-      {
-        "credibilityScore": number (0-100),
-        "biasDetected": string (political lean detected),
-        "factualAccuracy": number (0-100),
-        "propagandaTechniques": array of strings,
-        "analysisNotes": string
-      }`,
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o',
       max_tokens: 1024,
       messages: [
+        {
+          role: 'system',
+          content: `You are an expert media literacy analyst. Analyze this news article for credibility, bias, and propaganda techniques. Respond in JSON format with these exact keys:
+          {
+            "credibilityScore": number (0-100),
+            "biasDetected": string (political lean detected),
+            "factualAccuracy": number (0-100),
+            "propagandaTechniques": array of strings,
+            "analysisNotes": string
+          }`
+        },
         {
           role: 'user',
           content: `Analyze this article for credibility and bias:\n\n${articleText.substring(0, 2000)}`
         }
       ],
+      response_format: { type: "json_object" }
     });
 
-    const content = response.content[0];
-    if (content.type !== 'text') {
-      throw new Error('Expected text response from Claude');
-    }
-    const analysis = JSON.parse(content.text);
+    const analysisText = response.choices[0]?.message?.content || '{}';
+    const analysis = JSON.parse(analysisText);
     
     return {
       credibilityScore: outlet ? outlet.credibilityScore : analysis.credibilityScore,
