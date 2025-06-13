@@ -85,6 +85,13 @@ The platform is designed for deployment on Replit with the following configurati
 
 ## Changelog
 
+- June 13, 2025: Final resolution of voting and commenting system - All interactive features now fully operational
+  - Completely fixed SQL syntax errors by rewriting vote upsert logic with separate insert/update operations
+  - Resolved React NaN display warnings in LikeButton component with proper number handling
+  - Fixed frontend fetch method errors in InteractiveContent component for comment creation
+  - Verified all voting functionality works: politicians, bills, posts, replies, comments, petitions
+  - Confirmed comment system operational with proper API endpoint routing
+  - All civic engagement features now working: voting, commenting, sharing, real-time updates
 - June 13, 2025: Resolved critical voting system failures and database schema issues
   - Fixed SQL syntax errors causing "failed to process vote" failures across all interactive features
   - Added missing user_votes, vote_counts, and user_interactions table schemas to shared/schema.ts

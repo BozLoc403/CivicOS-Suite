@@ -694,15 +694,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid target type" });
       }
 
-      // Upsert user vote
-      await db.execute(sql`
-        INSERT INTO user_votes (user_id, target_type, target_id, vote_type, created_at, updated_at)
-        VALUES (${userId}, ${targetType}, ${targetId}, ${voteType}, NOW(), NOW())
-        ON CONFLICT (user_id, target_type, target_id) 
-        DO UPDATE SET 
-          vote_type = EXCLUDED.vote_type, 
-          updated_at = NOW()
+      // Check for existing vote
+      const existingVote = await db.execute(sql`
+        SELECT id FROM user_votes 
+        WHERE user_id = ${userId} AND target_type = ${targetType} AND target_id = ${targetId}
       `);
+
+      if (existingVote.rows.length > 0) {
+        // Update existing vote
+        await db.execute(sql`
+          UPDATE user_votes 
+          SET vote_type = ${voteType}, updated_at = NOW()
+          WHERE user_id = ${userId} AND target_type = ${targetType} AND target_id = ${targetId}
+        `);
+      } else {
+        // Insert new vote
+        await db.execute(sql`
+          INSERT INTO user_votes (user_id, target_type, target_id, vote_type, created_at, updated_at)
+          VALUES (${userId}, ${targetType}, ${targetId}, ${voteType}, NOW(), NOW())
+        `);
+      }
 
       // Update vote counts
       const upvotes = await db.execute(sql`

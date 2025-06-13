@@ -26,7 +26,7 @@ export function LikeButton({
   className
 }: LikeButtonProps) {
   const [isLiked, setIsLiked] = useState(initialIsLiked);
-  const [likeCount, setLikeCount] = useState(initialLikeCount);
+  const [likeCount, setLikeCount] = useState(Number(initialLikeCount) || 0);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 

@@ -71,9 +71,7 @@ export function InteractiveContent({
 
   const commentMutation = useMutation({
     mutationFn: async ({ content, parentCommentId }: { content: string; parentCommentId?: number }) => {
-      return await apiRequest("/api/comments", "POST", {
-        targetType,
-        targetId,
+      return await apiRequest(`/api/comments/${targetType}/${targetId}`, "POST", {
         content,
         parentCommentId
       });
