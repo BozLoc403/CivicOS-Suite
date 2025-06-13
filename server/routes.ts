@@ -274,18 +274,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Bills routes
-  app.get('/api/bills', async (req, res) => {
-    try {
-      const bills = await db.execute(sql`
-        SELECT * FROM bills ORDER BY date_introduced DESC
-      `);
-      res.json(bills.rows);
-    } catch (error) {
-      console.error("Error fetching bills:", error);
-      res.status(500).json({ message: "Failed to fetch bills" });
-    }
-  });
+  // Bills routes (removed duplicate - using enhanced version below)
 
   // Legal routes
   app.get('/api/legal/acts', async (req, res) => {
@@ -403,15 +392,78 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const petitions = await db.execute(sql`
         SELECT 
-          id, petition_number, title, description, target_signatures,
-          current_signatures, status, deadline, created_at
-        FROM petitions 
-        ORDER BY created_at DESC
+          p.id, p.title, p.description, p.target_signatures,
+          p.current_signatures, p.status, p.deadline_date, p.created_at,
+          p.creator_id, p.related_bill_id,
+          u.first_name as creator_first_name, u.email as creator_email,
+          u.profile_image_url as creator_profile_image_url,
+          b.title as bill_title, b.bill_number as bill_number
+        FROM petitions p
+        LEFT JOIN users u ON p.creator_id = u.id
+        LEFT JOIN bills b ON p.related_bill_id = b.id
+        ORDER BY p.created_at DESC
       `);
-      res.json(petitions.rows);
+      
+      const formattedPetitions = petitions.rows.map(row => ({
+        id: row.id,
+        title: row.title,
+        description: row.description,
+        targetSignatures: row.target_signatures || 500,
+        currentSignatures: row.current_signatures || 0,
+        status: row.status || 'active',
+        createdAt: row.created_at,
+        deadlineDate: row.deadline_date,
+        creatorId: row.creator_id,
+        isVerified: false, // Add verification logic as needed
+        category: 'general', // Add category logic as needed
+        creator: row.creator_first_name ? {
+          firstName: row.creator_first_name,
+          email: row.creator_email,
+          profileImageUrl: row.creator_profile_image_url
+        } : null,
+        bill: row.bill_title ? {
+          title: row.bill_title,
+          billNumber: row.bill_number
+        } : null
+      }));
+      
+      res.json(formattedPetitions);
     } catch (error) {
       console.error("Error fetching petitions:", error);
       res.status(500).json({ message: "Failed to fetch petitions" });
+    }
+  });
+
+  // Create petition route
+  app.post('/api/petitions', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { title, description, targetSignatures, targetOfficial, billId, category, deadlineDate } = req.body;
+
+      if (!title || !description) {
+        return res.status(400).json({ message: "Title and description are required" });
+      }
+
+      const result = await db.execute(sql`
+        INSERT INTO petitions (
+          title, description, target_signatures, creator_id, 
+          related_bill_id, deadline_date, status, created_at, updated_at
+        )
+        VALUES (
+          ${title}, ${description}, ${targetSignatures || 500}, ${userId}, 
+          ${billId || null}, ${deadlineDate || null}, 'active', NOW(), NOW()
+        )
+        RETURNING id
+      `);
+
+      const petitionId = result.rows[0]?.id;
+      res.json({ 
+        message: "Petition created successfully", 
+        petitionId: petitionId 
+      });
+    } catch (error) {
+      console.error("Error creating petition:", error);
+      res.status(500).json({ message: "Failed to create petition" });
     }
   });
 
@@ -432,8 +484,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Add signature
       await db.execute(sql`
-        INSERT INTO petition_signatures (petition_id, user_id, signed_date)
-        VALUES (${petitionId}, ${userId}, NOW())
+        INSERT INTO petition_signatures (petition_id, user_id, signed_at, verification_id)
+        VALUES (${petitionId}, ${userId}, NOW(), ${randomBytes(16).toString('hex')})
       `);
 
       // Update petition count

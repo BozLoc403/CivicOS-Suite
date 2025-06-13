@@ -413,10 +413,10 @@ export default function Petitions() {
 
                     <div className="ml-6 text-right">
                       <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                        {(petition.currentSignatures || 0).toLocaleString()}
+                        {typeof petition.currentSignatures === 'number' ? petition.currentSignatures.toLocaleString() : '0'}
                       </div>
                       <div className="text-sm text-gray-500">
-                        of {(petition.targetSignatures || 0).toLocaleString()} signatures
+                        of {typeof petition.targetSignatures === 'number' ? petition.targetSignatures.toLocaleString() : '500'} signatures
                       </div>
                     </div>
                   </div>
