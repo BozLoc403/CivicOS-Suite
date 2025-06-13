@@ -105,7 +105,23 @@ app.use((req, res, next) => {
       }, 60000); // 1 minute delay to let scraping start first
     }
     
+    // Initialize politician data enhancement
+    async function initializePoliticianEnhancement() {
+      console.log("Starting politician data enhancement...");
+      try {
+        const { politicianDataEnhancer } = await import('./politicianDataEnhancer');
+        setTimeout(async () => {
+          await politicianDataEnhancer.enhanceAllPoliticians();
+          const stats = await politicianDataEnhancer.getEnhancementStats();
+          console.log(`Politician enhancement completed: ${stats.withConstituency}/${stats.total} politicians now have constituency data (${stats.completionRate}%)`);
+        }, 120000); // 2 minute delay to let initial data load
+      } catch (error) {
+        console.error('Error enhancing politician data:', error);
+      }
+    }
+    
     initializeConfirmedAPIs();
+    initializePoliticianEnhancement();
     
     // Initialize daily news analysis and propaganda detection
     initializeNewsAnalysis();
