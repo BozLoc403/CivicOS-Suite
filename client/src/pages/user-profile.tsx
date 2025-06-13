@@ -69,7 +69,6 @@ export default function UserProfile() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <NavigationHeader />
         <div className="max-w-6xl mx-auto py-8 px-4">
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -82,7 +81,6 @@ export default function UserProfile() {
   if (!profile) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <NavigationHeader />
         <div className="max-w-6xl mx-auto py-8 px-4">
           <Card>
             <CardContent className="p-12 text-center">
@@ -127,8 +125,6 @@ export default function UserProfile() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <NavigationHeader />
-      
       <div className="max-w-6xl mx-auto py-8 px-4 space-y-8">
         {/* Profile Header */}
         <Card>

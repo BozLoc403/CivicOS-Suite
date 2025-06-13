@@ -254,7 +254,6 @@ export default function Discussions() {
 
   return (
     <div>
-      <NavigationHeader />
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         <div className="flex justify-between items-center mb-8">
           <div>
