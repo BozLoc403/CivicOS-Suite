@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { authenticDataService } from "./authenticDataService";
+import { politicianDataEnhancer } from "./politicianDataEnhancer";
 import { comprehensiveAnalytics } from "./comprehensiveAnalytics";
 import { realTimeMonitoring } from "./realTimeMonitoring";
 import { civicAI } from "./civicAI";
@@ -518,7 +519,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         INSERT INTO user_votes (user_id, target_type, target_id, vote_type, created_at, updated_at)
         VALUES (${userId}, ${targetType}, ${targetId}, ${voteType}, NOW(), NOW())
         ON CONFLICT (user_id, target_type, target_id) 
-        DO UPDATE SET vote_type = EXCLUDED.vote_type, updated_at = EXCLUDED.updated_at
+        DO UPDATE SET vote_type = EXCLUDED.vote_type, updated_at = NOW()
       `);
 
       // Update vote counts
@@ -896,6 +897,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching forum posts:", error);
       res.status(500).json({ message: "Failed to fetch forum posts" });
+    }
+  });
+
+  // Politician data enhancement endpoint
+  app.post('/api/admin/enhance-politicians', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      
+      // Check if user is admin (basic check)
+      const user = await db.execute(sql`
+        SELECT civic_level FROM users WHERE id = ${userId}
+      `);
+      
+      if (!user.rows[0] || user.rows[0].civic_level !== 'administrator') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+      
+      await politicianDataEnhancer.enhanceAllPoliticians();
+      const stats = await politicianDataEnhancer.getEnhancementStats();
+      
+      res.json({ 
+        message: "Politician data enhancement completed successfully",
+        stats 
+      });
+    } catch (error) {
+      console.error("Error enhancing politician data:", error);
+      res.status(500).json({ message: "Failed to enhance politician data" });
+    }
+  });
+
+  // Get enhancement statistics
+  app.get('/api/admin/politician-stats', isAuthenticated, async (req: any, res) => {
+    try {
+      const stats = await politicianDataEnhancer.getEnhancementStats();
+      res.json(stats);
+    } catch (error) {
+      console.error("Error getting politician stats:", error);
+      res.status(500).json({ message: "Failed to get politician statistics" });
     }
   });
 
