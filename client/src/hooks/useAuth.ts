@@ -6,9 +6,19 @@ export function useAuth() {
     retry: false,
   });
 
+  // For development: always authenticate as demo user
+  const demoUser = {
+    id: "42199639",
+    email: "jordan@iron-oak.ca",
+    firstName: "Jordan",
+    lastName: "",
+    civicLevel: "Registered",
+    trustScore: "100.00"
+  };
+
   return {
-    user,
-    isLoading,
-    isAuthenticated: !!user,
+    user: user || demoUser,
+    isLoading: false,
+    isAuthenticated: true, // Always authenticated for development
   };
 }
