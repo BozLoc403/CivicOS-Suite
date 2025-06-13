@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { NavigationHeader } from "@/components/NavigationHeader";
+import { LuxuryNavigation } from "@/components/layout/LuxuryNavigation";
 import { Search, Calendar, MapPin, Users, Vote, DollarSign, FileText, Globe, Phone, Mail, Twitter, Facebook, Instagram, TrendingUp } from "lucide-react";
 
 interface Election {
