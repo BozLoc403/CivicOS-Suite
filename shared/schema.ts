@@ -434,6 +434,43 @@ export const forumReplyLikes = pgTable("forum_reply_likes", {
   uniqueReplyLike: unique().on(table.userId, table.replyId),
 }));
 
+// Unified voting system for all content types
+export const userVotes = pgTable("user_votes", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  targetType: varchar("target_type").notNull(), // politician, bill, post, reply, comment, petition
+  targetId: integer("target_id").notNull(),
+  voteType: varchar("vote_type").notNull(), // upvote, downvote
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  uniqueUserVote: unique().on(table.userId, table.targetType, table.targetId),
+}));
+
+// Vote counts aggregation table
+export const voteCounts = pgTable("vote_counts", {
+  id: serial("id").primaryKey(),
+  targetType: varchar("target_type").notNull(),
+  targetId: integer("target_id").notNull(),
+  upvotes: integer("upvotes").default(0),
+  downvotes: integer("downvotes").default(0),
+  totalScore: integer("total_score").default(0),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  uniqueTarget: unique().on(table.targetType, table.targetId),
+}));
+
+// User interactions tracking
+export const userInteractions = pgTable("user_interactions", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  interactionType: varchar("interaction_type").notNull(), // vote, comment, share, view
+  targetType: varchar("target_type").notNull(),
+  targetId: integer("target_id").notNull(),
+  content: text("content"), // additional context like vote type
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // User messaging system
 export const userMessages = pgTable("user_messages", {
   id: serial("id").primaryKey(),
