@@ -8,7 +8,26 @@ import { realTimeMonitoring } from "./realTimeMonitoring";
 import { civicAI } from "./civicAI";
 import { votingSystem } from "./votingSystem";
 import { db } from "./db";
-import { sql } from "drizzle-orm";
+import { sql, eq } from "drizzle-orm";
+import multer from "multer";
+import { users } from "@shared/schema";
+import { randomBytes } from "crypto";
+
+// Configure multer for profile picture uploads
+const storage_multer = multer.memoryStorage();
+const upload = multer({
+  storage: storage_multer,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed'));
+    }
+  }
+});
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -23,6 +42,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
+  // Profile picture upload route
+  app.post('/api/auth/upload-profile-picture', isAuthenticated, upload.single('profilePicture'), async (req: any, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      const userId = req.user.claims.sub;
+      const fileExtension = req.file.originalname.split('.').pop() || 'jpg';
+      const fileName = `profile_${userId}_${randomBytes(8).toString('hex')}.${fileExtension}`;
+      
+      // Convert buffer to base64 data URL for storage
+      const base64Data = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+      
+      // Update user's profile image URL in database
+      await db.update(users)
+        .set({ 
+          profileImageUrl: base64Data,
+          updatedAt: new Date()
+        })
+        .where(eq(users.id, userId));
+
+      res.json({ 
+        message: "Profile picture updated successfully",
+        profileImageUrl: base64Data
+      });
+    } catch (error) {
+      console.error("Error uploading profile picture:", error);
+      res.status(500).json({ message: "Failed to upload profile picture" });
     }
   });
 
