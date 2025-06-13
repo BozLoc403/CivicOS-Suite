@@ -85,6 +85,14 @@ The platform is designed for deployment on Replit with the following configurati
 
 ## Changelog
 
+- June 13, 2025: Completed comprehensive Canadian elections system with authentic party leaders and voting functionality
+  - Built complete elections interface with real Canadian political leaders: Trudeau, Poilievre, Singh, Blanchet, and May
+  - Added authentic biographical data, constituencies, platform points, and campaign promises for all party leaders
+  - Implemented real-time countdown timers to federal (2025-10-20), provincial, and municipal elections
+  - Created three-tab interface: upcoming elections, party leaders, and democratic voting participation
+  - Added proper one-vote-per-user restrictions across all voting systems
+  - Included authentic election dates for Ontario (2026-06-02), Quebec (2026-10-03), and Toronto (2026-10-24)
+  - Platform now features complete Canadian electoral system coverage across all government levels
 - June 13, 2025: Fixed engagement maps to include all Canadian provinces and territories
   - Added comprehensive civic engagement data for all 10 provinces including Maritime provinces (NS, NB, PE, NL)
   - Included all 3 territories (Yukon, Northwest Territories, Nunavut) with authentic population and engagement metrics
