@@ -1748,7 +1748,287 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Legal search endpoint
+  // Comprehensive legal database endpoint
+  app.get('/api/legal/database', async (req, res) => {
+    try {
+      const legalDatabase = {
+        federalStatutes: [
+          {
+            id: "criminal-code",
+            title: "Criminal Code of Canada",
+            citation: "R.S.C. 1985, c. C-46",
+            category: "Criminal Law",
+            description: "Federal statute defining criminal offences and procedures in Canada",
+            sections: [
+              {
+                section: "265",
+                title: "Assault",
+                text: "A person commits an assault when (a) without the consent of another person, he applies force intentionally to that other person, directly or indirectly; (b) he attempts or threatens, by an act or a gesture, to apply force to another person, if he has, or causes that other person to believe on reasonable grounds that he has, present ability to effect his purpose; or (c) while openly wearing or carrying a weapon or an imitation thereof, he accosts or impedes another person or begs.",
+                keywords: ["assault", "force", "threat", "violence", "criminal", "battery"]
+              },
+              {
+                section: "266",
+                title: "Assault",
+                text: "Every one who commits an assault is guilty of (a) an indictable offence and liable to imprisonment for a term not exceeding five years; or (b) an offence punishable on summary conviction.",
+                keywords: ["assault", "punishment", "indictable", "summary", "imprisonment"]
+              },
+              {
+                section: "267",
+                title: "Assault with a weapon or causing bodily harm",
+                text: "Every one who, in committing an assault, (a) carries, uses or threatens to use a weapon or an imitation thereof, or (b) causes bodily harm to the complainant, is guilty of an indictable offence and liable to imprisonment for a term not exceeding ten years or an offence punishable on summary conviction and liable to imprisonment for a term not exceeding eighteen months.",
+                keywords: ["assault", "weapon", "bodily harm", "aggravated"]
+              },
+              {
+                section: "318",
+                title: "Advocating genocide",
+                text: "Every one who advocates or promotes genocide is guilty of an indictable offence and liable to imprisonment for a term not exceeding five years.",
+                keywords: ["genocide", "hate crime", "advocacy", "promotion"]
+              },
+              {
+                section: "319",
+                title: "Public incitement of hatred",
+                text: "Every one who, by communicating statements in any public place, incites hatred against any identifiable group where such incitement is likely to lead to a breach of the peace is guilty of (a) an indictable offence and liable to imprisonment for a term not exceeding two years; or (b) an offence punishable on summary conviction.",
+                keywords: ["hate speech", "incitement", "hatred", "identifiable group", "public"]
+              }
+            ]
+          },
+          {
+            id: "charter",
+            title: "Canadian Charter of Rights and Freedoms",
+            citation: "Constitution Act, 1982, Part I",
+            category: "Constitutional Law",
+            description: "Constitutional document protecting fundamental rights and freedoms in Canada",
+            sections: [
+              {
+                section: "1",
+                title: "Guarantee of Rights and Freedoms",
+                text: "The Canadian Charter of Rights and Freedoms guarantees the rights and freedoms set out in it subject only to such reasonable limits prescribed by law as can be demonstrably justified in a free and democratic society.",
+                keywords: ["guarantee", "rights", "freedoms", "reasonable limits", "democratic"]
+              },
+              {
+                section: "2",
+                title: "Fundamental Freedoms",
+                text: "Everyone has the following fundamental freedoms: (a) freedom of conscience and religion; (b) freedom of thought, belief, opinion and expression, including freedom of the press and other media; (c) freedom of peaceful assembly; (d) freedom of association.",
+                keywords: ["fundamental freedoms", "religion", "expression", "assembly", "association", "press"]
+              },
+              {
+                section: "7",
+                title: "Life, liberty and security of person",
+                text: "Everyone has the right to life, liberty and security of the person and the right not to be deprived thereof except in accordance with the principles of fundamental justice.",
+                keywords: ["life", "liberty", "security", "fundamental justice", "due process"]
+              },
+              {
+                section: "15",
+                title: "Equality Rights",
+                text: "Every individual is equal before and under the law and has the right to the equal protection and equal benefit of the law without discrimination and, in particular, without discrimination based on race, national or ethnic origin, colour, religion, sex, age or mental or physical disability.",
+                keywords: ["equality", "discrimination", "race", "religion", "sex", "age", "disability"]
+              }
+            ]
+          },
+          {
+            id: "human-rights-act",
+            title: "Canadian Human Rights Act",
+            citation: "R.S.C. 1985, c. H-6",
+            category: "Human Rights",
+            description: "Federal law prohibiting discrimination in federally regulated activities",
+            sections: [
+              {
+                section: "3",
+                title: "Prohibited grounds of discrimination",
+                text: "For all purposes of this Act, the prohibited grounds of discrimination are race, national or ethnic origin, colour, religion, age, sex, sexual orientation, gender identity or expression, marital status, family status, genetic characteristics, disability and conviction for an offence for which a pardon has been granted or in respect of which a record suspension has been ordered.",
+                keywords: ["discrimination", "prohibited grounds", "race", "religion", "sexual orientation", "gender identity", "disability"]
+              }
+            ]
+          }
+        ],
+        provincialLegislation: [
+          {
+            id: "ontario-human-rights-code",
+            title: "Human Rights Code (Ontario)",
+            citation: "R.S.O. 1990, c. H.19",
+            province: "Ontario",
+            category: "Human Rights",
+            description: "Ontario law providing protection from discrimination",
+            sections: [
+              {
+                section: "1",
+                title: "Freedom from discrimination",
+                text: "Every person has a right to equal treatment with respect to services, goods and facilities, without discrimination because of race, ancestry, place of origin, colour, ethnic origin, citizenship, creed, sex, sexual orientation, gender identity, gender expression, age, marital status, family status or disability.",
+                keywords: ["equal treatment", "services", "goods", "facilities", "discrimination"]
+              }
+            ]
+          },
+          {
+            id: "bc-human-rights-code",
+            title: "Human Rights Code (British Columbia)",
+            citation: "R.S.B.C. 1996, c. 210",
+            province: "British Columbia",
+            category: "Human Rights",
+            description: "BC law prohibiting discrimination and harassment",
+            sections: [
+              {
+                section: "8",
+                title: "Discrimination in accommodation, service and facility",
+                text: "A person must not, without a bona fide and reasonable justification, (a) deny to a person or class of persons any accommodation, service or facility customarily available to the public, or (b) discriminate against a person or class of persons regarding any accommodation, service or facility customarily available to the public, because of the race, colour, ancestry, place of origin, religion, marital status, family status, physical or mental disability, sex, sexual orientation, gender identity or expression, or age of that person or class of persons.",
+                keywords: ["accommodation", "service", "facility", "discrimination", "bona fide", "reasonable justification"]
+              }
+            ]
+          },
+          {
+            id: "alberta-human-rights-act",
+            title: "Alberta Human Rights Act",
+            citation: "R.S.A. 2000, c. A-25.5",
+            province: "Alberta", 
+            category: "Human Rights",
+            description: "Alberta legislation protecting against discrimination",
+            sections: [
+              {
+                section: "4",
+                title: "Discrimination in provision of goods, services, accommodation or facilities",
+                text: "No person shall (a) deny to any person or class of persons any goods, services, accommodation or facilities that are customarily available to the public, or (b) discriminate against any person or class of persons with respect to any goods, services, accommodation or facilities that are customarily available to the public, because of the race, religious beliefs, colour, gender, gender identity, gender expression, physical disability, mental disability, age, ancestry, place of origin, marital status, source of income, family status or sexual orientation of that person or class of persons.",
+                keywords: ["goods", "services", "accommodation", "facilities", "discrimination", "protected grounds"]
+              }
+            ]
+          },
+          {
+            id: "quebec-charter",
+            title: "Charter of Human Rights and Freedoms (Quebec)",
+            citation: "CQLR c. C-12",
+            province: "Quebec",
+            category: "Human Rights",
+            description: "Quebec's fundamental law on human rights and freedoms",
+            sections: [
+              {
+                section: "10",
+                title: "Discrimination prohibited",
+                text: "Every person has a right to full and equal recognition and exercise of his human rights and freedoms, without distinction, exclusion or preference based on race, colour, sex, gender identity or expression, pregnancy, sexual orientation, civil status, age except as provided by law, religion, political convictions, language, ethnic or national origin, social condition, a handicap or the use of any means to palliate a handicap.",
+                keywords: ["equal recognition", "human rights", "freedoms", "distinction", "exclusion", "preference"]
+              }
+            ]
+          },
+          {
+            id: "nova-scotia-human-rights-act",
+            title: "Human Rights Act (Nova Scotia)",
+            citation: "R.S.N.S. 1989, c. 214",
+            province: "Nova Scotia",
+            category: "Human Rights",
+            description: "Nova Scotia human rights protection legislation",
+            sections: [
+              {
+                section: "5",
+                title: "Discrimination in provision of services and facilities",
+                text: "No person shall in the provision of or access to services or facilities (a) deny or restrict such provision or access to any individual or class of individuals; or (b) discriminate against any individual or class of individuals; because of race, colour, religion, creed, sex, sexual orientation, gender identity, gender expression, physical disability or mental disability, ethnic, national or aboriginal origin, family status, marital status, source of income, political belief, political association or activity or age.",
+                keywords: ["services", "facilities", "access", "discrimination", "protected characteristics"]
+              }
+            ]
+          },
+          {
+            id: "nb-human-rights-act",
+            title: "Human Rights Act (New Brunswick)",
+            citation: "R.S.N.B. 2011, c. 171",
+            province: "New Brunswick",
+            category: "Human Rights",
+            description: "New Brunswick legislation protecting human rights",
+            sections: [
+              {
+                section: "5",
+                title: "Accommodation, services and facilities",
+                text: "No person, directly or indirectly, alone or with another, by himself or by the interposition of another, shall (a) deny to any person or class of persons the accommodation, services or facilities available in any place to which the public is customarily admitted, or (b) discriminate against any person or class of persons with respect to the accommodation, services or facilities available in any place to which the public is customarily admitted, because of race, colour, religion, national origin, ancestry, place of origin, age, physical disability, mental disability, marital status, sexual orientation, gender identity, sex, social condition or political belief or activity.",
+                keywords: ["accommodation", "services", "facilities", "public admission", "discrimination"]
+              }
+            ]
+          },
+          {
+            id: "pei-human-rights-act",
+            title: "Human Rights Act (Prince Edward Island)",
+            citation: "R.S.P.E.I. 1988, c. H-12",
+            province: "Prince Edward Island",
+            category: "Human Rights",
+            description: "PEI human rights protection statute",
+            sections: [
+              {
+                section: "1",
+                title: "Discrimination prohibited",
+                text: "No person shall deny to any individual or class of individuals any accommodation, service or facility available to the public, or discriminate against any individual or class of individuals in the provision of any accommodation, service or facility available to the public, because of race, colour, creed, religion, sex, sexual orientation, gender identity, age, marital status, family status, disability, political belief, ethnic or national origin, or source of income.",
+                keywords: ["accommodation", "service", "facility", "public", "discrimination", "protected grounds"]
+              }
+            ]
+          },
+          {
+            id: "manitoba-human-rights-code",
+            title: "The Human Rights Code (Manitoba)",
+            citation: "C.C.S.M. c. H175",
+            province: "Manitoba",
+            category: "Human Rights",
+            description: "Manitoba human rights legislation",
+            sections: [
+              {
+                section: "13",
+                title: "Discrimination in services",
+                text: "No person shall discriminate on the basis of any characteristic referred to in subsection 9(2) in respect of (a) any service, accommodation or facility; (b) any goods customarily available to the public; or (c) any rental of residential or commercial property or any vacant land, that is customarily available to the public.",
+                keywords: ["services", "accommodation", "facility", "goods", "rental", "discrimination"]
+              }
+            ]
+          },
+          {
+            id: "saskatchewan-human-rights-code",
+            title: "The Saskatchewan Human Rights Code",
+            citation: "S.S. 1979, c. S-24.1",
+            province: "Saskatchewan",
+            category: "Human Rights",
+            description: "Saskatchewan human rights protection code",
+            sections: [
+              {
+                section: "12",
+                title: "Prohibition respecting public accommodation",
+                text: "No person, directly or indirectly, alone or with another person shall: (a) deny to any person or class of persons any accommodation, services or facilities available to the public; or (b) discriminate against any person or class of persons with respect to any accommodation, services or facilities available to the public; on the basis of race, creed, religion, colour, sex, sexual orientation, family status, marital status, disability, age, nationality, ancestry or place of origin.",
+                keywords: ["public accommodation", "services", "facilities", "discrimination", "protected characteristics"]
+              }
+            ]
+          },
+          {
+            id: "nfld-human-rights-act",
+            title: "Human Rights Act (Newfoundland and Labrador)",
+            citation: "R.S.N.L. 1990, c. H-14",
+            province: "Newfoundland and Labrador",
+            category: "Human Rights",
+            description: "Newfoundland and Labrador human rights legislation",
+            sections: [
+              {
+                section: "6",
+                title: "Discrimination in accommodation or services",
+                text: "A person shall not discriminate on the basis of race, colour, nationality, ethnic origin, social origin, religious creed, religion, age, disability, disfigurement, sex, sexual orientation, gender identity, gender expression, marital status, family status, source of income or political opinion in respect of (a) the provision of services or facilities available to the public; (b) accommodation in any commercial or other establishment that provides lodging accommodation to the public; or (c) the purchase or sale of real property.",
+                keywords: ["accommodation", "services", "facilities", "real property", "discrimination"]
+              }
+            ]
+          }
+        ],
+        criminalCodeSections: [
+          {
+            section: "1",
+            title: "Short title",
+            text: "This Act may be cited as the Criminal Code.",
+            category: "General",
+            keywords: ["criminal code", "citation", "title"]
+          },
+          {
+            section: "83.01",
+            title: "Definitions - terrorist activity",
+            text: "In this Part, terrorist activity means (a) an act or omission that is committed in or outside Canada and that, if committed in Canada, is one of the following offences...",
+            category: "Terrorism",
+            keywords: ["terrorism", "terrorist activity", "definition", "national security"]
+          }
+        ]
+      };
+      
+      res.json(legalDatabase);
+    } catch (error) {
+      console.error("Error fetching legal database:", error);
+      res.status(500).json({ message: "Failed to fetch legal database" });
+    }
+  });
+
+  // Enhanced legal search endpoint with keyword indexing
   app.get('/api/legal/search', async (req, res) => {
     try {
       const { query, category } = req.query;
@@ -1757,46 +2037,168 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Search query is required" });
       }
       
-      // Mock comprehensive legal search results
+      // Comprehensive legal search index
+      const legalSearchIndex = [
+        // Charter Rights
+        {
+          id: "charter-s1",
+          title: "Charter Section 1 - Guarantee of Rights and Freedoms",
+          type: "Charter Rights",
+          excerpt: "The Canadian Charter of Rights and Freedoms guarantees the rights and freedoms set out in it subject only to such reasonable limits...",
+          fullText: "The Canadian Charter of Rights and Freedoms guarantees the rights and freedoms set out in it subject only to such reasonable limits prescribed by law as can be demonstrably justified in a free and democratic society.",
+          keywords: ["guarantee", "rights", "freedoms", "reasonable limits", "democratic", "justified", "oakes test"],
+          source: "Constitution Act, 1982",
+          citation: "s. 1",
+          url: "/rights"
+        },
+        {
+          id: "charter-s2",
+          title: "Charter Section 2 - Fundamental Freedoms",
+          type: "Charter Rights",
+          excerpt: "Everyone has the following fundamental freedoms: freedom of conscience and religion, expression, assembly, association...",
+          fullText: "Everyone has the following fundamental freedoms: (a) freedom of conscience and religion; (b) freedom of thought, belief, opinion and expression, including freedom of the press and other media; (c) freedom of peaceful assembly; (d) freedom of association.",
+          keywords: ["fundamental freedoms", "religion", "conscience", "expression", "speech", "press", "media", "assembly", "association", "protest"],
+          source: "Constitution Act, 1982",
+          citation: "s. 2",
+          url: "/rights"
+        },
+        {
+          id: "charter-s7",
+          title: "Charter Section 7 - Life, Liberty and Security",
+          type: "Charter Rights",
+          excerpt: "Everyone has the right to life, liberty and security of the person and the right not to be deprived thereof except in accordance with the principles of fundamental justice.",
+          fullText: "Everyone has the right to life, liberty and security of the person and the right not to be deprived thereof except in accordance with the principles of fundamental justice.",
+          keywords: ["life", "liberty", "security", "person", "fundamental justice", "due process", "procedural fairness"],
+          source: "Constitution Act, 1982",
+          citation: "s. 7",
+          url: "/rights"
+        },
+        {
+          id: "charter-s15",
+          title: "Charter Section 15 - Equality Rights",
+          type: "Charter Rights",
+          excerpt: "Every individual is equal before and under the law and has the right to the equal protection and equal benefit of the law without discrimination...",
+          fullText: "Every individual is equal before and under the law and has the right to the equal protection and equal benefit of the law without discrimination and, in particular, without discrimination based on race, national or ethnic origin, colour, religion, sex, age or mental or physical disability.",
+          keywords: ["equality", "equal", "discrimination", "race", "ethnic origin", "colour", "religion", "sex", "age", "disability", "protection", "benefit"],
+          source: "Constitution Act, 1982",
+          citation: "s. 15",
+          url: "/rights"
+        },
+        // Criminal Code
+        {
+          id: "cc-s265",
+          title: "Criminal Code Section 265 - Assault",
+          type: "Criminal Code",
+          excerpt: "A person commits an assault when without the consent of another person, he applies force intentionally to that other person...",
+          fullText: "A person commits an assault when (a) without the consent of another person, he applies force intentionally to that other person, directly or indirectly; (b) he attempts or threatens, by an act or a gesture, to apply force to another person, if he has, or causes that other person to believe on reasonable grounds that he has, present ability to effect his purpose; or (c) while openly wearing or carrying a weapon or an imitation thereof, he accosts or impedes another person or begs.",
+          keywords: ["assault", "force", "consent", "threat", "weapon", "violence", "battery", "criminal"],
+          source: "Criminal Code of Canada",
+          citation: "s. 265",
+          url: "/legal"
+        },
+        {
+          id: "cc-s318",
+          title: "Criminal Code Section 318 - Advocating Genocide",
+          type: "Criminal Code",
+          excerpt: "Every one who advocates or promotes genocide is guilty of an indictable offence...",
+          fullText: "Every one who advocates or promotes genocide is guilty of an indictable offence and liable to imprisonment for a term not exceeding five years.",
+          keywords: ["genocide", "advocacy", "promotion", "hate crime", "indictable", "imprisonment"],
+          source: "Criminal Code of Canada",
+          citation: "s. 318",
+          url: "/legal"
+        },
+        {
+          id: "cc-s319",
+          title: "Criminal Code Section 319 - Public Incitement of Hatred",
+          type: "Criminal Code",
+          excerpt: "Every one who, by communicating statements in any public place, incites hatred against any identifiable group...",
+          fullText: "Every one who, by communicating statements in any public place, incites hatred against any identifiable group where such incitement is likely to lead to a breach of the peace is guilty of (a) an indictable offence and liable to imprisonment for a term not exceeding two years; or (b) an offence punishable on summary conviction.",
+          keywords: ["hate speech", "incitement", "hatred", "identifiable group", "public", "breach of peace", "communication"],
+          source: "Criminal Code of Canada",
+          citation: "s. 319",
+          url: "/legal"
+        },
+        // Human Rights Legislation
+        {
+          id: "chra-s3",
+          title: "Canadian Human Rights Act Section 3 - Prohibited Grounds",
+          type: "Federal Statutes",
+          excerpt: "For all purposes of this Act, the prohibited grounds of discrimination are race, national or ethnic origin, colour, religion, age, sex...",
+          fullText: "For all purposes of this Act, the prohibited grounds of discrimination are race, national or ethnic origin, colour, religion, age, sex, sexual orientation, gender identity or expression, marital status, family status, genetic characteristics, disability and conviction for an offence for which a pardon has been granted or in respect of which a record suspension has been ordered.",
+          keywords: ["human rights", "discrimination", "prohibited grounds", "race", "religion", "sexual orientation", "gender identity", "disability", "genetic"],
+          source: "Canadian Human Rights Act",
+          citation: "s. 3",
+          url: "/legal"
+        },
+        // Constitutional Cases
+        {
+          id: "oakes-case",
+          title: "R. v. Oakes (1986) - Charter Limitations Test",
+          type: "Constitutional Cases",
+          excerpt: "Established the Oakes test for determining whether limitations on Charter rights are justified in a free and democratic society...",
+          fullText: "Supreme Court of Canada case establishing the framework for analyzing whether government limits on Charter rights are justified under section 1.",
+          keywords: ["oakes test", "charter", "limitations", "justified", "pressing substantial", "proportionality", "minimal impairment"],
+          source: "Supreme Court of Canada",
+          citation: "[1986] 1 S.C.R. 103",
+          url: "/legal/constitutional-cases"
+        },
+        {
+          id: "andrews-case",
+          title: "Andrews v. Law Society of British Columbia (1989)",
+          type: "Constitutional Cases",
+          excerpt: "First major Supreme Court case interpreting equality rights under Section 15, establishing framework for equality analysis...",
+          fullText: "Landmark case establishing that equality means substantive equality, not just formal equality, and setting the framework for section 15 analysis.",
+          keywords: ["equality", "section 15", "substantive equality", "discrimination", "analogous grounds", "ameliorative programs"],
+          source: "Supreme Court of Canada",
+          citation: "[1989] 1 S.C.R. 143",
+          url: "/legal/constitutional-cases"
+        }
+      ];
+      
+      // Perform keyword search
+      const searchTerms = query.toLowerCase().split(' ');
+      const results = legalSearchIndex.filter(item => {
+        const searchableText = [
+          item.title,
+          item.excerpt,
+          item.fullText,
+          ...item.keywords
+        ].join(' ').toLowerCase();
+        
+        return searchTerms.some(term => searchableText.includes(term));
+      });
+      
+      // Calculate relevance scores
+      const scoredResults = results.map(item => {
+        let relevance = 0;
+        const searchableText = [item.title, item.excerpt, item.fullText, ...item.keywords].join(' ').toLowerCase();
+        
+        searchTerms.forEach(term => {
+          // Title matches get highest score
+          if (item.title.toLowerCase().includes(term)) relevance += 10;
+          // Keyword matches get high score
+          if (item.keywords.some(keyword => keyword.toLowerCase().includes(term))) relevance += 8;
+          // Excerpt matches get medium score
+          if (item.excerpt.toLowerCase().includes(term)) relevance += 5;
+          // Full text matches get low score
+          if (item.fullText.toLowerCase().includes(term)) relevance += 2;
+        });
+        
+        return { ...item, relevance: relevance / 100 };
+      }).sort((a, b) => b.relevance - a.relevance);
+      
+      // Group by category
+      const categories = {};
+      scoredResults.forEach(result => {
+        if (!categories[result.type]) categories[result.type] = 0;
+        categories[result.type]++;
+      });
+      
       const searchResults = {
         query: query,
-        totalResults: 156,
-        categories: {
-          "Charter Rights": 23,
-          "Criminal Code": 45,
-          "Constitutional Cases": 12,
-          "Provincial Legislation": 34,
-          "Federal Statutes": 42
-        },
-        results: [
-          {
-            id: "charter-s15",
-            title: "Charter of Rights and Freedoms - Section 15 (Equality Rights)",
-            type: "Charter Rights",
-            excerpt: "Every individual is equal before and under the law and has the right to the equal protection and equal benefit of the law without discrimination...",
-            relevance: 0.95,
-            source: "Constitution Act, 1982",
-            url: "/rights"
-          },
-          {
-            id: "criminal-code-s265",
-            title: "Criminal Code - Section 265 (Assault)",
-            type: "Criminal Code", 
-            excerpt: "A person commits an assault when (a) without the consent of another person, he applies force intentionally to that other person...",
-            relevance: 0.87,
-            source: "Criminal Code of Canada",
-            url: "/legal"
-          },
-          {
-            id: "andrews-case",
-            title: "Andrews v. Law Society of British Columbia (1989)",
-            type: "Constitutional Cases",
-            excerpt: "Landmark Supreme Court case establishing the framework for equality rights analysis under Section 15...",
-            relevance: 0.82,
-            source: "Supreme Court of Canada",
-            url: "/legal/constitutional-cases"
-          }
-        ]
+        totalResults: scoredResults.length,
+        categories,
+        results: scoredResults.slice(0, 20) // Limit to top 20 results
       };
       
       res.json(searchResults);
