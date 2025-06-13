@@ -270,7 +270,7 @@ export class ComprehensiveNewsAnalyzer {
   /**
    * Analyze article content using AI for propaganda detection and bias analysis
    */
-  private async analyzeArticleContent(article: ArticleAnalysis): Promise<void> {
+  private async analyzeArticleContent(article: ArticleAnalysis): Promise<ArticleAnalysis> {
     try {
       // Fetch full article content if possible
       let fullContent = article.content;
@@ -346,13 +346,8 @@ Focus on Canadian political context and identify:
 `;
 
       // Use OpenAI for analysis instead of Anthropic
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
+      try {
+        const response = await openai.chat.completions.create({
           model: "gpt-4o",
           messages: [{
             role: "system",
@@ -363,38 +358,39 @@ Focus on Canadian political context and identify:
           }],
           response_format: { type: "json_object" },
           max_tokens: 2000
-        })
-      });
-
-      let analysisText = '';
-      if (response.ok) {
-        const data = await response.json() as any;
-        analysisText = data.choices?.[0]?.message?.content || '';
-      } else {
-        // Basic content extraction when AI analysis unavailable
-        analysisText = JSON.stringify({
-          propagandaTechniques: [],
-          keyTopics: this.extractBasicTopics(article.title),
-          politiciansInvolved: this.extractPoliticians(article.title + ' ' + (article.content || '')),
-          factualityScore: 70,
-          emotionalTone: 'neutral',
-          claims: []
         });
+
+        const analysisText = response.choices[0]?.message?.content || '';
+        
+        if (analysisText) {
+          const analysis = JSON.parse(analysisText);
+          return {
+            ...article,
+            propagandaTechniques: analysis.propagandaTechniques || [],
+            keyTopics: analysis.keyTopics || this.extractBasicTopics(article.title),
+            politiciansInvolved: analysis.politiciansInvolved || this.extractPoliticians(article.title + ' ' + (article.content || '')),
+            factualityScore: analysis.factualityScore || 70,
+            emotionalTone: analysis.emotionalTone || 'neutral',
+            claims: analysis.claims || []
+          };
+        }
+      } catch (error) {
+        console.log(`OpenAI analysis failed for ${article.title}, using basic extraction`);
       }
-
-      const analysis = this.parseAnalysisResponse(analysisText);
-
-      // Update article with analysis results
-      article.propagandaTechniques = analysis.propagandaTechniques || [];
-      article.keyTopics = analysis.keyTopics || [];
-      article.politiciansInvolved = analysis.politiciansInvolved || [];
-      article.factualityScore = analysis.factualityScore || 50;
-      article.emotionalTone = analysis.emotionalTone || 'neutral';
-      article.claims = analysis.claims || [];
+      
+      // Basic content extraction when AI analysis unavailable
+      article.propagandaTechniques = [];
+      article.keyTopics = this.extractBasicTopics(article.title);
+      article.politiciansInvolved = this.extractPoliticians(article.title + ' ' + (article.content || ''));
+      article.factualityScore = 70;
+      article.emotionalTone = 'neutral';
+      article.claims = [];
 
     } catch (error) {
       console.error(`Error analyzing article ${article.title}:`, error);
     }
+
+    return article;
   }
 
   /**
@@ -527,18 +523,23 @@ Focus on:
 `;
 
       try {
-        const response = await anthropic.messages.create({
-          model: 'claude-sonnet-4-20250514',
+        const response = await openai.chat.completions.create({
+          model: 'gpt-4o',
           max_tokens: 1500,
           messages: [
+            {
+              role: 'system',
+              content: 'You are a Canadian media analyst. Respond only in valid JSON format.'
+            },
             {
               role: 'user',
               content: comparisonPrompt
             }
-          ]
+          ],
+          response_format: { type: "json_object" }
         });
 
-        const comparisonText = response.content[0].type === 'text' ? response.content[0].text : '';
+        const comparisonText = response.choices[0]?.message?.content || '';
         const comparison = this.parseAnalysisResponse(comparisonText);
         
         // Store comparison results
