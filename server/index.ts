@@ -6,6 +6,7 @@ import { initializeNewsAnalysis } from "./newsAnalyzer";
 import { comprehensiveNewsAnalyzer } from "./comprehensiveNewsAnalyzer";
 import { realTimeMonitoring } from "./realTimeMonitoring";
 import { legalDataPopulator } from "./legalDataPopulator";
+import { forumPopulator } from "./forumPopulator";
 import { confirmedAPIs } from "./confirmedAPIs";
 import { setupLocalAuth, createUserAccount } from "./localAuth";
 
@@ -129,5 +130,10 @@ app.use((req, res, next) => {
     setTimeout(() => {
       legalDataPopulator.populateAllLegalData().catch(console.error);
     }, 5000);
+    
+    // Populate forum with civic discussions
+    setTimeout(() => {
+      forumPopulator.populateInitialDiscussions().catch(console.error);
+    }, 8000);
   });
 })();
