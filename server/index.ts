@@ -147,9 +147,9 @@ app.use((req, res, next) => {
       legalDataPopulator.populateAllLegalData().catch(console.error);
     }, 5000);
     
-    // Populate forum with civic discussions
-    setTimeout(() => {
-      forumPopulator.populateInitialDiscussions().catch(console.error);
-    }, 8000);
+    // Populate forum with civic discussions (disabled to prevent duplicates)
+    // setTimeout(() => {
+    //   forumPopulator.populateInitialDiscussions().catch(console.error);
+    // }, 8000);
   });
 })();
