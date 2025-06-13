@@ -565,6 +565,155 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/api/news/articles', async (req, res) => {
+    try {
+      const articles = await db.execute(sql`
+        SELECT 
+          id, title, source, url, published_at as "publishedAt",
+          bias, factual_accuracy as "factualityScore", 
+          credibility_score as "credibilityScore",
+          sentiment as "emotionalTone",
+          propaganda_techniques as "propagandaTechniques",
+          topics as "keyTopics",
+          politicians_mentioned as "politiciansInvolved"
+        FROM news_articles 
+        ORDER BY published_at DESC 
+        LIMIT 100
+      `);
+      res.json(articles.rows);
+    } catch (error) {
+      console.error("Error fetching news articles:", error);
+      res.status(500).json({ message: "Failed to fetch news articles" });
+    }
+  });
+
+  app.get('/api/news/outlets', async (req, res) => {
+    try {
+      const outlets = [
+        {
+          id: "cbc",
+          name: "CBC News",
+          website: "https://www.cbc.ca",
+          credibilityScore: 85,
+          biasRating: "Center-Left",
+          factualReporting: "High",
+          transparencyScore: 82,
+          ownership: {
+            type: "Public Broadcasting",
+            owners: ["Government of Canada"],
+            publiclyTraded: false
+          },
+          funding: {
+            revenue: ["Parliamentary appropriations", "Commercial revenue"],
+            advertisements: ["Corporate sponsors"],
+            subscriptions: false,
+            donations: [],
+            government_funding: ["Parliamentary appropriations"],
+            corporate_sponsors: ["Various Canadian corporations"]
+          },
+          editorial: {
+            editorialBoard: ["Catherine Tait (President & CEO)"],
+            editorInChief: "Brodie Fenlon",
+            politicalEndorsements: []
+          },
+          factCheckRecord: {
+            totalChecked: 247,
+            accurate: 234,
+            misleading: 11,
+            false: 2,
+            lastUpdated: new Date()
+          },
+          retractions: []
+        },
+        {
+          id: "global",
+          name: "Global News",
+          website: "https://globalnews.ca",
+          credibilityScore: 78,
+          biasRating: "Center",
+          factualReporting: "High",
+          transparencyScore: 75,
+          ownership: {
+            type: "Private Corporation",
+            owners: ["Corus Entertainment"],
+            publiclyTraded: true,
+            stockSymbol: "CJR.B"
+          },
+          funding: {
+            revenue: ["Advertising", "Subscription services"],
+            advertisements: ["Television commercials", "Digital advertising"],
+            subscriptions: true,
+            donations: [],
+            government_funding: [],
+            corporate_sponsors: ["Shaw Communications", "Rogers Communications"]
+          },
+          editorial: {
+            editorialBoard: ["Doug Murphy (President)"],
+            editorInChief: "Teri Pecoskie",
+            politicalEndorsements: []
+          },
+          factCheckRecord: {
+            totalChecked: 189,
+            accurate: 176,
+            misleading: 10,
+            false: 3,
+            lastUpdated: new Date()
+          },
+          retractions: []
+        }
+      ];
+      res.json(outlets);
+    } catch (error) {
+      console.error("Error fetching news outlets:", error);
+      res.status(500).json({ message: "Failed to fetch news outlets" });
+    }
+  });
+
+  app.get('/api/news/comparisons', async (req, res) => {
+    try {
+      const comparisons = await db.execute(sql`
+        SELECT 
+          id, topic, sources, consensus_level as "consensusLevel",
+          major_discrepancies as "majorDiscrepancies",
+          propaganda_patterns as "propagandaPatterns",
+          factual_accuracy as "factualAccuracy",
+          political_bias as "politicalBias",
+          analysis_date as "analysisDate",
+          article_count as "articleCount"
+        FROM news_topic_comparisons 
+        ORDER BY analysis_date DESC 
+        LIMIT 50
+      `);
+      res.json(comparisons.rows);
+    } catch (error) {
+      console.error("Error fetching news comparisons:", error);
+      res.status(500).json({ message: "Failed to fetch news comparisons" });
+    }
+  });
+
+  app.get('/api/news/bias-analysis', async (req, res) => {
+    try {
+      const biasAnalysis = await db.execute(sql`
+        SELECT 
+          source,
+          COUNT(*) as article_count,
+          AVG(CASE WHEN bias = 'left' THEN 1 ELSE 0 END) as left_bias,
+          AVG(CASE WHEN bias = 'center' THEN 1 ELSE 0 END) as center_bias,
+          AVG(CASE WHEN bias = 'right' THEN 1 ELSE 0 END) as right_bias,
+          AVG(credibility_score) as avg_credibility,
+          AVG(factual_accuracy) as avg_accuracy
+        FROM news_articles 
+        WHERE published_at > NOW() - INTERVAL '30 days'
+        GROUP BY source
+        ORDER BY article_count DESC
+      `);
+      res.json(biasAnalysis.rows);
+    } catch (error) {
+      console.error("Error fetching bias analysis:", error);
+      res.status(500).json({ message: "Failed to fetch bias analysis" });
+    }
+  });
+
   // Analytics routes
   app.get('/api/analytics/comprehensive', async (req, res) => {
     try {
