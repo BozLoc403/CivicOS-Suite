@@ -25,7 +25,7 @@ export class LegalDataPopulator {
     await this.populateFederalActs();
     await this.populateProvincialActs();
     await this.populateLandmarkCases();
-    await this.populateForumCategories();
+    // await this.populateForumCategories(); // Disabled to prevent duplicate categories
     await this.populateCivicLevels();
     
     console.log("Legal data population completed successfully");
