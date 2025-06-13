@@ -347,7 +347,130 @@ export default function Petitions() {
 
       {/* Petitions List */}
       <div className="space-y-6">
-        {petitionsLoading ? (
+        {selectedPetition ? (
+          // Detailed View
+          <div className="space-y-6">
+            <div className="flex items-center gap-4 mb-6">
+              <Button 
+                variant="outline" 
+                onClick={() => setSelectedPetition(null)}
+                className="bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm"
+              >
+                ← Back to Petitions
+              </Button>
+            </div>
+            
+            <Card className="max-w-4xl">
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2 mb-3">
+                      <Badge className={getStatusColor(selectedPetition.status)}>
+                        {selectedPetition.status.charAt(0).toUpperCase() + selectedPetition.status.slice(1)}
+                      </Badge>
+                      {selectedPetition.isVerified && (
+                        <Badge variant="outline" className="text-green-600 border-green-600">
+                          <CheckCircle className="h-3 w-3 mr-1" />
+                          Verified
+                        </Badge>
+                      )}
+                    </div>
+                    <CardTitle className="text-3xl mb-4">{selectedPetition.title}</CardTitle>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-3xl font-bold text-gray-900 dark:text-white">
+                      {typeof selectedPetition.currentSignatures === 'number' ? selectedPetition.currentSignatures.toLocaleString() : '0'}
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      of {typeof selectedPetition.targetSignatures === 'number' ? selectedPetition.targetSignatures.toLocaleString() : '500'} signatures
+                    </div>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="prose dark:prose-invert max-w-none">
+                  <p className="text-lg leading-relaxed">{selectedPetition.description}</p>
+                </div>
+                
+                {selectedPetition.targetOfficial && (
+                  <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <Target className="h-5 w-5 text-gray-500" />
+                      <span className="font-medium">Target Official</span>
+                    </div>
+                    <p className="text-gray-700 dark:text-gray-300">{selectedPetition.targetOfficial}</p>
+                  </div>
+                )}
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold">Petition Details</h3>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600 dark:text-gray-400">Category:</span>
+                        <span className="font-medium">{selectedPetition.category}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600 dark:text-gray-400">Created:</span>
+                        <span className="font-medium">{new Date(selectedPetition.createdAt).toLocaleDateString()}</span>
+                      </div>
+                      {selectedPetition.deadlineDate && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-600 dark:text-gray-400">Deadline:</span>
+                          <span className="font-medium">{new Date(selectedPetition.deadlineDate).toLocaleDateString()}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold">Progress</h3>
+                    <Progress 
+                      value={getProgressPercentage(selectedPetition.currentSignatures, selectedPetition.targetSignatures)} 
+                      className="h-3"
+                    />
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                      {getProgressPercentage(selectedPetition.currentSignatures, selectedPetition.targetSignatures).toFixed(1)}% of goal reached
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-between pt-6 border-t">
+                  <div className="flex items-center space-x-4">
+                    <Avatar className="h-10 w-10">
+                      <AvatarFallback>
+                        {selectedPetition.creator?.firstName?.[0] || selectedPetition.creator?.email?.[0] || '?'}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="font-medium">
+                        {selectedPetition.creator?.firstName || selectedPetition.creator?.email?.split('@')[0] || 'Anonymous'}
+                      </p>
+                      <p className="text-sm text-gray-500">Petition Creator</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Button variant="outline" size="sm">
+                      <Share2 className="h-4 w-4 mr-1" />
+                      Share
+                    </Button>
+                    {selectedPetition.status === "active" && selectedPetition.currentSignatures < selectedPetition.targetSignatures && (
+                      <Button 
+                        onClick={() => handleSignPetition(selectedPetition.id)}
+                        disabled={signPetitionMutation.isPending}
+                        className="bg-red-600 hover:bg-red-700"
+                      >
+                        <Users className="h-4 w-4 mr-1" />
+                        {signPetitionMutation.isPending ? "Signing..." : "Sign Petition"}
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        ) : petitionsLoading ? (
           <div className="text-center py-8">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
             <p className="mt-2 text-gray-600 dark:text-gray-300">Loading petitions...</p>
