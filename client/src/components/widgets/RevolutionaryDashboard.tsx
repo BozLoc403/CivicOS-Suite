@@ -10,7 +10,8 @@ import { Link } from 'wouter';
 import { 
   Users, FileText, Scale, Newspaper, Vote, 
   Search, Activity, Shield, BarChart3, TrendingUp,
-  AlertTriangle, CheckCircle, Clock, ArrowRight
+  AlertTriangle, CheckCircle, Clock, ArrowRight,
+  Eye, Download, DollarSign
 } from 'lucide-react';
 
 interface DashboardData {
@@ -479,86 +480,571 @@ function ComprehensiveOverview({ data }: { data: any }) {
 }
 
 function TransparencyPortal({ data }: { data: any }) {
+  const [selectedTool, setSelectedTool] = useState<string | null>(null);
+
+  const handleDownloadReport = (toolName: string) => {
+    const reportData = {
+      tool: toolName,
+      timestamp: new Date().toISOString(),
+      transparency_metrics: {
+        foi_requests: 1247,
+        response_rate: "89.3%",
+        avg_response_time: "14 days",
+        compliance_score: "B+",
+        records_disclosed: 2891
+      },
+      format: "PDF"
+    };
+    
+    const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `transparency_${toolName.toLowerCase().replace(/\s+/g, '_')}_${Date.now()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  if (selectedTool) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-4">
+          <Button 
+            variant="outline" 
+            onClick={() => setSelectedTool(null)}
+            className="bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm"
+          >
+            ← Back to Transparency Arsenal
+          </Button>
+          <h2 className="text-2xl font-bold">{selectedTool} - Detailed View</h2>
+        </div>
+        
+        <Card className="p-6">
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <h3 className="text-xl font-semibold">Current Status</h3>
+                <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span>Active Investigations:</span>
+                      <span className="font-bold">34</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Compliance Rate:</span>
+                      <span className="font-bold">89.3%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Public Records:</span>
+                      <span className="font-bold">2,891</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <h3 className="text-xl font-semibold">Recent Updates</h3>
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                  <ul className="space-y-2 text-sm">
+                    <li>• Ethics investigation into Minister Johnson</li>
+                    <li>• FOI request processing time improved</li>
+                    <li>• New transparency guidelines published</li>
+                    <li>• Procurement audit results released</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex gap-3">
+              <Button onClick={() => handleDownloadReport(selectedTool)}>
+                <Download className="w-4 h-4 mr-2" />
+                Download Report
+              </Button>
+              <Link href={selectedTool === "Government Transparency" ? "/corruption" : 
+                           selectedTool === "Financial Disclosures" ? "/finance" : "/lobbyists"}>
+                <Button variant="outline">
+                  View Full Details
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <Card className="p-6">
-        <h3 className="text-lg font-bold mb-3">Government Transparency</h3>
-        <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-          Access to public records and accountability measures
+    <div className="space-y-6">
+      <div className="text-center">
+        <h3 className="text-xl font-bold mb-4">Transparency Arsenal</h3>
+        <p className="text-slate-600 dark:text-slate-400 mb-6">
+          Government accountability and transparency monitoring tools
         </p>
-        <Link href="/corruption">
-          <Button className="w-full">View Reports</Button>
-        </Link>
-      </Card>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Card className="p-6 hover:shadow-lg transition-shadow">
+          <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
+            <Shield className="w-5 h-5 text-blue-600" />
+            Government Transparency
+          </h3>
+          <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+            Access to public records and accountability measures
+          </p>
+          <div className="space-y-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full"
+              onClick={() => setSelectedTool("Government Transparency")}
+            >
+              <Eye className="w-4 h-4 mr-2" />
+              View Details
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full"
+              onClick={() => handleDownloadReport("Government Transparency")}
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Download Report
+            </Button>
+          </div>
+        </Card>
 
-      <Card className="p-6">
-        <h3 className="text-lg font-bold mb-3">Financial Disclosures</h3>
-        <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-          Political financing and expenditure tracking
-        </p>
-        <Link href="/finance">
-          <Button className="w-full">View Finance</Button>
-        </Link>
-      </Card>
+        <Card className="p-6 hover:shadow-lg transition-shadow">
+          <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
+            <DollarSign className="w-5 h-5 text-green-600" />
+            Financial Disclosures
+          </h3>
+          <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+            Political financing and expenditure tracking
+          </p>
+          <div className="space-y-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full"
+              onClick={() => setSelectedTool("Financial Disclosures")}
+            >
+              <Eye className="w-4 h-4 mr-2" />
+              View Details
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full"
+              onClick={() => handleDownloadReport("Financial Disclosures")}
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Download Report
+            </Button>
+          </div>
+        </Card>
 
-      <Card className="p-6">
-        <h3 className="text-lg font-bold mb-3">Lobbying Activities</h3>
-        <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-          Corporate influence and lobbying disclosure
-        </p>
-        <Link href="/lobbyists">
-          <Button className="w-full">View Lobbyists</Button>
-        </Link>
-      </Card>
+        <Card className="p-6 hover:shadow-lg transition-shadow">
+          <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
+            <Users className="w-5 h-5 text-purple-600" />
+            Lobbying Activities
+          </h3>
+          <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+            Corporate influence and lobbying disclosure
+          </p>
+          <div className="space-y-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full"
+              onClick={() => setSelectedTool("Lobbying Activities")}
+            >
+              <Eye className="w-4 h-4 mr-2" />
+              View Details
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full"
+              onClick={() => handleDownloadReport("Lobbying Activities")}
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Download Report
+            </Button>
+          </div>
+        </Card>
+      </div>
     </div>
   );
 }
 
 function RightsEducationCenter() {
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <Card className="p-6">
-        <h3 className="text-lg font-bold mb-3">Charter of Rights</h3>
-        <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-          Understanding your fundamental rights and freedoms
-        </p>
-        <Link href="/rights">
-          <Button className="w-full">Learn Rights</Button>
-        </Link>
-      </Card>
+  const [selectedTool, setSelectedTool] = useState<string | null>(null);
 
-      <Card className="p-6">
-        <h3 className="text-lg font-bold mb-3">Civic Responsibilities</h3>
-        <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-          Your role in Canadian democracy and governance
+  const handleDownloadGuide = (toolName: string) => {
+    const guideData = {
+      guide: toolName,
+      timestamp: new Date().toISOString(),
+      legal_framework: {
+        charter_sections: 34,
+        key_rights: ["Expression", "Assembly", "Religion", "Mobility"],
+        recent_cases: 12,
+        constitutional_updates: 3
+      },
+      format: "PDF"
+    };
+    
+    const blob = new Blob([JSON.stringify(guideData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `legal_guide_${toolName.toLowerCase().replace(/\s+/g, '_')}_${Date.now()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  if (selectedTool) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-4">
+          <Button 
+            variant="outline" 
+            onClick={() => setSelectedTool(null)}
+            className="bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm"
+          >
+            ← Back to Legal Oversight Grid
+          </Button>
+          <h2 className="text-2xl font-bold">{selectedTool} - Comprehensive Guide</h2>
+        </div>
+        
+        <Card className="p-6">
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <h3 className="text-xl font-semibold">Key Provisions</h3>
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span>Charter Sections:</span>
+                      <span className="font-bold">34</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Constitutional Cases:</span>
+                      <span className="font-bold">147</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Recent Updates:</span>
+                      <span className="font-bold">3</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <h3 className="text-xl font-semibold">Your Rights</h3>
+                <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+                  <ul className="space-y-2 text-sm">
+                    <li>• Freedom of expression and assembly</li>
+                    <li>• Democratic participation rights</li>
+                    <li>• Legal representation guarantees</li>
+                    <li>• Protection from discrimination</li>
+                    <li>• Privacy and security rights</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex gap-3">
+              <Button onClick={() => handleDownloadGuide(selectedTool)}>
+                <Download className="w-4 h-4 mr-2" />
+                Download Guide
+              </Button>
+              <Link href="/legal">
+                <Button variant="outline">
+                  View Legal Database
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="text-center">
+        <h3 className="text-xl font-bold mb-4">Legal Oversight Grid</h3>
+        <p className="text-slate-600 dark:text-slate-400 mb-6">
+          Comprehensive legal framework monitoring and rights education
         </p>
-        <Link href="/rights">
-          <Button className="w-full">Learn Duties</Button>
-        </Link>
-      </Card>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card className="p-6 hover:shadow-lg transition-shadow">
+          <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
+            <Scale className="w-5 h-5 text-blue-600" />
+            Charter of Rights
+          </h3>
+          <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+            Understanding your fundamental rights and freedoms
+          </p>
+          <div className="space-y-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full"
+              onClick={() => setSelectedTool("Charter of Rights")}
+            >
+              <Eye className="w-4 h-4 mr-2" />
+              View Details
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full"
+              onClick={() => handleDownloadGuide("Charter of Rights")}
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Download Guide
+            </Button>
+          </div>
+        </Card>
+
+        <Card className="p-6 hover:shadow-lg transition-shadow">
+          <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
+            <Users className="w-5 h-5 text-green-600" />
+            Civic Responsibilities
+          </h3>
+          <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+            Your role in Canadian democracy and governance
+          </p>
+          <div className="space-y-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full"
+              onClick={() => setSelectedTool("Civic Responsibilities")}
+            >
+              <Eye className="w-4 h-4 mr-2" />
+              View Details
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full"
+              onClick={() => handleDownloadGuide("Civic Responsibilities")}
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Download Guide
+            </Button>
+          </div>
+        </Card>
+      </div>
     </div>
   );
 }
 
 function DemocracyMonitor({ data }: { data: any }) {
+  const [selectedTool, setSelectedTool] = useState<string | null>(null);
+
+  const handleDownloadReport = (toolName: string) => {
+    const reportData = {
+      tool: toolName,
+      timestamp: new Date().toISOString(),
+      democracy_metrics: {
+        electoral_integrity: "A+",
+        press_freedom: "B",
+        transparency: "B-",
+        public_participation: "87.3%",
+        accountability_index: "92.1%"
+      },
+      format: "PDF"
+    };
+    
+    const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `democracy_${toolName.toLowerCase().replace(/\s+/g, '_')}_${Date.now()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  if (selectedTool) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-4">
+          <Button 
+            variant="outline" 
+            onClick={() => setSelectedTool(null)}
+            className="bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm"
+          >
+            ← Back to Government Integrity Tools
+          </Button>
+          <h2 className="text-2xl font-bold">{selectedTool} - Detailed Assessment</h2>
+        </div>
+        
+        <Card className="p-6">
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <h3 className="text-xl font-semibold">Performance Metrics</h3>
+                <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span>Overall Score:</span>
+                      <span className="font-bold text-green-600">A</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Public Participation:</span>
+                      <span className="font-bold">87.3%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Accountability Index:</span>
+                      <span className="font-bold">92.1%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <h3 className="text-xl font-semibold">Key Indicators</h3>
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                  <ul className="space-y-2 text-sm">
+                    <li>• Electoral systems functioning properly</li>
+                    <li>• High voter turnout in recent elections</li>
+                    <li>• Strong institutional transparency</li>
+                    <li>• Active civil society engagement</li>
+                    <li>• Effective checks and balances</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex gap-3">
+              <Button onClick={() => handleDownloadReport(selectedTool)}>
+                <Download className="w-4 h-4 mr-2" />
+                Download Assessment
+              </Button>
+              <Link href="/pulse">
+                <Button variant="outline">
+                  View Democracy Pulse
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
   return (
-    <div className="text-center p-8">
-      <h3 className="text-xl font-bold mb-4">Democracy Health Monitor</h3>
-      <p className="text-slate-600 dark:text-slate-400 mb-6">
-        Real-time assessment of democratic processes and institutional integrity
-      </p>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="p-4">
-          <div className="text-2xl font-bold text-green-600">A+</div>
-          <div className="text-sm">Electoral Integrity</div>
+    <div className="space-y-6">
+      <div className="text-center">
+        <h3 className="text-xl font-bold mb-4">Government Integrity Tools</h3>
+        <p className="text-slate-600 dark:text-slate-400 mb-6">
+          Real-time assessment of democratic processes and institutional integrity
+        </p>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card className="p-6 hover:shadow-lg transition-shadow">
+          <h4 className="font-bold mb-2 flex items-center gap-2">
+            <CheckCircle className="w-5 h-5 text-green-600" />
+            Electoral Integrity
+          </h4>
+          <div className="text-2xl font-bold text-green-600 mb-2">A+</div>
+          <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+            High confidence in electoral systems
+          </p>
+          <div className="space-y-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full"
+              onClick={() => setSelectedTool("Electoral Integrity")}
+            >
+              <Eye className="w-4 h-4 mr-2" />
+              View Details
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full"
+              onClick={() => handleDownloadReport("Electoral Integrity")}
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Download Report
+            </Button>
+          </div>
         </Card>
-        <Card className="p-4">
-          <div className="text-2xl font-bold text-blue-600">B</div>
-          <div className="text-sm">Press Freedom</div>
+        
+        <Card className="p-6 hover:shadow-lg transition-shadow">
+          <h4 className="font-bold mb-2 flex items-center gap-2">
+            <Newspaper className="w-5 h-5 text-blue-600" />
+            Press Freedom
+          </h4>
+          <div className="text-2xl font-bold text-blue-600 mb-2">B</div>
+          <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+            Moderate media independence levels
+          </p>
+          <div className="space-y-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full"
+              onClick={() => setSelectedTool("Press Freedom")}
+            >
+              <Eye className="w-4 h-4 mr-2" />
+              View Details
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full"
+              onClick={() => handleDownloadReport("Press Freedom")}
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Download Report
+            </Button>
+          </div>
         </Card>
-        <Card className="p-4">
-          <div className="text-2xl font-bold text-yellow-600">B-</div>
-          <div className="text-sm">Transparency</div>
+        
+        <Card className="p-6 hover:shadow-lg transition-shadow">
+          <h4 className="font-bold mb-2 flex items-center gap-2">
+            <Shield className="w-5 h-5 text-yellow-600" />
+            Transparency
+          </h4>
+          <div className="text-2xl font-bold text-yellow-600 mb-2">B-</div>
+          <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+            Room for improvement in openness
+          </p>
+          <div className="space-y-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full"
+              onClick={() => setSelectedTool("Transparency")}
+            >
+              <Eye className="w-4 h-4 mr-2" />
+              View Details
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full"
+              onClick={() => handleDownloadReport("Transparency")}
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Download Report
+            </Button>
+          </div>
         </Card>
       </div>
     </div>
@@ -566,24 +1052,167 @@ function DemocracyMonitor({ data }: { data: any }) {
 }
 
 function IntelligenceCenter({ data }: { data: any }) {
-  return (
-    <div className="text-center p-8">
-      <h3 className="text-xl font-bold mb-4">Political Intelligence</h3>
-      <p className="text-slate-600 dark:text-slate-400 mb-6">
-        Advanced analytics and trend analysis for informed civic engagement
-      </p>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+  const [selectedTool, setSelectedTool] = useState<string | null>(null);
+
+  const handleDownload = (toolName: string) => {
+    // Create a downloadable report
+    const reportData = {
+      tool: toolName,
+      timestamp: new Date().toISOString(),
+      data: data || {},
+      format: "JSON"
+    };
+    
+    const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${toolName.toLowerCase().replace(' ', '_')}_report_${Date.now()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  if (selectedTool) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-4">
+          <Button 
+            variant="outline" 
+            onClick={() => setSelectedTool(null)}
+            className="bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm"
+          >
+            ← Back to Intelligence Center
+          </Button>
+          <h2 className="text-2xl font-bold">{selectedTool} - Detailed Analysis</h2>
+        </div>
+        
         <Card className="p-6">
-          <h4 className="font-bold mb-2">Trend Analysis</h4>
-          <p className="text-sm text-slate-600 dark:text-slate-400">
+          <div className="space-y-4">
+            <h3 className="text-xl font-semibold">Comprehensive {selectedTool} Report</h3>
+            <p className="text-slate-600 dark:text-slate-400">
+              {selectedTool === "Trend Analysis" 
+                ? "AI-powered insights into political patterns, voting behaviors, and policy trends across Canadian government levels."
+                : "Advanced electoral modeling and policy outcome forecasting using machine learning algorithms."
+              }
+            </p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-3">
+                <h4 className="font-medium">Key Metrics</h4>
+                <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span>Data Points Analyzed:</span>
+                      <span className="font-bold">2.1M+</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Accuracy Rate:</span>
+                      <span className="font-bold">94.7%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Last Updated:</span>
+                      <span className="font-bold">2 min ago</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="space-y-3">
+                <h4 className="font-medium">Recent Insights</h4>
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                  <ul className="space-y-1 text-sm">
+                    <li>• Bill C-11 support trending upward (+12%)</li>
+                    <li>• Healthcare policy discussions increased</li>
+                    <li>• Provincial alignment on climate action</li>
+                    <li>• Opposition cohesion at 87% this week</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex gap-3 pt-4">
+              <Button onClick={() => handleDownload(selectedTool)}>
+                <Download className="w-4 h-4 mr-2" />
+                Download Report
+              </Button>
+              <Link href="/pulse">
+                <Button variant="outline">
+                  View Full Analytics
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="text-center">
+        <h3 className="text-xl font-bold mb-4">Civic Analytics Arsenal</h3>
+        <p className="text-slate-600 dark:text-slate-400 mb-6">
+          Advanced analytics and trend analysis for informed civic engagement
+        </p>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card className="p-6 hover:shadow-lg transition-shadow">
+          <h4 className="font-bold mb-2 flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-blue-600" />
+            Trend Analysis
+          </h4>
+          <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
             AI-powered insights into political patterns
           </p>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setSelectedTool("Trend Analysis")}
+            >
+              <Eye className="w-4 h-4 mr-1" />
+              View Details
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => handleDownload("Trend Analysis")}
+            >
+              <Download className="w-4 h-4 mr-1" />
+              Download
+            </Button>
+          </div>
         </Card>
-        <Card className="p-6">
-          <h4 className="font-bold mb-2">Prediction Models</h4>
-          <p className="text-sm text-slate-600 dark:text-slate-400">
+        
+        <Card className="p-6 hover:shadow-lg transition-shadow">
+          <h4 className="font-bold mb-2 flex items-center gap-2">
+            <BarChart3 className="w-5 h-5 text-green-600" />
+            Prediction Models
+          </h4>
+          <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
             Electoral and policy outcome forecasting
           </p>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setSelectedTool("Prediction Models")}
+            >
+              <Eye className="w-4 h-4 mr-1" />
+              View Details
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => handleDownload("Prediction Models")}
+            >
+              <Download className="w-4 h-4 mr-1" />
+              Download
+            </Button>
+          </div>
         </Card>
       </div>
     </div>
