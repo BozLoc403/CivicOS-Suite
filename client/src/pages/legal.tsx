@@ -524,7 +524,7 @@ export default function Legal() {
                   </div>
 
                   <InteractiveContent
-                    targetType="legal-section"
+                    targetType="post"
                     targetId={selectedSection.id}
                     title={`Section ${selectedSection.sectionNumber} - ${selectedSection.title}`}
                     description={selectedSection.summary}

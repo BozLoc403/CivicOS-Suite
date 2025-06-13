@@ -220,8 +220,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const activeUsers = await db.execute(sql`SELECT COUNT(DISTINCT user_id) as count FROM votes WHERE timestamp > NOW() - INTERVAL '30 days'`);
       
       const stats = {
-        totalVotes: totalVotes.rows[0]?.count || 0,
-        activeUsers: activeUsers.rows[0]?.count || 0,
+        totalVotes: Number(totalVotes.rows[0]?.count || 0),
+        activeUsers: Number(activeUsers.rows[0]?.count || 0),
         engagementRate: 75, // Calculate based on active users vs total users
         consensusRate: 68   // Calculate based on vote patterns
       };
