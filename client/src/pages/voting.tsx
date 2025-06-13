@@ -25,7 +25,12 @@ export default function VotingPage() {
     queryKey: ["/api/bills"],
   });
 
-  const { data: votingStats } = useQuery({
+  const { data: votingStats } = useQuery<{
+    totalVotes: number;
+    activeUsers: number;
+    engagementRate: number;
+    consensusRate: number;
+  }>({
     queryKey: ["/api/voting/stats"],
   });
 
@@ -121,7 +126,7 @@ export default function VotingPage() {
                       <CheckCircle className="w-5 h-5 text-green-600" />
                       <div>
                         <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-                          {(votingStats as any)?.totalVotes ? (votingStats as any).totalVotes.toLocaleString() : '0'}
+                          {votingStats.totalVotes?.toLocaleString() || '0'}
                         </p>
                         <p className="text-sm text-slate-600 dark:text-slate-400">Total Votes Cast</p>
                       </div>

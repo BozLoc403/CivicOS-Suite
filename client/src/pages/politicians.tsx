@@ -173,7 +173,7 @@ export default function Politicians() {
                   <CardHeader className="pb-3">
                     <div className="flex items-start gap-3">
                       <Avatar className="w-12 h-12">
-                        <AvatarImage src={politician.profileImageUrl} alt={politician.name} />
+                        <AvatarImage src={politician.profileImageUrl || undefined} alt={politician.name} />
                         <AvatarFallback className="bg-slate-200 dark:bg-slate-700">
                           {politician.name.split(" ").map(n => n[0]).join("").toUpperCase()}
                         </AvatarFallback>
@@ -264,7 +264,7 @@ export default function Politicians() {
                       <CardContent className="space-y-4">
                         <div className="flex items-start gap-4">
                           <Avatar className="w-20 h-20">
-                            <AvatarImage src={selectedPolitician.profileImageUrl} alt={selectedPolitician.name} />
+                            <AvatarImage src={selectedPolitician.profileImageUrl || undefined} alt={selectedPolitician.name} />
                             <AvatarFallback className="text-lg bg-slate-200 dark:bg-slate-700">
                               {selectedPolitician.name.split(" ").map(n => n[0]).join("").toUpperCase()}
                             </AvatarFallback>

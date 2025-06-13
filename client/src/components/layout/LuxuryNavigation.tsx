@@ -154,17 +154,17 @@ export function LuxuryNavigation() {
             </div>
             
             {user && (
-              <Link href={`/users/${(user as any).id}`}>
+              <Link href={`/users/${user.id || 'profile'}`}>
                 <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer">
                   <div className="flex items-center space-x-3">
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
                       <span className="text-sm font-medium text-white">
-                        {(user as any).firstName?.[0] || (user as any).email?.[0] || "U"}
+                        {user.firstName?.[0] || user.email?.[0] || "U"}
                       </span>
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                        {(user as any).firstName || (user as any).email}
+                        {user.firstName || user.email}
                       </p>
                       <div className="flex items-center space-x-2">
                         <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700">
