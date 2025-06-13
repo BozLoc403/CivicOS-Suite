@@ -77,6 +77,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // User profile endpoint
+  app.get('/api/users/:userId/profile', async (req, res) => {
+    try {
+      const { userId } = req.params;
+      
+      // Get user basic info
+      const [userResult] = await db.execute(sql`
+        SELECT id, first_name, last_name, email, profile_image_url, 
+               civic_level, civic_points, current_level, achievement_tier, 
+               engagement_level, trust_score, created_at, updated_at
+        FROM users 
+        WHERE id = ${userId}
+      `);
+      
+      if (!userResult) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Get user interactions
+      const interactions = await db.execute(sql`
+        SELECT interaction_type, target_type, target_id, content, created_at
+        FROM user_interactions 
+        WHERE user_id = ${userId} 
+        ORDER BY created_at DESC 
+        LIMIT 50
+      `);
+      
+      // Get user forum posts
+      const posts = await db.execute(sql`
+        SELECT p.id, p.title, p.content, p.created_at, c.name as category_name
+        FROM forum_posts p
+        LEFT JOIN forum_categories c ON p.category_id = c.id
+        WHERE p.author_id = ${userId}
+        ORDER BY p.created_at DESC
+        LIMIT 20
+      `);
+      
+      // Get user votes
+      const votes = await db.execute(sql`
+        SELECT v.id, v.vote_choice, b.title as bill_title, b.number as bill_number, v.created_at
+        FROM user_votes v
+        LEFT JOIN bills b ON v.target_type = 'bill' AND v.target_id = b.id
+        WHERE v.user_id = ${userId} AND v.target_type = 'bill'
+        ORDER BY v.created_at DESC
+        LIMIT 20
+      `);
+      
+      res.json({
+        user: userResult,
+        interactions: interactions.rows || [],
+        posts: posts.rows || [],
+        votes: votes.rows || []
+      });
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      res.status(500).json({ message: "Failed to fetch user profile" });
+    }
+  });
+
   // Dashboard comprehensive data
   app.get('/api/dashboard/comprehensive', async (req, res) => {
     try {
