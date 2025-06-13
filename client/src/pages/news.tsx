@@ -75,7 +75,7 @@ export default function News() {
 
   const credibilityMutation = useMutation({
     mutationFn: async (data: { articleText: string; sourceName: string }) => {
-      const response = await apiRequest("POST", "/api/news/analyze-credibility", data);
+      const response = await apiRequest("/api/news/analyze-credibility", "POST", data);
       return await response.json();
     },
     onSuccess: () => {

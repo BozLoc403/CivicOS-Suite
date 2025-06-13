@@ -33,7 +33,7 @@ export function VotingButtons({
 
   const voteMutation = useMutation({
     mutationFn: async (voteType: 'upvote' | 'downvote') => {
-      const res = await apiRequest("POST", "/api/vote", {
+      const res = await apiRequest("/api/vote", "POST", {
         targetType,
         targetId,
         voteType
