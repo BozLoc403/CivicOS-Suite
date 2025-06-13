@@ -71,22 +71,20 @@ export function RevolutionaryDashboard() {
   }
 
   return (
-    <div>
-      <LuxuryNavigation />
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-4 md:p-6">
-        <div className="mb-6 space-y-4">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold font-serif text-slate-900 dark:text-slate-100">
-                Dominion Command Center
-              </h1>
-              <p className="text-slate-600 dark:text-slate-400 text-sm md:text-base">
-                Real-time Canadian political intelligence and civic oversight
-              </p>
-            </div>
-            
-            <div className="flex flex-col sm:flex-row gap-2">
-              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-4 md:p-6">
+      <div className="mb-6 space-y-4">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl md:text-4xl font-bold font-serif text-slate-900 dark:text-slate-100">
+              Dominion Command Center
+            </h1>
+            <p className="text-slate-600 dark:text-slate-400 text-sm md:text-base">
+              Real-time Canadian political intelligence and civic oversight
+            </p>
+          </div>
+          
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300">
                 <Activity className="w-3 h-3 mr-1" />
                 Live Data Active
               </Badge>
@@ -618,6 +616,7 @@ function RealTimeMonitoring() {
           <div className="text-sm">AI Models</div>
         </Card>
       </div>
+    </div>
     </div>
   );
 }
