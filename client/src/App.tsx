@@ -34,6 +34,7 @@ import Corruption from "@/pages/corruption";
 import Pulse from "@/pages/pulse";
 import Trust from "@/pages/trust";
 import Maps from "@/pages/maps";
+import Notifications from "@/pages/notifications";
 
 import NotFound from "@/pages/not-found";
 
@@ -75,6 +76,7 @@ function Router() {
                 <Route path="/pulse" component={Pulse} />
                 <Route path="/trust" component={Trust} />
                 <Route path="/maps" component={Maps} />
+                <Route path="/notifications" component={Notifications} />
                 <Route component={NotFound} />
               </Switch>
             </div>

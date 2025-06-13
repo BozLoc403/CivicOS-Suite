@@ -260,11 +260,16 @@ export function LuxuryNavigation() {
             </Button>
           </Link>
           
-          <Button variant="ghost" className="w-full justify-start space-x-3">
-            <Bell className="w-4 h-4" />
-            <span>Notifications</span>
-            <Badge variant="destructive" className="ml-auto text-xs">3</Badge>
-          </Button>
+          <Link href="/notifications">
+            <Button 
+              variant={isActive("/notifications") ? "secondary" : "ghost"} 
+              className="w-full justify-start space-x-3"
+            >
+              <Bell className="w-4 h-4" />
+              <span>Notifications</span>
+              <Badge variant="destructive" className="ml-auto text-xs">3</Badge>
+            </Button>
+          </Link>
         </div>
       </div>
     </div>
