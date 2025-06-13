@@ -447,6 +447,5 @@ export default function FinancePage() {
           </div>
         </main>
       </div>
-    </div>
-  );
-}
+    );
+  }
