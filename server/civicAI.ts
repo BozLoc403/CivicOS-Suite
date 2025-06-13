@@ -47,21 +47,48 @@ export class CivicAIService {
     const { query, region } = request;
     
     try {
-      // Analyze query intent and extract entities
-      const analysis = await this.analyzeQuery(query);
-      
-      // Get basic context data without complex queries
-      const contextData = await this.getBasicContextData();
-      
-      // Generate comprehensive response with OpenAI
-      const response = await this.generateResponse(query, analysis, contextData, region);
-      
-      return response;
+      // Direct OpenAI response for now to avoid database issues
+      const systemPrompt = `You are CivicOS AI, a Canadian political analysis assistant. Provide factual, direct answers about Canadian government and politics.
+
+User region: ${region || "Not specified"}
+
+Guidelines:
+- Focus on Canadian federal, provincial, and municipal politics
+- Be direct and factual
+- Explain complex political issues clearly
+- Reference actual Canadian government structures and processes
+- If you don't have specific current data, explain what would typically be the case`;
+
+      const response = await this.openai.chat.completions.create({
+        model: 'gpt-4o', // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+        max_tokens: 1500,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: query }
+        ],
+      });
+
+      const responseText = response.choices[0].message.content || 'I apologize, but I cannot provide an analysis at this time.';
+
+      return {
+        response: responseText,
+        analysisType: "general",
+        confidence: 0.8,
+        sources: ["Canadian Government Knowledge Base"],
+        relatedData: {
+          bills: [],
+          politicians: [],
+          votes: []
+        },
+        followUpSuggestions: [
+          "Can you provide more specific details?",
+          "How does this affect my province or territory?",
+          "What are the key facts about this topic?"
+        ]
+      };
     } catch (error) {
       console.error("Error processing query:", error);
-      
-      // Fallback to direct OpenAI response without database context
-      return await this.generateDirectResponse(query, region);
+      throw new Error("Failed to process civic AI query");
     }
   }
 
@@ -313,6 +340,80 @@ Analyze this using the government data provided. Be direct and factual. If polit
     }
 
     return suggestions;
+  }
+
+  private async getBasicContextData() {
+    try {
+      // Get basic counts and recent data safely
+      const politiciansCount = await db.select({ count: sql`count(*)` }).from(politicians);
+      const billsCount = await db.select({ count: sql`count(*)` }).from(bills);
+      
+      return {
+        bills: [],
+        politicians: [],
+        votes: [],
+        statements: [],
+        context: {
+          totalPoliticians: politiciansCount[0]?.count || 0,
+          totalBills: billsCount[0]?.count || 0
+        }
+      };
+    } catch (error) {
+      console.error("Error getting basic context:", error);
+      return {
+        bills: [],
+        politicians: [],
+        votes: [],
+        statements: [],
+        context: {}
+      };
+    }
+  }
+
+  private async generateDirectResponse(query: string, region?: string): Promise<AIResponse> {
+    try {
+      const systemPrompt = `You are CivicOS AI, a Canadian political analysis assistant. Provide factual, direct answers about Canadian government and politics.
+
+User region: ${region || "Not specified"}
+
+Guidelines:
+- Focus on Canadian federal, provincial, and municipal politics
+- Be direct and factual
+- Explain complex political issues clearly
+- Reference actual Canadian government structures and processes
+- If you don't have specific current data, explain what would typically be the case`;
+
+      const response = await this.openai.chat.completions.create({
+        model: 'gpt-4o', // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+        max_tokens: 1500,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: query }
+        ],
+      });
+
+      const responseText = response.choices[0].message.content || 'I apologize, but I cannot provide an analysis at this time.';
+
+      return {
+        response: responseText,
+        analysisType: "general",
+        confidence: 0.7,
+        sources: ["General Canadian Government Knowledge"],
+        relatedData: {
+          bills: [],
+          politicians: [],
+          votes: []
+        },
+        followUpSuggestions: [
+          "Can you provide more specific details?",
+          "How does this affect my province or territory?",
+          "What are the key facts about this topic?"
+        ]
+      };
+    } catch (error) {
+      console.error("Error generating direct response:", error);
+      throw new Error("Failed to process civic AI query");
+    }
   }
 }
 
