@@ -383,8 +383,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         WHERE target_type = ${targetType} AND target_id = ${targetId} AND vote_type = 'downvote'
       `);
 
-      const upvoteCount = upvotes.rows?.[0]?.count || 0;
-      const downvoteCount = downvotes.rows?.[0]?.count || 0;
+      const upvoteCount = parseInt(String(upvotes.rows?.[0]?.count || 0));
+      const downvoteCount = parseInt(String(downvotes.rows?.[0]?.count || 0));
       const totalScore = upvoteCount - downvoteCount;
 
       await db.execute(sql`
@@ -423,20 +423,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { targetType, targetId } = req.params;
       const userId = req.isAuthenticated() && req.user ? (req.user as any).id : null;
 
-      const [voteCounts] = await db.execute(sql`
+      const voteCountsResult = await db.execute(sql`
         SELECT upvotes, downvotes, total_score
         FROM vote_counts
         WHERE target_type = ${targetType} AND target_id = ${targetId}
       `);
+      const voteCounts = voteCountsResult.rows?.[0];
 
       let userVote = null;
       if (userId) {
-        const [userVoteResult] = await db.execute(sql`
+        const userVoteResult = await db.execute(sql`
           SELECT vote_type
           FROM user_votes
           WHERE user_id = ${userId} AND target_type = ${targetType} AND target_id = ${targetId}
         `);
-        userVote = userVoteResult?.vote_type || null;
+        userVote = userVoteResult.rows?.[0]?.vote_type || null;
       }
 
       res.json({

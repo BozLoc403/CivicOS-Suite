@@ -35,6 +35,7 @@ import Pulse from "@/pages/pulse";
 import Trust from "@/pages/trust";
 import Maps from "@/pages/maps";
 import Notifications from "@/pages/notifications";
+import UserProfile from "@/pages/user-profile";
 
 import NotFound from "@/pages/not-found";
 

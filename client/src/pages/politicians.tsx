@@ -5,8 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { NavigationHeader } from "@/components/NavigationHeader";
-import { Users, AlertTriangle, CheckCircle, AlertCircle, MapPin, Phone, Mail, Globe, Calendar, FileText, Vote, DollarSign, Eye, TrendingUp, Award } from "lucide-react";
+import { VotingButtons } from "@/components/VotingButtons";
+import { Users, AlertTriangle, CheckCircle, AlertCircle, MapPin, Phone, Mail, Globe, Calendar, FileText, Vote, DollarSign, Eye, TrendingUp, Award, User } from "lucide-react";
 import { useState } from "react";
 import type { Politician } from "@shared/schema";
 
@@ -231,6 +233,16 @@ export default function Politicians() {
                         Based on statement consistency
                       </span>
                     </div>
+                  </div>
+
+                  {/* Voting Buttons */}
+                  <div className="mb-4">
+                    <VotingButtons 
+                      targetType="politician" 
+                      targetId={politician.id} 
+                      size="sm"
+                      className="justify-center"
+                    />
                   </div>
 
                   {/* Action Buttons */}
