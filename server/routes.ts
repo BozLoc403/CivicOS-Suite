@@ -1627,6 +1627,185 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Clear notifications endpoint
+  app.delete('/api/notifications/clear', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      
+      await db.execute(sql`
+        DELETE FROM notifications WHERE user_id = ${userId}
+      `);
+      
+      res.json({ message: "All notifications cleared successfully" });
+    } catch (error) {
+      console.error("Error clearing notifications:", error);
+      res.status(500).json({ message: "Failed to clear notifications" });
+    }
+  });
+
+  // Clear specific notification
+  app.delete('/api/notifications/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const notificationId = parseInt(req.params.id);
+      
+      await db.execute(sql`
+        DELETE FROM notifications 
+        WHERE id = ${notificationId} AND user_id = ${userId}
+      `);
+      
+      res.json({ message: "Notification cleared successfully" });
+    } catch (error) {
+      console.error("Error clearing notification:", error);
+      res.status(500).json({ message: "Failed to clear notification" });
+    }
+  });
+
+  // Constitutional cases endpoint
+  app.get('/api/legal/constitutional-cases', async (req, res) => {
+    try {
+      const constitutionalCases = [
+        {
+          id: "r-v-oakes-1986",
+          caseName: "R. v. Oakes",
+          year: 1986,
+          court: "Supreme Court of Canada",
+          citation: "[1986] 1 S.C.R. 103",
+          charterSection: "Section 1",
+          summary: "Established the Oakes test for determining whether limitations on Charter rights are justified in a free and democratic society.",
+          significance: "Fundamental case establishing how Charter rights can be limited",
+          keyPrinciples: [
+            "Pressing and substantial objective test",
+            "Proportionality analysis",
+            "Minimal impairment requirement",
+            "Balancing of effects"
+          ],
+          impact: "Sets the standard framework for all Charter rights analysis in Canadian courts",
+          fullText: "Available at Supreme Court of Canada website",
+          relatedSections: [1, 2, 7, 15]
+        },
+        {
+          id: "r-v-morgentaler-1988",
+          caseName: "R. v. Morgentaler",
+          year: 1988,
+          court: "Supreme Court of Canada",
+          citation: "[1988] 1 S.C.R. 30",
+          charterSection: "Section 7",
+          summary: "Struck down Canada's abortion law as violating women's security of the person under Section 7.",
+          significance: "Landmark case on reproductive rights and security of the person",
+          keyPrinciples: [
+            "Security of the person includes psychological integrity",
+            "State cannot impose delays that increase health risks",
+            "Fundamental justice requires fair procedures"
+          ],
+          impact: "Decriminalized abortion and established broader interpretation of Section 7",
+          fullText: "Available at Supreme Court of Canada website",
+          relatedSections: [7]
+        },
+        {
+          id: "andrews-v-law-society-1989",
+          caseName: "Andrews v. Law Society of British Columbia",
+          year: 1989,
+          court: "Supreme Court of Canada",
+          citation: "[1989] 1 S.C.R. 143",
+          charterSection: "Section 15",
+          summary: "First major Supreme Court case interpreting equality rights under Section 15.",
+          significance: "Established framework for equality rights analysis",
+          keyPrinciples: [
+            "Equality means substantive, not just formal equality",
+            "Distinction must be discriminatory",
+            "Analogous grounds can be protected",
+            "Ameliorative programs are permitted"
+          ],
+          impact: "Fundamental precedent for all equality rights cases",
+          fullText: "Available at Supreme Court of Canada website",
+          relatedSections: [15]
+        },
+        {
+          id: "r-v-big-m-drug-mart-1985",
+          caseName: "R. v. Big M Drug Mart Ltd.",
+          year: 1985,
+          court: "Supreme Court of Canada",
+          citation: "[1985] 1 S.C.R. 295",
+          charterSection: "Section 2(a)",
+          summary: "Struck down the Lord's Day Act as violating freedom of religion.",
+          significance: "First major freedom of religion case under the Charter",
+          keyPrinciples: [
+            "Freedom of religion includes freedom from religion",
+            "Government cannot prefer one religion over another",
+            "Secular purpose required for legislation"
+          ],
+          impact: "Established separation of church and state principle",
+          fullText: "Available at Supreme Court of Canada website",
+          relatedSections: [2]
+        }
+      ];
+      
+      res.json(constitutionalCases);
+    } catch (error) {
+      console.error("Error fetching constitutional cases:", error);
+      res.status(500).json({ message: "Failed to fetch constitutional cases" });
+    }
+  });
+
+  // Legal search endpoint
+  app.get('/api/legal/search', async (req, res) => {
+    try {
+      const { query, category } = req.query;
+      
+      if (!query) {
+        return res.status(400).json({ message: "Search query is required" });
+      }
+      
+      // Mock comprehensive legal search results
+      const searchResults = {
+        query: query,
+        totalResults: 156,
+        categories: {
+          "Charter Rights": 23,
+          "Criminal Code": 45,
+          "Constitutional Cases": 12,
+          "Provincial Legislation": 34,
+          "Federal Statutes": 42
+        },
+        results: [
+          {
+            id: "charter-s15",
+            title: "Charter of Rights and Freedoms - Section 15 (Equality Rights)",
+            type: "Charter Rights",
+            excerpt: "Every individual is equal before and under the law and has the right to the equal protection and equal benefit of the law without discrimination...",
+            relevance: 0.95,
+            source: "Constitution Act, 1982",
+            url: "/rights"
+          },
+          {
+            id: "criminal-code-s265",
+            title: "Criminal Code - Section 265 (Assault)",
+            type: "Criminal Code", 
+            excerpt: "A person commits an assault when (a) without the consent of another person, he applies force intentionally to that other person...",
+            relevance: 0.87,
+            source: "Criminal Code of Canada",
+            url: "/legal"
+          },
+          {
+            id: "andrews-case",
+            title: "Andrews v. Law Society of British Columbia (1989)",
+            type: "Constitutional Cases",
+            excerpt: "Landmark Supreme Court case establishing the framework for equality rights analysis under Section 15...",
+            relevance: 0.82,
+            source: "Supreme Court of Canada",
+            url: "/legal/constitutional-cases"
+          }
+        ]
+      };
+      
+      res.json(searchResults);
+    } catch (error) {
+      console.error("Error performing legal search:", error);
+      res.status(500).json({ message: "Failed to perform legal search" });
+    }
+  });
+
   app.get('/api/rights/provincial', async (req, res) => {
     try {
       const provincialRights = [

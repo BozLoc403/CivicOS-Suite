@@ -21,6 +21,7 @@ import {
   AlertCircle,
   CheckCircle
 } from "lucide-react";
+import { ChevronDown, ChevronUp, Link, AlertTriangle } from "lucide-react";
 
 interface ChartRight {
   id: string;
@@ -55,6 +56,8 @@ export default function RightsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
+  const [expandedRights, setExpandedRights] = useState<Set<string>>(new Set());
+  const [selectedRight, setSelectedRight] = useState<ChartRight | null>(null);
 
   // Get user's geolocation
   useEffect(() => {
@@ -229,11 +232,32 @@ export default function RightsPage() {
                 >
                   <LuxuryCard title={`Section ${right.section}: ${right.title}`} variant="dark">
                     <div className="space-y-4">
-                      <div className="flex items-center space-x-2">
-                        <Icon className="w-5 h-5 text-primary" />
-                        <Badge variant="secondary" className="text-xs">
-                          {category?.name}
-                        </Badge>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <Icon className="w-5 h-5 text-primary" />
+                          <Badge variant="secondary" className="text-xs">
+                            {category?.name}
+                          </Badge>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            const newExpanded = new Set(expandedRights);
+                            if (newExpanded.has(right.id)) {
+                              newExpanded.delete(right.id);
+                            } else {
+                              newExpanded.add(right.id);
+                            }
+                            setExpandedRights(newExpanded);
+                          }}
+                        >
+                          {expandedRights.has(right.id) ? (
+                            <ChevronUp className="w-4 h-4" />
+                          ) : (
+                            <ChevronDown className="w-4 h-4" />
+                          )}
+                        </Button>
                       </div>
                       
                       <div className="space-y-3">
@@ -244,6 +268,79 @@ export default function RightsPage() {
                           </h4>
                           <p className="text-sm text-muted-foreground">{right.plainLanguage}</p>
                         </div>
+                        
+                        {expandedRights.has(right.id) && (
+                          <div className="space-y-3 pt-3 border-t border-muted">
+                            <div>
+                              <h4 className="font-medium text-sm mb-2 flex items-center">
+                                <Scale className="w-4 h-4 mr-2" />
+                                Official Text:
+                              </h4>
+                              <p className="text-xs text-muted-foreground bg-muted/50 p-3 rounded">{right.text}</p>
+                            </div>
+                            
+                            {right.examples && right.examples.length > 0 && (
+                              <div>
+                                <h4 className="font-medium text-sm mb-2 flex items-center">
+                                  <CheckCircle className="w-4 h-4 mr-2" />
+                                  Examples:
+                                </h4>
+                                <ul className="text-xs text-muted-foreground space-y-1">
+                                  {right.examples.map((example, idx) => (
+                                    <li key={idx} className="flex items-start space-x-2">
+                                      <span className="text-primary">•</span>
+                                      <span>{example}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                            
+                            {right.limitations && right.limitations.length > 0 && (
+                              <div>
+                                <h4 className="font-medium text-sm mb-2 flex items-center">
+                                  <AlertTriangle className="w-4 h-4 mr-2" />
+                                  Limitations:
+                                </h4>
+                                <ul className="text-xs text-muted-foreground space-y-1">
+                                  {right.limitations.map((limitation, idx) => (
+                                    <li key={idx} className="flex items-start space-x-2">
+                                      <span className="text-orange-500">•</span>
+                                      <span>{limitation}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                            
+                            {right.relatedSections && right.relatedSections.length > 0 && (
+                              <div>
+                                <h4 className="font-medium text-sm mb-2 flex items-center">
+                                  <Link className="w-4 h-4 mr-2" />
+                                  Related Sections:
+                                </h4>
+                                <div className="flex flex-wrap gap-1">
+                                  {right.relatedSections.map((section) => (
+                                    <Button
+                                      key={section}
+                                      variant="outline"
+                                      size="sm"
+                                      className="h-6 px-2 text-xs"
+                                      onClick={() => {
+                                        const relatedRight = charterRights.find(r => r.section === section);
+                                        if (relatedRight) {
+                                          setSelectedRight(relatedRight);
+                                        }
+                                      }}
+                                    >
+                                      Section {section}
+                                    </Button>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
                         
                         <div>
                           <h4 className="font-medium text-sm mb-2 flex items-center">
