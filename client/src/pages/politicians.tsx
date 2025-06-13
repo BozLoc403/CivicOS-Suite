@@ -74,26 +74,21 @@ export default function Politicians() {
 
   if (isLoading) {
     return (
-      <div>
-        <LuxuryNavigation />
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
-          <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="text-center space-y-4">
-              <div className="w-16 h-16 border-4 border-slate-300 border-t-slate-600 rounded-full animate-spin mx-auto"></div>
-              <p className="text-lg font-medium text-slate-600 dark:text-slate-400">
-                Loading politician intelligence data...
-              </p>
-            </div>
-          </main>
-        </div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="text-center space-y-4">
+            <div className="w-16 h-16 border-4 border-slate-300 border-t-slate-600 rounded-full animate-spin mx-auto"></div>
+            <p className="text-lg font-medium text-slate-600 dark:text-slate-400">
+              Loading politician intelligence data...
+            </p>
+          </div>
+        </main>
       </div>
     );
   }
 
   return (
-    <div>
-      <LuxuryNavigation />
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="mb-8">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
@@ -458,6 +453,5 @@ export default function Politicians() {
           )}
         </main>
       </div>
-    </div>
-  );
-}
+    );
+  }
