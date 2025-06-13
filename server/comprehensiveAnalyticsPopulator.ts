@@ -133,11 +133,21 @@ export class ComprehensiveAnalyticsPopulator {
   }
 
   /**
-   * Get jurisdictional breakdown with actual officials
+   * Get jurisdictional breakdown with actual officials - Complete Canadian Coverage
    */
   private async getJurisdictionalBreakdown(): Promise<Array<{ jurisdiction: string; count: number; officials: any[] }>> {
     try {
-      const jurisdictions = ['Federal', 'Ontario', 'Quebec', 'British Columbia', 'Alberta'];
+      // Complete list of all Canadian jurisdictions including territories and Maritime provinces
+      const jurisdictions = [
+        'Federal',
+        // Provinces
+        'Ontario', 'Quebec', 'British Columbia', 'Alberta', 'Manitoba', 'Saskatchewan',
+        // Maritime provinces
+        'Nova Scotia', 'New Brunswick', 'Prince Edward Island', 'Newfoundland and Labrador',
+        // Territories
+        'Northwest Territories', 'Nunavut', 'Yukon'
+      ];
+      
       const breakdown = [];
 
       for (const jurisdiction of jurisdictions) {
@@ -145,20 +155,30 @@ export class ComprehensiveAnalyticsPopulator {
           id: politicians.id,
           name: politicians.name,
           position: politicians.position,
-          party: politicians.party
+          party: politicians.party,
+          constituency: politicians.constituency
         })
         .from(politicians)
         .where(eq(politicians.jurisdiction, jurisdiction))
-        .limit(10);
+        .limit(15); // Increased limit for better representation
 
-        breakdown.push({
-          jurisdiction,
-          count: officials.length,
-          officials
-        });
+        // If no data exists, populate with placeholder structure to show coverage
+        if (officials.length === 0) {
+          breakdown.push({
+            jurisdiction,
+            count: 0,
+            officials: []
+          });
+        } else {
+          breakdown.push({
+            jurisdiction,
+            count: officials.length,
+            officials
+          });
+        }
       }
 
-      return breakdown;
+      return breakdown.sort((a, b) => b.count - a.count); // Sort by count descending
     } catch (error) {
       console.error("Error getting jurisdictional breakdown:", error);
       return [];
@@ -329,10 +349,20 @@ export class ComprehensiveAnalyticsPopulator {
   }
 
   /**
-   * Get regional influence data
+   * Get regional influence data - Complete Canadian Coverage
    */
   private async getRegionalInfluence(): Promise<Array<{ region: string; keyFigures: any[]; majorIssues: string[] }>> {
-    const regions = ['Federal', 'Ontario', 'Quebec', 'British Columbia', 'Alberta'];
+    // Complete list of all Canadian jurisdictions
+    const regions = [
+      'Federal',
+      // Provinces
+      'Ontario', 'Quebec', 'British Columbia', 'Alberta', 'Manitoba', 'Saskatchewan',
+      // Maritime provinces
+      'Nova Scotia', 'New Brunswick', 'Prince Edward Island', 'Newfoundland and Labrador',
+      // Territories
+      'Northwest Territories', 'Nunavut', 'Yukon'
+    ];
+    
     const influence = [];
 
     for (const region of regions) {
@@ -341,11 +371,12 @@ export class ComprehensiveAnalyticsPopulator {
           id: politicians.id,
           name: politicians.name,
           position: politicians.position,
-          party: politicians.party
+          party: politicians.party,
+          constituency: politicians.constituency
         })
         .from(politicians)
         .where(eq(politicians.jurisdiction, region))
-        .limit(3);
+        .limit(5); // Increased to show more representation
 
         influence.push({
           region,
@@ -354,6 +385,12 @@ export class ComprehensiveAnalyticsPopulator {
         });
       } catch (error) {
         console.error(`Error getting influence for ${region}:`, error);
+        // Still include region even if no data to show comprehensive coverage
+        influence.push({
+          region,
+          keyFigures: [],
+          majorIssues: this.getRegionalIssues(region)
+        });
       }
     }
 
@@ -366,9 +403,20 @@ export class ComprehensiveAnalyticsPopulator {
       'Ontario': ['Housing', 'Education', 'Healthcare', 'Transportation'],
       'Quebec': ['Language Rights', 'Hydroelectric', 'Culture', 'Autonomy'],
       'British Columbia': ['Environment', 'Indigenous Rights', 'Housing', 'Forestry'],
-      'Alberta': ['Energy', 'Pipeline', 'Agriculture', 'Economy']
+      'Alberta': ['Energy', 'Pipeline', 'Agriculture', 'Economy'],
+      'Manitoba': ['Agriculture', 'Indigenous Affairs', 'Hydroelectric', 'Trade'],
+      'Saskatchewan': ['Agriculture', 'Mining', 'Energy', 'Rural Development'],
+      // Maritime provinces
+      'Nova Scotia': ['Fisheries', 'Tourism', 'Offshore Energy', 'Healthcare'],
+      'New Brunswick': ['Forestry', 'Fisheries', 'Bilingualism', 'Economic Development'],
+      'Prince Edward Island': ['Agriculture', 'Tourism', 'Fisheries', 'Island Connectivity'],
+      'Newfoundland and Labrador': ['Offshore Oil', 'Fisheries', 'Mining', 'Rural Communities'],
+      // Territories
+      'Northwest Territories': ['Mining', 'Indigenous Self-Government', 'Climate Change', 'Infrastructure'],
+      'Nunavut': ['Indigenous Rights', 'Arctic Sovereignty', 'Food Security', 'Climate Adaptation'],
+      'Yukon': ['Mining', 'Tourism', 'First Nations', 'Environmental Protection']
     };
-    return issuesMap[region] || ['Local Issues'];
+    return issuesMap[region] || ['Local Governance', 'Economic Development', 'Community Services'];
   }
 
   private async getTotalVotes(): Promise<number> {

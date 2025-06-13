@@ -97,6 +97,71 @@ export default function TrustPage() {
       keyIssues: ["Autonomy", "Language Rights", "Healthcare"],
       trendDirection: "down",
       change: -1.9
+    },
+    // Maritime provinces
+    {
+      province: "Nova Scotia",
+      federalTrust: 42,
+      provincialTrust: 51,
+      municipalTrust: 73,
+      keyIssues: ["Healthcare", "Economy", "Fisheries"],
+      trendDirection: "up",
+      change: +1.7
+    },
+    {
+      province: "New Brunswick",
+      federalTrust: 39,
+      provincialTrust: 48,
+      municipalTrust: 69,
+      keyIssues: ["Healthcare", "Education", "Economic Development"],
+      trendDirection: "stable",
+      change: +0.4
+    },
+    {
+      province: "Prince Edward Island",
+      federalTrust: 44,
+      provincialTrust: 56,
+      municipalTrust: 78,
+      keyIssues: ["Healthcare", "Tourism", "Agriculture"],
+      trendDirection: "up",
+      change: +2.3
+    },
+    {
+      province: "Newfoundland and Labrador",
+      federalTrust: 35,
+      provincialTrust: 43,
+      municipalTrust: 67,
+      keyIssues: ["Economy", "Healthcare", "Population Decline"],
+      trendDirection: "down",
+      change: -2.8
+    },
+    // Territories
+    {
+      province: "Yukon",
+      federalTrust: 38,
+      provincialTrust: 49,
+      municipalTrust: 72,
+      keyIssues: ["Indigenous Rights", "Mining", "Cost of Living"],
+      trendDirection: "stable",
+      change: +0.6
+    },
+    {
+      province: "Northwest Territories",
+      federalTrust: 41,
+      provincialTrust: 52,
+      municipalTrust: 74,
+      keyIssues: ["Indigenous Self-Government", "Mining", "Infrastructure"],
+      trendDirection: "up",
+      change: +1.9
+    },
+    {
+      province: "Nunavut",
+      federalTrust: 37,
+      provincialTrust: 45,
+      municipalTrust: 71,
+      keyIssues: ["Food Security", "Housing", "Indigenous Rights"],
+      trendDirection: "stable",
+      change: -0.2
     }
   ];
 
