@@ -6,11 +6,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { Bell, Shield, Globe, Eye, Mail, Smartphone } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Bell, Shield, Globe, Eye, Mail, Smartphone, Lock, Check } from "lucide-react";
 import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Settings() {
   const { user } = useAuth();
+  const { toast } = useToast();
+  
   const [notifications, setNotifications] = useState({
     email: true,
     push: false,
@@ -25,6 +31,61 @@ export default function Settings() {
     showVotes: false,
     showLocation: true
   });
+
+  // Password change state
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+  const [passwordError, setPasswordError] = useState('');
+  const [passwordSuccess, setPasswordSuccess] = useState(false);
+
+  const changePasswordMutation = useMutation({
+    mutationFn: async (data: { currentPassword: string; newPassword: string }) => {
+      const res = await apiRequest("POST", "/api/auth/change-password", data);
+      return await res.json();
+    },
+    onSuccess: () => {
+      setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      setPasswordError('');
+      setPasswordSuccess(true);
+      toast({
+        title: "Password Changed",
+        description: "Your password has been updated successfully",
+      });
+      setTimeout(() => setPasswordSuccess(false), 3000);
+    },
+    onError: (error: any) => {
+      setPasswordError(error.message || "Failed to change password");
+      setPasswordSuccess(false);
+    },
+  });
+
+  const handlePasswordChange = (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordError('');
+    
+    if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) {
+      setPasswordError('All password fields are required');
+      return;
+    }
+    
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setPasswordError('New passwords do not match');
+      return;
+    }
+    
+    if (passwordForm.newPassword.length < 6) {
+      setPasswordError('New password must be at least 6 characters');
+      return;
+    }
+
+    changePasswordMutation.mutate({
+      currentPassword: passwordForm.currentPassword,
+      newPassword: passwordForm.newPassword
+    });
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">

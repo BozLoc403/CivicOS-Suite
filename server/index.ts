@@ -7,6 +7,7 @@ import { comprehensiveNewsAnalyzer } from "./comprehensiveNewsAnalyzer";
 import { realTimeMonitoring } from "./realTimeMonitoring";
 import { legalDataPopulator } from "./legalDataPopulator";
 import { confirmedAPIs } from "./confirmedAPIs";
+import { setupLocalAuth, createUserAccount } from "./localAuth";
 
 const app = express();
 app.use(express.json());
@@ -75,6 +76,14 @@ app.use((req, res, next) => {
     
     // Initialize automatic government data sync
     initializeDataSync();
+    
+    // Setup local authentication
+    setupLocalAuth(app);
+    
+    // Create user account on startup
+    setTimeout(() => {
+      createUserAccount();
+    }, 2000);
     
     // Initialize confirmed government API data enhancement
     async function initializeConfirmedAPIs() {
