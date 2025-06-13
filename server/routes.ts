@@ -1049,15 +1049,87 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Forum posts with vote counts
+  // Forum categories endpoint
+  app.get("/api/forum/categories", async (req, res) => {
+    try {
+      const categories = await db.execute(sql`
+        SELECT 
+          fc.*,
+          COUNT(fp.id) as post_count
+        FROM forum_categories fc
+        LEFT JOIN forum_posts fp ON fc.id = fp.category_id
+        WHERE fc.is_visible = true
+        GROUP BY fc.id
+        ORDER BY fc.sort_order ASC, fc.name ASC
+      `);
+      res.json(categories.rows);
+    } catch (error) {
+      console.error("Error fetching forum categories:", error);
+      res.status(500).json({ message: "Failed to fetch forum categories" });
+    }
+  });
+
+  // Forum subcategories endpoint
+  app.get("/api/forum/subcategories", async (req, res) => {
+    try {
+      const subcategories = await db.execute(sql`
+        SELECT 
+          fs.*,
+          fc.name as category_name,
+          COUNT(fp.id) as post_count
+        FROM forum_subcategories fs
+        LEFT JOIN forum_categories fc ON fs.category_id = fc.id
+        LEFT JOIN forum_posts fp ON fs.id = fp.subcategory_id
+        WHERE fs.is_visible = true
+        GROUP BY fs.id, fc.name
+        ORDER BY fs.category_id ASC, fs.sort_order ASC, fs.name ASC
+      `);
+      res.json(subcategories.rows);
+    } catch (error) {
+      console.error("Error fetching forum subcategories:", error);
+      res.status(500).json({ message: "Failed to fetch forum subcategories" });
+    }
+  });
+
+  // Forum posts with vote counts and category/subcategory filtering
   app.get("/api/forum/posts", async (req, res) => {
     try {
+      const { category, subcategory, sort } = req.query;
+      
+      let whereClause = sql`WHERE 1=1`;
+      
+      if (category && category !== 'all') {
+        if (isNaN(Number(category))) {
+          whereClause = sql`${whereClause} AND fc.name = ${category}`;
+        } else {
+          whereClause = sql`${whereClause} AND fp.category_id = ${category}`;
+        }
+      }
+      
+      if (subcategory && subcategory !== 'all') {
+        if (isNaN(Number(subcategory))) {
+          whereClause = sql`${whereClause} AND fs.name = ${subcategory}`;
+        } else {
+          whereClause = sql`${whereClause} AND fp.subcategory_id = ${subcategory}`;
+        }
+      }
+      
+      let orderClause = sql`ORDER BY fp.is_sticky DESC, fp.created_at DESC`;
+      if (sort === 'popular') {
+        orderClause = sql`ORDER BY fp.is_sticky DESC, COALESCE(vc.total_score, 0) DESC, fp.created_at DESC`;
+      } else if (sort === 'oldest') {
+        orderClause = sql`ORDER BY fp.is_sticky DESC, fp.created_at ASC`;
+      }
+
       const posts = await db.execute(sql`
         SELECT 
           fp.*,
           fc.name as category_name,
           fc.color as category_color,
           fc.icon as category_icon,
+          fs.name as subcategory_name,
+          fs.color as subcategory_color,
+          fs.icon as subcategory_icon,
           u.first_name,
           u.last_name,
           u.email,
@@ -1069,17 +1141,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
           COUNT(fr.id) as reply_count
         FROM forum_posts fp
         LEFT JOIN forum_categories fc ON fp.category_id = fc.id
+        LEFT JOIN forum_subcategories fs ON fp.subcategory_id = fs.id
         LEFT JOIN forum_replies fr ON fp.id = fr.post_id
         LEFT JOIN users u ON fp.author_id = u.id
         LEFT JOIN vote_counts vc ON vc.target_type = 'post' AND vc.target_id = fp.id
-        GROUP BY fp.id, fc.name, fc.color, fc.icon, u.first_name, u.last_name, u.email, u.profile_image_url, u.civic_level, vc.upvotes, vc.downvotes, vc.total_score
-        ORDER BY fp.is_sticky DESC, fp.created_at DESC
+        ${whereClause}
+        GROUP BY fp.id, fc.name, fc.color, fc.icon, fs.name, fs.color, fs.icon, u.first_name, u.last_name, u.email, u.profile_image_url, u.civic_level, vc.upvotes, vc.downvotes, vc.total_score
+        ${orderClause}
         LIMIT 50
       `);
       res.json(posts.rows);
     } catch (error) {
       console.error("Error fetching forum posts:", error);
       res.status(500).json({ message: "Failed to fetch forum posts" });
+    }
+  });
+
+  // Create new forum post
+  app.post("/api/forum/posts", isAuthenticated, async (req: any, res) => {
+    try {
+      const { title, content, categoryId, subcategoryId, billId } = req.body;
+      const userId = req.user.claims.sub;
+
+      if (!title?.trim() || !content?.trim() || !categoryId) {
+        return res.status(400).json({ message: "Title, content, and category are required" });
+      }
+
+      const result = await db.execute(sql`
+        INSERT INTO forum_posts (title, content, author_id, category_id, subcategory_id, bill_id, created_at, updated_at)
+        VALUES (${title}, ${content}, ${userId}, ${categoryId}, ${subcategoryId || null}, ${billId || null}, NOW(), NOW())
+        RETURNING id
+      `);
+
+      res.json({ 
+        message: "Post created successfully",
+        postId: result.rows[0].id
+      });
+    } catch (error) {
+      console.error("Error creating forum post:", error);
+      res.status(500).json({ message: "Failed to create forum post" });
     }
   });
 

@@ -160,7 +160,7 @@ export default function Discussions() {
         description: "Your post has been created successfully!"
       });
       setShowCreatePost(false);
-      setNewPost({ title: "", content: "", categoryId: "", billId: "" });
+      setNewPost({ title: "", content: "", categoryId: "", subcategoryId: "", billId: "" });
       queryClient.invalidateQueries({ queryKey: ["/api/forum/posts"] });
     },
     onError: (error: Error) => {
