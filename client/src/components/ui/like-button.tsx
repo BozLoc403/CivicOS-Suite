@@ -32,15 +32,19 @@ export function LikeButton({
 
   const likeMutation = useMutation({
     mutationFn: async () => {
-      const endpoint = `/api/forum/${itemType}s/${itemId}/like`;
-      return await apiRequest(endpoint, "POST");
+      // Use the unified voting API
+      return await apiRequest("/api/vote", "POST", {
+        targetType: itemType,
+        targetId: itemId,
+        voteType: isLiked ? "downvote" : "upvote"
+      });
     },
     onMutate: () => {
       // Optimistic update
       setIsLiked(!isLiked);
       setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
     },
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       // Update with server response
       setIsLiked(data.isLiked);
       setLikeCount(data.likeCount);
