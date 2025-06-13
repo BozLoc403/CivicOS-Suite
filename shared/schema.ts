@@ -499,6 +499,27 @@ export const politicianPositions = pgTable("politician_positions", {
   verified: boolean("verified").default(false),
 });
 
+// Campaign Finance tracking from Elections Canada
+export const campaignFinance = pgTable("campaign_finance", {
+  id: serial("id").primaryKey(),
+  politicianId: integer("politician_id").notNull().references(() => politicians.id),
+  totalRaised: decimal("total_raised", { precision: 12, scale: 2 }).default("0.00"),
+  individualDonations: decimal("individual_donations", { precision: 12, scale: 2 }).default("0.00"),
+  corporateDonations: decimal("corporate_donations", { precision: 12, scale: 2 }).default("0.00"),
+  publicFunding: decimal("public_funding", { precision: 12, scale: 2 }).default("0.00"),
+  expenditures: decimal("expenditures", { precision: 12, scale: 2 }).default("0.00"),
+  surplus: decimal("surplus", { precision: 12, scale: 2 }).default("0.00"),
+  largestDonor: varchar("largest_donor"),
+  suspiciousTransactions: integer("suspicious_transactions").default(0),
+  complianceScore: integer("compliance_score").default(95),
+  reportingPeriod: varchar("reporting_period").notNull(),
+  filingDeadline: varchar("filing_deadline"),
+  sourceUrl: varchar("source_url"),
+  electionsCanadaId: varchar("elections_canada_id"),
+  lastUpdated: timestamp("last_updated").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Notifications table
 export const notifications = pgTable("notifications", {
   id: serial("id").primaryKey(),

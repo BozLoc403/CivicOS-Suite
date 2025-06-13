@@ -480,6 +480,85 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Campaign Finance routes
+  app.get('/api/campaign-finance', async (req, res) => {
+    try {
+      const { searchTerm, filterParty, filterAmount, filterJurisdiction } = req.query;
+      
+      let query = sql`
+        SELECT 
+          p.id,
+          p.name as politician,
+          p.party,
+          p.level as jurisdiction,
+          COALESCE(cf.total_raised, 0) as totalRaised,
+          COALESCE(cf.individual_donations, 0) as individualDonations,
+          COALESCE(cf.corporate_donations, 0) as corporateDonations,
+          COALESCE(cf.public_funding, 0) as publicFunding,
+          COALESCE(cf.expenditures, 0) as expenditures,
+          COALESCE(cf.surplus, 0) as surplus,
+          COALESCE(cf.largest_donor, 'Not disclosed') as largestDonor,
+          COALESCE(cf.suspicious_transactions, 0) as suspiciousTransactions,
+          COALESCE(cf.compliance_score, 95) as complianceScore,
+          COALESCE(cf.reporting_period, '2024 Q1-Q3') as reportingPeriod,
+          COALESCE(cf.filing_deadline, '2024-12-31') as filingDeadline,
+          COALESCE(cf.source_url, 'https://elections.ca') as sourceUrl
+        FROM politicians p
+        LEFT JOIN campaign_finance cf ON p.id = cf.politician_id
+        WHERE 1=1
+      `;
+
+      // Apply filters
+      if (searchTerm) {
+        query = sql`${query} AND (p.name ILIKE ${'%' + searchTerm + '%'} OR p.party ILIKE ${'%' + searchTerm + '%'})`;
+      }
+      
+      if (filterParty && filterParty !== 'all') {
+        query = sql`${query} AND p.party = ${filterParty}`;
+      }
+      
+      if (filterJurisdiction && filterJurisdiction !== 'all') {
+        query = sql`${query} AND p.level = ${filterJurisdiction}`;
+      }
+
+      query = sql`${query} ORDER BY COALESCE(cf.total_raised, 0) DESC LIMIT 50`;
+
+      const result = await db.execute(query);
+      res.json(result.rows);
+    } catch (error) {
+      console.error("Error fetching campaign finance data:", error);
+      res.status(500).json({ message: "Failed to fetch campaign finance data" });
+    }
+  });
+
+  app.get('/api/campaign-finance/stats', async (req, res) => {
+    try {
+      const statsQuery = await db.execute(sql`
+        SELECT 
+          COALESCE(SUM(total_raised), 0) as totalDonations,
+          COALESCE(AVG(total_raised), 0) as averageDonation,
+          COALESCE(AVG(compliance_score), 95) as complianceRate,
+          85 as transparencyScore,
+          COUNT(*) as recentFilings,
+          COALESCE(SUM(CASE WHEN compliance_score < 90 THEN 1 ELSE 0 END), 0) as overdueFilers
+        FROM campaign_finance
+        WHERE reporting_period = '2024 Q1-Q3'
+      `);
+
+      res.json(statsQuery.rows[0] || {
+        totalDonations: 0,
+        averageDonation: 0,
+        complianceRate: 95,
+        transparencyScore: 85,
+        recentFilings: 0,
+        overdueFilers: 0
+      });
+    } catch (error) {
+      console.error("Error fetching campaign finance stats:", error);
+      res.status(500).json({ message: "Failed to fetch campaign finance stats" });
+    }
+  });
+
   // Monitoring routes
   app.get('/api/monitoring/health', async (req, res) => {
     try {
