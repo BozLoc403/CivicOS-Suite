@@ -643,6 +643,228 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Comprehensive voting system for all content types
+  app.post('/api/vote', isAuthenticated, async (req: any, res) => {
+    try {
+      const { targetType, targetId, voteType } = req.body;
+      const userId = req.user.claims.sub;
+
+      if (!['politician', 'bill', 'post', 'comment', 'petition', 'news'].includes(targetType)) {
+        return res.status(400).json({ message: "Invalid target type" });
+      }
+
+      if (!['upvote', 'downvote'].includes(voteType)) {
+        return res.status(400).json({ message: "Invalid vote type" });
+      }
+
+      // Check for existing vote
+      const existingVote = await db.execute(sql`
+        SELECT * FROM user_votes 
+        WHERE user_id = ${userId} AND target_type = ${targetType} AND target_id = ${targetId}
+      `);
+
+      if (existingVote.rows.length > 0) {
+        const existing = existingVote.rows[0] as any;
+        if (existing.vote_type === voteType) {
+          // Remove vote if clicking same button
+          await db.execute(sql`
+            DELETE FROM user_votes 
+            WHERE user_id = ${userId} AND target_type = ${targetType} AND target_id = ${targetId}
+          `);
+        } else {
+          // Update vote type
+          await db.execute(sql`
+            UPDATE user_votes 
+            SET vote_type = ${voteType}, created_at = NOW()
+            WHERE user_id = ${userId} AND target_type = ${targetType} AND target_id = ${targetId}
+          `);
+        }
+      } else {
+        // Create new vote
+        await db.execute(sql`
+          INSERT INTO user_votes (user_id, target_type, target_id, vote_type)
+          VALUES (${userId}, ${targetType}, ${targetId}, ${voteType})
+        `);
+      }
+
+      // Update vote counts
+      const voteCounts = await db.execute(sql`
+        SELECT 
+          COUNT(CASE WHEN vote_type = 'upvote' THEN 1 END) as upvotes,
+          COUNT(CASE WHEN vote_type = 'downvote' THEN 1 END) as downvotes
+        FROM user_votes 
+        WHERE target_type = ${targetType} AND target_id = ${targetId}
+      `);
+
+      const counts = voteCounts.rows[0] as any;
+      
+      // Update or insert vote_counts table
+      await db.execute(sql`
+        INSERT INTO vote_counts (target_type, target_id, upvotes, downvotes, total_score)
+        VALUES (${targetType}, ${targetId}, ${counts.upvotes}, ${counts.downvotes}, ${counts.upvotes - counts.downvotes})
+        ON CONFLICT (target_type, target_id)
+        DO UPDATE SET 
+          upvotes = ${counts.upvotes},
+          downvotes = ${counts.downvotes},
+          total_score = ${counts.upvotes - counts.downvotes},
+          updated_at = NOW()
+      `);
+
+      res.json({ 
+        upvotes: counts.upvotes, 
+        downvotes: counts.downvotes, 
+        totalScore: counts.upvotes - counts.downvotes 
+      });
+    } catch (error) {
+      console.error("Error processing vote:", error);
+      res.status(500).json({ message: "Failed to process vote" });
+    }
+  });
+
+  // Get vote counts and user's vote for specific content
+  app.get('/api/vote/:targetType/:targetId', async (req, res) => {
+    try {
+      const { targetType, targetId } = req.params;
+      const userId = (req as any).user?.claims?.sub;
+
+      const voteCounts = await db.execute(sql`
+        SELECT upvotes, downvotes, total_score
+        FROM vote_counts 
+        WHERE target_type = ${targetType} AND target_id = ${targetId}
+      `);
+
+      let userVote = null;
+      if (userId) {
+        const userVoteResult = await db.execute(sql`
+          SELECT vote_type FROM user_votes 
+          WHERE user_id = ${userId} AND target_type = ${targetType} AND target_id = ${targetId}
+        `);
+        userVote = userVoteResult.rows[0]?.vote_type || null;
+      }
+
+      const counts = voteCounts.rows[0] || { upvotes: 0, downvotes: 0, total_score: 0 };
+
+      res.json({
+        upvotes: counts.upvotes,
+        downvotes: counts.downvotes,
+        totalScore: counts.total_score,
+        userVote
+      });
+    } catch (error) {
+      console.error("Error fetching vote data:", error);
+      res.status(500).json({ message: "Failed to fetch vote data" });
+    }
+  });
+
+  // Comprehensive commenting system
+  app.post('/api/comments', isAuthenticated, async (req: any, res) => {
+    try {
+      const { targetType, targetId, content, parentCommentId } = req.body;
+      const userId = req.user.claims.sub;
+
+      if (!content?.trim()) {
+        return res.status(400).json({ message: "Comment content is required" });
+      }
+
+      const result = await db.execute(sql`
+        INSERT INTO content_comments (target_type, target_id, author_id, content, parent_comment_id)
+        VALUES (${targetType}, ${targetId}, ${userId}, ${content}, ${parentCommentId || null})
+        RETURNING id, created_at
+      `);
+
+      const comment = result.rows[0];
+      res.json({ id: comment.id, message: "Comment posted successfully" });
+    } catch (error) {
+      console.error("Error posting comment:", error);
+      res.status(500).json({ message: "Failed to post comment" });
+    }
+  });
+
+  // Get comments for specific content
+  app.get('/api/comments/:targetType/:targetId', async (req, res) => {
+    try {
+      const { targetType, targetId } = req.params;
+
+      const comments = await db.execute(sql`
+        SELECT 
+          cc.*,
+          u.first_name,
+          u.last_name,
+          u.email,
+          u.profile_image_url,
+          COUNT(cl.id) as like_count
+        FROM content_comments cc
+        LEFT JOIN users u ON cc.author_id = u.id
+        LEFT JOIN comment_likes cl ON cc.id = cl.comment_id
+        WHERE cc.target_type = ${targetType} AND cc.target_id = ${targetId}
+        GROUP BY cc.id, u.first_name, u.last_name, u.email, u.profile_image_url
+        ORDER BY cc.created_at DESC
+      `);
+
+      // Build nested comment structure
+      const commentMap = new Map();
+      const rootComments = [];
+
+      for (const comment of comments.rows) {
+        const commentObj = {
+          ...comment,
+          author: {
+            firstName: comment.first_name,
+            lastName: comment.last_name,
+            email: comment.email,
+            profileImageUrl: comment.profile_image_url
+          },
+          replies: []
+        };
+        commentMap.set(comment.id, commentObj);
+
+        if (comment.parent_comment_id) {
+          const parent = commentMap.get(comment.parent_comment_id);
+          if (parent) {
+            parent.replies.push(commentObj);
+          }
+        } else {
+          rootComments.push(commentObj);
+        }
+      }
+
+      res.json(rootComments);
+    } catch (error) {
+      console.error("Error fetching comments:", error);
+      res.status(500).json({ message: "Failed to fetch comments" });
+    }
+  });
+
+  // Like/unlike comments
+  app.post('/api/comments/like', isAuthenticated, async (req: any, res) => {
+    try {
+      const { commentId } = req.body;
+      const userId = req.user.claims.sub;
+
+      const existing = await db.execute(sql`
+        SELECT id FROM comment_likes 
+        WHERE comment_id = ${commentId} AND user_id = ${userId}
+      `);
+
+      if (existing.rows.length > 0) {
+        await db.execute(sql`
+          DELETE FROM comment_likes 
+          WHERE comment_id = ${commentId} AND user_id = ${userId}
+        `);
+      } else {
+        await db.execute(sql`
+          INSERT INTO comment_likes (comment_id, user_id)
+          VALUES (${commentId}, ${userId})
+        `);
+      }
+
+      res.json({ message: "Comment like toggled successfully" });
+    } catch (error) {
+      console.error("Error liking comment:", error);
+      res.status(500).json({ message: "Failed to like comment" });
+    }
+  });
+
   // Forum posts with vote counts
   app.get("/api/forum/posts", async (req, res) => {
     try {

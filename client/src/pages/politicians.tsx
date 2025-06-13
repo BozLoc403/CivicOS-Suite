@@ -478,7 +478,7 @@ function PoliticianDetailModal({ politician, onClose }: PoliticianDetailModalPro
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  {policyPositions.length === 0 ? (
+                  {(policyPositions as any[])?.length === 0 ? (
                     <div className="bg-green-50 rounded-lg p-6 text-center">
                       <FileText className="w-12 h-12 text-green-500 mx-auto mb-3" />
                       <h3 className="font-semibold text-green-900 mb-2">Policy Analysis in Progress</h3>
@@ -489,7 +489,7 @@ function PoliticianDetailModal({ politician, onClose }: PoliticianDetailModalPro
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      {policyPositions.map((position: any, index: number) => (
+                      {(policyPositions as any[])?.map((position: any, index: number) => (
                         <div key={index} className="border border-gray-200 rounded-lg p-4">
                           <div className="flex items-start justify-between">
                             <div>
@@ -518,7 +518,7 @@ function PoliticianDetailModal({ politician, onClose }: PoliticianDetailModalPro
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  {financialDisclosures.length === 0 ? (
+                  {(financialDisclosures as any[])?.length === 0 ? (
                     <div className="bg-purple-50 rounded-lg p-6 text-center">
                       <DollarSign className="w-12 h-12 text-purple-500 mx-auto mb-3" />
                       <h3 className="font-semibold text-purple-900 mb-2">Financial Data Compilation</h3>
@@ -529,7 +529,7 @@ function PoliticianDetailModal({ politician, onClose }: PoliticianDetailModalPro
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      {financialDisclosures.map((disclosure: any, index: number) => (
+                      {(financialDisclosures as any[])?.map((disclosure: any, index: number) => (
                         <div key={index} className="border border-gray-200 rounded-lg p-4">
                           <div className="flex items-start justify-between">
                             <div>
@@ -558,7 +558,7 @@ function PoliticianDetailModal({ politician, onClose }: PoliticianDetailModalPro
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  {publicStatements.length === 0 ? (
+                  {(publicStatements as any[])?.length === 0 ? (
                     <div className="bg-yellow-50 rounded-lg p-6 text-center">
                       <Calendar className="w-12 h-12 text-yellow-500 mx-auto mb-3" />
                       <h3 className="font-semibold text-yellow-900 mb-2">Statement Tracking Active</h3>
@@ -569,7 +569,7 @@ function PoliticianDetailModal({ politician, onClose }: PoliticianDetailModalPro
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      {publicStatements.map((statement: any, index: number) => (
+                      {(publicStatements as any[])?.map((statement: any, index: number) => (
                         <div key={index} className="border border-gray-200 rounded-lg p-4">
                           <div className="flex items-start justify-between">
                             <div>
