@@ -346,6 +346,187 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Voting system endpoints
+  app.post("/api/vote", async (req, res) => {
+    if (!req.isAuthenticated() || !req.user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    try {
+      const { targetType, targetId, voteType } = req.body;
+      const userId = (req.user as any).id;
+
+      if (!['upvote', 'downvote'].includes(voteType)) {
+        return res.status(400).json({ message: "Invalid vote type" });
+      }
+
+      if (!['politician', 'bill', 'post', 'comment', 'petition'].includes(targetType)) {
+        return res.status(400).json({ message: "Invalid target type" });
+      }
+
+      // Upsert user vote
+      await db.execute(sql`
+        INSERT INTO user_votes (user_id, target_type, target_id, vote_type, created_at, updated_at)
+        VALUES (${userId}, ${targetType}, ${targetId}, ${voteType}, NOW(), NOW())
+        ON CONFLICT (user_id, target_type, target_id) 
+        DO UPDATE SET vote_type = EXCLUDED.vote_type, updated_at = NOW()
+      `);
+
+      // Update vote counts
+      const upvotes = await db.execute(sql`
+        SELECT COUNT(*) as count FROM user_votes 
+        WHERE target_type = ${targetType} AND target_id = ${targetId} AND vote_type = 'upvote'
+      `);
+      
+      const downvotes = await db.execute(sql`
+        SELECT COUNT(*) as count FROM user_votes 
+        WHERE target_type = ${targetType} AND target_id = ${targetId} AND vote_type = 'downvote'
+      `);
+
+      const upvoteCount = upvotes.rows?.[0]?.count || 0;
+      const downvoteCount = downvotes.rows?.[0]?.count || 0;
+      const totalScore = upvoteCount - downvoteCount;
+
+      await db.execute(sql`
+        INSERT INTO vote_counts (target_type, target_id, upvotes, downvotes, total_score, updated_at)
+        VALUES (${targetType}, ${targetId}, ${upvoteCount}, ${downvoteCount}, ${totalScore}, NOW())
+        ON CONFLICT (target_type, target_id)
+        DO UPDATE SET 
+          upvotes = EXCLUDED.upvotes,
+          downvotes = EXCLUDED.downvotes,
+          total_score = EXCLUDED.total_score,
+          updated_at = NOW()
+      `);
+
+      // Track user interaction
+      await db.execute(sql`
+        INSERT INTO user_interactions (user_id, interaction_type, target_type, target_id, content, created_at)
+        VALUES (${userId}, 'vote', ${targetType}, ${targetId}, ${voteType}, NOW())
+      `);
+
+      res.json({
+        success: true,
+        upvotes: upvoteCount,
+        downvotes: downvoteCount,
+        totalScore: totalScore,
+        userVote: voteType
+      });
+    } catch (error) {
+      console.error("Error processing vote:", error);
+      res.status(500).json({ message: "Failed to process vote" });
+    }
+  });
+
+  // Get vote counts for items
+  app.get("/api/vote/:targetType/:targetId", async (req, res) => {
+    try {
+      const { targetType, targetId } = req.params;
+      const userId = req.isAuthenticated() && req.user ? (req.user as any).id : null;
+
+      const [voteCounts] = await db.execute(sql`
+        SELECT upvotes, downvotes, total_score
+        FROM vote_counts
+        WHERE target_type = ${targetType} AND target_id = ${targetId}
+      `);
+
+      let userVote = null;
+      if (userId) {
+        const [userVoteResult] = await db.execute(sql`
+          SELECT vote_type
+          FROM user_votes
+          WHERE user_id = ${userId} AND target_type = ${targetType} AND target_id = ${targetId}
+        `);
+        userVote = userVoteResult?.vote_type || null;
+      }
+
+      res.json({
+        upvotes: voteCounts?.upvotes || 0,
+        downvotes: voteCounts?.downvotes || 0,
+        totalScore: voteCounts?.total_score || 0,
+        userVote: userVote
+      });
+    } catch (error) {
+      console.error("Error fetching vote counts:", error);
+      res.status(500).json({ message: "Failed to fetch vote counts" });
+    }
+  });
+
+  // Enhanced politicians endpoint with vote counts
+  app.get("/api/politicians", async (req, res) => {
+    try {
+      const politicians = await db.execute(sql`
+        SELECT 
+          p.*,
+          COALESCE(vc.upvotes, 0) as upvotes,
+          COALESCE(vc.downvotes, 0) as downvotes,
+          COALESCE(vc.total_score, 0) as vote_score
+        FROM politicians p
+        LEFT JOIN vote_counts vc ON vc.target_type = 'politician' AND vc.target_id = p.id
+        ORDER BY p.level, p.name
+        LIMIT 50
+      `);
+      res.json(politicians.rows);
+    } catch (error) {
+      console.error("Error fetching politicians:", error);
+      res.status(500).json({ message: "Failed to fetch politicians" });
+    }
+  });
+
+  // Enhanced bills endpoint with vote counts
+  app.get("/api/bills", async (req, res) => {
+    try {
+      const bills = await db.execute(sql`
+        SELECT 
+          b.*,
+          COALESCE(vc.upvotes, 0) as upvotes,
+          COALESCE(vc.downvotes, 0) as downvotes,
+          COALESCE(vc.total_score, 0) as vote_score
+        FROM bills b
+        LEFT JOIN vote_counts vc ON vc.target_type = 'bill' AND vc.target_id = b.id
+        ORDER BY b.created_at DESC
+        LIMIT 50
+      `);
+      res.json(bills.rows);
+    } catch (error) {
+      console.error("Error fetching bills:", error);
+      res.status(500).json({ message: "Failed to fetch bills" });
+    }
+  });
+
+  // Forum posts with vote counts
+  app.get("/api/forum/posts", async (req, res) => {
+    try {
+      const posts = await db.execute(sql`
+        SELECT 
+          fp.*,
+          fc.name as category_name,
+          fc.color as category_color,
+          fc.icon as category_icon,
+          u.first_name,
+          u.last_name,
+          u.email,
+          u.profile_image_url,
+          u.civic_level,
+          COALESCE(vc.upvotes, 0) as upvotes,
+          COALESCE(vc.downvotes, 0) as downvotes,
+          COALESCE(vc.total_score, 0) as vote_score,
+          COUNT(fr.id) as reply_count
+        FROM forum_posts fp
+        LEFT JOIN forum_categories fc ON fp.category_id = fc.id
+        LEFT JOIN forum_replies fr ON fp.id = fr.post_id
+        LEFT JOIN users u ON fp.author_id = u.id
+        LEFT JOIN vote_counts vc ON vc.target_type = 'post' AND vc.target_id = fp.id
+        GROUP BY fp.id, fc.name, fc.color, fc.icon, u.first_name, u.last_name, u.email, u.profile_image_url, u.civic_level, vc.upvotes, vc.downvotes, vc.total_score
+        ORDER BY fp.is_sticky DESC, fp.created_at DESC
+        LIMIT 50
+      `);
+      res.json(posts.rows);
+    } catch (error) {
+      console.error("Error fetching forum posts:", error);
+      res.status(500).json({ message: "Failed to fetch forum posts" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
