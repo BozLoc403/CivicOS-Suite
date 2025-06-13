@@ -252,7 +252,7 @@ function BillsWidget({ data }: { data: any }) {
             </div>
           </div>
 
-          <Link href="/bills">
+          <Link href="/voting">
             <Button variant="outline" className="w-full mt-3">
               <ArrowRight className="w-4 h-4 mr-2" />
               View All Bills
@@ -418,7 +418,7 @@ function AnalyticsWidget({ data }: { data: any }) {
             </div>
           </div>
 
-          <Link href="/analytics">
+          <Link href="/pulse">
             <Button variant="outline" className="w-full mt-3">
               <ArrowRight className="w-4 h-4 mr-2" />
               View Analytics
@@ -532,7 +532,7 @@ function RightsEducationCenter() {
         <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
           Your role in Canadian democracy and governance
         </p>
-        <Link href="/civic">
+        <Link href="/rights">
           <Button className="w-full">Learn Duties</Button>
         </Link>
       </Card>
