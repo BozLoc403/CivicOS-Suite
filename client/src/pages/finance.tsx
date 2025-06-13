@@ -89,10 +89,15 @@ export default function FinancePage() {
   };
 
   const filteredFinanceData = financeData.filter(record => {
-    const matchesSearch = record.politician?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         record.party?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesParty = filterParty === "all" || record.party === filterParty;
-    const matchesJurisdiction = filterJurisdiction === "all" || record.jurisdiction === filterJurisdiction;
+    if (!record) return false;
+    const politician = record.politician || "";
+    const party = record.party || "";
+    const jurisdiction = record.jurisdiction || "";
+    
+    const matchesSearch = politician.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         party.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesParty = filterParty === "all" || party === filterParty;
+    const matchesJurisdiction = filterJurisdiction === "all" || jurisdiction === filterJurisdiction;
     
     let matchesAmount = true;
     if (filterAmount === "high") matchesAmount = record.totalRaised > 1000000;

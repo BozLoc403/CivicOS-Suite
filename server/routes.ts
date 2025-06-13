@@ -350,6 +350,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Universal voting/like system for all items
+  app.get('/api/vote/:itemType/:itemId', async (req, res) => {
+    try {
+      const { itemType, itemId } = req.params;
+      
+      const votes = await db.execute(sql`
+        SELECT 
+          COUNT(CASE WHEN vote_value = 1 THEN 1 END) as upvotes,
+          COUNT(CASE WHEN vote_value = -1 THEN 1 END) as downvotes,
+          SUM(vote_value) as totalScore
+        FROM votes 
+        WHERE item_id = ${parseInt(itemId)} AND item_type = ${itemType}
+      `);
+      
+      const result = votes.rows[0] || { upvotes: 0, downvotes: 0, totalScore: 0 };
+      res.json({
+        upvotes: Number(result.upvotes || 0),
+        downvotes: Number(result.downvotes || 0),
+        totalScore: Number(result.totalScore || 0),
+        hasVoted: false
+      });
+    } catch (error) {
+      console.error("Error fetching votes:", error);
+      res.json({ upvotes: 0, downvotes: 0, totalScore: 0, hasVoted: false });
+    }
+  });
+
   // Voting routes
   app.get('/api/voting/items', async (req, res) => {
     try {
