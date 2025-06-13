@@ -85,7 +85,12 @@ The platform is designed for deployment on Replit with the following configurati
 
 ## Changelog
 
-- June 13, 2025. Initial setup
+- June 13, 2025: Fixed massive duplicate categories issue in discussions forum
+  - Deleted 917+ redundant forum category entries that were creating excessive tabs
+  - Consolidated all posts to use 7 main organized categories
+  - Updated forum populator with existence checks to prevent future duplicates
+  - Implemented hierarchical subcategory system for better organization
+- June 13, 2025: Initial setup
 
 ## User Preferences
 
