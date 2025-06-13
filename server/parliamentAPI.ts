@@ -137,13 +137,12 @@ export class ParliamentAPIService {
           ${mpData.name}, ${mpData.position}, ${mpData.party}, 
           ${mpData.level}, ${mpData.constituency}, ${mpData.jurisdiction}, ${mpData.source}
         )
-        ON CONFLICT (name, constituency) DO UPDATE SET
-          party = EXCLUDED.party,
-          position = EXCLUDED.position,
-          updated_at = NOW()
       `);
     } catch (error) {
-      console.error("Error storing MP data:", error);
+      // Ignore duplicate entries to prevent conflicts
+      if (!error.message?.includes('duplicate key')) {
+        console.error("Error storing MP data:", error);
+      }
     }
   }
 

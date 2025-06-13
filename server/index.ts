@@ -6,8 +6,7 @@ import { initializeNewsAnalysis } from "./newsAnalyzer";
 import { comprehensiveNewsAnalyzer } from "./comprehensiveNewsAnalyzer";
 import { realTimeMonitoring } from "./realTimeMonitoring";
 import { legalDataPopulator } from "./legalDataPopulator";
-import { parliamentAPI } from "./parliamentAPI";
-import { statisticsCanadaAPI } from "./statisticsCanadaAPI";
+import { confirmedAPIs } from "./confirmedAPIs";
 
 const app = express();
 app.use(express.json());
@@ -77,34 +76,26 @@ app.use((req, res, next) => {
     // Initialize automatic government data sync
     initializeDataSync();
     
-    // Initialize official government API data collection
-    async function initializeGovernmentAPIs() {
-      console.log("Initializing official Canadian government APIs...");
+    // Initialize confirmed government API data enhancement
+    async function initializeConfirmedAPIs() {
+      console.log("Initializing confirmed Canadian government APIs...");
       
-      // Parliament of Canada API integration
+      // Statistics Canada and Open Government API enhancement
       setInterval(async () => {
         try {
-          await parliamentAPI.performParliamentSync();
+          await confirmedAPIs.enhanceDataWithConfirmedAPIs();
         } catch (error) {
-          console.error("Parliament API sync error:", error);
+          console.error("Government API enhancement error:", error);
         }
-      }, 6 * 60 * 60 * 1000); // Every 6 hours
+      }, 12 * 60 * 60 * 1000); // Every 12 hours
       
-      // Statistics Canada API integration
-      setInterval(async () => {
-        try {
-          await statisticsCanadaAPI.performStatCanSync();
-        } catch (error) {
-          console.error("Statistics Canada API sync error:", error);
-        }
-      }, 24 * 60 * 60 * 1000); // Daily
-      
-      // Initial sync
-      parliamentAPI.performParliamentSync();
-      statisticsCanadaAPI.performStatCanSync();
+      // Initial enhancement
+      setTimeout(() => {
+        confirmedAPIs.enhanceDataWithConfirmedAPIs();
+      }, 60000); // 1 minute delay to let scraping start first
     }
     
-    initializeGovernmentAPIs();
+    initializeConfirmedAPIs();
     
     // Initialize daily news analysis and propaganda detection
     initializeNewsAnalysis();
