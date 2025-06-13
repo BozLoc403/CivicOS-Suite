@@ -48,11 +48,20 @@ export function VotingButtons({
       queryClient.invalidateQueries({ queryKey: ["/api/bills"] });
     },
     onError: (error: any) => {
-      toast({
-        title: "Vote Failed",
-        description: error.message || "Failed to register vote",
-        variant: "destructive",
-      });
+      // Handle already voted error
+      if (error.message && error.message.includes("already voted")) {
+        toast({
+          title: "Already Voted",
+          description: "You have already voted on this item. Each user can only vote once.",
+          variant: "default",
+        });
+      } else {
+        toast({
+          title: "Vote Failed",
+          description: error.message || "Failed to register vote",
+          variant: "destructive",
+        });
+      }
     },
   });
 

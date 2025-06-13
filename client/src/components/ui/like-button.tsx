@@ -59,11 +59,20 @@ export function LikeButton({
       setIsLiked(!isLiked);
       setLikeCount(prev => isLiked ? prev + 1 : prev - 1);
       
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update like",
-        variant: "destructive"
-      });
+      // Handle already voted error
+      if (error.message.includes("already voted")) {
+        toast({
+          title: "Already Voted",
+          description: "You have already voted on this item. Each user can only vote once.",
+          variant: "default"
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: error.message || "Failed to update like",
+          variant: "destructive"
+        });
+      }
     }
   });
 

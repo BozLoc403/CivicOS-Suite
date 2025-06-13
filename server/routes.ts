@@ -696,28 +696,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Check for existing vote
       const existingVote = await db.execute(sql`
-        SELECT id FROM user_votes 
+        SELECT id, vote_type FROM user_votes 
         WHERE user_id = ${userId} 
           AND target_type = ${targetType} 
           AND target_id = ${targetId}
       `);
 
       if (existingVote.rows.length > 0) {
-        // Update existing vote
-        await db.execute(sql`
-          UPDATE user_votes 
-          SET vote_type = ${voteType}, updated_at = NOW()
-          WHERE user_id = ${userId} 
-            AND target_type = ${targetType} 
-            AND target_id = ${targetId}
-        `);
-      } else {
-        // Insert new vote
-        await db.execute(sql`
-          INSERT INTO user_votes (user_id, target_type, target_id, vote_type, created_at, updated_at)
-          VALUES (${userId}, ${targetType}, ${targetId}, ${voteType}, NOW(), NOW())
-        `);
+        // User has already voted - prevent duplicate voting
+        return res.status(400).json({ 
+          message: "You have already voted on this item",
+          alreadyVoted: true,
+          existingVote: existingVote.rows[0].vote_type
+        });
       }
+
+      // Insert new vote (first time voting only)
+      await db.execute(sql`
+        INSERT INTO user_votes (user_id, target_type, target_id, vote_type, created_at, updated_at)
+        VALUES (${userId}, ${targetType}, ${targetId}, ${voteType}, NOW(), NOW())
+      `);
 
       // Update vote counts
       const upvotes = await db.execute(sql`

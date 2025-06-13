@@ -55,11 +55,20 @@ export function VotingModal({ bill, isOpen, onClose }: VotingModalProps) {
         return;
       }
       
-      toast({
-        title: "Vote Failed",
-        description: error.message || "Failed to cast vote. Please try again.",
-        variant: "destructive",
-      });
+      // Handle already voted error
+      if (error.message && error.message.includes("already voted")) {
+        toast({
+          title: "Already Voted",
+          description: "You have already voted on this bill. Each user can only vote once.",
+          variant: "default",
+        });
+      } else {
+        toast({
+          title: "Vote Failed",
+          description: error.message || "Failed to cast vote. Please try again.",
+          variant: "destructive",
+        });
+      }
     },
   });
 
