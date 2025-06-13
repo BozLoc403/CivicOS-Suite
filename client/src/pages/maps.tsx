@@ -10,8 +10,56 @@ export default function MapsPage() {
   const [selectedProvince, setSelectedProvince] = useState("all");
   const [engagementType, setEngagementType] = useState("all");
 
-  // Geographic engagement data across Canada
+  // Geographic engagement data across Canada - All Provinces and Territories
   const provincialEngagement = [
+    {
+      province: "Ontario",
+      abbreviation: "ON",
+      population: 15109293,
+      activeUsers: 234567,
+      engagementRate: 1.6,
+      topIssues: ["Healthcare", "Housing", "Education"],
+      recentActivity: 8934,
+      politicalActivity: {
+        discussions: 3456,
+        petitions: 1789,
+        foiRequests: 234,
+        votes: 3455
+      },
+      demographics: {
+        "18-34": 31,
+        "35-54": 40,
+        "55+": 29
+      },
+      urbanRural: {
+        urban: 86,
+        rural: 14
+      }
+    },
+    {
+      province: "Quebec",
+      abbreviation: "QC",
+      population: 8604495,
+      activeUsers: 167834,
+      engagementRate: 1.9,
+      topIssues: ["Language Rights", "Healthcare", "Environment"],
+      recentActivity: 6234,
+      politicalActivity: {
+        discussions: 2891,
+        petitions: 1234,
+        foiRequests: 178,
+        votes: 2931
+      },
+      demographics: {
+        "18-34": 29,
+        "35-54": 39,
+        "55+": 32
+      },
+      urbanRural: {
+        urban: 81,
+        rural: 19
+      }
+    },
     {
       province: "British Columbia",
       abbreviation: "BC",
@@ -58,6 +106,78 @@ export default function MapsPage() {
       urbanRural: {
         urban: 83,
         rural: 17
+      }
+    },
+    {
+      province: "Nova Scotia",
+      abbreviation: "NS",
+      population: 992055,
+      activeUsers: 14567,
+      engagementRate: 1.5,
+      topIssues: ["Healthcare", "Economy", "Immigration"],
+      recentActivity: 567,
+      politicalActivity: {
+        discussions: 234,
+        petitions: 123,
+        foiRequests: 34,
+        votes: 176
+      },
+      demographics: {
+        "18-34": 26,
+        "35-54": 37,
+        "55+": 37
+      },
+      urbanRural: {
+        urban: 56,
+        rural: 44
+      }
+    },
+    {
+      province: "New Brunswick",
+      abbreviation: "NB",
+      population: 789225,
+      activeUsers: 9876,
+      engagementRate: 1.2,
+      topIssues: ["Healthcare", "Economy", "Bilingualism"],
+      recentActivity: 345,
+      politicalActivity: {
+        discussions: 156,
+        petitions: 78,
+        foiRequests: 23,
+        votes: 88
+      },
+      demographics: {
+        "18-34": 25,
+        "35-54": 36,
+        "55+": 39
+      },
+      urbanRural: {
+        urban: 51,
+        rural: 49
+      }
+    },
+    {
+      province: "Manitoba",
+      abbreviation: "MB",
+      population: 1386333,
+      activeUsers: 18934,
+      engagementRate: 1.4,
+      topIssues: ["Healthcare", "Indigenous Rights", "Economy"],
+      recentActivity: 634,
+      politicalActivity: {
+        discussions: 287,
+        petitions: 145,
+        foiRequests: 45,
+        votes: 157
+      },
+      demographics: {
+        "18-34": 30,
+        "35-54": 38,
+        "55+": 32
+      },
+      urbanRural: {
+        urban: 72,
+        rural: 28
       }
     },
     {
@@ -154,6 +274,126 @@ export default function MapsPage() {
       urbanRural: {
         urban: 81,
         rural: 19
+      }
+    },
+    {
+      province: "Prince Edward Island",
+      abbreviation: "PE",
+      population: 164318,
+      activeUsers: 2456,
+      engagementRate: 1.5,
+      topIssues: ["Healthcare", "Tourism", "Agriculture"],
+      recentActivity: 89,
+      politicalActivity: {
+        discussions: 43,
+        petitions: 21,
+        foiRequests: 7,
+        votes: 18
+      },
+      demographics: {
+        "18-34": 24,
+        "35-54": 35,
+        "55+": 41
+      },
+      urbanRural: {
+        urban: 47,
+        rural: 53
+      }
+    },
+    {
+      province: "Newfoundland and Labrador",
+      abbreviation: "NL",
+      population: 520553,
+      activeUsers: 6789,
+      engagementRate: 1.3,
+      topIssues: ["Economy", "Outmigration", "Healthcare"],
+      recentActivity: 234,
+      politicalActivity: {
+        discussions: 123,
+        petitions: 67,
+        foiRequests: 18,
+        votes: 26
+      },
+      demographics: {
+        "18-34": 23,
+        "35-54": 36,
+        "55+": 41
+      },
+      urbanRural: {
+        urban: 58,
+        rural: 42
+      }
+    },
+    {
+      province: "Yukon",
+      abbreviation: "YT",
+      population: 42986,
+      activeUsers: 567,
+      engagementRate: 1.3,
+      topIssues: ["Indigenous Rights", "Mining", "Climate"],
+      recentActivity: 23,
+      politicalActivity: {
+        discussions: 12,
+        petitions: 5,
+        foiRequests: 2,
+        votes: 4
+      },
+      demographics: {
+        "18-34": 28,
+        "35-54": 42,
+        "55+": 30
+      },
+      urbanRural: {
+        urban: 68,
+        rural: 32
+      }
+    },
+    {
+      province: "Northwest Territories",
+      abbreviation: "NT",
+      population: 45504,
+      activeUsers: 612,
+      engagementRate: 1.3,
+      topIssues: ["Indigenous Rights", "Mining", "Cost of Living"],
+      recentActivity: 28,
+      politicalActivity: {
+        discussions: 15,
+        petitions: 7,
+        foiRequests: 3,
+        votes: 3
+      },
+      demographics: {
+        "18-34": 31,
+        "35-54": 41,
+        "55+": 28
+      },
+      urbanRural: {
+        urban: 47,
+        rural: 53
+      }
+    },
+    {
+      province: "Nunavut",
+      abbreviation: "NU",
+      population: 39403,
+      activeUsers: 423,
+      engagementRate: 1.1,
+      topIssues: ["Indigenous Rights", "Housing", "Education"],
+      recentActivity: 18,
+      politicalActivity: {
+        discussions: 9,
+        petitions: 4,
+        foiRequests: 2,
+        votes: 3
+      },
+      demographics: {
+        "18-34": 38,
+        "35-54": 35,
+        "55+": 27
+      },
+      urbanRural: {
+        urban: 32,
+        rural: 68
       }
     }
   ];

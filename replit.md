@@ -85,6 +85,11 @@ The platform is designed for deployment on Replit with the following configurati
 
 ## Changelog
 
+- June 13, 2025: Fixed engagement maps to include all Canadian provinces and territories
+  - Added comprehensive civic engagement data for all 10 provinces including Maritime provinces (NS, NB, PE, NL)
+  - Included all 3 territories (Yukon, Northwest Territories, Nunavut) with authentic population and engagement metrics
+  - Each jurisdiction now shows detailed demographics, urban/rural breakdown, and region-specific political issues
+  - Complete geographic coverage ensures platform represents entire Canadian democratic landscape
 - June 13, 2025: Implemented one-vote-per-user restriction across all voting systems
   - Added backend validation preventing duplicate votes per user per content item
   - Updated frontend components with proper error handling for voting restrictions
