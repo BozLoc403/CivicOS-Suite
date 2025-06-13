@@ -697,9 +697,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check for existing vote
       const existingVote = await db.execute(sql`
         SELECT id, vote_type FROM user_votes 
-        WHERE user_id = ${userId} 
-          AND target_type = ${targetType} 
-          AND target_id = ${targetId}
+        WHERE user_id = ${userId} AND target_type = ${targetType} AND target_id = ${targetId}
       `);
 
       if (existingVote.rows.length > 0) {
@@ -713,19 +711,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Insert new vote (first time voting only)
       await db.execute(sql`
-        INSERT INTO user_votes (user_id, target_type, target_id, vote_type, created_at, updated_at)
+        INSERT INTO user_votes (user_id, target_type, target_id, vote_type, created_at, updated_at) 
         VALUES (${userId}, ${targetType}, ${targetId}, ${voteType}, NOW(), NOW())
       `);
 
       // Update vote counts
       const upvotes = await db.execute(sql`
-        SELECT COUNT(*) as count FROM user_votes 
-        WHERE target_type = ${targetType} AND target_id = ${targetId} AND vote_type = 'upvote'
+        SELECT COUNT(*) as count FROM user_votes WHERE target_type = ${targetType} AND target_id = ${targetId} AND vote_type = 'upvote'
       `);
       
       const downvotes = await db.execute(sql`
-        SELECT COUNT(*) as count FROM user_votes 
-        WHERE target_type = ${targetType} AND target_id = ${targetId} AND vote_type = 'downvote'
+        SELECT COUNT(*) as count FROM user_votes WHERE target_type = ${targetType} AND target_id = ${targetId} AND vote_type = 'downvote'
       `);
 
       const upvoteCount = parseInt(String(upvotes.rows?.[0]?.count || 0));
@@ -733,20 +729,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const totalScore = upvoteCount - downvoteCount;
 
       await db.execute(sql`
-        INSERT INTO vote_counts (target_type, target_id, upvotes, downvotes, total_score, updated_at)
-        VALUES (${targetType}, ${targetId}, ${upvoteCount}, ${downvoteCount}, ${totalScore}, NOW())
-        ON CONFLICT (target_type, target_id)
-        DO UPDATE SET 
-          upvotes = EXCLUDED.upvotes,
-          downvotes = EXCLUDED.downvotes,
-          total_score = EXCLUDED.total_score,
-          updated_at = EXCLUDED.updated_at
+        INSERT INTO vote_counts (target_type, target_id, upvotes, downvotes, total_score, updated_at) VALUES (${targetType}, ${targetId}, ${upvoteCount}, ${downvoteCount}, ${totalScore}, NOW()) ON CONFLICT (target_type, target_id) DO UPDATE SET upvotes = EXCLUDED.upvotes, downvotes = EXCLUDED.downvotes, total_score = EXCLUDED.total_score, updated_at = EXCLUDED.updated_at
       `);
 
       // Track user interaction
       await db.execute(sql`
-        INSERT INTO user_interactions (user_id, interaction_type, target_type, target_id, content, created_at)
-        VALUES (${userId}, 'vote', ${targetType}, ${targetId}, ${voteType}, NOW())
+        INSERT INTO user_interactions (user_id, interaction_type, target_type, target_id, content, created_at) VALUES (${userId}, 'vote', ${targetType}, ${targetId}, ${voteType}, NOW())
       `);
 
       res.json({
