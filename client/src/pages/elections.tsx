@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LuxuryNavigation } from "@/components/layout/LuxuryNavigation";
+
 import { Search, Calendar, MapPin, Users, Vote, DollarSign, FileText, Globe, Phone, Mail, Twitter, Facebook, Instagram, TrendingUp } from "lucide-react";
 
 interface Election {
@@ -170,8 +170,6 @@ export default function Elections() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <LuxuryNavigation />
-      
       <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 flex items-center">
