@@ -251,7 +251,7 @@ export function InteractiveContent({
         <div className="flex items-center space-x-4">
           {showVoting && (
             <VotingButtons 
-              targetType={targetType} 
+              targetType={targetType as any} 
               targetId={targetId} 
               size="md" 
             />

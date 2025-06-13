@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
 interface VotingButtonsProps {
-  targetType: 'politician' | 'bill' | 'post' | 'comment' | 'petition';
+  targetType: 'politician' | 'bill' | 'post' | 'comment' | 'petition' | 'news';
   targetId: number;
   className?: string;
   size?: 'sm' | 'md' | 'lg';

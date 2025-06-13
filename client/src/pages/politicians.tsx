@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import { VotingButtons } from "@/components/VotingButtons";
+import { InteractiveContent } from "@/components/InteractiveContent";
 import { Users, AlertTriangle, CheckCircle, AlertCircle, MapPin, Phone, Mail, Globe, Calendar, FileText, Vote, DollarSign, Eye, TrendingUp, Award, User } from "lucide-react";
 import { useState } from "react";
 import type { Politician } from "@shared/schema";
@@ -589,6 +590,17 @@ function PoliticianDetailModal({ politician, onClose }: PoliticianDetailModalPro
               </Card>
             </TabsContent>
           </Tabs>
+
+          {/* Interactive Features */}
+          <InteractiveContent
+            targetType="politician"
+            targetId={selectedPolitician.id}
+            title={selectedPolitician.name}
+            description={`${selectedPolitician.position} - ${selectedPolitician.party}`}
+            showVoting={true}
+            showComments={true}
+            showSharing={true}
+          />
         </div>
       </div>
     </div>
