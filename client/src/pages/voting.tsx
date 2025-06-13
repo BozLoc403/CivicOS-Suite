@@ -242,10 +242,10 @@ export default function VotingPage() {
                       
                       <div className="flex flex-col items-end gap-2">
                         <Badge 
-                          className={`text-white text-sm ${getStatusColor(bill.status)}`}
+                          className={`text-white text-sm ${getStatusColor(bill.status || 'unknown')}`}
                         >
-                          {getStatusIcon(bill.status)}
-                          <span className="ml-1">{bill.status}</span>
+                          {getStatusIcon(bill.status || 'unknown')}
+                          <span className="ml-1">{bill.status || 'Unknown'}</span>
                         </Badge>
                         
                         <Badge variant="outline" className="text-xs">
@@ -354,8 +354,8 @@ export default function VotingPage() {
                               </div>
                               <div className="flex justify-between">
                                 <span className="text-slate-600 dark:text-slate-400">Status:</span>
-                                <Badge className={`text-white ${getStatusColor(selectedBill.status)}`}>
-                                  {selectedBill.status}
+                                <Badge className={`text-white ${getStatusColor(selectedBill.status || 'unknown')}`}>
+                                  {selectedBill.status || 'Unknown'}
                                 </Badge>
                               </div>
                               <div className="flex justify-between">
@@ -408,8 +408,7 @@ export default function VotingPage() {
                       <VotingButtons
                         targetType="bill"
                         targetId={selectedBill.id}
-                        showResults={true}
-                        size="large"
+                        size="lg"
                       />
                     </CardContent>
                   </Card>
@@ -454,8 +453,8 @@ export default function VotingPage() {
                 <InteractiveContent
                   targetType="bill"
                   targetId={selectedBill.id}
-                  title={`${selectedBill.billNumber} - ${selectedBill.title}`}
-                  description={selectedBill.description}
+                  title={`${selectedBill.billNumber || 'Unknown'} - ${selectedBill.title}`}
+                  description={selectedBill.description || undefined}
                   showVoting={true}
                   showComments={true}
                   showSharing={true}

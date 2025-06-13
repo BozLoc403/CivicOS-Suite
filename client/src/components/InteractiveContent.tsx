@@ -71,13 +71,12 @@ export function InteractiveContent({
 
   const commentMutation = useMutation({
     mutationFn: async ({ content, parentCommentId }: { content: string; parentCommentId?: number }) => {
-      const res = await apiRequest("POST", "/api/comments", {
+      return await apiRequest("/api/comments", "POST", {
         targetType,
         targetId,
         content,
         parentCommentId
       });
-      return res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/comments/${targetType}/${targetId}`] });
