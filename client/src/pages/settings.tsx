@@ -1,4 +1,4 @@
-import { NavigationHeader } from "@/components/NavigationHeader";
+
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -169,8 +169,6 @@ export default function Settings() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <NavigationHeader />
-      
       <div className="max-w-4xl mx-auto py-8 px-4">
         <div className="space-y-6">
           <div>

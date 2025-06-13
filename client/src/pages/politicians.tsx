@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { NavigationHeader } from "@/components/NavigationHeader";
+
 import { VotingButtons } from "@/components/VotingButtons";
 import { Users, AlertTriangle, CheckCircle, AlertCircle, MapPin, Phone, Mail, Globe, Calendar, FileText, Vote, DollarSign, Eye, TrendingUp, Award, User } from "lucide-react";
 import { useState } from "react";
@@ -94,8 +94,6 @@ export default function Politicians() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <NavigationHeader />
-      
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
