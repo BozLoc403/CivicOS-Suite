@@ -67,6 +67,7 @@ export default function FinancePage() {
   };
 
   const getJurisdictionIcon = (jurisdiction: string) => {
+    if (!jurisdiction) return <DollarSign className="w-4 h-4" />;
     switch (jurisdiction.toLowerCase()) {
       case "federal": return <Crown className="w-4 h-4" />;
       case "provincial": return <Building2 className="w-4 h-4" />;

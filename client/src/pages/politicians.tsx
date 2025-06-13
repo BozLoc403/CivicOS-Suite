@@ -216,10 +216,18 @@ export default function Politicians() {
                       </div>
                     </div>
 
-                    <Button variant="outline" size="sm" className="w-full mt-3">
-                      <ArrowRight className="w-3 h-3 mr-2" />
-                      View Details
-                    </Button>
+                    <div className="flex items-center justify-between mt-3 gap-2">
+                      <LikeButton
+                        itemId={politician.id}
+                        itemType="politician"
+                        variant="heart"
+                        className="flex-shrink-0"
+                      />
+                      <Button variant="outline" size="sm" className="flex-1">
+                        <ArrowRight className="w-3 h-3 mr-2" />
+                        View Details
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               ))}
