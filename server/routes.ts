@@ -845,10 +845,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { targetType, targetId, voteType } = req.body;
       console.log("Vote request:", { targetType, targetId, voteType });
+      // For development, always use demo user ID
+      const userId = process.env.NODE_ENV !== 'production' ? '42199639' : 
+        (req.isAuthenticated() && req.user ? (req.user as any).id : null);
       
-      // Use authenticated user or fallback to development user
-      const userId = req.isAuthenticated() && req.user ? (req.user as any).id : '42199639';
-      console.log("User ID:", userId);
+      if (!userId) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+      
+      console.log("Using User ID:", userId);
 
       if (!['upvote', 'downvote'].includes(voteType)) {
         console.error("Invalid vote type:", voteType);
