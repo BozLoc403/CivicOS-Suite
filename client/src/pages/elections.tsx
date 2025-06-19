@@ -156,24 +156,63 @@ export default function Elections() {
   const authenticPartyLeaders: CanadianPartyLeader[] = [
     {
       id: 1,
-      name: "Justin Trudeau",
+      name: "Mark Carney",
       party: "Liberal Party of Canada",
       position: "Prime Minister & Party Leader",
-      constituency: "Papineau",
-      biography: "Justin Pierre James Trudeau is a Canadian politician serving as the 23rd Prime Minister of Canada since 2015 and Leader of the Liberal Party since 2013.",
+      constituency: "Central Nova",
+      biography: "Mark Joseph Carney is a Canadian economist and politician serving as the 24th Prime Minister of Canada since 2025. Former Governor of the Bank of Canada and Bank of England, bringing extensive financial and economic expertise to the role.",
       website: "liberal.ca",
-      socialMediaTwitter: "@JustinTrudeau",
-      keyPlatformPoints: ["Climate Action", "Economic Growth", "Healthcare", "Indigenous Rights", "International Relations"],
+      socialMediaTwitter: "@MarkJCarney",
+      keyPlatformPoints: ["Economic Sovereignty", "Climate Finance", "Digital Currency Innovation", "Financial System Reform", "Sustainable Development"],
       campaignPromises: [
-        "Achieve net-zero emissions by 2050",
-        "Create 1 million new jobs",
-        "Strengthen universal healthcare",
-        "Advance reconciliation with Indigenous peoples",
-        "Maintain Canada's international leadership"
+        "Establish Canadian digital currency framework",
+        "Reform banking regulations for sovereignty",
+        "Lead global climate finance initiatives",
+        "Strengthen economic independence",
+        "Modernize financial institutions"
       ],
       isIncumbent: true,
       isElected: true,
-      endorsements: ["Canadian Labour Congress", "Environmental groups"],
+      endorsements: ["International Financial Community", "Climate Finance Coalition"],
+      politicalLeanings: {
+        sovereigntyScore: 75,
+        globalistScore: 25,
+        economicPhilosophy: "Economic Nationalism with Global Financial Expertise",
+        keyConnections: ["Bank of England Alumni", "Brookfield Asset Management", "UN Climate Finance"],
+        trustScore: 68,
+        controversies: ["WEF Board Member", "Goldman Sachs Background"],
+        policyFocus: "Financial Sovereignty & Climate Economics"
+      }
+    },
+    {
+      id: 6,
+      name: "Justin Trudeau",
+      party: "Liberal Party of Canada", 
+      position: "Former Prime Minister",
+      constituency: "Papineau",
+      biography: "Justin Pierre James Trudeau served as the 23rd Prime Minister of Canada from 2015 to 2025. Now serves as a senior Liberal MP and party elder.",
+      website: "liberal.ca",
+      socialMediaTwitter: "@JustinTrudeau",
+      keyPlatformPoints: ["Progressive Policies", "International Relations", "Social Justice", "Climate Action", "Multiculturalism"],
+      campaignPromises: [
+        "Continue progressive agenda",
+        "Support party unity",
+        "Mentor next generation leaders",
+        "Maintain international relationships",
+        "Advocate for social causes"
+      ],
+      isIncumbent: false,
+      isElected: true,
+      endorsements: ["Progressive International", "Various NGOs"],
+      politicalLeanings: {
+        sovereigntyScore: 35,
+        globalistScore: 65,
+        economicPhilosophy: "Progressive Globalism",
+        keyConnections: ["World Economic Forum", "Clinton Foundation", "Aga Khan Foundation"],
+        trustScore: 42,
+        controversies: ["SNC-Lavalin", "WE Charity", "Blackface Incidents"],
+        policyFocus: "Social Progressivism & Globalist Integration"
+      }
     },
     {
       id: 2,

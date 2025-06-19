@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useQuery } from '@tanstack/react-query';
 import { LuxuryNavigation } from '@/components/layout/LuxuryNavigation';
+import { PrimeMinisterIntelligence } from '@/components/widgets/PrimeMinisterIntelligence';
 import { Link } from 'wouter';
 import { 
   Users, FileText, Scale, Newspaper, Vote, 

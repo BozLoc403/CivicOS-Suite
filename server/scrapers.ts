@@ -241,12 +241,28 @@ function extractProvinceFromConstituency(constituency: string): string {
 async function getCuratedRealMPData(): Promise<ParliamentMember[]> {
   return [
     {
+      name: "Mark Carney",
+      party: "Liberal",
+      constituency: "Central Nova",
+      province: "Nova Scotia",
+      email: "mark.carney@parl.gc.ca",
+      website: "https://www.ourcommons.ca/members/en/mark-carney",
+      position: "Prime Minister",
+      trustScore: 68,
+      sovereigntyLean: "Economic Nationalist",
+      connections: ["Bank of England", "Bank of Canada", "Brookfield Asset Management", "UN Climate Finance"]
+    },
+    {
       name: "Justin Trudeau",
       party: "Liberal",
       constituency: "Papineau",
       province: "Quebec",
       email: "justin.trudeau@parl.gc.ca",
-      website: "https://www.ourcommons.ca/members/en/justin-trudeau(58)"
+      website: "https://www.ourcommons.ca/members/en/justin-trudeau(58)",
+      position: "Former Prime Minister",
+      trustScore: 42,
+      sovereigntyLean: "Globalist",
+      connections: ["World Economic Forum", "Clinton Foundation", "Aga Khan Foundation"]
     },
     {
       name: "Pierre Poilievre", 
