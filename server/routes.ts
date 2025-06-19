@@ -35,8 +35,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   await setupAuth(app);
 
   // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+  app.get('/api/auth/user', async (req: any, res) => {
     try {
+      // For development, always return demo user
+      if (process.env.NODE_ENV !== 'production') {
+        const demoUser = {
+          id: '42199639',
+          username: 'demo_user',
+          displayName: 'Demo User',
+          email: 'demo@civicos.ca',
+          isVerified: true,
+          trustScore: 85
+        };
+        return res.json(demoUser);
+      }
+      
+      // Production authentication flow
+      if (!req.isAuthenticated() || !req.user) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
       res.json(user);
