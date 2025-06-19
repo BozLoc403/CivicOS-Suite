@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/hooks/useAuth";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import dominionEmblem from "@assets/EFE54ED9-DEE5-4F72-88D4-4441CE2D11CB_1_105_c_1749411960407.jpeg";
 import { 
   Home, 
@@ -31,7 +34,8 @@ import {
   ChevronRight,
   ChevronDown,
   Menu,
-  X
+  X,
+  LogOut
 } from "lucide-react";
 
 interface NavItem {
@@ -272,6 +276,16 @@ export function LuxuryNavigation() {
               <Badge variant="destructive" className="ml-auto text-xs">3</Badge>
             </Button>
           </Link>
+          
+          <Button
+            onClick={() => logoutMutation.mutate()}
+            disabled={logoutMutation.isPending}
+            variant="ghost"
+            className="w-full justify-start space-x-3 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
+          >
+            <LogOut className="w-4 h-4" />
+            <span>{logoutMutation.isPending ? "Logging out..." : "Logout"}</span>
+          </Button>
         </div>
         
         {/* Attribution */}

@@ -85,6 +85,15 @@ The platform is designed for deployment on Replit with the following configurati
 
 ## Changelog
 
+- June 19, 2025: Fixed critical security vulnerability and implemented proper authentication system
+  - Removed auto-login mechanism that was sharing your personal account with all visitors
+  - Fixed hardcoded authentication bypass in useAuth hook 
+  - Created secure individual user authentication with password hashing
+  - Added proper login/registration flow with unified auth page
+  - Implemented logout functionality with session management
+  - Added user registration system with unique account creation
+  - Enhanced authentication security to prevent unauthorized access
+  - Platform now requires individual accounts for each user with proper session isolation
 - June 19, 2025: Completed AI chatbot bullshit detector and comprehensive trademark protection
   - Enhanced CivicOS AI as real-time political bullshit detector with truth scoring and propaganda analysis
   - Added truth scoring algorithm that rates politician statements 1-100 based on evidence and contradictions
