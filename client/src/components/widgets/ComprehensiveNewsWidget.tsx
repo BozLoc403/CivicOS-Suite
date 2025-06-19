@@ -172,6 +172,13 @@ export default function ComprehensiveNewsWidget() {
                     </Badge>
                   ))}
                 </div>
+                
+                <VotingButtons 
+                  targetType="news" 
+                  targetId={comparison.id} 
+                  size="sm"
+                  showCounts={false}
+                />
               </div>
             ))}
           </div>

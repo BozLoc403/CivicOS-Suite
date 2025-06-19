@@ -451,6 +451,11 @@ export default function Petitions() {
                   </div>
                   
                   <div className="flex items-center space-x-2">
+                    <VotingButtons 
+                      targetType="petition" 
+                      targetId={selectedPetition.id} 
+                      size="sm"
+                    />
                     <Button variant="outline" size="sm">
                       <Share2 className="h-4 w-4 mr-1" />
                       Share
@@ -467,6 +472,13 @@ export default function Petitions() {
                     )}
                   </div>
                 </div>
+                
+                <InteractiveContent
+                  targetType="petition"
+                  targetId={selectedPetition.id}
+                  title={selectedPetition.title}
+                  description={selectedPetition.description}
+                />
               </CardContent>
             </Card>
           </div>
