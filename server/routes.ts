@@ -933,7 +933,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       console.error("Error processing vote:", error);
-      res.status(500).json({ message: "Failed to process vote" });
+      console.error("Error details:", error.message, error.stack);
+      res.status(500).json({ message: "Failed to process vote", error: error.message });
     }
   });
 
