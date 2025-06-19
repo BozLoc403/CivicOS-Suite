@@ -194,8 +194,13 @@ export function setupLocalAuth(app: Express) {
 
 // Create your user account
 export async function createUserAccount() {
-  const email = "jordan@iron-oak.ca";
-  const password = "password123";
+  const email = process.env.ADMIN_EMAIL || "admin@localhost";
+  const password = process.env.ADMIN_PASSWORD;
+  
+  if (!password) {
+    console.log("Admin account creation skipped - ADMIN_PASSWORD not set");
+    return;
+  }
   
   try {
     // Check if user already exists
@@ -228,9 +233,7 @@ export async function createUserAccount() {
       updatedAt: new Date()
     });
 
-    console.log("User account created successfully:");
-    console.log("Email: jordan@iron-oak.ca");
-    console.log("Password: password123");
+    console.log("Admin account created successfully for:", email);
   } catch (error) {
     console.error("Error creating user account:", error);
   }
