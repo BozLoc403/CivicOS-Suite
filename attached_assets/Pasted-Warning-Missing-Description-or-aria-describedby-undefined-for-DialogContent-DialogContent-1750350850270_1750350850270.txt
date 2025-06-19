@@ -1,0 +1,33 @@
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+`DialogContent` requires a `DialogTitle` for the component to be accessible for screen reader users.
+
+If you want to hide the `DialogTitle`, you can wrap it with our VisuallyHidden component.
+
+For more information, see https://radix-ui.com/primitives/docs/components/dialog
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[vite] hot updated: /src/components/VotingButtons.tsx
+[vite] hot updated: /src/index.css?v=5xeKBCaGTwInqquslwpyV
+`DialogContent` requires a `DialogTitle` for the component to be accessible for screen reader users.
+
+If you want to hide the `DialogTitle`, you can wrap it with our VisuallyHidden component.
+
+For more information, see https://radix-ui.com/primitives/docs/components/dialog
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[vite] hot updated: /src/components/VotingButtons.tsx
+[vite] hot updated: /src/index.css?v=5xeKBCaGTwInqquslwpyV
+[vite] hot updated: /src/components/VotingButtons.tsx
+[vite] hot updated: /src/index.css?v=5xeKBCaGTwInqquslwpyV
+[vite] hot updated: /src/components/VotingButtons.tsx
+[vite] hot updated: /src/index.css?v=5xeKBCaGTwInqquslwpyV
+Voting error: 
+Error {}
+message: "500: {"message":"Failed to process vote"}"
+stack: "Error: 500: {"message":"Failed to process vote"}↵ at throwIfResNotOk (https://0ee26768-41a1-473d-bfe4-81df26396a4e-00-deo5oxnqbm3u.picard.replit.dev/src/lib/queryClient.ts:5:11)↵ at async apiRequest (https://0ee26768-41a1-473d-bfe4-81df26396a4e-00-deo5oxnqbm3u.picard.replit.dev/src/lib/queryClient.ts:15:3)↵ at async Object.mutationFn (https://0ee26768-41a1-473d-bfe4-81df26396a4e-00-deo5oxnqbm3u.picard.replit.dev/src/components/VotingButtons.tsx?t=1750350675602:42:19)"
+get stack: ƒ ()
+set stack: ƒ ()
+[[Prototype]]: Object
+
+at t.value (https://0ee26768-41a1-473d-bfe4-81df26396a4e-00-deo5oxnqbm3u.picard.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://0ee26768-41a1-473d-bfe4-81df26396a4e-00-deo5oxnqbm3u.picard.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://0ee26768-41a1-473d-bfe4-81df26396a4e-00-deo5oxnqbm3u.picard.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://0ee26768-41a1-473d-bfe4-81df26396a4e-00-deo5oxnqbm3u.picard.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400
