@@ -104,21 +104,21 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4 sm:p-6">
       <div className="w-full max-w-md">
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900 flex items-center justify-center shadow-2xl border border-slate-600 overflow-hidden">
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="flex justify-center mb-3 sm:mb-4">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900 flex items-center justify-center shadow-2xl border border-slate-600 overflow-hidden">
               <img 
                 src={dominionEmblem} 
                 alt="CivicOS" 
-                className="w-14 h-14 object-cover rounded-full filter brightness-125 contrast-125"
+                className="w-12 h-12 sm:w-14 sm:h-14 object-cover rounded-full filter brightness-125 contrast-125"
               />
             </div>
           </div>
-          <h1 className="text-3xl font-bold font-serif text-slate-900 dark:text-slate-100">CivicOS</h1>
-          <p className="text-slate-600 dark:text-slate-400 font-medium tracking-wider">SECURE ACCESS PORTAL</p>
+          <h1 className="text-2xl sm:text-3xl font-bold font-serif text-slate-900 dark:text-slate-100">CivicOS</h1>
+          <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 font-medium tracking-wider">SECURE ACCESS PORTAL</p>
         </div>
 
         {/* Auth Card */}

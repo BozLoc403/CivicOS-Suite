@@ -73,24 +73,24 @@ export function RevolutionaryDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-4 md:p-6">
-      <div className="mb-6 space-y-4">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <h1 className="text-3xl md:text-4xl font-bold font-serif text-slate-900 dark:text-slate-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-2 sm:p-4 lg:p-6">
+      <div className="mb-4 sm:mb-6 space-y-3 sm:space-y-4">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 sm:gap-4">
+          <div className="min-w-0">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold font-serif text-slate-900 dark:text-slate-100 truncate">
               Dominion Command Center
             </h1>
-            <p className="text-slate-600 dark:text-slate-400 text-sm md:text-base">
+            <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm lg:text-base">
               Real-time Canadian political intelligence and civic oversight
             </p>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-2">
-            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300">
+          <div className="flex flex-row sm:flex-row gap-2 flex-wrap">
+            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300 text-xs">
               <Activity className="w-3 h-3 mr-1" />
               Live Data Active
             </Badge>
-            <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-300">
+            <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-300 text-xs">
               <Shield className="w-3 h-3 mr-1" />
               Secure Connection
             </Badge>
