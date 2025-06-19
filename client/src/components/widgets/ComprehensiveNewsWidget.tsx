@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { VotingButtons } from "@/components/VotingButtons";
 import { AlertTriangle, TrendingUp, Eye, ExternalLink, Shield, BarChart3 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 

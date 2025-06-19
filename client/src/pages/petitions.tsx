@@ -10,6 +10,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { VotingButtons } from "@/components/VotingButtons";
+import { InteractiveContent } from "@/components/InteractiveContent";
 import { apiRequest } from "@/lib/queryClient";
 import { 
   FileText, 
