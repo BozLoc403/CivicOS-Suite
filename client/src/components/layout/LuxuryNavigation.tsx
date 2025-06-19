@@ -112,7 +112,7 @@ export function LuxuryNavigation() {
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      await apiRequest("POST", "/api/logout", {});
+      await apiRequest("/api/logout", "POST", {});
     },
     onSuccess: () => {
       queryClient.setQueryData(["/api/auth/user"], null);

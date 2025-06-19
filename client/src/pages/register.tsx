@@ -26,7 +26,7 @@ export default function Register() {
       firstName: string; 
       lastName: string; 
     }) => {
-      const res = await apiRequest("POST", "/api/register", credentials);
+      const res = await apiRequest("/api/register", "POST", credentials);
       return await res.json();
     },
     onSuccess: (user) => {
