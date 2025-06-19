@@ -85,6 +85,13 @@ The platform is designed for deployment on Replit with the following configurati
 
 ## Changelog
 
+- June 19, 2025: Completed comprehensive commenting system with automatic content moderation and user deletion capabilities
+  - Added sophisticated comment moderation system blocking hate speech, racism, and excessive profanity
+  - Implemented user comment deletion functionality - users can delete their own comments with proper authentication
+  - Enhanced comment display with proper user attribution and timestamps  
+  - Added moderation rejection messages with specific reasons for blocked content
+  - Verified complete functionality: comment creation, moderation, deletion, and user feedback systems
+  - All commenting features now fully operational across politicians, bills, petitions, news, and finance sections
 - June 19, 2025: Fixed comprehensive voting system and implemented interactive features across all sections
   - Fixed server-side validation to include 'news' and 'finance' target types for voting
   - Enhanced VotingButtons component with improved error handling and message parsing
