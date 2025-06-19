@@ -85,6 +85,14 @@ The platform is designed for deployment on Replit with the following configurati
 
 ## Changelog
 
+- June 19, 2025: Fixed comprehensive voting system and implemented interactive features across all sections
+  - Fixed server-side validation to include 'news' and 'finance' target types for voting
+  - Enhanced VotingButtons component with improved error handling and message parsing
+  - Implemented complete like/dislike/comment/reply functionality across politicians, bills, petitions, news, and finance sections
+  - Added InteractiveContent component to petitions and finance pages for full civic engagement
+  - Fixed voting restrictions (one vote per user) with proper user feedback and error messages
+  - Cleared test votes to enable fresh voting functionality across the platform
+  - All interactive features now working: upvote, downvote, comment, reply, and share functionality
 - June 19, 2025: Fixed critical security vulnerability and implemented proper authentication system
   - Removed auto-login mechanism that was sharing your personal account with all visitors
   - Fixed hardcoded authentication bypass in useAuth hook 
