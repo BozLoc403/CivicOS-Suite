@@ -85,6 +85,15 @@ The platform is designed for deployment on Replit with the following configurati
 
 ## Changelog
 
+- June 19, 2025: Added creator attribution and manifesto page with easy deployment login system
+  - Added "Built by Jordan Kenneth Boisclair" attribution to sidebar with copyright notice
+  - Created comprehensive CivicOS manifesto page explaining platform philosophy and purpose
+  - Implemented manifesto agreement system - users must read and agree before accessing platform
+  - Added easy login system for deployment with demo account and custom username options
+  - Enhanced authentication flow with user persistence and logout functionality
+  - Added QuickLogin component for streamlined access in production environment
+  - Created loading states and proper auth checking for smooth user experience
+  - Platform now has complete onboarding flow from manifesto agreement to authenticated access
 - June 19, 2025: Enhanced elections system with comprehensive historical data and upcoming election schedules
   - Added complete historical election results from 2015-2023 including seat counts, vote totals, and turnout data
   - Expanded upcoming elections to include all levels: federal (2025), provincial (BC 2025, Ontario 2026, Quebec 2026, Alberta 2027), municipal (Montreal 2025, Toronto/Vancouver 2026)
