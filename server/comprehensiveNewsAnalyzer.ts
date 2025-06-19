@@ -60,6 +60,7 @@ interface TopicComparison {
  */
 export class ComprehensiveNewsAnalyzer {
   private canadianNewsSources: NewsSource[] = [
+    // Major Mainstream Media
     {
       name: "CBC News",
       url: "https://www.cbc.ca",
@@ -85,19 +86,19 @@ export class ComprehensiveNewsAnalyzer {
       type: "mainstream"
     },
     {
-      name: "National Post",
-      url: "https://nationalpost.com",
-      rssUrl: "https://nationalpost.com/feed/",
-      bias: "right",
-      credibilityScore: 78,
-      type: "mainstream"
-    },
-    {
       name: "The Globe and Mail",
       url: "https://www.theglobeandmail.com",
       rssUrl: "https://www.theglobeandmail.com/arc/outboundfeeds/rss/category/politics/",
       bias: "center",
       credibilityScore: 88,
+      type: "mainstream"
+    },
+    {
+      name: "National Post",
+      url: "https://nationalpost.com",
+      rssUrl: "https://nationalpost.com/feed/",
+      bias: "right",
+      credibilityScore: 78,
       type: "mainstream"
     },
     {
@@ -108,6 +109,8 @@ export class ComprehensiveNewsAnalyzer {
       credibilityScore: 79,
       type: "mainstream"
     },
+
+    // French-Canadian Media
     {
       name: "Le Devoir",
       url: "https://www.ledevoir.com",
@@ -117,6 +120,32 @@ export class ComprehensiveNewsAnalyzer {
       type: "mainstream"
     },
     {
+      name: "La Presse",
+      url: "https://www.lapresse.ca",
+      rssUrl: "https://www.lapresse.ca/actualites/politique.rss",
+      bias: "center",
+      credibilityScore: 82,
+      type: "mainstream"
+    },
+    {
+      name: "Radio-Canada",
+      url: "https://ici.radio-canada.ca",
+      rssUrl: "https://ici.radio-canada.ca/rss/73",
+      bias: "center",
+      credibilityScore: 87,
+      type: "government"
+    },
+    {
+      name: "Journal de Montréal",
+      url: "https://www.journaldemontreal.com",
+      rssUrl: "https://www.journaldemontreal.com/rss.xml",
+      bias: "right",
+      credibilityScore: 71,
+      type: "mainstream"
+    },
+
+    // Government/Official Sources
+    {
       name: "The Canadian Press",
       url: "https://www.thecanadianpress.com",
       rssUrl: "https://www.thecanadianpress.com/feed/",
@@ -124,6 +153,16 @@ export class ComprehensiveNewsAnalyzer {
       credibilityScore: 90,
       type: "government"
     },
+    {
+      name: "Government of Canada News",
+      url: "https://www.canada.ca",
+      rssUrl: "https://www.canada.ca/en/news.rss",
+      bias: "center",
+      credibilityScore: 95,
+      type: "government"
+    },
+
+    // Political Specialist Media
     {
       name: "iPolitics",
       url: "https://ipolitics.ca",
@@ -138,6 +177,200 @@ export class ComprehensiveNewsAnalyzer {
       rssUrl: "https://www.hilltimes.com/feed/",
       bias: "center",
       credibilityScore: 86,
+      type: "alternative"
+    },
+    {
+      name: "Policy Options",
+      url: "https://policyoptions.irpp.org",
+      rssUrl: "https://policyoptions.irpp.org/feed/",
+      bias: "center",
+      credibilityScore: 89,
+      type: "alternative"
+    },
+
+    // Regional Major Papers
+    {
+      name: "Calgary Herald",
+      url: "https://calgaryherald.com",
+      rssUrl: "https://calgaryherald.com/feed/",
+      bias: "center-right",
+      credibilityScore: 76,
+      type: "mainstream"
+    },
+    {
+      name: "Edmonton Journal",
+      url: "https://edmontonjournal.com",
+      rssUrl: "https://edmontonjournal.com/feed/",
+      bias: "center",
+      credibilityScore: 77,
+      type: "mainstream"
+    },
+    {
+      name: "Vancouver Sun",
+      url: "https://vancouversun.com",
+      rssUrl: "https://vancouversun.com/feed/",
+      bias: "center",
+      credibilityScore: 78,
+      type: "mainstream"
+    },
+    {
+      name: "The Province",
+      url: "https://theprovince.com",
+      rssUrl: "https://theprovince.com/feed/",
+      bias: "center-right",
+      credibilityScore: 74,
+      type: "mainstream"
+    },
+    {
+      name: "Times Colonist",
+      url: "https://www.timescolonist.com",
+      rssUrl: "https://www.timescolonist.com/feed/",
+      bias: "center",
+      credibilityScore: 75,
+      type: "mainstream"
+    },
+    {
+      name: "Winnipeg Free Press",
+      url: "https://www.winnipegfreepress.com",
+      rssUrl: "https://www.winnipegfreepress.com/rss/",
+      bias: "center-left",
+      credibilityScore: 79,
+      type: "mainstream"
+    },
+    {
+      name: "The Chronicle Herald",
+      url: "https://www.thechronicleherald.ca",
+      rssUrl: "https://www.thechronicleherald.ca/rss/",
+      bias: "center",
+      credibilityScore: 73,
+      type: "mainstream"
+    },
+
+    // Independent & Alternative Media
+    {
+      name: "The Tyee",
+      url: "https://thetyee.ca",
+      rssUrl: "https://thetyee.ca/rss2.xml",
+      bias: "left",
+      credibilityScore: 82,
+      type: "alternative"
+    },
+    {
+      name: "Canadaland",
+      url: "https://www.canadaland.com",
+      rssUrl: "https://www.canadaland.com/feed/",
+      bias: "left",
+      credibilityScore: 78,
+      type: "alternative"
+    },
+    {
+      name: "The Breach",
+      url: "https://breachmedia.ca",
+      rssUrl: "https://breachmedia.ca/feed/",
+      bias: "left",
+      credibilityScore: 76,
+      type: "alternative"
+    },
+    {
+      name: "True North",
+      url: "https://tnc.news",
+      rssUrl: "https://tnc.news/feed/",
+      bias: "right",
+      credibilityScore: 65,
+      type: "alternative"
+    },
+    {
+      name: "Rebel News",
+      url: "https://www.rebelnews.com",
+      rssUrl: "https://www.rebelnews.com/rss.xml",
+      bias: "right",
+      credibilityScore: 45,
+      type: "alternative"
+    },
+    {
+      name: "Press Progress",
+      url: "https://pressprogress.ca",
+      rssUrl: "https://pressprogress.ca/feed/",
+      bias: "left",
+      credibilityScore: 72,
+      type: "alternative"
+    },
+    {
+      name: "National Observer",
+      url: "https://www.nationalobserver.com",
+      rssUrl: "https://www.nationalobserver.com/rss.xml",
+      bias: "left",
+      credibilityScore: 81,
+      type: "alternative"
+    },
+    {
+      name: "The Narwhal",
+      url: "https://thenarwhal.ca",
+      rssUrl: "https://thenarwhal.ca/feed/",
+      bias: "left",
+      credibilityScore: 85,
+      type: "alternative"
+    },
+
+    // Business & Financial
+    {
+      name: "Financial Post",
+      url: "https://financialpost.com",
+      rssUrl: "https://financialpost.com/feed/",
+      bias: "center-right",
+      credibilityScore: 83,
+      type: "mainstream"
+    },
+    {
+      name: "BNN Bloomberg",
+      url: "https://www.bnnbloomberg.ca",
+      rssUrl: "https://www.bnnbloomberg.ca/rss.xml",
+      bias: "center",
+      credibilityScore: 86,
+      type: "mainstream"
+    },
+
+    // Indigenous Media
+    {
+      name: "APTN News",
+      url: "https://www.aptnnews.ca",
+      rssUrl: "https://www.aptnnews.ca/feed/",
+      bias: "center",
+      credibilityScore: 88,
+      type: "alternative"
+    },
+    {
+      name: "Windspeaker",
+      url: "https://windspeaker.com",
+      rssUrl: "https://windspeaker.com/feed/",
+      bias: "center",
+      credibilityScore: 84,
+      type: "alternative"
+    },
+
+    // Online-Native
+    {
+      name: "HuffPost Canada",
+      url: "https://www.huffpost.com/canada",
+      rssUrl: "https://www.huffpost.com/section/canada/feed",
+      bias: "left",
+      credibilityScore: 74,
+      type: "alternative"
+    },
+    {
+      name: "Blacklock's Reporter",
+      url: "https://www.blacklocks.ca",
+      rssUrl: "https://www.blacklocks.ca/feed/",
+      bias: "center",
+      credibilityScore: 89,
+      type: "alternative"
+    },
+    {
+      name: "The Conversation Canada",
+      url: "https://theconversation.com/ca",
+      rssUrl: "https://theconversation.com/ca/articles.atom",
+      bias: "center",
+      credibilityScore: 91,
       type: "alternative"
     }
   ];

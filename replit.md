@@ -85,6 +85,15 @@ The platform is designed for deployment on Replit with the following configurati
 
 ## Changelog
 
+- June 19, 2025: Expanded comprehensive news analysis system with all Canadian media sources
+  - Added 35+ Canadian news sources including mainstream, independent, and alternative media
+  - Integrated French-Canadian media: Radio-Canada, Le Devoir, La Presse, Journal de Montréal
+  - Added regional outlets: Calgary Herald, Vancouver Sun, Winnipeg Free Press, Chronicle Herald
+  - Included independent media: The Tyee, Canadaland, National Observer, The Narwhal, Blacklock's Reporter
+  - Added right-wing alternatives: True North, Rebel News with appropriate credibility ratings
+  - Integrated Indigenous media: APTN News, Windspeaker with specialized coverage
+  - Created comprehensive news outlets component with bias analysis, credibility scores, ownership transparency
+  - Enhanced news analysis system to track all major and independent Canadian political media sources
 - June 19, 2025: Updated political leadership and implemented comprehensive PM Intelligence system
   - Updated elections system to reflect Mark Carney as current Prime Minister (replacing Trudeau)
   - Added comprehensive Prime Minister Intelligence component with detailed political analysis

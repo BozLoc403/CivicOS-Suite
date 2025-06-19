@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 import { InteractiveContent } from "@/components/InteractiveContent";
+import { ComprehensiveNewsOutlets } from "@/components/widgets/ComprehensiveNewsOutlets";
 import { AlertTriangle, CheckCircle, AlertCircle, DollarSign, Users, Globe, TrendingUp, Eye, Shield, FileText } from "lucide-react";
 import { useState } from "react";
 import { apiRequest } from "@/lib/queryClient";
@@ -141,8 +142,9 @@ export default function News() {
         </div>
 
         <Tabs defaultValue="outlets" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="outlets">Media Outlets</TabsTrigger>
+            <TabsTrigger value="comprehensive">All Sources</TabsTrigger>
             <TabsTrigger value="analyze">Analyze Article</TabsTrigger>
             <TabsTrigger value="comparison">Outlet Comparison</TabsTrigger>
           </TabsList>
@@ -423,6 +425,11 @@ export default function News() {
                 </CardContent>
               </Card>
             )}
+          </TabsContent>
+
+          {/* Comprehensive News Sources Tab */}
+          <TabsContent value="comprehensive" className="space-y-6">
+            <ComprehensiveNewsOutlets />
           </TabsContent>
 
           {/* Analyze Article Tab */}
