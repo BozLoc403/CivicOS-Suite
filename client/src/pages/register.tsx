@@ -5,32 +5,40 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Lock, Mail, Shield } from "lucide-react";
+import { Lock, Mail, Shield, User } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import dominionEmblem from "@assets/EFE54ED9-DEE5-4F72-88D4-4441CE2D11CB_1_105_c_1749411960407.jpeg";
 
-export default function Login() {
+export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [error, setError] = useState("");
   const { toast } = useToast();
 
-  const loginMutation = useMutation({
-    mutationFn: async (credentials: { email: string; password: string }) => {
-      const res = await apiRequest("POST", "/api/login", credentials);
+  const registerMutation = useMutation({
+    mutationFn: async (credentials: { 
+      email: string; 
+      password: string; 
+      firstName: string; 
+      lastName: string; 
+    }) => {
+      const res = await apiRequest("POST", "/api/register", credentials);
       return await res.json();
     },
     onSuccess: (user) => {
       queryClient.setQueryData(["/api/auth/user"], user);
       toast({
         title: "Welcome to CivicOS",
-        description: "You have successfully logged in",
+        description: "Your account has been created successfully",
       });
       window.location.href = "/";
     },
     onError: (error: any) => {
-      setError(error.message || "Invalid email or password");
+      setError(error.message || "Registration failed");
     },
   });
 
@@ -38,12 +46,22 @@ export default function Login() {
     e.preventDefault();
     setError("");
     
-    if (!email || !password) {
-      setError("Please enter both email and password");
+    if (!email || !password || !firstName) {
+      setError("Please fill in all required fields");
       return;
     }
 
-    loginMutation.mutate({ email, password });
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters long");
+      return;
+    }
+
+    registerMutation.mutate({ email, password, firstName, lastName });
   };
 
   return (
@@ -61,18 +79,18 @@ export default function Login() {
             </div>
           </div>
           <h1 className="text-3xl font-bold font-serif text-slate-900 dark:text-slate-100">CivicOS</h1>
-          <p className="text-slate-600 dark:text-slate-400 font-medium tracking-wider">SECURE ACCESS</p>
+          <p className="text-slate-600 dark:text-slate-400 font-medium tracking-wider">CREATE ACCOUNT</p>
         </div>
 
-        {/* Login Card */}
+        {/* Registration Card */}
         <Card className="shadow-2xl border-slate-200 dark:border-slate-700">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl text-center flex items-center justify-center space-x-2">
               <Shield className="w-5 h-5" />
-              <span>Authentication Required</span>
+              <span>Join CivicOS</span>
             </CardTitle>
             <p className="text-center text-muted-foreground">
-              Access the Canadian political intelligence platform
+              Create your secure civic engagement account
             </p>
           </CardHeader>
           <CardContent>
@@ -83,6 +101,38 @@ export default function Login() {
                 </Alert>
               )}
 
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="firstName" className="flex items-center space-x-2">
+                    <User className="w-4 h-4" />
+                    <span>First Name</span>
+                  </Label>
+                  <Input
+                    id="firstName"
+                    type="text"
+                    placeholder="Jordan"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    className="h-11"
+                    disabled={registerMutation.isPending}
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="lastName">Last Name</Label>
+                  <Input
+                    id="lastName"
+                    type="text"
+                    placeholder="Smith"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    className="h-11"
+                    disabled={registerMutation.isPending}
+                  />
+                </div>
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="email" className="flex items-center space-x-2">
                   <Mail className="w-4 h-4" />
@@ -91,11 +141,12 @@ export default function Login() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="jordan@iron-oak.ca"
+                  placeholder="your.email@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="h-11"
-                  disabled={loginMutation.isPending}
+                  disabled={registerMutation.isPending}
+                  required
                 />
               </div>
 
@@ -107,42 +158,56 @@ export default function Login() {
                 <Input
                   id="password"
                   type="password"
-                  placeholder="Enter your password"
+                  placeholder="Create a secure password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="h-11"
-                  disabled={loginMutation.isPending}
+                  disabled={registerMutation.isPending}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  placeholder="Confirm your password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="h-11"
+                  disabled={registerMutation.isPending}
+                  required
                 />
               </div>
 
               <Button 
                 type="submit" 
                 className="w-full h-11 bg-slate-800 hover:bg-slate-700 text-white"
-                disabled={loginMutation.isPending}
+                disabled={registerMutation.isPending}
               >
-                {loginMutation.isPending ? "Authenticating..." : "Secure Login"}
+                {registerMutation.isPending ? "Creating Account..." : "Create Account"}
               </Button>
             </form>
 
-            {/* Demo Credentials */}
             <div className="mt-6 text-center">
               <p className="text-sm text-muted-foreground">
-                Don't have an account?{" "}
+                Already have an account?{" "}
                 <button
-                  onClick={() => window.location.href = '/register'}
+                  onClick={() => window.location.href = '/login'}
                   className="text-blue-600 hover:text-blue-500 font-medium"
                 >
-                  Create one here
+                  Sign in here
                 </button>
               </p>
             </div>
           </CardContent>
         </Card>
 
-        {/* Platform Info */}
-        <div className="mt-6 text-center text-sm text-muted-foreground">
-          <p>Comprehensive Canadian Political Intelligence</p>
-          <p>85,000+ Politicians • Real-time Data • Secure Platform</p>
+        {/* Footer */}
+        <div className="text-center mt-8 text-xs text-slate-500 dark:text-slate-400">
+          <p>Built by Jordan Kenneth Boisclair</p>
+          <p>© 2025 CivicOS™ - All rights reserved</p>
         </div>
       </div>
     </div>

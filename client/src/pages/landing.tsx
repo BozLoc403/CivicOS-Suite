@@ -24,7 +24,7 @@ export default function Landing() {
               </div>
             </div>
             <Button 
-              onClick={() => window.location.href = '/api/login'}
+              onClick={() => window.location.href = '/login'}
               className="bg-slate-700 hover:bg-slate-600 text-slate-100 border-slate-500 px-6 py-2 font-medium"
               variant="outline"
             >
@@ -59,7 +59,7 @@ export default function Landing() {
           </p>
           <Button 
             size="lg"
-            onClick={() => window.location.href = '/api/login'}
+            onClick={() => window.location.href = '/login'}
             className="bg-slate-800 hover:bg-slate-700 text-slate-100 text-lg px-12 py-4 font-semibold shadow-xl"
           >
             <Crown className="w-5 h-5 mr-3" />
@@ -133,7 +133,7 @@ export default function Landing() {
           </p>
           <Button 
             size="lg"
-            onClick={() => window.location.href = '/api/login'}
+            onClick={() => window.location.href = '/login'}
             className="bg-civic-blue hover:bg-blue-700 text-lg px-8 py-3"
           >
             Sign Up Now

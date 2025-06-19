@@ -16,6 +16,8 @@ import Discussions from "@/pages/discussions";
 import Legal from "@/pages/legal";
 import LegalSearch from "@/pages/legal-search";
 import Rights from "@/pages/rights";
+import Login from "@/pages/login";
+import Register from "@/pages/register";
 
 import Elections from "@/pages/elections";
 import Finance from "@/pages/finance";
@@ -88,6 +90,8 @@ function Router() {
         <main>
           <Switch>
             <Route path="/" component={Landing} />
+            <Route path="/login" component={Login} />
+            <Route path="/register" component={Register} />
             <Route component={NotFound} />
           </Switch>
         </main>
