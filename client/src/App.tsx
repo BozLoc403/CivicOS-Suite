@@ -45,9 +45,20 @@ import dominionEmblem from "@assets/EFE54ED9-DEE5-4F72-88D4-4441CE2D11CB_1_105_c
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-red-600 mx-auto"></div>
+          <p className="mt-4 text-slate-600">Loading CivicOS...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
-      {(isAuthenticated && !isLoading) ? (
+      {isAuthenticated ? (
         <div className="flex">
           <LuxuryNavigation />
           <main className="flex-1 bg-gradient-civic-ambient min-h-screen overflow-x-auto">
@@ -98,7 +109,9 @@ function Router() {
                 <Route path="/maps" component={Maps} />
                 <Route path="/notifications" component={Notifications} />
                 <Route path="/users/:userId" component={UserProfile} />
-                <Route component={NotFound} />
+                <Route path="*">
+                  {() => <NotFound />}
+                </Route>
               </Switch>
             </div>
           </main>
@@ -110,7 +123,9 @@ function Router() {
             <Route path="/auth" component={Auth} />
             <Route path="/login" component={Auth} />
             <Route path="/register" component={Auth} />
-            <Route component={NotFound} />
+            <Route path="*">
+              {() => <NotFound />}
+            </Route>
           </Switch>
         </main>
       )}
