@@ -234,6 +234,15 @@ export default function Elections() {
       isIncumbent: false,
       isElected: true,
       endorsements: ["Canadian Taxpayers Federation", "Business associations"],
+      politicalLeanings: {
+        sovereigntyScore: 85,
+        globalistScore: 15,
+        economicPhilosophy: "Free Market Capitalism & National Sovereignty",
+        keyConnections: ["Conservative Policy Institute", "Canadian Taxpayers Federation", "Energy Sector Lobby"],
+        trustScore: 72,
+        controversies: ["Cryptocurrency Advocacy", "Convoy Support Allegations"],
+        policyFocus: "Economic Populism & Anti-Establishment Politics"
+      }
     },
     {
       id: 3,
@@ -255,6 +264,15 @@ export default function Elections() {
       isIncumbent: false,
       isElected: true,
       endorsements: ["Canadian Union of Public Employees", "Environmental activists"],
+      politicalLeanings: {
+        sovereigntyScore: 55,
+        globalistScore: 45,
+        economicPhilosophy: "Democratic Socialism with International Cooperation",
+        keyConnections: ["Canadian Labour Congress", "Singh International", "Progressive International"],
+        trustScore: 61,
+        controversies: ["Luxury Lifestyle vs Worker Advocacy", "Identity Politics Focus"],
+        policyFocus: "Social Democracy & Progressive Populism"
+      }
     },
     {
       id: 4,
@@ -276,6 +294,15 @@ export default function Elections() {
       isIncumbent: false,
       isElected: true,
       endorsements: ["Parti Québécois", "Quebec nationalist organizations"],
+      politicalLeanings: {
+        sovereigntyScore: 95,
+        globalistScore: 5,
+        economicPhilosophy: "Quebec National Sovereignty & Cultural Protectionism",
+        keyConnections: ["Parti Québécois", "Quebec Independence Movement", "Société Saint-Jean-Baptiste"],
+        trustScore: 78,
+        controversies: ["Anti-English Language Policies", "Separatist Agenda"],
+        policyFocus: "Quebec Independence & Cultural Nationalism"
+      }
     },
     {
       id: 5,

@@ -159,7 +159,10 @@ export function RevolutionaryDashboard() {
           </TabsContent>
 
           <TabsContent value="intelligence" className="mt-6">
-            <IntelligenceCenter data={dashboardData} />
+            <div className="space-y-6">
+              <PrimeMinisterIntelligence />
+              <IntelligenceCenter data={dashboardData} />
+            </div>
           </TabsContent>
 
           <TabsContent value="monitoring" className="mt-6">

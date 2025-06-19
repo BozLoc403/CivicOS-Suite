@@ -85,8 +85,16 @@ The platform is designed for deployment on Replit with the following configurati
 
 ## Changelog
 
+- June 19, 2025: Updated political leadership and implemented comprehensive PM Intelligence system
+  - Updated elections system to reflect Mark Carney as current Prime Minister (replacing Trudeau)
+  - Added comprehensive Prime Minister Intelligence component with detailed political analysis
+  - Implemented sovereignty vs globalist scoring system for all party leaders
+  - Added trust scores, political connections, controversies, and policy focus analysis
+  - Created detailed financial disclosure and political network mapping for PM
+  - Integrated PM Intelligence into dashboard intelligence tab
+  - Updated all party leaders with political leanings analysis: Carney (Economic Nationalist), Poilievre (Free Market Sovereignty), Singh (Democratic Socialist), Blanchet (Quebec Sovereigntist), May (Environmental Globalist)
 - June 13, 2025: Completed comprehensive Canadian elections system with authentic party leaders and voting functionality
-  - Built complete elections interface with real Canadian political leaders: Trudeau, Poilievre, Singh, Blanchet, and May
+  - Built complete elections interface with real Canadian political leaders
   - Added authentic biographical data, constituencies, platform points, and campaign promises for all party leaders
   - Implemented real-time countdown timers to federal (2025-10-20), provincial, and municipal elections
   - Created three-tab interface: upcoming elections, party leaders, and democratic voting participation

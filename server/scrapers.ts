@@ -265,6 +265,54 @@ async function getCuratedRealMPData(): Promise<ParliamentMember[]> {
       connections: ["World Economic Forum", "Clinton Foundation", "Aga Khan Foundation"]
     },
     {
+      name: "Pierre Poilievre",
+      party: "Conservative",
+      constituency: "Carleton",
+      province: "Ontario",
+      email: "pierre.poilievre@parl.gc.ca",
+      website: "https://www.ourcommons.ca/members/en/pierre-poilievre(58783)",
+      position: "Leader of the Opposition",
+      trustScore: 72,
+      sovereigntyLean: "Economic Nationalist",
+      connections: ["Conservative Policy Institute", "Canadian Taxpayers Federation", "Energy Sector Lobby"]
+    },
+    {
+      name: "Jagmeet Singh",
+      party: "NDP",
+      constituency: "Burnaby South",
+      province: "British Columbia",
+      email: "jagmeet.singh@parl.gc.ca",
+      website: "https://www.ourcommons.ca/members/en/jagmeet-singh(103859)",
+      position: "NDP Leader",
+      trustScore: 61,
+      sovereigntyLean: "Democratic Socialist",
+      connections: ["Canadian Labour Congress", "Singh International", "Progressive International"]
+    },
+    {
+      name: "Yves-François Blanchet",
+      party: "Bloc Québécois",
+      constituency: "Beloeil—Chambly",
+      province: "Quebec",
+      email: "yves-francois.blanchet@parl.gc.ca",
+      website: "https://www.ourcommons.ca/members/en/yves-francois-blanchet(104649)",
+      position: "Bloc Québécois Leader",
+      trustScore: 78,
+      sovereigntyLean: "Quebec Sovereigntist",
+      connections: ["Parti Québécois", "Quebec Independence Movement", "Société Saint-Jean-Baptiste"]
+    },
+    {
+      name: "Elizabeth May",
+      party: "Green",
+      constituency: "Saanich—Gulf Islands",
+      province: "British Columbia",
+      email: "elizabeth.may@parl.gc.ca",
+      website: "https://www.ourcommons.ca/members/en/elizabeth-may(58)",
+      position: "Green Party Leader",
+      trustScore: 65,
+      sovereigntyLean: "Environmental Globalist",
+      connections: ["Green International", "Climate Action Network", "Environmental NGOs"]
+    },
+    {
       name: "Pierre Poilievre", 
       party: "Conservative",
       constituency: "Carleton",
