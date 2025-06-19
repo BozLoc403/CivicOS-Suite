@@ -103,7 +103,8 @@ export function QuickLogin({ onLogin }: QuickLoginProps) {
 
           <div className="text-center text-xs text-slate-500 dark:text-slate-400">
             <p>Built by Jordan Kenneth Boisclair</p>
-            <p>© 2025 CivicOS - Transparency is no longer optional</p>
+            <p>© 2025 CivicOS™ - Transparency is no longer optional</p>
+            <p className="text-xs text-slate-400 mt-1">All rights reserved.</p>
           </div>
         </CardContent>
       </Card>

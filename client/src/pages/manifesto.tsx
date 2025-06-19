@@ -148,7 +148,10 @@ export default function Manifesto() {
                   Built by Jordan Kenneth Boisclair
                 </p>
                 <p className="text-sm text-slate-600 dark:text-slate-400">
-                  Founder & Chief Architect • © 2025 CivicOS
+                  Founder & Chief Architect • © 2025 CivicOS™
+                </p>
+                <p className="text-xs text-slate-500 dark:text-slate-500 mt-2">
+                  All rights reserved. CivicOS is a trademark of Jordan Kenneth Boisclair.
                 </p>
               </div>
             </div>

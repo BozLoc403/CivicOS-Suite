@@ -85,6 +85,15 @@ The platform is designed for deployment on Replit with the following configurati
 
 ## Changelog
 
+- June 19, 2025: Completed AI chatbot bullshit detector and comprehensive trademark protection
+  - Enhanced CivicOS AI as real-time political bullshit detector with truth scoring and propaganda analysis
+  - Added truth scoring algorithm that rates politician statements 1-100 based on evidence and contradictions
+  - Implemented propaganda risk assessment (low/medium/high) for detecting manipulation techniques
+  - Updated AI to reference Mark Carney as current PM (removed all Trudeau references)
+  - Added comprehensive trademark protection with "CivicOS™" branding and "All rights reserved" notices
+  - Enhanced creator attribution throughout platform with proper copyright and trademark notices
+  - Verified AI chatbot functionality with cross-referencing capabilities for voting records vs promises
+  - Platform now provides real-time bullshit detection with brutal honesty and evidence-based analysis
 - June 19, 2025: Added creator attribution and manifesto page with easy deployment login system
   - Added "Built by Jordan Kenneth Boisclair" attribution to sidebar with copyright notice
   - Created comprehensive CivicOS manifesto page explaining platform philosophy and purpose

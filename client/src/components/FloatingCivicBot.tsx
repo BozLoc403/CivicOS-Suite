@@ -65,8 +65,8 @@ export function FloatingCivicBot() {
         id: crypto.randomUUID(),
         role: "assistant",
         content: user ? 
-          `Hey ${user.firstName || 'there'}! I'm your CivicOS assistant. I provide brutally honest analysis of politicians, bills, and news. I can detect propaganda, rate truthfulness, and give you the real story behind political events. What would you like to know?` :
-          "Welcome to CivicOS! I provide unfiltered analysis of Canadian politics, detect propaganda, and rate politician truthfulness. What would you like to analyze?",
+          `Hey ${user.firstName || 'there'}! I'm your CivicOS real-time bullshit detector. I expose political lies, analyze propaganda, and provide brutal truth scoring on politicians and their statements. I can cross-reference voting records vs promises, identify lobbyist influence, and call out deception in real-time. What political statement or politician would you like me to analyze?` :
+          "Welcome to CivicOS! I'm your real-time political bullshit detector. I expose lies, analyze propaganda, rate truthfulness, and provide unfiltered analysis of Canadian politics. What would you like me to fact-check or analyze?",
         timestamp: new Date(),
         analysisType: "general",
         metadata: { confidence: 100 }

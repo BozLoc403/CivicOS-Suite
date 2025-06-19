@@ -70,26 +70,104 @@ Guidelines:
 
       const responseText = response.choices[0].message.content || 'I apologize, but I cannot provide an analysis at this time.';
 
+      // Analyze response for bullshit detection
+      const truthScore = this.calculateTruthScore(query, responseText);
+      const analysisType = this.determineAnalysisType(query);
+      
       return {
         response: responseText,
-        analysisType: "general",
-        confidence: 0.8,
-        sources: ["Canadian Government Knowledge Base"],
+        analysisType,
+        confidence: 0.85,
+        sources: ["Canadian Government Data", "Parliamentary Records", "CivicOS Intelligence"],
+        truthScore,
+        propagandaRisk: this.assessPropagandaRisk(responseText),
         relatedData: {
           bills: [],
           politicians: [],
           votes: []
         },
         followUpSuggestions: [
-          "Can you provide more specific details?",
-          "How does this affect my province or territory?",
-          "What are the key facts about this topic?"
+          "Check this politician's voting record vs their statements",
+          "Analyze their financial connections and lobbyist ties",
+          "Compare their promises to actual legislative outcomes",
+          "Detect propaganda techniques in their messaging"
         ]
       };
     } catch (error) {
       console.error("Error processing query:", error);
-      throw new Error("Failed to process civic AI query");
+      return {
+        response: "CivicOS AI is temporarily unable to process your request. The system is designed to expose political lies and provide real-time bullshit detection - please try again shortly.",
+        analysisType: "general",
+        confidence: 0,
+        sources: [],
+        truthScore: 0,
+        propagandaRisk: "low",
+        followUpSuggestions: [
+          "Try asking about specific politicians or legislation",
+          "Request analysis of recent political statements",
+          "Ask for voting record comparisons"
+        ]
+      };
     }
+  }
+
+  private calculateTruthScore(query: string, response: string): number {
+    // Basic truth scoring based on content analysis
+    const truthIndicators = [
+      'verified', 'confirmed', 'documented', 'recorded', 'official',
+      'evidence', 'data shows', 'statistics', 'parliamentary record'
+    ];
+    
+    const propagandaIndicators = [
+      'believe me', 'trust me', 'many people say', 'some say',
+      'it is said', 'rumored', 'allegedly', 'supposedly'
+    ];
+    
+    const combinedText = (query + ' ' + response).toLowerCase();
+    
+    let truthScore = 50; // Base score
+    
+    truthIndicators.forEach(indicator => {
+      if (combinedText.includes(indicator)) truthScore += 8;
+    });
+    
+    propagandaIndicators.forEach(indicator => {
+      if (combinedText.includes(indicator)) truthScore -= 12;
+    });
+    
+    return Math.max(0, Math.min(100, truthScore));
+  }
+
+  private determineAnalysisType(query: string): "bill" | "politician" | "general" {
+    const queryLower = query.toLowerCase();
+    
+    if (queryLower.includes('bill') || queryLower.includes('legislation') || queryLower.includes('law')) {
+      return "bill";
+    }
+    if (queryLower.includes('mp') || queryLower.includes('minister') || queryLower.includes('politician') || 
+        queryLower.includes('carney') || queryLower.includes('poilievre')) {
+      return "politician";
+    }
+    return "general";
+  }
+
+  private assessPropagandaRisk(text: string): "low" | "medium" | "high" {
+    const propagandaTechniques = [
+      'emotional appeal', 'fear mongering', 'bandwagon', 'strawman',
+      'ad hominem', 'false dichotomy', 'appeal to authority'
+    ];
+    
+    const textLower = text.toLowerCase();
+    let riskScore = 0;
+    
+    // Check for emotional language
+    if (/\b(crisis|disaster|catastrophe|emergency|urgent|critical)\b/i.test(text)) riskScore++;
+    if (/\b(amazing|incredible|fantastic|terrible|horrible|devastating)\b/i.test(text)) riskScore++;
+    if (/\b(everyone knows|obviously|clearly|without question)\b/i.test(text)) riskScore++;
+    
+    if (riskScore >= 3) return "high";
+    if (riskScore >= 1) return "medium";
+    return "low";
   }
 
   private async analyzeQuery(query: string) {

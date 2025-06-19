@@ -273,6 +273,21 @@ export function LuxuryNavigation() {
             </Button>
           </Link>
         </div>
+        
+        {/* Attribution */}
+        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="text-center">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Built by Jordan Kenneth Boisclair
+            </p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+              © 2025 CivicOS™
+            </p>
+            <p className="text-xs text-gray-400 dark:text-gray-500">
+              Transparency is no longer optional
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
