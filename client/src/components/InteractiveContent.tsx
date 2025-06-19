@@ -23,18 +23,17 @@ import { formatDistanceToNow } from "date-fns";
 interface Comment {
   id: number;
   content: string;
-  authorId: string;
-  targetType: string;
-  targetId: number;
-  parentCommentId?: number;
-  createdAt: string;
-  likeCount: number;
-  author?: {
-    firstName: string;
-    lastName?: string;
-    email: string;
-    profileImageUrl?: string;
-  };
+  author_id: string;
+  target_type: string;
+  target_id: number;
+  parent_comment_id?: number;
+  created_at: string;
+  like_count: number;
+  can_delete: boolean;
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  profile_image_url?: string;
   replies?: Comment[];
 }
 
