@@ -148,7 +148,7 @@ export function LuxuryNavigation() {
 
   return (
     <div className={cn(
-      "bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 h-screen flex-col overflow-hidden transition-all duration-300 ease-in-out",
+      "bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 h-screen flex flex-col transition-all duration-300 ease-in-out",
       "hidden md:flex", // Hide on mobile, show on md and up
       isCollapsed ? "w-16" : "w-64 lg:w-72"
     )}>
@@ -209,7 +209,7 @@ export function LuxuryNavigation() {
         )}
       </div>
       {/* Navigation Content */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden px-3 py-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden px-3 py-4 scrollable">
         {isCollapsed ? (
           // Collapsed view - show only icons
           (<div className="space-y-2">
@@ -248,10 +248,10 @@ export function LuxuryNavigation() {
                 </Button>
                 
                 <div className={cn(
-                  "ml-3 mt-2 space-y-1 overflow-hidden transition-all duration-200 ease-in-out",
+                  "ml-3 mt-2 space-y-1 transition-all duration-200 ease-in-out",
                   expandedSections.includes(section.title) 
-                    ? "max-h-96 opacity-100" 
-                    : "max-h-0 opacity-0"
+                    ? "block opacity-100" 
+                    : "hidden opacity-0"
                 )}>
                   {section.items.map((item) => (
                     <Link key={item.href} href={item.href}>
