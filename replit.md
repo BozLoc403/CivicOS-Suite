@@ -85,6 +85,15 @@ The platform is designed for deployment on Replit with the following configurati
 
 ## Changelog
 
+- June 19, 2025: Enhanced elections system with comprehensive historical data and upcoming election schedules
+  - Added complete historical election results from 2015-2023 including seat counts, vote totals, and turnout data
+  - Expanded upcoming elections to include all levels: federal (2025), provincial (BC 2025, Ontario 2026, Quebec 2026, Alberta 2027), municipal (Montreal 2025, Toronto/Vancouver 2026)
+  - Enhanced election cards with projected turnout rates and seats at stake information
+  - Added detailed winner information, seat distribution breakdowns, and victory margins for historical elections
+  - Integrated comprehensive election timeline covering next 4 years of Canadian democratic process
+  - Enhanced party leader profiles with expanded policy platforms and campaign promises
+  - Added election history tab showing complete results with statistical breakdowns
+  - Platform now provides complete Canadian electoral system coverage across all government levels and timeframes
 - June 19, 2025: Fixed politician data integrity and enhanced display functionality
   - Cleaned up 144,616 duplicate politician records from database (99.6% duplicates removed)
   - Enhanced politician data with authentic Canadian contact information and office details
