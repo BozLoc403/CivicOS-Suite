@@ -75,6 +75,67 @@ export function setupLocalAuth(app: Express) {
     }
   });
 
+  // Registration route
+  app.post("/api/register", async (req, res) => {
+    const { email, password, firstName, lastName } = req.body;
+    
+    if (!email || !password || !firstName) {
+      return res.status(400).json({ message: "Email, password, and first name are required" });
+    }
+
+    if (password.length < 8) {
+      return res.status(400).json({ message: "Password must be at least 8 characters long" });
+    }
+
+    try {
+      // Check if user already exists
+      const [existingUser] = await db.select().from(users).where(eq(users.email, email));
+      
+      if (existingUser) {
+        return res.status(400).json({ message: "User with this email already exists" });
+      }
+
+      // Hash password
+      const hashedPassword = await hashPassword(password);
+
+      // Create user account
+      const [newUser] = await db.insert(users).values({
+        id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        email: email,
+        firstName: firstName,
+        lastName: lastName || "",
+        password: hashedPassword,
+        civicLevel: "Citizen",
+        trustScore: "50.00",
+        isVerified: false,
+        verificationLevel: "basic",
+        civicPoints: 0,
+        currentLevel: 1,
+        achievementTier: "bronze",
+        engagementLevel: "new",
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }).returning();
+
+      // Log the user in automatically after registration
+      req.logIn(newUser, (err) => {
+        if (err) {
+          return res.status(500).json({ message: "Registration successful but login failed" });
+        }
+        res.json({
+          id: newUser.id,
+          email: newUser.email,
+          firstName: newUser.firstName,
+          lastName: newUser.lastName
+        });
+      });
+
+    } catch (error) {
+      console.error("Registration error:", error);
+      res.status(500).json({ message: "Registration failed" });
+    }
+  });
+
   // Login route
   app.post("/api/login", (req, res, next) => {
     passport.authenticate("local", (err: any, user: any, info: any) => {
