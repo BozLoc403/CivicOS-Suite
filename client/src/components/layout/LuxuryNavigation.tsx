@@ -108,6 +108,29 @@ export function LuxuryNavigation() {
   const { user } = useAuth();
   const [expandedSections, setExpandedSections] = useState<string[]>(["Political Intelligence Hub"]);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const { toast } = useToast();
+
+  const logoutMutation = useMutation({
+    mutationFn: async () => {
+      await apiRequest("POST", "/api/logout", {});
+    },
+    onSuccess: () => {
+      queryClient.setQueryData(["/api/auth/user"], null);
+      queryClient.clear();
+      toast({
+        title: "Logged out successfully",
+        description: "You have been securely logged out of CivicOS",
+      });
+      window.location.href = "/";
+    },
+    onError: () => {
+      toast({
+        title: "Logout failed",
+        description: "There was an error logging out. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
 
   const toggleSection = (sectionTitle: string) => {
     setExpandedSections(prev => 
