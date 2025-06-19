@@ -303,6 +303,217 @@ export function ComprehensiveNewsOutlets() {
       ownership: "Aboriginal Multi-Media Society",
       founded: 1983,
       specialization: "Indigenous Communities"
+    },
+
+    // Additional Regional Media
+    {
+      id: "ottawacitizen",
+      name: "Ottawa Citizen",
+      website: "ottawacitizen.com",
+      type: "mainstream",
+      bias: "center",
+      credibilityScore: 76,
+      reach: "regional",
+      language: "english",
+      ownership: "Postmedia Network",
+      founded: 1845
+    },
+    {
+      id: "montrealgazette",
+      name: "Montreal Gazette",
+      website: "montrealgazette.com",
+      type: "mainstream",
+      bias: "center",
+      credibilityScore: 77,
+      reach: "regional",
+      language: "english",
+      ownership: "Postmedia Network",
+      founded: 1778
+    },
+    {
+      id: "telegraphjournal",
+      name: "Telegraph-Journal",
+      website: "telegraphjournal.com",
+      type: "mainstream",
+      bias: "center",
+      credibilityScore: 75,
+      reach: "regional",
+      language: "english",
+      ownership: "Irving Media",
+      founded: 1862
+    },
+    {
+      id: "theguardianpei",
+      name: "The Guardian (PEI)",
+      website: "theguardian.pe.ca",
+      type: "mainstream",
+      bias: "center",
+      credibilityScore: 73,
+      reach: "local",
+      language: "english",
+      ownership: "Transcontinental Media",
+      founded: 1870
+    },
+    {
+      id: "thetelegram",
+      name: "The Telegram",
+      website: "thetelegram.com",
+      type: "mainstream",
+      bias: "center",
+      credibilityScore: 74,
+      reach: "regional",
+      language: "english",
+      ownership: "SaltWire Network",
+      founded: 1879
+    },
+
+    // Additional French Media
+    {
+      id: "tvanouvelles",
+      name: "TVA Nouvelles",
+      website: "tvanouvelles.ca",
+      type: "mainstream",
+      bias: "center-right",
+      credibilityScore: 75,
+      reach: "regional",
+      language: "french",
+      ownership: "Quebecor Media",
+      founded: 1961
+    },
+    {
+      id: "lesoleil",
+      name: "Le Soleil",
+      website: "lesoleil.com",
+      type: "mainstream",
+      bias: "center",
+      credibilityScore: 78,
+      reach: "regional",
+      language: "french",
+      ownership: "Capitales Médias",
+      founded: 1896
+    },
+
+    // Northern/Territorial Media
+    {
+      id: "whitehorsestar",
+      name: "Whitehorse Star",
+      website: "whitehorsestar.com",
+      type: "mainstream",
+      bias: "center",
+      credibilityScore: 72,
+      reach: "local",
+      language: "english",
+      ownership: "Independent",
+      founded: 1900,
+      specialization: "Northern Affairs"
+    },
+    {
+      id: "yellowknifer",
+      name: "Yellowknifer",
+      website: "nnsl.com/yellowknifer",
+      type: "mainstream",
+      bias: "center",
+      credibilityScore: 71,
+      reach: "local",
+      language: "english",
+      ownership: "Northern News Services",
+      founded: 1977,
+      specialization: "Northern Affairs"
+    },
+    {
+      id: "nunavutnews",
+      name: "Nunavut News",
+      website: "nunavutnews.com",
+      type: "mainstream",
+      bias: "center",
+      credibilityScore: 70,
+      reach: "local",
+      language: "english",
+      ownership: "Northern News Services",
+      founded: 1999,
+      specialization: "Arctic Affairs"
+    },
+
+    // Additional Independent Media
+    {
+      id: "ricochet",
+      name: "Ricochet",
+      website: "ricochet.media",
+      type: "alternative",
+      bias: "left",
+      credibilityScore: 79,
+      reach: "national",
+      language: "bilingual",
+      ownership: "Independent",
+      founded: 2014,
+      specialization: "Investigative Journalism"
+    },
+    {
+      id: "theenergymix",
+      name: "The Energy Mix",
+      website: "theenergymix.com",
+      type: "alternative",
+      bias: "left",
+      credibilityScore: 83,
+      reach: "national",
+      language: "english",
+      ownership: "Independent",
+      founded: 2016,
+      specialization: "Climate & Energy"
+    },
+    {
+      id: "westernstandard",
+      name: "Western Standard",
+      website: "westernstandard.news",
+      type: "alternative",
+      bias: "right",
+      credibilityScore: 62,
+      reach: "regional",
+      language: "english",
+      ownership: "Independent",
+      founded: 2020,
+      specialization: "Western Canadian Politics"
+    },
+    {
+      id: "postmillennial",
+      name: "The Post Millennial",
+      website: "thepostmillennial.com",
+      type: "alternative",
+      bias: "right",
+      credibilityScore: 58,
+      reach: "national",
+      language: "english",
+      ownership: "Independent",
+      founded: 2017,
+      specialization: "Conservative Commentary"
+    },
+
+    // Professional/Specialized Media
+    {
+      id: "lawtimes",
+      name: "Law Times",
+      website: "lawtimesnews.com",
+      type: "alternative",
+      bias: "center",
+      credibilityScore: 85,
+      reach: "national",
+      language: "english",
+      ownership: "Thomson Reuters",
+      founded: 1991,
+      specialization: "Legal Affairs"
+    },
+    {
+      id: "canadianlawyermag",
+      name: "Canadian Lawyer",
+      website: "canadianlawyermag.com",
+      type: "alternative",
+      bias: "center",
+      credibilityScore: 87,
+      reach: "national",
+      language: "english",
+      ownership: "Key Media",
+      founded: 1977,
+      specialization: "Legal Profession"
     }
   ];
 
@@ -388,12 +599,13 @@ export function ComprehensiveNewsOutlets() {
       </Card>
 
       <Tabs defaultValue="all" className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="all">All Sources</TabsTrigger>
           <TabsTrigger value="mainstream">Mainstream</TabsTrigger>
           <TabsTrigger value="alternative">Independent</TabsTrigger>
           <TabsTrigger value="government">Government</TabsTrigger>
           <TabsTrigger value="french">French</TabsTrigger>
+          <TabsTrigger value="regional">Regional</TabsTrigger>
           <TabsTrigger value="specialist">Specialist</TabsTrigger>
         </TabsList>
 
@@ -432,6 +644,14 @@ export function ComprehensiveNewsOutlets() {
         <TabsContent value="french" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filterOutletsByLanguage('french').map((outlet) => (
+              <NewsOutletCard key={outlet.id} outlet={outlet} />
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="regional" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {newsOutlets.filter(outlet => outlet.reach === 'regional' || outlet.reach === 'local').map((outlet) => (
               <NewsOutletCard key={outlet.id} outlet={outlet} />
             ))}
           </div>

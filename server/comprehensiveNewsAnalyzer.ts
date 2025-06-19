@@ -372,6 +372,220 @@ export class ComprehensiveNewsAnalyzer {
       bias: "center",
       credibilityScore: 91,
       type: "alternative"
+    },
+
+    // Additional Regional Papers
+    {
+      name: "Ottawa Citizen",
+      url: "https://ottawacitizen.com",
+      rssUrl: "https://ottawacitizen.com/feed/",
+      bias: "center",
+      credibilityScore: 76,
+      type: "mainstream"
+    },
+    {
+      name: "Montreal Gazette",
+      url: "https://montrealgazette.com",
+      rssUrl: "https://montrealgazette.com/feed/",
+      bias: "center",
+      credibilityScore: 77,
+      type: "mainstream"
+    },
+    {
+      name: "Regina Leader-Post",
+      url: "https://leaderpost.com",
+      rssUrl: "https://leaderpost.com/feed/",
+      bias: "center",
+      credibilityScore: 73,
+      type: "mainstream"
+    },
+    {
+      name: "Saskatoon StarPhoenix",
+      url: "https://thestarphoenix.com",
+      rssUrl: "https://thestarphoenix.com/feed/",
+      bias: "center",
+      credibilityScore: 74,
+      type: "mainstream"
+    },
+
+    // Local/Community Papers
+    {
+      name: "North Shore News",
+      url: "https://www.nsnews.com",
+      rssUrl: "https://www.nsnews.com/rss.xml",
+      bias: "center",
+      credibilityScore: 72,
+      type: "mainstream"
+    },
+    {
+      name: "The Record (Kitchener-Waterloo)",
+      url: "https://www.therecord.com",
+      rssUrl: "https://www.therecord.com/feed/",
+      bias: "center",
+      credibilityScore: 71,
+      type: "mainstream"
+    },
+    {
+      name: "London Free Press",
+      url: "https://lfpress.com",
+      rssUrl: "https://lfpress.com/feed/",
+      bias: "center",
+      credibilityScore: 73,
+      type: "mainstream"
+    },
+    {
+      name: "Windsor Star",
+      url: "https://windsorstar.com",
+      rssUrl: "https://windsorstar.com/feed/",
+      bias: "center",
+      credibilityScore: 74,
+      type: "mainstream"
+    },
+
+    // Additional French Media
+    {
+      name: "Le Journal de Québec",
+      url: "https://www.journaldequebec.com",
+      rssUrl: "https://www.journaldequebec.com/rss.xml",
+      bias: "right",
+      credibilityScore: 70,
+      type: "mainstream"
+    },
+    {
+      name: "TVA Nouvelles",
+      url: "https://www.tvanouvelles.ca",
+      rssUrl: "https://www.tvanouvelles.ca/rss.xml",
+      bias: "center-right",
+      credibilityScore: 75,
+      type: "mainstream"
+    },
+    {
+      name: "Le Soleil",
+      url: "https://www.lesoleil.com",
+      rssUrl: "https://www.lesoleil.com/rss.xml",
+      bias: "center",
+      credibilityScore: 78,
+      type: "mainstream"
+    },
+
+    // Atlantic Canada
+    {
+      name: "Telegraph-Journal",
+      url: "https://www.telegraphjournal.com",
+      rssUrl: "https://www.telegraphjournal.com/rss/",
+      bias: "center",
+      credibilityScore: 75,
+      type: "mainstream"
+    },
+    {
+      name: "The Guardian (PEI)",
+      url: "https://www.theguardian.pe.ca",
+      rssUrl: "https://www.theguardian.pe.ca/rss/",
+      bias: "center",
+      credibilityScore: 73,
+      type: "mainstream"
+    },
+    {
+      name: "The Telegram",
+      url: "https://www.thetelegram.com",
+      rssUrl: "https://www.thetelegram.com/rss/",
+      bias: "center",
+      credibilityScore: 74,
+      type: "mainstream"
+    },
+
+    // Northern/Territorial
+    {
+      name: "Whitehorse Star",
+      url: "https://www.whitehorsestar.com",
+      rssUrl: "https://www.whitehorsestar.com/rss/",
+      bias: "center",
+      credibilityScore: 72,
+      type: "mainstream"
+    },
+    {
+      name: "Yellowknifer",
+      url: "https://www.nnsl.com/yellowknifer",
+      rssUrl: "https://www.nnsl.com/yellowknifer/rss/",
+      bias: "center",
+      credibilityScore: 71,
+      type: "mainstream"
+    },
+    {
+      name: "Nunavut News",
+      url: "https://www.nunavutnews.com",
+      rssUrl: "https://www.nunavutnews.com/rss/",
+      bias: "center",
+      credibilityScore: 70,
+      type: "mainstream"
+    },
+
+    // Additional Independent/Alternative
+    {
+      name: "Ricochet",
+      url: "https://ricochet.media",
+      rssUrl: "https://ricochet.media/en/feed",
+      bias: "left",
+      credibilityScore: 79,
+      type: "alternative"
+    },
+    {
+      name: "The Energy Mix",
+      url: "https://www.theenergymix.com",
+      rssUrl: "https://www.theenergymix.com/feed/",
+      bias: "left",
+      credibilityScore: 83,
+      type: "alternative"
+    },
+    {
+      name: "Epoch Times Canada",
+      url: "https://www.theepochtimes.com/canada",
+      rssUrl: "https://www.theepochtimes.com/canada/feed",
+      bias: "right",
+      credibilityScore: 68,
+      type: "alternative"
+    },
+    {
+      name: "Western Standard",
+      url: "https://www.westernstandard.news",
+      rssUrl: "https://www.westernstandard.news/feed/",
+      bias: "right",
+      credibilityScore: 62,
+      type: "alternative"
+    },
+    {
+      name: "The Post Millennial",
+      url: "https://thepostmillennial.com",
+      rssUrl: "https://thepostmillennial.com/feed",
+      bias: "right",
+      credibilityScore: 58,
+      type: "alternative"
+    },
+
+    // Specialized/Professional
+    {
+      name: "Law Times",
+      url: "https://www.lawtimesnews.com",
+      rssUrl: "https://www.lawtimesnews.com/rss/",
+      bias: "center",
+      credibilityScore: 85,
+      type: "alternative"
+    },
+    {
+      name: "Canadian Lawyer",
+      url: "https://www.canadianlawyermag.com",
+      rssUrl: "https://www.canadianlawyermag.com/rss/",
+      bias: "center",
+      credibilityScore: 87,
+      type: "alternative"
+    },
+    {
+      name: "Parliamentary Hill Times",
+      url: "https://www.hilltimes.com",
+      rssUrl: "https://www.hilltimes.com/feed/",
+      bias: "center",
+      credibilityScore: 86,
+      type: "alternative"
     }
   ];
 
