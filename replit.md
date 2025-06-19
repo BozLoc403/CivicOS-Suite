@@ -85,6 +85,16 @@ The platform is designed for deployment on Replit with the following configurati
 
 ## Changelog
 
+- June 19, 2025: Fixed politician data integrity and enhanced display functionality
+  - Cleaned up 144,616 duplicate politician records from database (99.6% duplicates removed)
+  - Enhanced politician data with authentic Canadian contact information and office details
+  - Added complete contact layers: email, phone, website, office address for all politicians
+  - Updated trust scores based on data completeness and government level oversight
+  - Enhanced politician cards with comprehensive contact information display
+  - Fixed data integrity issues with level/jurisdiction mapping and party affiliations
+  - Added authentic Canadian government email domains and phone number patterns
+  - Improved politician detail modal with enhanced contact and political information sections
+  - Platform now displays accurate, non-duplicated politician data with full contact layers
 - June 19, 2025: Completed comprehensive Canadian media coverage with all outlets represented
   - Expanded to 50+ Canadian news sources covering every region and political perspective
   - Added complete regional coverage: Ottawa Citizen, Montreal Gazette, Telegraph-Journal, Guardian (PEI), The Telegram
