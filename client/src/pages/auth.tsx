@@ -291,7 +291,7 @@ export default function Auth() {
         </Card>
 
         {/* Footer */}
-        <div className="text-center mt-8 text-xs text-slate-500 dark:text-slate-400">
+        <div className="text-center mt-6 sm:mt-8 text-xs text-slate-500 dark:text-slate-400">
           <p>Built by Jordan Kenneth Boisclair</p>
           <p>© 2025 CivicOS™ - All rights reserved</p>
         </div>

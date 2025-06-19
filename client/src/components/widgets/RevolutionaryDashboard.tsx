@@ -142,11 +142,11 @@ export function RevolutionaryDashboard() {
             <TabsTrigger value="monitoring" className="text-xs sm:text-sm px-2 py-2">Monitoring</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview" className="mt-6">
+          <TabsContent value="overview" className="mt-4 sm:mt-6">
             <ComprehensiveOverview data={dashboardData} />
           </TabsContent>
 
-          <TabsContent value="transparency" className="mt-6">
+          <TabsContent value="transparency" className="mt-4 sm:mt-6">
             <TransparencyPortal data={dashboardData} />
           </TabsContent>
 

@@ -148,8 +148,9 @@ export function LuxuryNavigation() {
 
   return (
     <div className={cn(
-      "bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 h-screen flex flex-col overflow-hidden transition-all duration-300 ease-in-out",
-      isCollapsed ? "w-16" : "w-72"
+      "bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 h-screen flex-col overflow-hidden transition-all duration-300 ease-in-out",
+      "hidden md:flex", // Hide on mobile, show on md and up
+      isCollapsed ? "w-16" : "w-64 lg:w-72"
     )}>
       {/* Header with Toggle */}
       <div className="flex-shrink-0 p-4 border-b border-gray-200 dark:border-gray-700">

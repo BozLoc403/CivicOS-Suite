@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import { FloatingCivicBot } from "@/components/FloatingCivicBot";
 import { LuxuryNavigation } from "@/components/layout/LuxuryNavigation";
+import { MobileNavigation } from "@/components/MobileNavigation";
 import Landing from "@/pages/landing";
 import Dashboard from "@/pages/dashboard";
 import Voting from "@/pages/voting";
@@ -39,6 +40,7 @@ import Notifications from "@/pages/notifications";
 import UserProfile from "@/pages/user-profile";
 
 import NotFound from "@/pages/not-found";
+import dominionEmblem from "@assets/EFE54ED9-DEE5-4F72-88D4-4441CE2D11CB_1_105_c_1749411960407.jpeg";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -49,6 +51,22 @@ function Router() {
         <div className="flex">
           <LuxuryNavigation />
           <main className="flex-1 bg-gradient-civic-ambient min-h-screen overflow-x-auto">
+            {/* Mobile Navigation */}
+            <div className="md:hidden bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 p-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900 flex items-center justify-center shadow-lg border border-slate-600 overflow-hidden">
+                    <img 
+                      src={dominionEmblem} 
+                      alt="CivicOS" 
+                      className="w-6 h-6 object-cover rounded-full filter brightness-125 contrast-125"
+                    />
+                  </div>
+                  <h1 className="text-lg font-bold font-serif text-slate-900 dark:text-slate-100">CivicOS</h1>
+                </div>
+                <MobileNavigation />
+              </div>
+            </div>
             <div className="p-2 sm:p-4 lg:p-6">
               <Switch>
                 <Route path="/" component={Dashboard} />
