@@ -148,7 +148,7 @@ export default function Auth() {
                   )}
 
                   <div className="space-y-2">
-                    <Label htmlFor="login-email" className="flex items-center space-x-2">
+                    <Label htmlFor="login-email" className="flex items-center space-x-2 text-sm sm:text-base">
                       <Mail className="w-4 h-4" />
                       <span>Email Address</span>
                     </Label>
@@ -158,13 +158,13 @@ export default function Auth() {
                       placeholder="your.email@example.com"
                       value={loginData.email}
                       onChange={(e) => setLoginData(prev => ({ ...prev, email: e.target.value }))}
-                      className="h-11"
+                      className="h-10 sm:h-11 text-sm sm:text-base"
                       disabled={loginMutation.isPending}
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="login-password" className="flex items-center space-x-2">
+                    <Label htmlFor="login-password" className="flex items-center space-x-2 text-sm sm:text-base">
                       <Lock className="w-4 h-4" />
                       <span>Password</span>
                     </Label>
@@ -174,14 +174,14 @@ export default function Auth() {
                       placeholder="Enter your password"
                       value={loginData.password}
                       onChange={(e) => setLoginData(prev => ({ ...prev, password: e.target.value }))}
-                      className="h-11"
+                      className="h-10 sm:h-11 text-sm sm:text-base"
                       disabled={loginMutation.isPending}
                     />
                   </div>
 
                   <Button 
                     type="submit" 
-                    className="w-full h-11 bg-slate-800 hover:bg-slate-700 text-white"
+                    className="w-full h-10 sm:h-11 bg-slate-800 hover:bg-slate-700 text-white text-sm sm:text-base"
                     disabled={loginMutation.isPending}
                   >
                     {loginMutation.isPending ? "Authenticating..." : "Secure Login"}
@@ -197,9 +197,9 @@ export default function Auth() {
                     </Alert>
                   )}
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="register-firstName" className="flex items-center space-x-2">
+                      <Label htmlFor="register-firstName" className="flex items-center space-x-2 text-sm sm:text-base">
                         <User className="w-4 h-4" />
                         <span>First Name</span>
                       </Label>
@@ -209,21 +209,21 @@ export default function Auth() {
                         placeholder="Jordan"
                         value={registerData.firstName}
                         onChange={(e) => setRegisterData(prev => ({ ...prev, firstName: e.target.value }))}
-                        className="h-11"
+                        className="h-10 sm:h-11 text-sm sm:text-base"
                         disabled={registerMutation.isPending}
                         required
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="register-lastName">Last Name</Label>
+                      <Label htmlFor="register-lastName" className="text-sm sm:text-base">Last Name</Label>
                       <Input
                         id="register-lastName"
                         type="text"
                         placeholder="Smith"
                         value={registerData.lastName}
                         onChange={(e) => setRegisterData(prev => ({ ...prev, lastName: e.target.value }))}
-                        className="h-11"
+                        className="h-10 sm:h-11 text-sm sm:text-base"
                         disabled={registerMutation.isPending}
                       />
                     </div>

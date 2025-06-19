@@ -49,7 +49,7 @@ function Router() {
         <div className="flex">
           <LuxuryNavigation />
           <main className="flex-1 bg-gradient-civic-ambient min-h-screen overflow-x-auto">
-            <div className="p-6">
+            <div className="p-2 sm:p-4 lg:p-6">
               <Switch>
                 <Route path="/" component={Dashboard} />
                 <Route path="/voting" component={Voting} />

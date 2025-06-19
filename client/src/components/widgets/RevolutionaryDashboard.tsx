@@ -98,20 +98,20 @@ export function RevolutionaryDashboard() {
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mb-4 sm:mb-6">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
           <Input
             placeholder="Search politicians, bills, laws, cases..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm"
+            className="pl-10 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm text-sm sm:text-base h-9 sm:h-10"
           />
         </div>
         <select
           value={selectedRegion}
           onChange={(e) => setSelectedRegion(e.target.value)}
-          className="px-4 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm"
+          className="px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm text-sm sm:text-base h-9 sm:h-10 min-w-0"
         >
           <option value="all">All Jurisdictions</option>
           <option value="federal">Federal</option>
@@ -122,7 +122,7 @@ export function RevolutionaryDashboard() {
         </select>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
         <PoliticiansWidget data={dashboardData?.politicians} />
         <BillsWidget data={dashboardData?.bills} />
         <NewsWidget data={dashboardData?.news} />
@@ -131,15 +131,15 @@ export function RevolutionaryDashboard() {
         <AnalyticsWidget data={dashboardData?.analytics} />
       </div>
 
-      <div className="mt-8">
+      <div className="mt-6 sm:mt-8">
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-6 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="transparency">Transparency</TabsTrigger>
-            <TabsTrigger value="rights">Rights</TabsTrigger>
-            <TabsTrigger value="democracy">Democracy</TabsTrigger>
-            <TabsTrigger value="intelligence">Intelligence</TabsTrigger>
-            <TabsTrigger value="monitoring">Monitoring</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm h-auto p-1">
+            <TabsTrigger value="overview" className="text-xs sm:text-sm px-2 py-2">Overview</TabsTrigger>
+            <TabsTrigger value="transparency" className="text-xs sm:text-sm px-2 py-2">Transparency</TabsTrigger>
+            <TabsTrigger value="rights" className="text-xs sm:text-sm px-2 py-2">Rights</TabsTrigger>
+            <TabsTrigger value="democracy" className="text-xs sm:text-sm px-2 py-2">Democracy</TabsTrigger>
+            <TabsTrigger value="intelligence" className="text-xs sm:text-sm px-2 py-2">Intelligence</TabsTrigger>
+            <TabsTrigger value="monitoring" className="text-xs sm:text-sm px-2 py-2">Monitoring</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="mt-6">
@@ -236,15 +236,15 @@ function BillsWidget({ data }: { data: any }) {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-3 gap-1 sm:gap-2">
             <div className="p-2 rounded-lg bg-green-50 dark:bg-green-900/20 text-center">
-              <div className="text-lg font-bold text-green-700 dark:text-green-400">
+              <div className="text-base sm:text-lg font-bold text-green-700 dark:text-green-400">
                 {data.passed}
               </div>
               <div className="text-xs text-green-600 dark:text-green-500">Passed</div>
             </div>
             <div className="p-2 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 text-center">
-              <div className="text-lg font-bold text-yellow-700 dark:text-yellow-400">
+              <div className="text-base sm:text-lg font-bold text-yellow-700 dark:text-yellow-400">
                 {data.inProgress}
               </div>
               <div className="text-xs text-yellow-600 dark:text-yellow-500">In Progress</div>
