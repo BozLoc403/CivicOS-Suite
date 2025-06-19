@@ -851,7 +851,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid vote type" });
       }
 
-      if (!['politician', 'bill', 'post', 'reply', 'comment', 'petition'].includes(targetType)) {
+      if (!['politician', 'bill', 'post', 'reply', 'comment', 'petition', 'news', 'finance'].includes(targetType)) {
         return res.status(400).json({ message: "Invalid target type" });
       }
 

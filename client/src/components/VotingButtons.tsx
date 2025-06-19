@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
 interface VotingButtonsProps {
-  targetType: 'politician' | 'bill' | 'post' | 'comment' | 'petition' | 'news';
+  targetType: 'politician' | 'bill' | 'post' | 'comment' | 'petition' | 'news' | 'finance';
   targetId: number;
   className?: string;
   size?: 'sm' | 'md' | 'lg';
@@ -38,6 +38,7 @@ export function VotingButtons({
         targetId,
         voteType
       });
+      
       return await res.json();
     },
     onSuccess: (data) => {
@@ -48,20 +49,38 @@ export function VotingButtons({
       queryClient.invalidateQueries({ queryKey: ["/api/bills"] });
     },
     onError: (error: any) => {
-      // Handle already voted error
-      if (error.message && error.message.includes("already voted")) {
-        toast({
-          title: "Already Voted",
-          description: "You have already voted on this item. Each user can only vote once.",
-          variant: "default",
-        });
-      } else {
-        toast({
-          title: "Vote Failed",
-          description: error.message || "Failed to register vote",
-          variant: "destructive",
-        });
+      console.error("Voting error:", error);
+      
+      // Parse error message from API response
+      let errorMessage = "Failed to register vote";
+      if (error.message) {
+        if (error.message.includes("already voted")) {
+          toast({
+            title: "Already Voted",
+            description: "You have already voted on this item. Each user can only vote once.",
+            variant: "default",
+          });
+          return;
+        }
+        // Extract message from "400: {message: ...}" format
+        const match = error.message.match(/400: (.+)/);
+        if (match) {
+          try {
+            const parsed = JSON.parse(match[1]);
+            errorMessage = parsed.message || errorMessage;
+          } catch {
+            errorMessage = match[1];
+          }
+        } else {
+          errorMessage = error.message;
+        }
       }
+      
+      toast({
+        title: "Vote Failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
     },
   });
 
