@@ -183,22 +183,22 @@ export function LuxuryNavigation() {
             
             {user && (
               <Link href={`/users/${user.id || 'profile'}`}>
-                <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                      <span className="text-sm font-medium text-white">
+                <div className="mt-3 lg:mt-4 p-2 lg:p-3 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer">
+                  <div className="flex items-center space-x-2 lg:space-x-3">
+                    <div className="w-7 h-7 lg:w-8 lg:h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+                      <span className="text-xs lg:text-sm font-medium text-white">
                         {user.firstName?.[0] || user.email?.[0] || "U"}
                       </span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                      <p className="text-xs lg:text-sm font-medium text-gray-900 dark:text-white truncate">
                         {user.firstName || user.email}
                       </p>
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-1 lg:space-x-2">
                         <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700">
                           Civic Level 3
                         </Badge>
-                        <span className="text-xs text-gray-500">1,247 pts</span>
+                        <span className="text-xs text-gray-500 hidden lg:inline">1,247 pts</span>
                       </div>
                     </div>
                   </div>
@@ -209,7 +209,7 @@ export function LuxuryNavigation() {
         )}
       </div>
       {/* Navigation Content */}
-      <div className="flex-1 overflow-y-auto px-3 py-4">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden px-3 py-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
         {isCollapsed ? (
           // Collapsed view - show only icons
           (<div className="space-y-2">
@@ -278,14 +278,14 @@ export function LuxuryNavigation() {
           </div>)
         )}
       </div>
-      <div className="flex-shrink-0 p-4 border-t border-gray-200 dark:border-gray-700">
-        <div className="space-y-2">
+      <div className="flex-shrink-0 p-3 lg:p-4 border-t border-gray-200 dark:border-gray-700">
+        <div className="space-y-1 lg:space-y-2">
           <Link href="/settings">
             <Button
               variant={isActive("/settings") ? "secondary" : "ghost"}
-              className="w-full justify-start space-x-3"
+              className="w-full justify-start space-x-2 lg:space-x-3 text-xs lg:text-sm h-8 lg:h-9 px-2 lg:px-3"
             >
-              <Settings className="w-4 h-4" />
+              <Settings className="w-3 h-3 lg:w-4 lg:h-4" />
               <span>Settings</span>
             </Button>
           </Link>
@@ -293,9 +293,9 @@ export function LuxuryNavigation() {
           <Link href="/notifications">
             <Button 
               variant={isActive("/notifications") ? "secondary" : "ghost"} 
-              className="w-full justify-start space-x-3"
+              className="w-full justify-start space-x-2 lg:space-x-3 text-xs lg:text-sm h-8 lg:h-9 px-2 lg:px-3"
             >
-              <Bell className="w-4 h-4" />
+              <Bell className="w-3 h-3 lg:w-4 lg:h-4" />
               <span>Notifications</span>
               <Badge variant="destructive" className="ml-auto text-xs">3</Badge>
             </Button>
@@ -305,9 +305,9 @@ export function LuxuryNavigation() {
             onClick={() => logoutMutation.mutate()}
             disabled={logoutMutation.isPending}
             variant="ghost"
-            className="w-full justify-start space-x-3 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
+            className="w-full justify-start space-x-2 lg:space-x-3 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950 text-xs lg:text-sm h-8 lg:h-9 px-2 lg:px-3"
           >
-            <LogOut className="w-4 h-4" />
+            <LogOut className="w-3 h-3 lg:w-4 lg:h-4" />
             <span>{logoutMutation.isPending ? "Logging out..." : "Logout"}</span>
           </Button>
         </div>
