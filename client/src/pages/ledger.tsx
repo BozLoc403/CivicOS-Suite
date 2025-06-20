@@ -1,22 +1,11 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { NavigationHeader } from "@/components/NavigationHeader";
-import { Shield, Download, Eye, AlertCircle, Vote, FileText, MessageSquare, Users, Calendar, ExternalLink, TrendingUp } from "lucide-react";
-import { useEffect } from "react";
-
-interface CivicAction {
-  id: number;
-  activityType: string;
-  entityId: number;
-  entityType: string;
-  pointsEarned: number;
-  details: any;
-  createdAt: string;
-}
+import { Shield, Download, AlertCircle, Vote, FileText, Calendar, TrendingUp } from "lucide-react";
+import { useEffect, useMemo } from "react";
 
 interface CivicLedgerData {
   summary: {
@@ -44,13 +33,30 @@ interface CivicLedgerData {
       targetSignatures: number;
     };
   }>;
-  activities: CivicAction[];
+  activities: Array<{
+    id: number;
+    activityType: string;
+    entityId: number;
+    entityType: string;
+    pointsEarned: number;
+    details: any;
+    createdAt: string;
+  }>;
 }
 
-export default function Ledger() {
-  const { isAuthenticated, isLoading: authLoading, user } = useAuth();
+const formatDate = (dateString: string) => {
+  return new Date(dateString).toLocaleDateString('en-CA', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+};
 
-  // Redirect to login if not authenticated
+export default function Ledger() {
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
+
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
       window.location.href = '/auth';
@@ -60,7 +66,6 @@ export default function Ledger() {
   const { data, isLoading } = useQuery<CivicLedgerData>({
     queryKey: ["/api/civic-ledger"],
     enabled: isAuthenticated,
-    refetchInterval: 1000 * 60 * 5, // Refetch every 5 minutes
   });
 
   const ledgerData = useMemo(() => {
@@ -68,7 +73,7 @@ export default function Ledger() {
       const { votes = [], petitions = [], activities = [] } = data;
 
       const voteData = votes.map((vote: any) => ({
-        id: vote.id,
+        id: `vote-${vote.id}`,
         action: `Voted ${vote.voteValue === 1 ? 'Yes' : vote.voteValue === -1 ? 'No' : 'Abstain'}`,
         target: `${vote.itemType || 'Item'} ${vote.itemId}`,
         date: vote.timestamp,
@@ -78,7 +83,7 @@ export default function Ledger() {
       }));
 
       const petitionData = petitions.map((petition: any) => ({
-        id: petition.id,
+        id: `petition-${petition.id}`,
         action: 'Signed Petition',
         target: petition.petition?.title || 'Unknown Petition',
         date: petition.signedAt,
@@ -88,7 +93,7 @@ export default function Ledger() {
       }));
 
       const activityData = activities.map((activity: any) => ({
-        id: activity.id,
+        id: `activity-${activity.id}`,
         action: activity.activityType,
         target: `${activity.entityType || 'Item'} ${activity.entityId}`,
         date: activity.createdAt,
@@ -101,109 +106,51 @@ export default function Ledger() {
         new Date(b.date).getTime() - new Date(a.date).getTime()
       );
     }
-
     return [];
   }, [data]);
-
-  const getVoteColor = (voteValue: number) => {
-    if (voteValue > 0) return "bg-green-500 text-white";
-    if (voteValue < 0) return "bg-red-500 text-white";
-    return "bg-gray-500 text-white";
-  };
-
-  const getVoteText = (voteValue: number) => {
-    if (voteValue > 0) return "Support";
-    if (voteValue < 0) return "Oppose";
-    return "Neutral";
-  };
 
   const getActivityIcon = (activityType: string) => {
     switch (activityType) {
       case 'vote': return <Vote className="h-4 w-4" />;
-      case 'petition_sign': return <FileText className="h-4 w-4" />;
-      case 'post': return <MessageSquare className="h-4 w-4" />;
-      case 'reply': return <MessageSquare className="h-4 w-4" />;
-      case 'comment': return <MessageSquare className="h-4 w-4" />;
-      case 'legal_search': return <Eye className="h-4 w-4" />;
-      default: return <Users className="h-4 w-4" />;
+      case 'petition': return <FileText className="h-4 w-4" />;
+      default: return <Shield className="h-4 w-4" />;
     }
   };
 
   const getActivityColor = (activityType: string) => {
     switch (activityType) {
-      case 'vote': return "bg-blue-100 text-blue-800";
-      case 'petition_sign': return "bg-green-100 text-green-800";
-      case 'post': return "bg-purple-100 text-purple-800";
-      case 'reply': return "bg-orange-100 text-orange-800";
-      case 'comment': return "bg-yellow-100 text-yellow-800";
-      case 'legal_search': return "bg-gray-100 text-gray-800";
-      default: return "bg-indigo-100 text-indigo-800";
+      case 'vote': return 'bg-green-100 text-green-800';
+      case 'petition': return 'bg-purple-100 text-purple-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const formatDate = (timestamp: string | Date) => {
-    return new Date(timestamp).toLocaleString('en-CA', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  const formatActivityType = (activityType: string) => {
-    switch (activityType) {
-      case 'vote': return 'Vote Cast';
-      case 'petition_sign': return 'Petition Signed';
-      case 'post': return 'Forum Post';
-      case 'reply': return 'Forum Reply';
-      case 'comment': return 'Comment Posted';
-      case 'legal_search': return 'Legal Search';
-      default: return activityType.charAt(0).toUpperCase() + activityType.slice(1);
-    }
-  };
-
-  if (authLoading) {
+  if (authLoading || isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading authentication...</p>
+      <div className="min-h-screen bg-gray-50">
+        <NavigationHeader />
+        <div className="flex items-center justify-center h-96">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-civic-blue mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading your civic ledger...</p>
+          </div>
         </div>
       </div>
     );
   }
 
-  if (!isAuthenticated) {
-    return null; // Will redirect via useEffect
-  }
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-        <NavigationHeader />
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading your civic action history...</p>
-          </div>
-        </main>
-      </div>
-    );
-  }
+  if (!isAuthenticated) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gray-50">
       <NavigationHeader />
       
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
+      <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">My Civic Ledger</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Civic Ledger</h1>
           <p className="text-gray-600">Complete history of your democratic participation and civic engagement</p>
         </div>
 
-        {/* Activity Summary Cards */}
         {data?.summary && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <Card>
@@ -237,7 +184,6 @@ export default function Ledger() {
           </div>
         )}
 
-        {/* Security Notice */}
         <Card className="mb-8 bg-civic-green text-white">
           <CardContent className="p-6">
             <div className="flex items-start">
@@ -246,22 +192,20 @@ export default function Ledger() {
                 <h3 className="text-lg font-semibold mb-2">Cryptographic Security</h3>
                 <p className="text-sm opacity-90">
                   Every vote is secured with a unique verification ID and block hash. 
-                  This ensures your votes cannot be tampered with or deleted. 
-                  You can download individual receipts as proof of participation.
+                  This ensures your votes cannot be tampered with or deleted.
                 </p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Voting History */}
         {ledgerData.length === 0 ? (
           <Card>
             <CardContent className="p-12 text-center">
               <AlertCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No Votes Cast</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">No Civic Activity</h3>
               <p className="text-gray-600 mb-4">
-                You haven't cast any votes yet. Visit the Active Legislation page to participate in democracy.
+                You haven't participated in any civic activities yet. Visit the Active Legislation page to start voting.
               </p>
               <Button className="bg-civic-blue hover:bg-blue-700">
                 View Active Bills
@@ -274,79 +218,47 @@ export default function Ledger() {
               <Card key={action.id} className="hover:shadow-md transition-shadow">
                 <CardContent className="p-6">
                   <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-                    <div className="flex-1 mb-4 lg:mb-0">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-lg font-semibold text-gray-900">
-                          {vote.bill.title}
-                        </h3>
-                        <Badge className={getVoteColor(vote.voteValue)}>
-                          {vote.voteValue.toUpperCase()}
+                    <div className="flex-1">
+                      <div className="flex items-center mb-2">
+                        <Badge className={`mr-2 flex items-center ${getActivityColor(action.type)}`}>
+                          {getActivityIcon(action.type)}
+                          <span className="ml-1">{action.type}</span>
                         </Badge>
-                        <Shield className="civic-green w-5 h-5" title="Cryptographically Verified" />
+                        <h3 className="font-semibold text-gray-900">{action.action}</h3>
                       </div>
                       
-                      <p className="text-sm text-gray-600 mb-3">
-                        {vote.bill.jurisdiction} · {vote.bill.category}
-                      </p>
-
-                      {vote.reasoning && (
-                        <div className="mb-3">
-                          <p className="text-sm font-medium text-gray-700 mb-1">Your reasoning:</p>
-                          <p className="text-sm text-gray-600 italic">"{vote.reasoning}"</p>
+                      <p className="text-gray-600 text-sm mb-3">Target: {action.target}</p>
+                      
+                      {action.details && (
+                        <div className="bg-gray-50 p-3 rounded-lg mb-3">
+                          <p className="text-sm text-gray-700">
+                            <strong>Details:</strong> {action.details}
+                          </p>
                         </div>
                       )}
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
-                        <div>
-                          <span className="font-medium">Timestamp:</span> {formatDate(vote.timestamp!)}
-                        </div>
-                        <div>
-                          <span className="font-medium">Verification ID:</span>
-                          <code className="ml-1 bg-gray-100 px-1 rounded text-xs">
-                            {vote.verificationId}
-                          </code>
-                        </div>
-                        <div className="md:col-span-2">
-                          <span className="font-medium">Block Hash:</span>
-                          <code className="ml-1 bg-gray-100 px-1 rounded text-xs break-all">
-                            {vote.blockHash}
-                          </code>
-                        </div>
+                      
+                      <div className="flex items-center text-sm text-gray-500 space-x-4">
+                        <span className="flex items-center">
+                          <Calendar className="h-4 w-4 mr-1" />
+                          {formatDate(action.date)}
+                        </span>
+                        <span className="flex items-center text-green-600">
+                          <Shield className="h-4 w-4 mr-1" />
+                          +{action.points} points
+                        </span>
                       </div>
                     </div>
-
-                    <div className="flex flex-col sm:flex-row gap-2 lg:ml-6">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => downloadReceipt(vote)}
-                        className="text-civic-blue border-civic-blue hover:bg-civic-blue hover:text-white"
-                      >
-                        <Download className="w-4 h-4 mr-2" />
-                        Download Receipt
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-gray-600 border-gray-300 hover:bg-gray-50"
-                      >
-                        <Eye className="w-4 h-4 mr-2" />
-                        Verify on Blockchain
+                    
+                    <div className="flex items-center space-x-2 mt-4 lg:mt-0">
+                      <Button variant="outline" size="sm">
+                        <Download className="h-4 w-4 mr-1" />
+                        Receipt
                       </Button>
                     </div>
                   </div>
                 </CardContent>
               </Card>
             ))}
-          </div>
-        )}
-
-        {votes.length > 0 && (
-          <div className="mt-8 text-center">
-            <p className="text-sm text-gray-600">
-              Showing {votes.length} vote{votes.length !== 1 ? 's' : ''} · 
-              All votes are cryptographically verified and immutable
-            </p>
           </div>
         )}
       </main>
