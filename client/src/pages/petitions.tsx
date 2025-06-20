@@ -636,7 +636,8 @@ export default function Petitions() {
             );
           })
         )}
+        </div>
       </div>
-    </div>
+    </VerificationGuard>
   );
 }

@@ -35,6 +35,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
 
+  // Identity verification routes
+  registerIdentityVerificationRoutes(app);
+
   // Auth routes
   app.get('/api/auth/user', async (req: any, res) => {
     try {
