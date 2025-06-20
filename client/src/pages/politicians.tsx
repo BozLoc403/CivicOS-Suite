@@ -392,10 +392,10 @@ export default function Politicians() {
                 )}
 
                 <div className="flex flex-wrap gap-1 mt-2">
-                  {politician.data_sources.slice(0, 2).map((source, idx) => (
+                  {politician.data_sources && politician.data_sources.slice(0, 2).map((source, idx) => (
                     <DataSourceBadge key={idx} source={source} />
                   ))}
-                  {politician.data_sources.length > 2 && (
+                  {politician.data_sources && politician.data_sources.length > 2 && (
                     <Badge variant="secondary" className="text-xs">
                       +{politician.data_sources.length - 2} more
                     </Badge>
@@ -482,7 +482,7 @@ export default function Politicians() {
                       <div>
                         <p className="text-sm font-medium mb-2">Official Sources:</p>
                         <div className="flex flex-wrap gap-2">
-                          {selectedPolitician.data_sources.map((source, idx) => (
+                          {selectedPolitician.data_sources && selectedPolitician.data_sources.map((source, idx) => (
                             <a 
                               key={idx}
                               href={source.url} 
@@ -499,6 +499,11 @@ export default function Politicians() {
                               </Badge>
                             </a>
                           ))}
+                          {!selectedPolitician.data_sources && (
+                            <Badge variant="secondary" className="text-xs">
+                              No sources available
+                            </Badge>
+                          )}
                         </div>
                       </div>
                       <div>
