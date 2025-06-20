@@ -85,6 +85,13 @@ The platform is designed for deployment on Replit with the following configurati
 
 ## Changelog
 
+- June 20, 2025: Fixed authentication system with proper login/logout functionality and JSON API responses
+  - Resolved frontend JSON parsing error when logging in - backend now properly returns JSON instead of HTML
+  - Implemented session-based logout system that properly manages user state and redirects
+  - Updated all navigation components to use centralized useAuth hook with logout functionality
+  - Added proper login/register API endpoints with validation and error handling
+  - Tested complete authentication flow - login, logout, and user session management working correctly
+  - Users can now properly log in through the auth page and log out via sidebar button
 - June 19, 2025: Completed comprehensive commenting system with automatic content moderation and user deletion capabilities
   - Added sophisticated comment moderation system blocking hate speech, racism, and excessive profanity
   - Implemented user comment deletion functionality - users can delete their own comments with proper authentication

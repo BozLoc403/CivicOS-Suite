@@ -25,11 +25,10 @@ export default function Auth() {
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: { email: string; password: string }) => {
-      const res = await apiRequest("/api/login", "POST", credentials);
-      return await res.json();
+      return apiRequest("/api/auth/login", "POST", credentials);
     },
-    onSuccess: (user) => {
-      queryClient.setQueryData(["/api/auth/user"], user);
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       toast({
         title: "Welcome to CivicOS",
         description: "You have successfully logged in",

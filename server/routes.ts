@@ -115,6 +115,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Register route for development
+  app.post('/api/auth/register', async (req: any, res) => {
+    try {
+      const { email, password, firstName, lastName } = req.body;
+      
+      // Simple validation for demo purposes
+      if (!email || !password || !firstName) {
+        return res.status(400).json({ message: "Email, password, and first name required" });
+      }
+      
+      // Clear logout flag
+      if (req.session) {
+        req.session.loggedOut = false;
+      }
+      
+      res.json({ message: "Registration successful" });
+    } catch (error) {
+      console.error("Error during registration:", error);
+      res.status(500).json({ message: "Failed to register" });
+    }
+  });
+
   // Profile picture upload route
   app.post('/api/auth/upload-profile-picture', isAuthenticated, upload.single('profilePicture'), async (req: any, res) => {
     try {
