@@ -7,6 +7,7 @@ import {
   notifications,
   petitions,
   petitionSignatures,
+  userActivity,
   type User,
   type UpsertUser,
   type Bill,
@@ -37,9 +38,12 @@ export interface IStorage {
   
   // Vote operations
   createVote(vote: InsertVote & { verificationId: string; blockHash: string }): Promise<Vote>;
-  getUserVotes(userId: string): Promise<(Vote & { bill: Bill })[]>;
+  getUserVotes(userId: string): Promise<any[]>;
   getVoteByUserAndBill(userId: string, billId: number): Promise<Vote | undefined>;
   getBillVoteStats(billId: number): Promise<{ yes: number; no: number; abstain: number; total: number }>;
+  
+  // Civic Ledger operations
+  getUserCivicLedger(userId: string): Promise<any>;
   
   // Politician operations
   getAllPoliticians(): Promise<Politician[]>;

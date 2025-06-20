@@ -35,7 +35,8 @@ import {
   ChevronDown,
   Menu,
   X,
-  LogOut
+  LogOut,
+  BookOpen
 } from "lucide-react";
 
 interface NavItem {
@@ -60,6 +61,7 @@ const navigationSections = [
   {
     title: "Civic Engagement Suite",
     items: [
+      { title: "Civic Ledger", href: "/ledger", icon: BookOpen, badge: "Personal" },
       { title: "Discussions", href: "/discussions", icon: MessageSquare, badge: "24" },
       { title: "Petitions", href: "/petitions", icon: FileText },
 
