@@ -49,13 +49,13 @@ export function CommentSystem({ targetType, targetId }: CommentSystemProps) {
   const [editHistory, setEditHistory] = useState<any[]>([]);
 
   // Fetch comments with error handling
-  const { data: comments = [], isLoading, error } = useQuery({
+  const { data: comments = [], isLoading, error, refetch } = useQuery({
     queryKey: ['comments', targetType, targetId],
     queryFn: async () => {
       console.log('Fetching comments for:', targetType, targetId);
       const result = await apiRequest(`/api/comments/${targetType}/${targetId}`);
       console.log('Comments response:', result);
-      return result;
+      return Array.isArray(result) ? result : [];
     },
     retry: 1,
     refetchOnWindowFocus: false,
@@ -68,10 +68,17 @@ export function CommentSystem({ targetType, targetId }: CommentSystemProps) {
 
   // Post comment mutation
   const commentMutation = useMutation({
-    mutationFn: (content: string) => 
-      apiRequest(`/api/comments/${targetType}/${targetId}`, 'POST', { content }),
-    onSuccess: () => {
+    mutationFn: async (content: string) => {
+      console.log('Posting comment:', content, 'to', targetType, targetId);
+      const result = await apiRequest(`/api/comments/${targetType}/${targetId}`, 'POST', { content });
+      console.log('Comment post result:', result);
+      return result;
+    },
+    onSuccess: (data) => {
+      console.log('Comment posted successfully:', data);
       setNewComment('');
+      // Force immediate refetch instead of just invalidating
+      refetch();
       queryClient.invalidateQueries({ queryKey: ['comments', targetType, targetId] });
       toast({
         title: "Success",
@@ -79,8 +86,9 @@ export function CommentSystem({ targetType, targetId }: CommentSystemProps) {
       });
     },
     onError: (error: any) => {
+      console.error('Comment post error:', error);
       toast({
-        title: "Error",
+        title: "Error", 
         description: error.message || "Failed to post comment",
         variant: "destructive",
       });
@@ -325,7 +333,7 @@ export function CommentSystem({ targetType, targetId }: CommentSystemProps) {
                 onClick={handleSubmitComment}
                 disabled={!user || !newComment.trim() || commentMutation.isPending}
               >
-                Post Comment
+                {commentMutation.isPending ? "Posting..." : "Post Comment"}
               </Button>
             </div>
           </div>
