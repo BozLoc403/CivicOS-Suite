@@ -62,7 +62,7 @@ export default function Landing() {
                 Independent Platform
               </div>
               <Button 
-                onClick={() => window.location.href = '/api/login'}
+                onClick={() => window.location.href = '/login'}
                 className="bg-white text-red-600 hover:bg-red-50 font-semibold px-6 py-2 rounded-md border-2 border-white"
               >
                 Access Platform
@@ -129,7 +129,7 @@ export default function Landing() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
               <Button 
                 size="lg"
-                onClick={() => window.location.href = '/api/login'}
+                onClick={() => window.location.href = '/login'}
                 className="bg-red-600 hover:bg-red-700 text-white px-8 py-4 font-bold text-base uppercase tracking-wide rounded-sm"
               >
                 Access Platform / Accéder à la Plateforme
@@ -330,7 +330,7 @@ export default function Landing() {
           </div>
           <Button 
             size="lg"
-            onClick={() => window.location.href = '/api/login'}
+            onClick={() => window.location.href = '/login'}
             className="bg-white text-red-600 hover:bg-red-50 px-8 py-3 text-lg font-semibold"
           >
             Access Platform / Accéder à la Plateforme
