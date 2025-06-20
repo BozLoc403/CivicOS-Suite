@@ -574,35 +574,35 @@ export default function Politicians() {
                 className={`hover:shadow-lg transition-all duration-200 cursor-pointer bg-white/80 backdrop-blur-sm border border-gray-200/50 hover:border-blue-300/50 border-l-4 ${getPartyBorderColor(politician.party)}`}
                 onClick={() => setSelectedPolitician(politician)}
               >
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3 flex-1 min-w-0">
-                      <Avatar className="w-12 h-12 flex-shrink-0">
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-start space-x-4 flex-1 min-w-0">
+                      <Avatar className="w-16 h-16 flex-shrink-0">
                         <AvatarImage 
                           src={`https://ui-avatars.com/api/?name=${encodeURIComponent(politician.name)}&background=6b7280&color=fff`} 
                           alt={politician.name} 
                         />
-                        <AvatarFallback className="bg-gray-500 text-white text-sm">
+                        <AvatarFallback className="bg-gray-500 text-white text-lg font-bold">
                           {politician.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                         </AvatarFallback>
                       </Avatar>
                       
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-900 text-base truncate">
+                        <h3 className="font-bold text-gray-900 text-xl mb-2">
                           {politician.name}
                         </h3>
-                        <p className="text-sm text-gray-600 truncate mb-1">
+                        <p className="text-base text-gray-700 font-medium mb-3">
                           {politician.position}
                         </p>
                         {(politician.riding || politician.constituency) && (
-                          <p className="text-xs text-gray-500 flex items-center mb-2">
-                            <MapPin className="w-3 h-3 mr-1 flex-shrink-0" />
-                            <span className="truncate">{politician.riding || politician.constituency}</span>
+                          <p className="text-sm text-gray-600 flex items-center mb-3">
+                            <MapPin className="w-4 h-4 mr-2 flex-shrink-0 text-gray-500" />
+                            <span className="font-medium">{politician.riding || politician.constituency}</span>
                           </p>
                         )}
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-3">
                           {politician.party && (
-                            <Badge className={`text-xs px-2 py-0.5 ${(() => {
+                            <Badge className={`text-sm px-3 py-1 font-medium ${(() => {
                               const partyLower = politician.party.toLowerCase();
                               if (partyLower.includes('liberal')) {
                                 return 'bg-red-600 text-white';
@@ -623,18 +623,18 @@ export default function Politicians() {
                               {politician.party}
                             </Badge>
                           )}
-                          <Badge variant="outline" className="text-xs px-2 py-0.5">
+                          <Badge variant="outline" className="text-sm px-3 py-1 font-medium">
                             {politician.level}
                           </Badge>
                           <div className="flex items-center">
-                            <Shield className="w-3 h-3 text-blue-600 mr-1" />
-                            <span className="text-xs text-blue-600">Verified</span>
+                            <Shield className="w-4 h-4 text-blue-600 mr-2" />
+                            <span className="text-sm text-blue-600 font-medium">Verified</span>
                           </div>
                         </div>
                       </div>
                     </div>
                     
-                    <div className="flex items-center space-x-2 flex-shrink-0 ml-4">
+                    <div className="flex flex-col items-end space-y-2 flex-shrink-0 ml-4">
                       <InteractiveContent
                         type="politician"
                         targetId={politician.id.toString()}
@@ -647,7 +647,7 @@ export default function Politicians() {
                           e.stopPropagation();
                           setSelectedPolitician(politician);
                         }}
-                        className="text-xs"
+                        className="text-sm font-medium px-4 py-2"
                       >
                         View Profile
                       </Button>
