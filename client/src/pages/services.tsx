@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { NavigationHeader } from "@/components/NavigationHeader";
+
 import { Search, Phone, Mail, Globe, MapPin, Clock, FileText, DollarSign, Users, Building } from "lucide-react";
 
 interface GovernmentService {
@@ -76,7 +76,7 @@ export default function Services() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <NavigationHeader />
+
       
       <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
         <div className="mb-8">

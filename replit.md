@@ -85,6 +85,13 @@ The platform is designed for deployment on Replit with the following configurati
 
 ## Changelog
 
+- June 20, 2025: Completed comprehensive application cleanup removing unused components and navigation issues
+  - Removed NavigationHeader component causing nested anchor tag warnings in civic ledger
+  - Deleted unused components: DailyChallenges, FloatingCivicBot, RegistrationModal, VoteConfirmationModal, VotingModal, BadgeDisplay, AIStatusBanner
+  - Removed dormant backend files: scrapers_old.ts, demoAuth.ts, localAuth.ts, mistral.ts
+  - Cleaned up unused data populators: comprehensiveAnalyticsPopulator.ts, forumPopulator.ts, legalDataPopulator.ts
+  - Removed redundant UI components: like-button.tsx, reply-button.tsx, sidebar.tsx
+  - Fixed civic ledger navigation by removing problematic navbar that referenced non-existent sidebar
 - June 20, 2025: Implemented comprehensive MFA-grade identity verification system with government ID upload, live face matching, CAPTCHA, TOTP MFA, and duplicate detection - Users must complete full verification to vote, create petitions, or access sensitive civic features
 - June 20, 2025: Added admin review panel for manual verification approval/rejection with risk scoring and fraud detection
 - June 20, 2025: Created verification guards on voting and petitions requiring authenticated identity for democratic participation

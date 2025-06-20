@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { NavigationHeader } from "@/components/NavigationHeader";
 import { Shield, Download, AlertCircle, Vote, FileText, Calendar, TrendingUp } from "lucide-react";
 import { useEffect, useMemo } from "react";
 

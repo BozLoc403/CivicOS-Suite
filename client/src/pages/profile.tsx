@@ -1,4 +1,4 @@
-import { NavigationHeader } from "@/components/NavigationHeader";
+
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +15,7 @@ export default function Profile() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <NavigationHeader />
+
       
       <div className="max-w-4xl mx-auto py-8 px-4">
         <div className="grid gap-6 md:grid-cols-3">
