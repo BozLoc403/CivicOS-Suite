@@ -72,7 +72,6 @@ export function CommentSystem({ targetType, targetId }: CommentSystemProps) {
     },
     onSuccess: () => {
       setNewComment('');
-      // Force refetch of comments
       refetch();
       queryClient.invalidateQueries({ queryKey: ['comments', targetType, targetId] });
       toast({
@@ -85,6 +84,50 @@ export function CommentSystem({ targetType, targetId }: CommentSystemProps) {
       toast({
         title: "Error",
         description: error.message || "Failed to post comment",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Delete comment mutation
+  const deleteMutation = useMutation({
+    mutationFn: async (commentId: number) => {
+      return await apiRequest(`/api/comments/${commentId}`, 'DELETE');
+    },
+    onSuccess: () => {
+      refetch();
+      queryClient.invalidateQueries({ queryKey: ['comments', targetType, targetId] });
+      toast({
+        title: "Success",
+        description: "Comment deleted successfully",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete comment",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Vote on comment mutation
+  const voteMutation = useMutation({
+    mutationFn: async ({ commentId, vote }: { commentId: number; vote: 'up' | 'down' }) => {
+      return await apiRequest(`/api/vote`, 'POST', {
+        targetType: 'comment',
+        targetId: commentId,
+        vote
+      });
+    },
+    onSuccess: () => {
+      refetch();
+      queryClient.invalidateQueries({ queryKey: ['comments', targetType, targetId] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to vote on comment",
         variant: "destructive",
       });
     },
@@ -112,24 +155,7 @@ export function CommentSystem({ targetType, targetId }: CommentSystemProps) {
     },
   });
 
-  // Delete comment mutation
-  const deleteMutation = useMutation({
-    mutationFn: (commentId: number) => apiRequest(`/api/comments/${commentId}`, 'DELETE'),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['comments', targetType, targetId] });
-      toast({
-        title: "Success",
-        description: "Comment deleted successfully",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to delete comment",
-        variant: "destructive",
-      });
-    },
-  });
+
 
   const handleSubmitComment = () => {
     if (!user) {
@@ -225,10 +251,11 @@ export function CommentSystem({ targetType, targetId }: CommentSystemProps) {
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  onClick={() => deleteComment(comment.id)}
+                  onClick={() => deleteMutation.mutate(comment.id)}
                   className="text-xs px-2 py-1 h-auto text-red-600 hover:text-red-700"
+                  disabled={deleteMutation.isPending}
                 >
-                  Delete
+                  {deleteMutation.isPending ? "Deleting..." : "Delete"}
                 </Button>
                 {comment.is_edited && comment.edit_count && comment.edit_count > 0 && (
                   <Button 
