@@ -537,6 +537,83 @@ export class DatabaseStorage implements IStorage {
       await db.insert(notifications).values(notifications);
     }
   }
+
+  async getUserCivicLedger(userId: string): Promise<any> {
+    try {
+      // Get user's votes
+      const userVotes = await db
+        .select({
+          id: votes.id,
+          itemId: votes.itemId,
+          itemType: votes.itemType,
+          voteValue: votes.voteValue,
+          timestamp: votes.timestamp,
+          reasoning: votes.reasoning
+        })
+        .from(votes)
+        .where(eq(votes.userId, userId))
+        .orderBy(desc(votes.timestamp))
+        .limit(50);
+
+      // Get user's petition signatures
+      const userPetitions = await db
+        .select({
+          id: petitionSignatures.id,
+          petitionId: petitionSignatures.petitionId,
+          signedAt: petitionSignatures.signedAt,
+          petition: {
+            title: petitions.title,
+            description: petitions.description,
+            currentSignatures: petitions.currentSignatures,
+            targetSignatures: petitions.targetSignatures
+          }
+        })
+        .from(petitionSignatures)
+        .leftJoin(petitions, eq(petitionSignatures.petitionId, petitions.id))
+        .where(eq(petitionSignatures.userId, userId))
+        .orderBy(desc(petitionSignatures.signedAt))
+        .limit(25);
+
+      // Get user's activity
+      const activities = await db
+        .select()
+        .from(userActivity)
+        .where(eq(userActivity.userId, userId))
+        .orderBy(desc(userActivity.createdAt))
+        .limit(100);
+
+      // Calculate totals
+      const totalVotes = userVotes.length;
+      const totalPetitions = userPetitions.length;
+      const totalActivities = activities.length;
+      const totalPoints = activities.reduce((sum, activity) => sum + (activity.pointsEarned || 0), 0);
+
+      return {
+        summary: {
+          totalVotes,
+          totalPetitions,
+          totalActivities,
+          totalPoints
+        },
+        votes: userVotes,
+        petitions: userPetitions,
+        activities
+      };
+    } catch (error) {
+      console.error('Error fetching civic ledger:', error);
+      return {
+        summary: {
+          totalVotes: 0,
+          totalPetitions: 0,
+          totalActivities: 0,
+          totalPoints: 0
+        },
+        votes: [],
+        petitions: [],
+        activities: []
+      };
+    }
+  }
 }
 
 export const storage = new DatabaseStorage();
