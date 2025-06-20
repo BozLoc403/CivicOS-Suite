@@ -296,6 +296,37 @@ export const legalSections = pgTable("legal_sections", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// User notifications table
+export const notifications = pgTable("notifications", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  type: varchar("type").notNull(), // petition, bill, foi, system, politician
+  title: varchar("title").notNull(),
+  message: text("message").notNull(),
+  sourceModule: varchar("source_module").notNull(), // specific source like "Petition #123", "Bill C-11"
+  sourceId: varchar("source_id"), // ID of the related item
+  isRead: boolean("is_read").default(false),
+  isDeleted: boolean("is_deleted").default(false), // soft delete
+  priority: varchar("priority").default("medium"), // low, medium, high
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// User notification preferences table
+export const userNotificationPreferences = pgTable("user_notification_preferences", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id).unique(),
+  petitionAlerts: boolean("petition_alerts").default(true),
+  billUpdates: boolean("bill_updates").default(true),
+  foiResponses: boolean("foi_responses").default(true),
+  systemNews: boolean("system_news").default(true),
+  emailNotifications: boolean("email_notifications").default(true),
+  pushNotifications: boolean("push_notifications").default(true),
+  smsNotifications: boolean("sms_notifications").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Add missing politician controversies table
 export const politicianControversies = pgTable("politician_controversies", {
   id: serial("id").primaryKey(),

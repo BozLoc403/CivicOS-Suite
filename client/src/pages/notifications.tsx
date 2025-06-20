@@ -8,39 +8,89 @@ import { Switch } from "@/components/ui/switch";
 import { Bell, Check, X, Settings, AlertCircle, Users, FileText, Vote } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 
-interface Notification {
-  id: number;
-  type: 'bill' | 'petition' | 'election' | 'politician' | 'system';
-  title: string;
-  message: string;
-  timestamp: string;
-  read: boolean;
-  priority: 'low' | 'medium' | 'high';
-}
-
 export default function Notifications() {
-  const [filter, setFilter] = useState<'all' | 'unread' | 'bills' | 'petitions'>('all');
+  const [filter, setFilter] = useState<'all' | 'unread' | 'petition' | 'bill' | 'foi' | 'system'>('all');
+  const [preferencesOpen, setPreferencesOpen] = useState(false);
+  const { user, isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
-  // Clear all notifications mutation
-  const clearAllMutation = useMutation({
-    mutationFn: () => apiRequest('/api/notifications/clear', 'DELETE'),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/notifications'] });
-    }
+  // Fetch user notifications
+  const { data: notifications = [], isLoading } = useQuery<Notification[]>({
+    queryKey: ['/api/notifications'],
+    enabled: isAuthenticated,
   });
 
-  // Clear specific notification mutation
-  const clearNotificationMutation = useMutation({
+  // Fetch user notification preferences
+  const { data: preferences } = useQuery<UserNotificationPreferences>({
+    queryKey: ['/api/notifications/preferences'],
+    enabled: isAuthenticated,
+  });
+
+  // Delete notification mutation
+  const deleteNotificationMutation = useMutation({
     mutationFn: (id: number) => apiRequest(`/api/notifications/${id}`, 'DELETE'),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/notifications'] });
+      toast({
+        title: "Notification deleted",
+        description: "The notification has been removed.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to delete notification.",
+        variant: "destructive",
+      });
     }
   });
 
-  // Fetch notifications from API
-  const { data: notifications = [] } = useQuery<Notification[]>({
-    queryKey: ['/api/notifications'],
+  // Clear all notifications mutation
+  const clearAllMutation = useMutation({
+    mutationFn: () => apiRequest('/api/notifications', 'DELETE'),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/notifications'] });
+      toast({
+        title: "All notifications cleared",
+        description: "All notifications have been removed.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to clear notifications.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Mark as read mutation
+  const markAsReadMutation = useMutation({
+    mutationFn: (id: number) => apiRequest(`/api/notifications/${id}/read`, 'PATCH'),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/notifications'] });
+    }
+  });
+
+  // Update preferences mutation
+  const updatePreferencesMutation = useMutation({
+    mutationFn: (data: Partial<UserNotificationPreferences>) => 
+      apiRequest('/api/notifications/preferences', 'PUT', data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/notifications/preferences'] });
+      toast({
+        title: "Preferences updated",
+        description: "Your notification preferences have been saved.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update preferences.",
+        variant: "destructive",
+      });
+    }
   });
 
   // Display notifications with authentic civic data
@@ -148,15 +198,85 @@ export default function Notifications() {
             variant="outline" 
             size="sm"
             onClick={() => clearAllMutation.mutate()}
-            disabled={clearAllMutation.isPending}
+            disabled={clearAllMutation.isPending || notifications.length === 0}
           >
             <X className="w-4 h-4 mr-2" />
             Clear All
           </Button>
-          <Button variant="outline" size="sm">
-            <Settings className="w-4 h-4 mr-2" />
-            Preferences
-          </Button>
+          <Dialog open={preferencesOpen} onOpenChange={setPreferencesOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Settings className="w-4 h-4 mr-2" />
+                Preferences
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle>Notification Preferences</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span>Petition Alerts</span>
+                    <Switch
+                      checked={preferences?.petitionAlerts ?? true}
+                      onCheckedChange={(checked) => 
+                        updatePreferencesMutation.mutate({ petitionAlerts: checked })
+                      }
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Bill Updates</span>
+                    <Switch
+                      checked={preferences?.billUpdates ?? true}
+                      onCheckedChange={(checked) => 
+                        updatePreferencesMutation.mutate({ billUpdates: checked })
+                      }
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>FOI Responses</span>
+                    <Switch
+                      checked={preferences?.foiResponses ?? true}
+                      onCheckedChange={(checked) => 
+                        updatePreferencesMutation.mutate({ foiResponses: checked })
+                      }
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>System News</span>
+                    <Switch
+                      checked={preferences?.systemNews ?? true}
+                      onCheckedChange={(checked) => 
+                        updatePreferencesMutation.mutate({ systemNews: checked })
+                      }
+                    />
+                  </div>
+                </div>
+                <Separator />
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span>Email Notifications</span>
+                    <Switch
+                      checked={preferences?.emailNotifications ?? true}
+                      onCheckedChange={(checked) => 
+                        updatePreferencesMutation.mutate({ emailNotifications: checked })
+                      }
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Push Notifications</span>
+                    <Switch
+                      checked={preferences?.pushNotifications ?? true}
+                      onCheckedChange={(checked) => 
+                        updatePreferencesMutation.mutate({ pushNotifications: checked })
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
@@ -249,44 +369,7 @@ export default function Notifications() {
         )}
       </div>
 
-      {/* Notification Settings */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Settings className="w-5 h-5" />
-            <span>Notification Settings</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium">Email notifications</p>
-              <p className="text-sm text-muted-foreground">Receive updates via email</p>
-            </div>
-            <Switch defaultChecked />
-          </div>
-          
-          <Separator />
-          
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium">Push notifications</p>
-              <p className="text-sm text-muted-foreground">Browser notifications for urgent updates</p>
-            </div>
-            <Switch defaultChecked />
-          </div>
-          
-          <Separator />
-          
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium">Bill updates</p>
-              <p className="text-sm text-muted-foreground">Notify when bills change status</p>
-            </div>
-            <Switch defaultChecked />
-          </div>
-        </CardContent>
-      </Card>
+
     </div>
   );
 }
