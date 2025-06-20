@@ -600,7 +600,7 @@ export default function Politicians() {
                             <span className="font-medium">{politician.riding || politician.constituency}</span>
                           </p>
                         )}
-                        <div className="flex flex-wrap items-center gap-2 mb-3">
+                        <div className="flex flex-wrap items-center gap-2">
                           {politician.party && (
                             <Badge className={`text-sm px-2 py-1 font-medium ${(() => {
                               const partyLower = politician.party.toLowerCase();
