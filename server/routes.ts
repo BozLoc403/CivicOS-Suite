@@ -1059,10 +1059,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to process vote" });
     }
   });
-        return res.status(401).json({ message: "Authentication required" });
-      }
-      
-      console.log("Using User ID:", userId);
 
       if (!['upvote', 'downvote'].includes(voteType)) {
         console.error("Invalid vote type:", voteType);
@@ -1389,7 +1385,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/vote/:targetType/:targetId', async (req, res) => {
     try {
       const { targetType, targetId } = req.params;
-      const userId = (req as any).user?.claims?.sub;
+      
+      // For development, use demo user ID
+      const userId = process.env.NODE_ENV !== 'production' ? '42199639' : 
+        ((req as any).user?.claims?.sub || null);
 
       const voteCounts = await db.execute(sql`
         SELECT upvotes, downvotes, total_score
@@ -1409,9 +1408,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const counts = voteCounts.rows[0] || { upvotes: 0, downvotes: 0, total_score: 0 };
 
       res.json({
-        upvotes: counts.upvotes,
-        downvotes: counts.downvotes,
-        totalScore: counts.total_score,
+        upvotes: Number(counts.upvotes || 0),
+        downvotes: Number(counts.downvotes || 0),
+        totalScore: Number(counts.total_score || 0),
         userVote
       });
     } catch (error) {
