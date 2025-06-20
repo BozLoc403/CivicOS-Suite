@@ -10,7 +10,7 @@ import { VerificationStatusBadge } from "@/components/VerificationStatusBadge";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import dominionEmblem from "@assets/EFE54ED9-DEE5-4F72-88D4-4441CE2D11CB_1_105_c_1749411960407.jpeg";
+import { CanadianCoatOfArms, CanadianMapleLeaf } from "@/components/CanadianCoatOfArms";
 import { 
   Home, 
   Users, 
@@ -158,71 +158,92 @@ export function LuxuryNavigation() {
 
   return (
     <div className={cn(
-      "bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 h-screen flex flex-col transition-all duration-300 ease-in-out",
+      "bg-white border-r-4 border-red-600 h-screen flex flex-col transition-all duration-300 ease-in-out",
       "hidden md:flex", // Hide on mobile, show on md and up
       isCollapsed ? "w-16" : "w-64 lg:w-72"
     )}>
-      {/* Header with Toggle */}
-      <div className="flex-shrink-0 p-4 border-b border-gray-200 dark:border-gray-700">
-        <div className="flex items-center justify-between">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
-          >
-            {isCollapsed ? <Menu className="w-5 h-5" /> : <X className="w-5 h-5" />}
-          </Button>
+      {/* Government of Canada Header */}
+      <div className="flex-shrink-0 bg-red-600 text-white">
+        {/* GOC Banner */}
+        <div className="border-b border-red-400 px-3 py-1">
+          <div className="flex items-center justify-between text-xs">
+            <div className="flex items-center space-x-2">
+              <CanadianMapleLeaf size="sm" />
+              <span className="font-semibold">Government of Canada</span>
+            </div>
+            {!isCollapsed && (
+              <span className="text-red-200 font-medium text-xs">NOT OFFICIAL</span>
+            )}
+          </div>
         </div>
         
-        {!isCollapsed && (
-          <div className="mt-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900 flex items-center justify-center shadow-lg border border-slate-600 overflow-hidden">
-                <img 
-                  src={dominionEmblem} 
-                  alt="Dominion Emblem" 
-                  className="w-10 h-10 object-cover rounded-full filter brightness-125 contrast-125 ml-[0px] mr-[0px] pl-[-87px] pr-[-87px] pt-[-59px] pb-[-59px]"
-                />
+        {/* Main Header */}
+        <div className="p-4">
+          <div className="flex items-center justify-between mb-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className="text-white hover:bg-red-700 hover:text-white"
+            >
+              {isCollapsed ? <Menu className="w-5 h-5" /> : <X className="w-5 h-5" />}
+            </Button>
+            {!isCollapsed && (
+              <div className="px-2 py-1 bg-yellow-400 text-gray-900 rounded text-xs font-bold uppercase tracking-wide">
+                Independent
               </div>
+            )}
+          </div>
+          
+          {!isCollapsed && (
+            <div className="flex items-center space-x-3">
+              <CanadianCoatOfArms size="md" />
               <div>
-                <h1 className="text-2xl font-bold font-serif text-slate-900 dark:text-slate-100">CivicOS</h1>
-                <p className="text-sm text-slate-600 dark:text-slate-400 font-medium tracking-wide">DOMINION INTELLIGENCE</p>
+                <h1 className="text-xl font-bold tracking-tight">CivicOS</h1>
+                <p className="text-red-100 text-xs font-medium">Government Accountability Platform</p>
+                <p className="text-red-200 text-xs">Plateforme de Responsabilité</p>
               </div>
             </div>
+          )}
+        </div>
+        
+        {/* Disclaimer Banner */}
+        {!isCollapsed && (
+          <div className="bg-yellow-50 border-l-4 border-yellow-400 mx-3 mb-3 p-2">
+            <p className="text-xs text-yellow-700 font-medium">
+              Independent platform, NOT affiliated with Government of Canada
+            </p>
+          </div>
+        )}
             
-            {user && (
-              <Link href={`/users/${user.id || 'profile'}`}>
-                <div className="mt-3 lg:mt-4 p-2 lg:p-3 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer">
-                  <div className="flex items-center space-x-2 lg:space-x-3">
-                    <div className="w-7 h-7 lg:w-8 lg:h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
-                      <span className="text-xs lg:text-sm font-medium text-white">
-                        {user.firstName?.[0] || user.email?.[0] || "U"}
-                      </span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs lg:text-sm font-medium text-gray-900 dark:text-white truncate">
-                        {user.firstName || user.email}
-                      </p>
-                      <div className="flex flex-col space-y-1">
-                        <div className="flex items-center space-x-1 lg:space-x-2">
-                          <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700">
-                            Civic Level 3
-                          </Badge>
-                          <span className="text-xs text-gray-500 hidden lg:inline">1,247 pts</span>
-                        </div>
-                        <VerificationStatusBadge />
-                      </div>
-                    </div>
-                  </div>
+        {/* User Profile Section */}
+        {user && !isCollapsed && (
+          <div className="bg-red-700 mx-3 rounded p-3 mb-3">
+            <Link href={`/users/${user.id || 'profile'}`}>
+              <div className="flex items-center space-x-3 hover:bg-red-600 rounded p-2 transition-colors cursor-pointer">
+                <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center flex-shrink-0">
+                  <span className="text-sm font-bold text-red-600">
+                    {user.firstName?.[0] || user.email?.[0] || "U"}
+                  </span>
                 </div>
-              </Link>
-            )}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-white truncate">
+                    {user.firstName || user.email}
+                  </p>
+                  <div className="flex items-center space-x-2 mt-1">
+                    <Badge className="text-xs bg-white text-red-600 font-semibold">
+                      Verified Citizen
+                    </Badge>
+                  </div>
+                  <VerificationStatusBadge />
+                </div>
+              </div>
+            </Link>
           </div>
         )}
       </div>
       {/* Navigation Content */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden px-3 py-4 scrollable">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden px-3 py-4 bg-gray-50">
         {isCollapsed ? (
           // Collapsed view - show only icons
           (<div className="space-y-2">
@@ -232,8 +253,8 @@ export function LuxuryNavigation() {
                   variant="ghost"
                   size="icon"
                   className={cn(
-                    "w-10 h-10 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800",
-                    isActive(item.href) && "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
+                    "w-10 h-10 text-gray-700 hover:bg-red-100 hover:text-red-700 border border-gray-200",
+                    isActive(item.href) && "bg-red-600 text-white hover:bg-red-700 hover:text-white"
                   )}
                   title={item.title}
                 >
