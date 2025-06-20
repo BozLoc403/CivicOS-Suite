@@ -1593,7 +1593,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const cleanedComments = commentsWithReplies.map(comment => ({
         id: comment.id,
         content: comment.content,
-        author_id: comment.author_id,
+        author_id: String(comment.author_id), // Ensure string consistency
         created_at: comment.created_at,
         is_edited: comment.is_edited || false,
         edit_count: comment.edit_count || 0,
@@ -1605,7 +1605,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         profile_image_url: comment.profile_image_url,
         replies: comment.replies || []
       }));
-      console.log('Returning', cleanedComments.length, 'clean comments');
+      console.log('Returning', cleanedComments.length, 'clean comments. First comment author_id:', cleanedComments[0]?.author_id);
       res.json(cleanedComments);
     } catch (error) {
       console.error("Error fetching comments:", error);
