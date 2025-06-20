@@ -1057,16 +1057,7 @@ export const politicianStatementsRelations = relations(politicianStatements, ({ 
   }),
 }));
 
-export const notificationsRelations = relations(notifications, ({ one }) => ({
-  user: one(users, {
-    fields: [notifications.userId],
-    references: [users.id],
-  }),
-  bill: one(bills, {
-    fields: [notifications.relatedBillId],
-    references: [bills.id],
-  }),
-}));
+
 
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).pick({
@@ -1127,6 +1118,12 @@ export const insertNotificationSchema = createInsertSchema(notifications).omit({
 });
 
 export type InsertNotification = z.infer<typeof insertNotificationSchema>;
+export type UserNotificationPreferences = typeof userNotificationPreferences.$inferSelect;
+export type InsertUserNotificationPreferences = typeof userNotificationPreferences.$inferInsert;
+export type Petition = typeof petitions.$inferSelect;
+export type InsertPetition = typeof petitions.$inferInsert;
+export type PetitionSignature = typeof petitionSignatures.$inferSelect;
+export type InsertPetitionSignature = typeof petitionSignatures.$inferInsert;
 
 // Type definitions for new tables
 export type LegalAct = typeof legalActs.$inferSelect;

@@ -529,14 +529,16 @@ export class DatabaseStorage implements IStorage {
     if (!bill) return;
 
     // Create notifications for all "no" voters
-    const notifications = noVoters.map(voter => ({
-      userId: voter.userId,
-      title: "Automatic Petition Created",
-      message: `A petition has been automatically created for Bill ${bill.billNumber} based on citizen opposition. You can sign it to make your voice heard in Parliament.`,
-      type: "petition",
-      relatedBillId: billId,
-      relatedPetitionId: petitionId,
-    }));
+    for (const voter of noVoters) {
+      await this.createNotification({
+        userId: voter.userId,
+        title: "Automatic Petition Created",
+        message: `A petition has been automatically created for Bill ${bill.billNumber} based on citizen opposition. You can sign it to make your voice heard in Parliament.`,
+        type: "petition",
+        sourceModule: `Petition #${petitionId}`,
+        sourceId: petitionId.toString(),
+      });
+    }
 
     if (notifications.length > 0) {
       // Use the notifications table from schema (import at top if needed)
