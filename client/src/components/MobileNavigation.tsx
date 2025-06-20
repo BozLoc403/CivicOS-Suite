@@ -47,16 +47,8 @@ import dominionEmblem from "@assets/EFE54ED9-DEE5-4F72-88D4-4441CE2D11CB_1_105_c
 
 export function MobileNavigation() {
   const [location] = useLocation();
-  const { user } = useAuth();
-  const queryClient = useQueryClient();
+  const { user, logout } = useAuth();
   const [expandedSections, setExpandedSections] = useState<string[]>(["Democratic Systems"]);
-
-  const logoutMutation = useMutation({
-    mutationFn: () => apiRequest("/api/auth/logout", "POST"),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/status"] });
-    },
-  });
 
   const toggleSection = (sectionTitle: string) => {
     setExpandedSections(prev => 
@@ -248,13 +240,13 @@ export function MobileNavigation() {
               </Link>
               
               <Button
-                onClick={() => logoutMutation.mutate()}
-                disabled={logoutMutation.isPending}
+                onClick={() => logout.mutate()}
+                disabled={logout.isPending}
                 variant="ghost"
                 className="w-full justify-start space-x-3 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950 text-sm h-9"
               >
                 <LogOut className="w-4 h-4" />
-                <span>{logoutMutation.isPending ? "Logging out..." : "Logout"}</span>
+                <span>{logout.isPending ? "Logging out..." : "Logout"}</span>
               </Button>
             </div>
             

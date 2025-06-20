@@ -37,7 +37,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth routes
   app.get('/api/auth/user', async (req: any, res) => {
     try {
-      // For development, always return demo user
+      // Check if user is logged out
+      if (req.session?.loggedOut) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      // For development, always return demo user unless explicitly logged out
       if (process.env.NODE_ENV !== 'production') {
         const demoUser = {
           id: '42199639',
@@ -61,6 +66,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
+  // Logout route
+  app.post('/api/auth/logout', async (req: any, res) => {
+    try {
+      // Set logout flag in session
+      if (req.session) {
+        req.session.loggedOut = true;
+      }
+      
+      // In production, also logout from Replit Auth
+      if (process.env.NODE_ENV === 'production' && req.logout) {
+        req.logout((err: any) => {
+          if (err) {
+            console.error("Logout error:", err);
+          }
+        });
+      }
+      
+      res.json({ message: "Logged out successfully" });
+    } catch (error) {
+      console.error("Error during logout:", error);
+      res.status(500).json({ message: "Failed to logout" });
+    }
+  });
+
+  // Login route for development
+  app.post('/api/auth/login', async (req: any, res) => {
+    try {
+      const { email, password } = req.body;
+      
+      // Simple validation for demo purposes
+      if (!email || !password) {
+        return res.status(400).json({ message: "Email and password required" });
+      }
+      
+      // Clear logout flag
+      if (req.session) {
+        req.session.loggedOut = false;
+      }
+      
+      res.json({ message: "Login successful" });
+    } catch (error) {
+      console.error("Error during login:", error);
+      res.status(500).json({ message: "Failed to login" });
     }
   });
 

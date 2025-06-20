@@ -302,13 +302,13 @@ export function LuxuryNavigation() {
           </Link>
           
           <Button
-            onClick={() => logoutMutation.mutate()}
-            disabled={logoutMutation.isPending}
+            onClick={() => logout.mutate()}
+            disabled={logout.isPending}
             variant="ghost"
             className="w-full justify-start space-x-2 lg:space-x-3 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950 text-xs lg:text-sm h-8 lg:h-9 px-2 lg:px-3"
           >
             <LogOut className="w-3 h-3 lg:w-4 lg:h-4" />
-            <span>{logoutMutation.isPending ? "Logging out..." : "Logout"}</span>
+            <span>{logout.isPending ? "Logging out..." : "Logout"}</span>
           </Button>
         </div>
         
