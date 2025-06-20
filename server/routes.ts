@@ -1377,8 +1377,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     return { isAllowed: true };
   }
 
-  // Fixed commenting system for targetType/targetId routes
+  // Fixed commenting system for targetType/targetId routes - HIGH PRIORITY ROUTE
   app.post('/api/comments/:targetType/:targetId', async (req: any, res) => {
+    console.log('Comment POST route hit:', req.params, req.body);
     try {
       const { targetType, targetId } = req.params;
       const { content, parentCommentId } = req.body;
@@ -1481,8 +1482,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get comments for specific content
+  // Get comments for specific content - HIGH PRIORITY ROUTE
   app.get('/api/comments/:targetType/:targetId', async (req, res) => {
+    console.log('Comment GET route hit:', req.params);
     try {
       const { targetType, targetId } = req.params;
 
