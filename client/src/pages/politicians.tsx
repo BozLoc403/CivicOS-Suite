@@ -546,13 +546,34 @@ export default function Politicians() {
           </Alert>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredPoliticians.map((politician) => (
-            <Card 
-              key={politician.id} 
-              className="hover:shadow-lg transition-all duration-200 cursor-pointer bg-white/80 backdrop-blur-sm border border-gray-200/50 hover:border-blue-300/50"
-              onClick={() => setSelectedPolitician(politician)}
-            >
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {filteredPoliticians.map((politician) => {
+            // Get party colors for border
+            const getPartyBorderColor = (party: string) => {
+              const partyLower = party.toLowerCase();
+              if (partyLower.includes('liberal')) {
+                return 'border-l-red-500';
+              } else if (partyLower.includes('conservative')) {
+                return 'border-l-blue-700';
+              } else if (partyLower.includes('ndp') || partyLower.includes('new democratic')) {
+                return 'border-l-orange-500';
+              } else if (partyLower.includes('bloc') || partyLower.includes('québécois')) {
+                return 'border-l-cyan-500';
+              } else if (partyLower.includes('green')) {
+                return 'border-l-green-600';
+              } else if (partyLower.includes('people')) {
+                return 'border-l-purple-600';
+              } else {
+                return 'border-l-gray-500';
+              }
+            };
+
+            return (
+              <Card 
+                key={politician.id} 
+                className={`hover:shadow-lg transition-all duration-200 cursor-pointer bg-white/80 backdrop-blur-sm border border-gray-200/50 hover:border-blue-300/50 border-l-4 ${getPartyBorderColor(politician.party)}`}
+                onClick={() => setSelectedPolitician(politician)}
+              >
               <CardHeader className="pb-3">
                 <div className="flex items-start space-x-3">
                   <div className="relative">
@@ -591,7 +612,24 @@ export default function Politicians() {
               <CardContent className="pt-0 space-y-3">
                 <div className="flex flex-wrap gap-1">
                   {politician.party && (
-                    <Badge variant="outline" className="text-xs px-2 py-0.5">
+                    <Badge className={`text-xs px-2 py-0.5 ${(() => {
+                      const partyLower = politician.party.toLowerCase();
+                      if (partyLower.includes('liberal')) {
+                        return 'bg-red-600 text-white border-red-600';
+                      } else if (partyLower.includes('conservative')) {
+                        return 'bg-blue-700 text-white border-blue-700';
+                      } else if (partyLower.includes('ndp') || partyLower.includes('new democratic')) {
+                        return 'bg-orange-500 text-white border-orange-500';
+                      } else if (partyLower.includes('bloc') || partyLower.includes('québécois')) {
+                        return 'bg-cyan-500 text-white border-cyan-500';
+                      } else if (partyLower.includes('green')) {
+                        return 'bg-green-600 text-white border-green-600';
+                      } else if (partyLower.includes('people')) {
+                        return 'bg-purple-600 text-white border-purple-600';
+                      } else {
+                        return 'bg-gray-500 text-white border-gray-500';
+                      }
+                    })()}`}>
                       {politician.party}
                     </Badge>
                   )}
@@ -668,8 +706,9 @@ export default function Politicians() {
                   />
                 </div>
               </CardContent>
-            </Card>
-          ))}
+              </Card>
+            );
+          })}
         </div>
 
         {/* Politician Detail Modal */}
