@@ -282,7 +282,7 @@ export function CommentSystem({ targetType, targetId }: CommentSystemProps) {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <MessageCircle className="w-5 h-5" />
-            <span>Comments ({Array.isArray(comments) ? comments.length : 0}) - Facebook Style</span>
+            <span>Comments ({Array.isArray(comments) ? comments.length : 0})</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
