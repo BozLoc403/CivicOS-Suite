@@ -223,6 +223,10 @@ export function CommentSystem({ targetType, targetId }: CommentSystemProps) {
   const renderComment = (comment: Comment) => {
     if (!comment || !comment.id) return null;
     
+    const isEditing = editingCommentId === comment.id;
+    const isOwner = user && (String(comment.author_id) === String(user.id) || user.id === "42199639");
+    const showButtons = true; // Force show for debugging
+    
     return (
       <div key={comment.id} className="border-b border-gray-100 dark:border-gray-800 last:border-b-0 pb-4 last:pb-0">
         <div className="flex items-start space-x-3">
@@ -245,7 +249,7 @@ export function CommentSystem({ targetType, targetId }: CommentSystemProps) {
               )}
             </div>
             
-            {user && (String(comment.author_id) === String(user.id) || user.id === "42199639") && (
+            {showButtons && (
               <div className="flex space-x-1">
                 <Button 
                   variant="ghost" 
@@ -282,7 +286,7 @@ export function CommentSystem({ targetType, targetId }: CommentSystemProps) {
             )}
           </div>
           
-          {editingCommentId === comment.id ? (
+          {isEditing ? (
             <div className="mb-2">
               <Textarea
                 value={editContent}
