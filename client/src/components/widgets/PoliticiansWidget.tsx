@@ -128,16 +128,16 @@ export default function PoliticiansWidget() {
 
           {/* Politicians List */}
           {politicians.map((politician) => (
-            <div key={politician.id} className="border rounded-lg p-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-              <div className="flex items-start space-x-3">
-                <Avatar className="h-10 w-10">
+            <div key={politician.id} className="border rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+              <div className="flex items-start space-x-4">
+                <Avatar className="h-12 w-12 flex-shrink-0">
                   <AvatarImage src={politician.profileImage} />
                   <AvatarFallback>{politician.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-1">
-                    <h4 className="font-medium text-sm truncate">{politician.name}</h4>
-                    <div className="flex items-center space-x-1">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2">
+                    <h4 className="font-semibold text-base mb-1 sm:mb-0">{politician.name}</h4>
+                    <div className="flex items-center space-x-2">
                       <span className="text-xs">{getLevelIcon(politician.level)}</span>
                       <Star className="h-3 w-3 text-yellow-400" />
                       <span className="text-xs font-medium">{politician.trustScore}</span>
