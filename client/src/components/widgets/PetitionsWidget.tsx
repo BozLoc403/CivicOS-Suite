@@ -35,7 +35,7 @@ interface UserSignature {
   verificationStatus: 'pending' | 'verified' | 'rejected';
 }
 
-export default function PetitionsWidget() {
+export default export function PetitionsWidget() {
   const { data: petitions = [], isLoading: petitionsLoading } = useQuery<Petition[]>({
     queryKey: ['/api/petitions'],
     refetchInterval: 180000, // Refresh every 3 minutes

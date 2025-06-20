@@ -135,7 +135,7 @@ app.use((req, res, next) => {
     
     // Initialize comprehensive legal database
     setTimeout(() => {
-      legalDataPopulator.populateAllLegalData().catch(console.error);
+      // Legal data populator removed during cleanup
     }, 5000);
     
     // Populate forum with civic discussions (disabled to prevent duplicates)

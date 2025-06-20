@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { FloatingCivicBot } from "@/components/FloatingCivicBot";
+
 import { LuxuryNavigation } from "@/components/layout/LuxuryNavigation";
 import { MobileNavigation } from "@/components/MobileNavigation";
 import Landing from "@/pages/landing";

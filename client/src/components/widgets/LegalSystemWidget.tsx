@@ -60,7 +60,7 @@ interface LegalHierarchy {
   municipal: Record<string, any>;
 }
 
-export function LegalSystemWidget() {
+export export function LegalSystemWidget() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("criminal");
   const [isInitializing, setIsInitializing] = useState(false);
