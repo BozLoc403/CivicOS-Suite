@@ -47,11 +47,10 @@ export default function Auth() {
       firstName: string; 
       lastName: string; 
     }) => {
-      const res = await apiRequest("/api/register", "POST", credentials);
-      return await res.json();
+      return apiRequest("/api/auth/register", "POST", credentials);
     },
-    onSuccess: (user) => {
-      queryClient.setQueryData(["/api/auth/user"], user);
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       toast({
         title: "Welcome to CivicOS",
         description: "Your account has been created successfully",
