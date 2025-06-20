@@ -85,6 +85,15 @@ The platform is designed for deployment on Replit with the following configurati
 
 ## Changelog
 
+- June 20, 2025: Implemented comprehensive platform enhancements based on AI assistant recommendations
+  - Added data transparency layer with source badges and verification tooltips on all metrics and statistics
+  - Created onboarding wizard that routes users based on their role (citizen, journalist, researcher, activist, developer, legal)
+  - Implemented PDF report generator for politician profiles and bills with jsPDF integration
+  - Added data mode toggle system supporting live vs demo data with proper banners and warnings
+  - Enhanced admin authentication system with role-based permissions and elevated access controls
+  - Added comprehensive source attribution for all government data with direct links to official sources
+  - Created reusable UI components for data status indicators and verification badges
+  - Improved user experience with contextual routing based on user type selection during onboarding
 - June 20, 2025: Created admin account with elevated privileges and database schema updates
   - Added is_admin column to users table for role-based access control
   - Updated demo user account to have full administrative privileges
