@@ -197,435 +197,595 @@ export default function Politicians() {
 
   const hasRegionalData = politicians && politicians.length > 0;
 
-  const getTrustScoreColor = (score: string) => {
-    const numScore = parseFloat(score);
-    if (numScore >= 80) return "text-green-600";
-    if (numScore >= 60) return "text-yellow-600";
-    return "text-red-600";
-  };
-
-  const getTrustScoreIcon = (score: string) => {
-    const numScore = parseFloat(score);
-    if (numScore >= 80) return <CheckCircle className="w-5 h-5 text-green-600" />;
-    if (numScore >= 60) return <AlertTriangle className="w-5 h-5 text-yellow-600" />;
-    return <AlertCircle className="w-5 h-5 text-red-600" />;
-  };
-
-  const getPartyColor = (party?: string) => {
-    if (!party) return "bg-gray-500";
-    switch (party.toLowerCase()) {
-      case "liberal": return "bg-red-600";
-      case "conservative": return "bg-blue-600";
-      case "ndp": case "new democratic": return "bg-orange-500";
-      case "bloc québécois": case "bloc quebecois": return "bg-cyan-600";
-      case "green": return "bg-green-600";
-      default: return "bg-gray-600";
-    }
-  };
-
-  const getLevelIcon = (level?: string) => {
-    switch (level?.toLowerCase()) {
-      case "federal": return <Crown className="w-4 h-4" />;
-      case "provincial": return <Building2 className="w-4 h-4" />;
-      case "municipal": return <MapPin className="w-4 h-4" />;
-      default: return <User className="w-4 h-4" />;
-    }
-  };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center space-y-4">
-            <div className="w-16 h-16 border-4 border-slate-300 border-t-slate-600 rounded-full animate-spin mx-auto"></div>
-            <p className="text-lg font-medium text-slate-600 dark:text-slate-400">
-              Loading politician intelligence data...
-            </p>
-          </div>
-        </main>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="mb-8">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-              <div>
-                <h1 className="text-3xl md:text-4xl font-bold font-serif text-slate-900 dark:text-slate-100">
-                  Politicians Intelligence
-                </h1>
-                <p className="text-slate-600 dark:text-slate-400">
-                  Comprehensive tracking of {politicians.length} Canadian political officials
-                </p>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-6">
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            Canadian Politicians
+          </h1>
+          <p className="text-xl text-gray-600 dark:text-gray-300 mb-6">
+            Verified data on {politicians?.length || 0} politicians across all levels of Canadian government
+          </p>
+
+          {/* Search and Filters */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg mb-8">
+            <div className="flex flex-col lg:flex-row gap-4">
+              <div className="flex-1">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <Input
+                    type="text"
+                    placeholder="Search by name, party, or riding..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
+                  />
+                </div>
               </div>
               
-              <div className="flex items-center gap-2">
-                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300">
-                  <Users className="w-3 h-3 mr-1" />
-                  {politicians.length} Officials
-                </Badge>
-                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-300">
-                  <Eye className="w-3 h-3 mr-1" />
-                  Live Tracking
-                </Badge>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Select value={selectedLevel} onValueChange={setSelectedLevel}>
+                  <SelectTrigger className="w-full sm:w-48">
+                    <SelectValue placeholder="Filter by level" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Levels</SelectItem>
+                    <SelectItem value="Federal">Federal</SelectItem>
+                    <SelectItem value="Provincial">Provincial</SelectItem>
+                    <SelectItem value="Municipal">Municipal</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select value={selectedParty} onValueChange={setSelectedParty}>
+                  <SelectTrigger className="w-full sm:w-48">
+                    <SelectValue placeholder="Filter by party" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Parties</SelectItem>
+                    <SelectItem value="Liberal">Liberal</SelectItem>
+                    <SelectItem value="Conservative">Conservative</SelectItem>
+                    <SelectItem value="NDP">NDP</SelectItem>
+                    <SelectItem value="Bloc Québécois">Bloc Québécois</SelectItem>
+                    <SelectItem value="Green">Green</SelectItem>
+                    <SelectItem value="Independent">Independent</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select value={selectedProvince} onValueChange={setSelectedProvince}>
+                  <SelectTrigger className="w-full sm:w-48">
+                    <SelectValue placeholder="Filter by province" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Provinces</SelectItem>
+                    <SelectItem value="Ontario">Ontario</SelectItem>
+                    <SelectItem value="Quebec">Quebec</SelectItem>
+                    <SelectItem value="British Columbia">British Columbia</SelectItem>
+                    <SelectItem value="Alberta">Alberta</SelectItem>
+                    <SelectItem value="Manitoba">Manitoba</SelectItem>
+                    <SelectItem value="Saskatchewan">Saskatchewan</SelectItem>
+                    <SelectItem value="Nova Scotia">Nova Scotia</SelectItem>
+                    <SelectItem value="New Brunswick">New Brunswick</SelectItem>
+                    <SelectItem value="Newfoundland and Labrador">Newfoundland and Labrador</SelectItem>
+                    <SelectItem value="Prince Edward Island">Prince Edward Island</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
-                <Input
-                  placeholder="Search by name or constituency..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm"
-                />
-              </div>
-              
-              <Select value={partyFilter} onValueChange={setPartyFilter}>
-                <SelectTrigger className="bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm">
-                  <SelectValue placeholder="Filter by party" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Parties</SelectItem>
-                  <SelectItem value="Liberal">Liberal</SelectItem>
-                  <SelectItem value="Conservative">Conservative</SelectItem>
-                  <SelectItem value="NDP">NDP</SelectItem>
-                  <SelectItem value="Bloc Québécois">Bloc Québécois</SelectItem>
-                  <SelectItem value="Green">Green</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Select value={levelFilter} onValueChange={setLevelFilter}>
-                <SelectTrigger className="bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm">
-                  <SelectValue placeholder="Filter by level" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Levels</SelectItem>
-                  <SelectItem value="Federal">Federal</SelectItem>
-                  <SelectItem value="Provincial">Provincial</SelectItem>
-                  <SelectItem value="Municipal">Municipal</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Button variant="outline" className="bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm">
-                <Filter className="w-4 h-4 mr-2" />
-                Advanced Filters
-              </Button>
             </div>
           </div>
+        </div>
 
-          {!selectedPolitician ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
-              {filteredPoliticians.map((politician) => (
-                <Card 
-                  key={politician.id} 
-                  className="cursor-pointer hover:shadow-lg transition-all duration-300 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600"
-                  onClick={() => setSelectedPolitician(politician)}
-                >
-                  <CardHeader className="pb-2 sm:pb-3">
-                    <div className="flex items-start gap-2 sm:gap-3">
-                      <Avatar className="w-10 h-10 sm:w-12 sm:h-12">
-                        <AvatarImage src={politician.profileImageUrl || undefined} alt={politician.name} />
-                        <AvatarFallback className="bg-slate-200 dark:bg-slate-700">
-                          {politician.name.split(" ").map(n => n[0]).join("").toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          {getLevelIcon(politician.level || undefined)}
-                          <h3 className="font-semibold text-slate-900 dark:text-slate-100 truncate">
-                            {politician.name}
-                          </h3>
+        {!hasRegionalData && (
+          <Alert className="mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium">Data unavailable for this region</p>
+                  <p className="text-sm">
+                    No verified politician data available for the selected filters. 
+                    Try adjusting your search criteria or check back later.
+                  </p>
+                </div>
+                <Button variant="outline" size="sm" onClick={() => refetch()}>
+                  Refresh Data
+                </Button>
+              </div>
+            </AlertDescription>
+          </Alert>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {filteredPoliticians.map((politician) => (
+            <Card 
+              key={politician.id} 
+              className="hover:shadow-lg transition-all duration-200 cursor-pointer bg-white/80 backdrop-blur-sm border border-gray-200/50 hover:border-blue-300/50"
+              onClick={() => setSelectedPolitician(politician)}
+            >
+              <CardHeader className="pb-3">
+                <div className="flex items-start space-x-3">
+                  <div className="relative">
+                    <Avatar className="w-12 h-12">
+                      <AvatarImage 
+                        src={politician.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(politician.name)}&background=3b82f6&color=fff`} 
+                        alt={politician.name} 
+                      />
+                      <AvatarFallback className="bg-blue-600 text-white">
+                        {politician.name.split(' ').map(n => n[0]).join('')}
+                      </AvatarFallback>
+                    </Avatar>
+                    {politician.verified && (
+                      <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                        <Shield className="w-2.5 h-2.5 text-white" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-gray-900 text-sm leading-tight">
+                      {politician.name}
+                    </h3>
+                    <p className="text-xs text-gray-600 mt-1">
+                      {politician.position}
+                    </p>
+                    {politician.riding && (
+                      <p className="text-xs text-gray-500 flex items-center mt-1">
+                        <MapPin className="w-3 h-3 mr-1" />
+                        {politician.riding}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </CardHeader>
+
+              <CardContent className="pt-0 space-y-3">
+                <div className="flex flex-wrap gap-1">
+                  {politician.party && (
+                    <Badge variant="outline" className="text-xs px-2 py-0.5">
+                      {politician.party}
+                    </Badge>
+                  )}
+                  <Badge 
+                    variant={politician.level === 'Federal' ? 'default' : 
+                             politician.level === 'Provincial' ? 'secondary' : 'outline'} 
+                    className="text-xs px-2 py-0.5"
+                  >
+                    {politician.level}
+                  </Badge>
+                </div>
+                
+                {politician.trust_score && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="flex items-center space-x-2 cursor-help">
+                          <Shield className="w-4 h-4 text-green-600" />
+                          <span className="text-sm font-medium text-green-600">
+                            Trust Score: {politician.trust_score}%
+                          </span>
+                          <Info className="w-3 h-3 text-gray-400" />
                         </div>
-                        <p className="text-sm text-slate-600 dark:text-slate-400 truncate">
-                          {politician.position}
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="text-xs">Based on transparency, voting consistency, and public accountability</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+
+                {politician.total_spending && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="flex items-center space-x-2 cursor-help">
+                          <TrendingUp className="w-4 h-4 text-blue-600" />
+                          <span className="text-sm text-gray-700">
+                            ${politician.total_spending.toLocaleString()}
+                          </span>
+                          <ExternalLink className="w-3 h-3 text-gray-400" />
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="text-xs">Campaign spending data from Elections Canada</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+
+                <div className="flex flex-wrap gap-1 mt-2">
+                  {politician.data_sources.slice(0, 2).map((source, idx) => (
+                    <DataSourceBadge key={idx} source={source} />
+                  ))}
+                  {politician.data_sources.length > 2 && (
+                    <Badge variant="secondary" className="text-xs">
+                      +{politician.data_sources.length - 2} more
+                    </Badge>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-between text-xs text-gray-500 pt-2 border-t">
+                  <span className="flex items-center">
+                    <Database className="w-3 h-3 mr-1" />
+                    Updated {new Date(politician.last_updated).toLocaleDateString()}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedPolitician(politician);
+                    }}
+                    className="h-6 px-2 text-xs"
+                  >
+                    View Profile
+                  </Button>
+                </div>
+
+                {/* Interactive content for each politician */}
+                <div className="pt-2 border-t">
+                  <InteractiveContent
+                    targetType="politician"
+                    targetId={politician.id.toString()}
+                    showComments={false}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Politician Detail Modal */}
+        {selectedPolitician && (
+          <Dialog open={!!selectedPolitician} onOpenChange={() => setSelectedPolitician(null)}>
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="flex items-center space-x-3">
+                  <div className="relative">
+                    <Avatar className="w-12 h-12">
+                      <AvatarImage 
+                        src={selectedPolitician.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedPolitician.name)}&background=3b82f6&color=fff`} 
+                        alt={selectedPolitician.name} 
+                      />
+                      <AvatarFallback className="bg-blue-600 text-white">
+                        {selectedPolitician.name.split(' ').map((n: string) => n[0]).join('')}
+                      </AvatarFallback>
+                    </Avatar>
+                    {selectedPolitician.verified && (
+                      <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                        <Shield className="w-2.5 h-2.5 text-white" />
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold">{selectedPolitician.name}</h2>
+                    <p className="text-gray-600">{selectedPolitician.position}</p>
+                    {selectedPolitician.riding && (
+                      <p className="text-sm text-gray-500 flex items-center">
+                        <MapPin className="w-3 h-3 mr-1" />
+                        {selectedPolitician.riding}
+                      </p>
+                    )}
+                  </div>
+                </DialogTitle>
+              </DialogHeader>
+
+              <div className="space-y-6 mt-6">
+                {/* Data Sources Section */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center">
+                      <Database className="w-5 h-5 mr-2" />
+                      Data Sources & Verification
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm font-medium mb-2">Official Sources:</p>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedPolitician.data_sources.map((source, idx) => (
+                            <a 
+                              key={idx}
+                              href={source.url} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="inline-block"
+                            >
+                              <Badge 
+                                variant={source.verified ? "default" : "secondary"}
+                                className="cursor-pointer hover:bg-blue-600"
+                              >
+                                <ExternalLink className="w-3 h-3 mr-1" />
+                                {source.name}
+                              </Badge>
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium mb-2">Last Updated:</p>
+                        <p className="text-sm text-gray-600">
+                          {new Date(selectedPolitician.last_updated).toLocaleDateString('en-CA', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          Data refreshed from government sources
                         </p>
                       </div>
-                    </div>
-                  </CardHeader>
-                  
-                  <CardContent className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <Badge 
-                        className={`text-white text-xs ${getPartyColor(politician.party || undefined)}`}
-                      >
-                        {politician.party || "Independent"}
-                      </Badge>
-                      
-                      <div className="flex items-center gap-1">
-                        {getTrustScoreIcon(politician.trustScore || "0")}
-                        <span className={`text-sm font-medium ${getTrustScoreColor(politician.trustScore || "0")}`}>
-                          {politician.trustScore || "N/A"}%
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
-                        <MapPin className="w-3 h-3" />
-                        <span className="truncate">{politician.constituency || politician.jurisdiction || "Unknown"}</span>
-                      </div>
-                      
-                      <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
-                        <Building2 className="w-3 h-3" />
-                        <span>{politician.level || "Unknown"} Level</span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between mt-3 gap-2">
-                      <LikeButton
-                        itemId={politician.id}
-                        itemType="politician"
-                        variant="outline"
-                        className="flex-shrink-0"
-                        initialLikeCount={0}
-                      />
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="flex-1"
-                        onClick={() => setSelectedPolitician(politician)}
-                      >
-                        <ArrowRight className="w-3 h-3 mr-2" />
-                        View Details
-                      </Button>
                     </div>
                   </CardContent>
                 </Card>
-              ))}
-            </div>
-          ) : (
-            <div className="space-y-6">
-              <div className="flex items-center gap-4 mb-6">
-                <Button 
-                  variant="outline" 
-                  onClick={() => setSelectedPolitician(null)}
-                  className="bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm"
-                >
-                  ← Back to List
-                </Button>
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-                  {selectedPolitician.name}
-                </h2>
-              </div>
 
-              <Tabs defaultValue="overview" className="w-full">
-                <TabsList className="grid w-full grid-cols-4 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm">
-                  <TabsTrigger value="overview">Overview</TabsTrigger>
-                  <TabsTrigger value="voting">Voting Record</TabsTrigger>
-                  <TabsTrigger value="statements">Statements</TabsTrigger>
-                  <TabsTrigger value="financial">Financial</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="overview" className="space-y-6 mt-6">
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <Card className="lg:col-span-2">
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                          <User className="w-5 h-5" />
-                          Profile Information
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        <div className="flex items-start gap-4">
-                          <Avatar className="w-20 h-20">
-                            <AvatarImage src={selectedPolitician.profileImageUrl || undefined} alt={selectedPolitician.name} />
-                            <AvatarFallback className="text-lg bg-slate-200 dark:bg-slate-700">
-                              {selectedPolitician.name.split(" ").map(n => n[0]).join("").toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          
-                          <div className="flex-1 space-y-2">
-                            <div>
-                              <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">
-                                {selectedPolitician.name}
-                              </h3>
-                              <p className="text-slate-600 dark:text-slate-400">
-                                {selectedPolitician.position}
-                              </p>
-                            </div>
-                            
-                            <div className="flex items-center gap-4">
-                              <Badge className={`text-white ${getPartyColor(selectedPolitician.party || undefined)}`}>
-                                {selectedPolitician.party || "Independent"}
-                              </Badge>
-                              <Badge variant="outline">
-                                {selectedPolitician.level || "Unknown"} Level
-                              </Badge>
-                            </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Contact Information */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg flex items-center">
+                        <Phone className="w-5 h-5 mr-2" />
+                        Contact Information
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Info className="w-4 h-4 ml-2 text-gray-400" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="text-xs">Verified through official government directories</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {selectedPolitician.email ? (
+                        <div className="flex items-center space-x-2">
+                          <Mail className="w-4 h-4 text-gray-500" />
+                          <a href={`mailto:${selectedPolitician.email}`} className="text-blue-600 hover:underline">
+                            {selectedPolitician.email}
+                          </a>
+                          <Badge variant="outline" className="text-xs">Verified</Badge>
+                        </div>
+                      ) : (
+                        <div className="flex items-center space-x-2 text-gray-400">
+                          <Mail className="w-4 h-4" />
+                          <span className="text-sm">Email not available</span>
+                        </div>
+                      )}
+                      {selectedPolitician.phone ? (
+                        <div className="flex items-center space-x-2">
+                          <Phone className="w-4 h-4 text-gray-500" />
+                          <a href={`tel:${selectedPolitician.phone}`} className="text-blue-600 hover:underline">
+                            {selectedPolitician.phone}
+                          </a>
+                          <Badge variant="outline" className="text-xs">Verified</Badge>
+                        </div>
+                      ) : (
+                        <div className="flex items-center space-x-2 text-gray-400">
+                          <Phone className="w-4 h-4" />
+                          <span className="text-sm">Phone not available</span>
+                        </div>
+                      )}
+                      {selectedPolitician.website ? (
+                        <div className="flex items-center space-x-2">
+                          <Globe className="w-4 h-4 text-gray-500" />
+                          <a href={selectedPolitician.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                            Official Website
+                          </a>
+                          <ExternalLink className="w-3 h-3 text-gray-400" />
+                        </div>
+                      ) : (
+                        <div className="flex items-center space-x-2 text-gray-400">
+                          <Globe className="w-4 h-4" />
+                          <span className="text-sm">Website not available</span>
+                        </div>
+                      )}
+                      {selectedPolitician.office_address ? (
+                        <div className="flex items-start space-x-2">
+                          <Building className="w-4 h-4 text-gray-500 mt-0.5" />
+                          <div>
+                            <p className="text-sm font-medium">Office Address</p>
+                            <p className="text-sm text-gray-600">{selectedPolitician.office_address}</p>
                           </div>
                         </div>
+                      ) : (
+                        <div className="flex items-center space-x-2 text-gray-400">
+                          <Building className="w-4 h-4" />
+                          <span className="text-sm">Office address not available</span>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
-                          <div className="space-y-2">
-                            <div className="flex items-center gap-2 text-sm">
-                              <MapPin className="w-4 h-4 text-slate-500" />
-                              <span className="text-slate-600 dark:text-slate-400">Constituency:</span>
-                              <span className="font-medium text-slate-900 dark:text-slate-100">
-                                {selectedPolitician.constituency || "Unknown"}
-                              </span>
-                            </div>
-                            
-                            <div className="flex items-center gap-2 text-sm">
-                              <Building2 className="w-4 h-4 text-slate-500" />
-                              <span className="text-slate-600 dark:text-slate-400">Jurisdiction:</span>
-                              <span className="font-medium text-slate-900 dark:text-slate-100">
-                                {selectedPolitician.jurisdiction || "Unknown"}
-                              </span>
-                            </div>
-                          </div>
-                          
-                          <div className="space-y-2">
-                            <div className="flex items-center gap-2 text-sm">
-                              <Mail className="w-4 h-4 text-slate-500" />
-                              <span className="text-slate-600 dark:text-slate-400">Contact:</span>
-                              <span className="font-medium text-slate-900 dark:text-slate-100">
-                                {selectedPolitician.contact ? "Available" : "Not Available"}
-                              </span>
-                            </div>
-                            
-                            <div className="flex items-center gap-2 text-sm">
-                              <Globe className="w-4 h-4 text-slate-500" />
-                              <span className="text-slate-600 dark:text-slate-400">Level:</span>
-                              <span className="font-medium text-slate-900 dark:text-slate-100">
-                                {selectedPolitician.level || "Not Specified"}
-                              </span>
-                            </div>
+                  {/* Political Information & Metrics */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg flex items-center">
+                        <Users className="w-5 h-5 mr-2" />
+                        Political Information & Performance
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <span className="text-sm font-medium">Party:</span>
+                          <div className="mt-1">
+                            <Badge variant="outline">{selectedPolitician.party || 'Independent'}</Badge>
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
-
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                          <Award className="w-5 h-5" />
-                          Trust & Performance
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        <div className="text-center">
-                          <div className={`text-3xl font-bold ${getTrustScoreColor(selectedPolitician.trustScore || "0")}`}>
-                            {selectedPolitician.trustScore || "N/A"}%
+                        <div>
+                          <span className="text-sm font-medium">Level:</span>
+                          <div className="mt-1">
+                            <Badge variant={selectedPolitician.level === 'Federal' ? 'default' : 'secondary'}>
+                              {selectedPolitician.level}
+                            </Badge>
                           </div>
-                          <p className="text-sm text-slate-600 dark:text-slate-400">Trust Score</p>
                         </div>
+                      </div>
+
+                      {selectedPolitician.riding && (
+                        <div className="flex items-center space-x-2">
+                          <MapPin className="w-4 h-4 text-gray-500" />
+                          <span className="text-sm">{selectedPolitician.riding}</span>
+                        </div>
+                      )}
+
+                      <Separator />
+
+                      {/* Performance Metrics */}
+                      <div className="space-y-3">
+                        <h4 className="text-sm font-medium">Performance Metrics:</h4>
                         
-                        <div className="space-y-2">
-                          <div className="flex justify-between text-sm">
-                            <span className="text-slate-600 dark:text-slate-400">Voting Participation:</span>
-                            <span className="font-medium text-slate-900 dark:text-slate-100">95%</span>
+                        {selectedPolitician.trust_score ? (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div className="flex items-center justify-between p-2 bg-green-50 rounded cursor-help">
+                                  <div className="flex items-center space-x-2">
+                                    <Shield className="w-4 h-4 text-green-600" />
+                                    <span className="text-sm font-medium">Trust Score</span>
+                                  </div>
+                                  <div className="flex items-center space-x-1">
+                                    <span className="text-sm font-bold text-green-600">{selectedPolitician.trust_score}%</span>
+                                    <ExternalLink className="w-3 h-3 text-gray-400" />
+                                  </div>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <div className="text-xs max-w-xs">
+                                  <p className="font-medium">Trust Score Methodology</p>
+                                  <p>Based on transparency, voting consistency, and accountability</p>
+                                  <p className="mt-1 text-blue-600">Source: Parliamentary records & public disclosures</p>
+                                </div>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        ) : (
+                          <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                            <span className="text-sm text-gray-500">Trust Score not available</span>
+                            <Badge variant="secondary" className="text-xs">No data</Badge>
                           </div>
-                          <div className="flex justify-between text-sm">
-                            <span className="text-slate-600 dark:text-slate-400">Transparency Score:</span>
-                            <span className="font-medium text-slate-900 dark:text-slate-100">87%</span>
-                          </div>
-                          <div className="flex justify-between text-sm">
-                            <span className="text-slate-600 dark:text-slate-400">Public Engagement:</span>
-                            <span className="font-medium text-slate-900 dark:text-slate-100">92%</span>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
+                        )}
 
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Activity Summary</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-                        <p className="text-blue-700 dark:text-blue-300 text-sm">
-                          Comprehensive politician data is being synchronized with official government sources.
-                          This includes authentic voting records, verified statements, and official financial disclosures.
-                        </p>
+                        {selectedPolitician.total_spending ? (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div className="flex items-center justify-between p-2 bg-blue-50 rounded cursor-help">
+                                  <div className="flex items-center space-x-2">
+                                    <TrendingUp className="w-4 h-4 text-blue-600" />
+                                    <span className="text-sm font-medium">Campaign Spending</span>
+                                  </div>
+                                  <div className="flex items-center space-x-1">
+                                    <span className="text-sm font-bold text-blue-600">
+                                      ${selectedPolitician.total_spending.toLocaleString()}
+                                    </span>
+                                    <ExternalLink className="w-3 h-3 text-gray-400" />
+                                  </div>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <div className="text-xs max-w-xs">
+                                  <p className="font-medium">Campaign Finance Data</p>
+                                  <p>Total reported campaign expenditures</p>
+                                  <p className="mt-1 text-blue-600">Source: Elections Canada financial returns</p>
+                                </div>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        ) : (
+                          <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                            <span className="text-sm text-gray-500">Campaign spending data not available</span>
+                            <Badge variant="secondary" className="text-xs">No data</Badge>
+                          </div>
+                        )}
+
+                        {selectedPolitician.voting_participation ? (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div className="flex items-center justify-between p-2 bg-purple-50 rounded cursor-help">
+                                  <div className="flex items-center space-x-2">
+                                    <Calendar className="w-4 h-4 text-purple-600" />
+                                    <span className="text-sm font-medium">Voting Participation</span>
+                                  </div>
+                                  <div className="flex items-center space-x-1">
+                                    <span className="text-sm font-bold text-purple-600">
+                                      {selectedPolitician.voting_participation}%
+                                    </span>
+                                    <ExternalLink className="w-3 h-3 text-gray-400" />
+                                  </div>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <div className="text-xs max-w-xs">
+                                  <p className="font-medium">Voting Participation Rate</p>
+                                  <p>Percentage of votes participated in during current term</p>
+                                  <p className="mt-1 text-blue-600">Source: Parliamentary voting records</p>
+                                </div>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        ) : (
+                          <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                            <span className="text-sm text-gray-500">Voting history not available</span>
+                            <Badge variant="secondary" className="text-xs">No data</Badge>
+                          </div>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
-                </TabsContent>
+                </div>
 
-                <TabsContent value="voting" className="space-y-6 mt-6">
-                  <Card>
+                {/* Admin Tools - Only for authenticated admins */}
+                {user?.is_admin && (
+                  <Card className="border-orange-200 bg-orange-50">
                     <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Vote className="w-5 h-5" />
-                        Official Voting Record
+                      <CardTitle className="text-lg flex items-center text-orange-800">
+                        <Shield className="w-5 h-5 mr-2" />
+                        Admin Tools
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-6 text-center">
-                        <Vote className="w-12 h-12 text-blue-500 mx-auto mb-3" />
-                        <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">Voting Records Loading</h3>
-                        <p className="text-blue-700 dark:text-blue-300 text-sm">
-                          Official voting records are being synchronized from parliamentary databases.
-                          This will include votes on bills, amendments, and committee decisions.
-                        </p>
+                      <div className="flex space-x-2">
+                        <Button variant="outline" size="sm">
+                          Edit Profile
+                        </Button>
+                        <Button variant="outline" size="sm">
+                          Update Sources
+                        </Button>
+                        <Button variant="outline" size="sm">
+                          Verify Data
+                        </Button>
                       </div>
+                      <p className="text-xs text-orange-600 mt-2">
+                        Admin-only editing tools for data verification and updates
+                      </p>
                     </CardContent>
                   </Card>
-                </TabsContent>
+                )}
 
-                <TabsContent value="statements" className="space-y-6 mt-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Calendar className="w-5 h-5" />
-                        Public Statements & Communications
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-6 text-center">
-                        <Calendar className="w-12 h-12 text-yellow-500 mx-auto mb-3" />
-                        <h3 className="font-semibold text-yellow-900 dark:text-yellow-100 mb-2">Statement Tracking Active</h3>
-                        <p className="text-yellow-700 dark:text-yellow-300 text-sm">
-                          Public statements are being monitored from official sources including parliament,
-                          press releases, and verified communications channels.
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-
-                <TabsContent value="financial" className="space-y-6 mt-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <DollarSign className="w-5 h-5" />
-                        Financial Disclosures & Assets
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-6 text-center">
-                        <DollarSign className="w-12 h-12 text-purple-500 mx-auto mb-3" />
-                        <h3 className="font-semibold text-purple-900 dark:text-purple-100 mb-2">Financial Data Compilation</h3>
-                        <p className="text-purple-700 dark:text-purple-300 text-sm">
-                          Financial disclosure information is being compiled from official ethics filings.
-                          This will include assets, investments, income sources, and potential conflicts of interest.
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-              </Tabs>
-
-              <div className="mt-6">
-                <InteractiveContent
-                  targetType="politician"
-                  targetId={selectedPolitician.id}
-                  title={selectedPolitician.name}
-                  description={`${selectedPolitician.position} - ${selectedPolitician.party}`}
-                  showVoting={true}
-                  showComments={true}
-                  showSharing={true}
-                />
+                {/* Interactive content for the detailed view */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <TrendingUp className="w-5 h-5" />
+                      Citizen Engagement
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <InteractiveContent
+                      targetType="politician"
+                      targetId={selectedPolitician.id.toString()}
+                      showComments={true}
+                    />
+                  </CardContent>
+                </Card>
               </div>
-            </div>
-          )}
-        </main>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
-    );
-  }
+    </div>
+  );
+}
