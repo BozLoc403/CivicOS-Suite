@@ -138,31 +138,19 @@ export class DatabaseStorage implements IStorage {
     return vote;
   }
 
-  async getUserVotes(userId: string): Promise<(Vote & { bill: Bill })[]> {
+  async getUserVotes(userId: string): Promise<Vote[]> {
     return await db
-      .select({
-        id: votes.id,
-        userId: votes.userId,
-        billId: votes.billId,
-        voteValue: votes.voteValue,
-        reasoning: votes.reasoning,
-        verificationId: votes.verificationId,
-        blockHash: votes.blockHash,
-        timestamp: votes.timestamp,
-        isVerified: votes.isVerified,
-        bill: bills,
-      })
+      .select()
       .from(votes)
-      .innerJoin(bills, eq(votes.billId, bills.id))
       .where(eq(votes.userId, userId))
       .orderBy(desc(votes.timestamp));
   }
 
-  async getVoteByUserAndBill(userId: string, billId: number): Promise<Vote | undefined> {
+  async getVoteByUserAndItem(userId: string, itemId: number, itemType: string): Promise<Vote | undefined> {
     const [vote] = await db
       .select()
       .from(votes)
-      .where(and(eq(votes.userId, userId), eq(votes.billId, billId)));
+      .where(and(eq(votes.userId, userId), eq(votes.itemId, itemId), eq(votes.itemType, itemType)));
     return vote;
   }
 

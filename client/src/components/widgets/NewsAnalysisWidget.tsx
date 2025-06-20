@@ -82,7 +82,7 @@ interface NewsComparison {
   };
 }
 
-export export function NewsAnalysisWidget() {
+export function NewsAnalysisWidget() {
   const [selectedArticle, setSelectedArticle] = useState<NewsArticle | null>(null);
   const [analysisData, setAnalysisData] = useState<NewsComparison | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);

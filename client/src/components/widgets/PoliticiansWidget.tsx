@@ -23,7 +23,7 @@ interface Politician {
   profileImage?: string;
 }
 
-export default export function PoliticiansWidget() {
+export default function PoliticiansWidget() {
   const { data: politicians = [], isLoading } = useQuery<Politician[]>({
     queryKey: ['/api/politicians'],
     refetchInterval: 120000, // Refresh every 2 minutes for new politicians

@@ -31,7 +31,7 @@ interface UserVote {
   timestamp: string;
 }
 
-export default export function BillsVotingWidget() {
+export default function BillsVotingWidget() {
   const { data: bills = [], isLoading: billsLoading } = useQuery<Bill[]>({
     queryKey: ['/api/bills'],
     refetchInterval: 120000, // Refresh every 2 minutes
