@@ -85,6 +85,12 @@ The platform is designed for deployment on Replit with the following configurati
 
 ## Changelog
 
+- June 20, 2025: Created admin account with elevated privileges and database schema updates
+  - Added is_admin column to users table for role-based access control
+  - Updated demo user account to have full administrative privileges
+  - Enhanced user authentication system to support admin role verification
+  - Admin account now has elevated trust score (95) and verified status
+  - Database schema updated to support future admin-only features and content moderation
 - June 20, 2025: Fixed authentication system with proper login/logout functionality and JSON API responses
   - Resolved frontend JSON parsing error when logging in - backend now properly returns JSON instead of HTML
   - Implemented session-based logout system that properly manages user state and redirects

@@ -1,0 +1,196 @@
+🧠 CIVICOS FULL UPGRADE MASTERLIST
+(Organized by Module → Enhancement → Code/UX/Infra)
+
+1. 🔍 Data Transparency Layer
+Problem: Metrics (trust score, bill ratings, voting data) need traceability
+Add:
+
+Tooltip or badge for every stat:
+e.g., “Source: Parliament API • Last updated 3d ago”
+
+Backlink to source doc where possible (LEGISinfo, CanLII, GC Contract DB)
+
+Cursor Task:
+
+jsx
+Copy
+Edit
+// On each scorecard or metric component:
+<Tooltip content="Data from LEGISinfo – Updated weekly">
+  <Badge>Verified Source</Badge>
+</Tooltip>
+2. 🏛️ Simulated or Placeholder Data Toggle
+Problem: APIs aren’t fully live
+Add:
+
+Dummy data layer with toggle flag (live vs stub)
+
+Warning banners on pages using simulated data
+
+Cursor Task:
+
+js
+Copy
+Edit
+const USE_DUMMY_DATA = true;
+
+const politicians = USE_DUMMY_DATA
+  ? require('../data/fake_politicians.json')
+  : fetchLiveData();
+3. 🧠 AI Assistant Contextual Replies
+Problem: Chatbot down + currently generic
+Add:
+
+Assistant responds based on current route/module
+
+Stub response if API is off
+
+Cursor Task (React):
+
+js
+Copy
+Edit
+if (!openaiAvailable) {
+  return "Our AI is currently down. Please check back soon.";
+}
+
+if (route === "/bills") {
+  return "Want me to summarize Bill C-11 for you?";
+}
+4. 🗳 Voting System Dummy Population
+Problem: 0 votes looks broken
+Add:
+
+Prepopulate test votes + outcomes
+
+Add tooltip: “Test data for demo purposes”
+
+Cursor Task:
+
+js
+Copy
+Edit
+const voteResults = USE_DUMMY_DATA
+  ? [{ bill: "C-18", support: 5432, oppose: 3921 }]
+  : fetchVotes();
+5. 🧬 User-Type Onboarding Wizard
+Problem: Too many modules = no entry point
+Add:
+
+On first visit → ask: “What brings you here?”
+
+Options: Journalist / Activist / Voter / Developer / FOI Researcher
+
+Route them to relevant modules
+
+Cursor Task (Onboarding modal):
+
+js
+Copy
+Edit
+<Button onClick={() => route("/foi")}>I'm filing a Freedom of Info Request</Button>
+<Button onClick={() => route("/vote")}>I want to vote on issues</Button>
+6. 🧾 PDF Report Generator
+Problem: No way to export/share reports
+Add:
+
+Generate PDF from politician profile, procurement records, or dashboard
+
+Use react-pdf, jspdf, or puppeteer backend
+
+Cursor Task:
+
+js
+Copy
+Edit
+import jsPDF from 'jspdf';
+
+const generatePDF = () => {
+  const doc = new jsPDF();
+  doc.text("MP Profile – Mark Carney", 10, 10);
+  doc.save("profile-report.pdf");
+};
+7. 💬 Community Forum Thread Linking
+Problem: Forum is siloed
+Add:
+
+Auto-link threads to relevant bills/politicians
+
+e.g., If someone posts about “Bill C-18” → tag it and link to /bills/C18
+
+Cursor Task:
+
+js
+Copy
+Edit
+if (thread.text.includes("Bill C-18")) {
+  thread.related = "/bills/C18";
+}
+8. 🗃 Promise Tracker Visual Enhancements
+Problem: Static timeline
+Add:
+
+Impact score
+
+Status badge (Kept / Broken / Delayed)
+
+Timeline scrubber UI
+
+Cursor Task:
+
+js
+Copy
+Edit
+<Timeline>
+  <TimelineItem label="2022: Promise Made" status="Kept" impact={8.4} />
+</Timeline>
+9. 🔐 Login System (Roles & Access)
+Problem: No role-based gating
+Add:
+
+Citizen / Journalist / Admin roles
+
+Admin gets: Report flag review, upload leaks, edit profiles
+
+Cursor Stack Options:
+
+Auth: Firebase, Supabase, Clerk, or NextAuth
+
+DB: Supabase or Firestore for now
+
+10. 🔄 Shareable Cards / Social Graphs
+Problem: No virality loop
+Add:
+
+Share buttons for any MP profile, trust score, or petition
+
+Auto-generate Open Graph preview images (@vercel/og, Puppeteer)
+
+Cursor Task:
+
+js
+Copy
+Edit
+<ShareButton url={`https://civicos.ca/politicians/${mp.id}`} />
+BONUS ⚙️: Admin Panel / Audit Log
+Add:
+
+View submitted FOIs, flag activity, post new data manually
+
+Log all public submissions for moderation
+
+Use a /admin route gated by role
+
+Summary TODO List for Cursor:
+Feature	File Type	Priority
+🧾 Source badges	React	HIGH
+📊 Dummy vote data	JSON + React	HIGH
+🧠 Assistant logic	JS/TS	HIGH
+📋 Onboarding wizard	JSX modal	MEDIUM
+📁 PDF export	JS	MEDIUM
+🗳 Promise timeline	React + Chart	MEDIUM
+🔐 Auth roles	Firebase/Supabase	HIGH
+🧠 Forum linking	JS	LOW
+🧪 Data toggle	Global state	HIGH
+🎯 Social card meta	OG Meta / Puppeteer	LOW
+
