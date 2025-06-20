@@ -19,13 +19,10 @@ interface CivicAction {
 }
 
 interface CivicLedgerData {
-  actions: CivicAction[];
-  totals: {
-    totalActions: number;
-    votescast: number;
-    petitionsSigned: number;
-    postsCreated: number;
-    commentsPosted: number;
+  summary: {
+    totalVotes: number;
+    totalPetitions: number;
+    totalActivities: number;
     totalPoints: number;
   };
   votes: Array<{
@@ -35,18 +32,19 @@ interface CivicLedgerData {
     voteValue: number;
     reasoning: string | null;
     timestamp: string;
-    billTitle?: string;
-    sourceUrl?: string;
   }>;
   petitions: Array<{
     id: number;
     petitionId: number;
     signedAt: string;
-    petitionTitle: string;
-    petitionStatus: string;
-    targetSignatures: number;
-    currentSignatures: number;
+    petition: {
+      title: string;
+      description: string;
+      currentSignatures: number;
+      targetSignatures: number;
+    };
   }>;
+  activities: CivicAction[];
 }
 
 export default function Ledger() {
@@ -59,11 +57,53 @@ export default function Ledger() {
     }
   }, [isAuthenticated, authLoading]);
 
-  const { data: ledgerData, isLoading } = useQuery<CivicLedgerData>({
+  const { data, isLoading } = useQuery<CivicLedgerData>({
     queryKey: ["/api/civic-ledger"],
     enabled: isAuthenticated,
     refetchInterval: 1000 * 60 * 5, // Refetch every 5 minutes
   });
+
+  const ledgerData = useMemo(() => {
+    if (data) {
+      const { votes = [], petitions = [], activities = [] } = data;
+
+      const voteData = votes.map((vote: any) => ({
+        id: vote.id,
+        action: `Voted ${vote.voteValue === 1 ? 'Yes' : vote.voteValue === -1 ? 'No' : 'Abstain'}`,
+        target: `${vote.itemType || 'Item'} ${vote.itemId}`,
+        date: vote.timestamp,
+        points: 10,
+        type: 'vote',
+        details: vote.reasoning || 'No reasoning provided'
+      }));
+
+      const petitionData = petitions.map((petition: any) => ({
+        id: petition.id,
+        action: 'Signed Petition',
+        target: petition.petition?.title || 'Unknown Petition',
+        date: petition.signedAt,
+        points: 5,
+        type: 'petition',
+        details: `${petition.petition?.currentSignatures || 0}/${petition.petition?.targetSignatures || 0} signatures`
+      }));
+
+      const activityData = activities.map((activity: any) => ({
+        id: activity.id,
+        action: activity.activityType,
+        target: `${activity.entityType || 'Item'} ${activity.entityId}`,
+        date: activity.createdAt,
+        points: activity.pointsEarned || 0,
+        type: activity.activityType,
+        details: activity.details ? JSON.stringify(activity.details) : 'No details available'
+      }));
+
+      return [...voteData, ...petitionData, ...activityData].sort((a, b) => 
+        new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
+    }
+
+    return [];
+  }, [data]);
 
   const getVoteColor = (voteValue: number) => {
     if (voteValue > 0) return "bg-green-500 text-white";
@@ -164,47 +204,33 @@ export default function Ledger() {
         </div>
 
         {/* Activity Summary Cards */}
-        {ledgerData && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
+        {data?.summary && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <Card>
               <CardContent className="p-4 text-center">
                 <TrendingUp className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-gray-900">{ledgerData.totals.totalActions}</p>
+                <p className="text-2xl font-bold text-gray-900">{data.summary.totalActivities}</p>
                 <p className="text-sm text-gray-600">Total Actions</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4 text-center">
                 <Vote className="h-8 w-8 text-green-600 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-gray-900">{ledgerData.totals.votescast}</p>
+                <p className="text-2xl font-bold text-gray-900">{data.summary.totalVotes}</p>
                 <p className="text-sm text-gray-600">Votes Cast</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4 text-center">
                 <FileText className="h-8 w-8 text-purple-600 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-gray-900">{ledgerData.totals.petitionsSigned}</p>
+                <p className="text-2xl font-bold text-gray-900">{data.summary.totalPetitions}</p>
                 <p className="text-sm text-gray-600">Petitions Signed</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4 text-center">
-                <MessageSquare className="h-8 w-8 text-orange-600 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-gray-900">{ledgerData.totals.postsCreated}</p>
-                <p className="text-sm text-gray-600">Posts Created</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4 text-center">
-                <MessageSquare className="h-8 w-8 text-yellow-600 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-gray-900">{ledgerData.totals.commentsPosted}</p>
-                <p className="text-sm text-gray-600">Comments Posted</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4 text-center">
                 <Shield className="h-8 w-8 text-indigo-600 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-gray-900">{ledgerData.totals.totalPoints}</p>
+                <p className="text-2xl font-bold text-gray-900">{data.summary.totalPoints}</p>
                 <p className="text-sm text-gray-600">Civic Points</p>
               </CardContent>
             </Card>
@@ -229,7 +255,7 @@ export default function Ledger() {
         </Card>
 
         {/* Voting History */}
-        {votes.length === 0 ? (
+        {ledgerData.length === 0 ? (
           <Card>
             <CardContent className="p-12 text-center">
               <AlertCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
@@ -244,8 +270,8 @@ export default function Ledger() {
           </Card>
         ) : (
           <div className="space-y-4">
-            {votes.map((vote) => (
-              <Card key={vote.id} className="hover:shadow-md transition-shadow">
+            {ledgerData.map((action) => (
+              <Card key={action.id} className="hover:shadow-md transition-shadow">
                 <CardContent className="p-6">
                   <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
                     <div className="flex-1 mb-4 lg:mb-0">
