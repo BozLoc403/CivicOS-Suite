@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Shield, CheckCircle } from "lucide-react";
+import { Shield, CheckCircle, AlertTriangle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { CanadianAuthWidget } from "@/components/CanadianAuthWidget";
 
@@ -68,6 +69,15 @@ export default function IdentityVerification() {
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
+      {/* Temporary Warning Banner */}
+      <Alert className="border-orange-200 bg-orange-50">
+        <AlertTriangle className="h-4 w-4 text-orange-600" />
+        <AlertDescription className="text-orange-700">
+          <strong>TEMPORARY VERIFICATION SYSTEM:</strong> Government integrations are currently in development. 
+          All users are granted temporary verified access until official GCKey and banking integrations are complete.
+        </AlertDescription>
+      </Alert>
+
       <Card>
         <CardHeader className="text-center">
           <CardTitle className="flex items-center justify-center gap-2">
@@ -88,6 +98,23 @@ export default function IdentityVerification() {
           </Alert>
           
           <CanadianAuthWidget onVerified={handleVerificationComplete} />
+          
+          {/* Temporary Verification Button */}
+          <div className="mt-6 pt-6 border-t">
+            <Button 
+              onClick={() => handleVerificationComplete({
+                tempVerified: true,
+                verificationLevel: "Temporary",
+                trustScore: 50
+              }, "Temporary System")}
+              className="w-full bg-orange-600 hover:bg-orange-700"
+            >
+              Grant Temporary Verification Access
+            </Button>
+            <p className="text-sm text-muted-foreground mt-2 text-center">
+              Temporary access until government integrations are complete
+            </p>
+          </div>
         </CardContent>
       </Card>
     </div>
