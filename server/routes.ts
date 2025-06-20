@@ -988,16 +988,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Voting system endpoints
-  app.post("/api/vote", async (req, res) => {
+  // Fix the unified voting endpoint with proper authentication
+  app.post('/api/vote', async (req: any, res) => {
     try {
       const { targetType, targetId, voteType } = req.body;
-      console.log("Vote request:", { targetType, targetId, voteType });
-      // For development, always use demo user ID
+      
+      // For development, use demo user ID
       const userId = process.env.NODE_ENV !== 'production' ? '42199639' : 
         (req.isAuthenticated() && req.user ? (req.user as any).id : null);
-      
+
       if (!userId) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      if (!['upvote', 'downvote'].includes(voteType)) {
+        return res.status(400).json({ message: "Invalid vote type" });
+      }
+
+      if (!['politician', 'bill', 'post', 'comment', 'petition', 'news', 'finance'].includes(targetType)) {
+        return res.status(400).json({ message: "Invalid target type" });
+      }
+
+      // Check if user already voted
+      const existingVote = await db.execute(sql`
+        SELECT vote_type FROM user_votes 
+        WHERE user_id = ${userId} AND target_type = ${targetType} AND target_id = ${targetId}
+      `);
+
+      if (existingVote.rows.length > 0) {
+        return res.status(400).json({ message: "You have already voted on this item" });
+      }
+
+      // Record the vote
+      await db.execute(sql`
+        INSERT INTO user_votes (user_id, target_type, target_id, vote_type, created_at)
+        VALUES (${userId}, ${targetType}, ${targetId}, ${voteType}, NOW())
+      `);
+
+      // Update vote counts
+      await db.execute(sql`
+        INSERT INTO vote_counts (target_type, target_id, upvotes, downvotes, total_score)
+        VALUES (${targetType}, ${targetId}, 
+          ${voteType === 'upvote' ? 1 : 0}, 
+          ${voteType === 'downvote' ? 1 : 0},
+          ${voteType === 'upvote' ? 1 : -1}
+        )
+        ON CONFLICT (target_type, target_id) 
+        DO UPDATE SET 
+          upvotes = vote_counts.upvotes + ${voteType === 'upvote' ? 1 : 0},
+          downvotes = vote_counts.downvotes + ${voteType === 'downvote' ? 1 : 0},
+          total_score = vote_counts.total_score + ${voteType === 'upvote' ? 1 : -1}
+      `);
+
+      // Get updated counts
+      const updatedCounts = await db.execute(sql`
+        SELECT upvotes, downvotes, total_score FROM vote_counts 
+        WHERE target_type = ${targetType} AND target_id = ${targetId}
+      `);
+
+      const result = updatedCounts.rows[0];
+      res.json({
+        upvotes: Number(result.upvotes),
+        downvotes: Number(result.downvotes),
+        totalScore: Number(result.total_score),
+        userVote: voteType
+      });
+
+    } catch (error) {
+      console.error("Error processing vote:", error);
+      res.status(500).json({ message: "Failed to process vote" });
+    }
+  });
         return res.status(401).json({ message: "Authentication required" });
       }
       
