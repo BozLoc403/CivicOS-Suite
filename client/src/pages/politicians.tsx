@@ -16,7 +16,7 @@ import { InteractiveContent } from "@/components/InteractiveContent";
 import { 
   Search, Filter, MapPin, Phone, Mail, Globe, Building, Shield, 
   TrendingUp, AlertCircle, ExternalLink, Info, Link, Database, 
-  Lock, Users, Calendar, DollarSign, Vote
+  Lock, Users, Calendar, DollarSign, Vote, Eye
 } from "lucide-react";
 
 interface DataSource {
@@ -185,7 +185,7 @@ export default function Politicians() {
     );
   }
 
-  const filteredPoliticians = politicians.filter(politician => {
+  const filteredPoliticians = politicians ? politicians.filter(politician => {
     const matchesSearch = politician.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          politician.riding?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesParty = selectedParty === "all" || politician.party === selectedParty;
@@ -193,7 +193,7 @@ export default function Politicians() {
     const matchesProvince = selectedProvince === "all" || politician.province === selectedProvince;
     
     return matchesSearch && matchesParty && matchesLevel && matchesProvince;
-  });
+  }) : [];
 
   const hasRegionalData = politicians && politicians.length > 0;
 
