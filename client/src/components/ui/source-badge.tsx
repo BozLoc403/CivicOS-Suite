@@ -63,7 +63,7 @@ export function SourceBadge({ source, lastUpdated, url, verified = true, classNa
   const badge = (
     <Badge 
       variant={getBadgeVariant()} 
-      className={`cursor-help ${className}`}
+      className={`cursor-help transition-all hover:shadow-md backdrop-blur-sm bg-white/80 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 ${className}`}
     >
       <Shield className="h-3 w-3 mr-1" />
       Verified

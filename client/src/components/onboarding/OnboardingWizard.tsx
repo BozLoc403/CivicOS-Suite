@@ -93,10 +93,12 @@ export function OnboardingWizard({ isOpen, onClose }: OnboardingWizardProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 backdrop-blur-sm border-slate-200 dark:border-slate-700">
         <DialogHeader>
-          <DialogTitle className="text-2xl text-center">Welcome to CivicOS</DialogTitle>
-          <p className="text-center text-muted-foreground">
+          <DialogTitle className="text-2xl text-center bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent font-serif">
+            Welcome to CivicOS
+          </DialogTitle>
+          <p className="text-center text-muted-foreground font-medium">
             Canada's comprehensive political intelligence platform. What brings you here today?
           </p>
         </DialogHeader>
@@ -105,22 +107,22 @@ export function OnboardingWizard({ isOpen, onClose }: OnboardingWizardProps) {
           {USER_TYPES.map((userType) => (
             <Card 
               key={userType.id}
-              className="cursor-pointer transition-all hover:shadow-lg hover:scale-105 border-2 hover:border-primary"
+              className="cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-105 border-2 hover:border-primary bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-600"
               onClick={() => handleUserTypeSelect(userType)}
             >
               <CardHeader className="text-center">
-                <div className="mx-auto mb-2 text-primary">
+                <div className="mx-auto mb-2 text-primary p-3 rounded-full bg-primary/10 dark:bg-primary/20">
                   {userType.icon}
                 </div>
-                <CardTitle className="text-lg">{userType.title}</CardTitle>
-                <CardDescription>{userType.description}</CardDescription>
+                <CardTitle className="text-lg font-serif">{userType.title}</CardTitle>
+                <CardDescription className="text-muted-foreground">{userType.description}</CardDescription>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-1 text-sm">
                   {userType.features.map((feature, index) => (
                     <li key={index} className="flex items-center">
-                      <span className="w-2 h-2 bg-primary rounded-full mr-2"></span>
-                      {feature}
+                      <span className="w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mr-2"></span>
+                      <span className="text-slate-700 dark:text-slate-300">{feature}</span>
                     </li>
                   ))}
                 </ul>
@@ -130,10 +132,17 @@ export function OnboardingWizard({ isOpen, onClose }: OnboardingWizardProps) {
         </div>
 
         <div className="flex justify-center gap-4 mt-6">
-          <Button variant="outline" onClick={handleSkip}>
+          <Button 
+            variant="outline" 
+            onClick={handleSkip}
+            className="bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border-slate-300 dark:border-slate-600 hover:bg-white/80 dark:hover:bg-slate-800/80"
+          >
             Skip for now
           </Button>
-          <Button onClick={() => navigate("/dashboard")}>
+          <Button 
+            onClick={() => navigate("/dashboard")}
+            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg"
+          >
             Explore all features
           </Button>
         </div>
