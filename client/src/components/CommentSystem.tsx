@@ -190,8 +190,15 @@ export function CommentSystem({ targetType, targetId }: CommentSystemProps) {
   };
 
   const saveEdit = (commentId: number) => {
-    if (!editContent.trim()) return;
-    editMutation.mutate({ commentId, content: editContent });
+    if (!editContent.trim()) {
+      toast({
+        title: "Error",
+        description: "Comment cannot be empty",
+        variant: "destructive"
+      });
+      return;
+    }
+    editMutation.mutate({ commentId, content: editContent.trim() });
   };
 
   const deleteComment = (commentId: number) => {
@@ -238,20 +245,24 @@ export function CommentSystem({ targetType, targetId }: CommentSystemProps) {
               )}
             </div>
             
-            {comment.author_id === user?.id && (
+            {user && comment.author_id === user.id && (
               <div className="flex space-x-1">
                 <Button 
                   variant="ghost" 
                   size="sm" 
                   onClick={() => startEditing(comment)}
-                  className="text-xs px-2 py-1 h-auto"
+                  className="text-xs px-2 py-1 h-auto text-blue-600 hover:text-blue-700"
                 >
                   Edit
                 </Button>
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  onClick={() => deleteMutation.mutate(comment.id)}
+                  onClick={() => {
+                    if (confirm('Are you sure you want to delete this comment?')) {
+                      deleteMutation.mutate(comment.id);
+                    }
+                  }}
                   className="text-xs px-2 py-1 h-auto text-red-600 hover:text-red-700"
                   disabled={deleteMutation.isPending}
                 >
