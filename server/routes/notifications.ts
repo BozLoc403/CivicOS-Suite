@@ -7,6 +7,8 @@ import { notifications, userNotificationPreferences } from "@shared/schema";
 
 const router = Router();
 
+console.log("Notifications router loaded");
+
 // Validation schemas
 const createNotificationSchema = createInsertSchema(notifications).omit({
   id: true,
@@ -116,5 +118,7 @@ router.post("/", isAuthenticated, async (req: any, res) => {
     res.status(500).json({ message: "Failed to create notification" });
   }
 });
+
+console.log("Notifications router routes registered");
 
 export default router;

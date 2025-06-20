@@ -447,27 +447,7 @@ export class DatabaseStorage implements IStorage {
     return 'neutral';
   }
 
-  // Notification operations
-  async getUserNotifications(userId: string): Promise<Notification[]> {
-    return await db
-      .select()
-      .from(notifications)
-      .where(eq(notifications.userId, userId))
-      .orderBy(desc(notifications.createdAt))
-      .limit(10);
-  }
 
-  async createNotification(notification: InsertNotification): Promise<Notification> {
-    const [newNotification] = await db.insert(notifications).values(notification).returning();
-    return newNotification;
-  }
-
-  async markNotificationRead(id: number): Promise<void> {
-    await db
-      .update(notifications)
-      .set({ isRead: true })
-      .where(eq(notifications.id, id));
-  }
 
   // Analytics
   async getUserStats(userId: string): Promise<{ voteCount: number; trustScore: string; civicLevel: string }> {
