@@ -230,7 +230,7 @@ export default function Politicians() {
                   phone: "613-995-0253",
                   website: "https://pm.gc.ca",
                   office_address: "Office of the Prime Minister, Langevin Block, 80 Wellington Street, Ottawa, ON K1A 0A2",
-                  trust_score: 72,
+                  trust_score: undefined,
                   total_spending: 2800000,
                   voting_participation: 91,
                   verified: true,
@@ -254,8 +254,8 @@ export default function Politicians() {
                   <p className="text-sm text-gray-600">Liberal Party of Canada</p>
                   <p className="text-xs text-gray-500 mt-1">Central Nova</p>
                   <div className="mt-2 flex items-center justify-center">
-                    <Shield className="w-4 h-4 text-green-600 mr-1" />
-                    <span className="text-xs text-green-600 font-medium">Trust: 72%</span>
+                    <Shield className="w-4 h-4 text-blue-600 mr-1" />
+                    <span className="text-xs text-blue-600 font-medium">Verified Profile</span>
                   </div>
                 </CardContent>
               </Card>
@@ -275,7 +275,7 @@ export default function Politicians() {
                   phone: "613-992-3128",
                   website: "https://www.conservative.ca",
                   office_address: "House of Commons, Centre Block, Room 409-S, Ottawa, ON K1A 0A6",
-                  trust_score: 74,
+                  trust_score: undefined,
                   total_spending: 1950000,
                   voting_participation: 94,
                   verified: true,
@@ -320,7 +320,7 @@ export default function Politicians() {
                   phone: "613-992-4214",
                   website: "https://www.ndp.ca",
                   office_address: "House of Commons, Centre Block, Room 224-N, Ottawa, ON K1A 0A6",
-                  trust_score: 73,
+                  trust_score: undefined,
                   total_spending: 1200000,
                   voting_participation: 92,
                   verified: true,
@@ -344,8 +344,8 @@ export default function Politicians() {
                   <p className="text-sm text-gray-600">New Democratic Party</p>
                   <p className="text-xs text-gray-500 mt-1">Burnaby South</p>
                   <div className="mt-2 flex items-center justify-center">
-                    <Shield className="w-4 h-4 text-green-600 mr-1" />
-                    <span className="text-xs text-green-600 font-medium">Trust: 73%</span>
+                    <Shield className="w-4 h-4 text-blue-600 mr-1" />
+                    <span className="text-xs text-blue-600 font-medium">Verified Profile</span>
                   </div>
                 </CardContent>
               </Card>
@@ -365,7 +365,7 @@ export default function Politicians() {
                   phone: "613-992-6779",
                   website: "https://www.blocquebecois.org",
                   office_address: "House of Commons, Centre Block, Room 459-S, Ottawa, ON K1A 0A6",
-                  trust_score: 69,
+                  trust_score: undefined,
                   total_spending: 900000,
                   voting_participation: 89,
                   verified: true,
@@ -389,8 +389,8 @@ export default function Politicians() {
                   <p className="text-sm text-gray-600">Bloc Québécois</p>
                   <p className="text-xs text-gray-500 mt-1">Beloeil—Chambly</p>
                   <div className="mt-2 flex items-center justify-center">
-                    <Shield className="w-4 h-4 text-green-600 mr-1" />
-                    <span className="text-xs text-green-600 font-medium">Trust: 69%</span>
+                    <Shield className="w-4 h-4 text-blue-600 mr-1" />
+                    <span className="text-xs text-blue-600 font-medium">Verified Profile</span>
                   </div>
                 </CardContent>
               </Card>
@@ -410,7 +410,7 @@ export default function Politicians() {
                   phone: "613-996-1119",
                   website: "https://www.greenparty.ca",
                   office_address: "House of Commons, Centre Block, Room 318-S, Ottawa, ON K1A 0A6",
-                  trust_score: 76,
+                  trust_score: undefined,
                   total_spending: 500000,
                   voting_participation: 96,
                   verified: true,
@@ -434,8 +434,8 @@ export default function Politicians() {
                   <p className="text-sm text-gray-600">Green Party</p>
                   <p className="text-xs text-gray-500 mt-1">Saanich—Gulf Islands</p>
                   <div className="mt-2 flex items-center justify-center">
-                    <Shield className="w-4 h-4 text-green-600 mr-1" />
-                    <span className="text-xs text-green-600 font-medium">Trust: 76%</span>
+                    <Shield className="w-4 h-4 text-blue-600 mr-1" />
+                    <span className="text-xs text-blue-600 font-medium">Verified Profile</span>
                   </div>
                 </CardContent>
               </Card>
@@ -604,24 +604,12 @@ export default function Politicians() {
                   </Badge>
                 </div>
                 
-                {politician.trust_score && (
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className="flex items-center space-x-2 cursor-help">
-                          <Shield className="w-4 h-4 text-green-600" />
-                          <span className="text-sm font-medium text-green-600">
-                            Trust Score: {politician.trust_score}%
-                          </span>
-                          <Info className="w-3 h-3 text-gray-400" />
-                        </div>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p className="text-xs">Based on transparency, voting consistency, and public accountability</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                )}
+                <div className="flex items-center space-x-2">
+                  <Shield className="w-4 h-4 text-blue-600" />
+                  <span className="text-sm font-medium text-blue-600">
+                    Verified Official
+                  </span>
+                </div>
 
                 {politician.total_spending && (
                   <TooltipProvider>
@@ -892,36 +880,16 @@ export default function Politicians() {
                       <div className="space-y-3">
                         <h4 className="text-sm font-medium">Performance Metrics:</h4>
                         
-                        {selectedPolitician.trust_score ? (
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <div className="flex items-center justify-between p-2 bg-green-50 rounded cursor-help">
-                                  <div className="flex items-center space-x-2">
-                                    <Shield className="w-4 h-4 text-green-600" />
-                                    <span className="text-sm font-medium">Trust Score</span>
-                                  </div>
-                                  <div className="flex items-center space-x-1">
-                                    <span className="text-sm font-bold text-green-600">{selectedPolitician.trust_score}%</span>
-                                    <ExternalLink className="w-3 h-3 text-gray-400" />
-                                  </div>
-                                </div>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <div className="text-xs max-w-xs">
-                                  <p className="font-medium">Trust Score Methodology</p>
-                                  <p>Based on transparency, voting consistency, and accountability</p>
-                                  <p className="mt-1 text-blue-600">Source: Parliamentary records & public disclosures</p>
-                                </div>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        ) : (
-                          <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                            <span className="text-sm text-gray-500">Trust Score not available</span>
-                            <Badge variant="secondary" className="text-xs">No data</Badge>
+                        <div className="flex items-center justify-between p-2 bg-blue-50 rounded">
+                          <div className="flex items-center space-x-2">
+                            <Users className="w-4 h-4 text-blue-600" />
+                            <span className="text-sm font-medium">Community Trust Score</span>
                           </div>
-                        )}
+                          <div className="flex items-center space-x-1">
+                            <span className="text-sm text-gray-600">Coming Soon</span>
+                            <Badge variant="outline" className="text-xs">User Votes</Badge>
+                          </div>
+                        </div>
 
                         {selectedPolitician.total_spending ? (
                           <TooltipProvider>

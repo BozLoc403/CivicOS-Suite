@@ -85,6 +85,9 @@ The platform is designed for deployment on Replit with the following configurati
 
 ## Changelog
 
+- June 20, 2025: Removed placeholder trust scores from politician profiles - scores will be generated organically through user voting and engagement within the platform
+- June 20, 2025: Updated party leaders with accurate current information - Mark Carney as PM, Candice Bergen as Conservative leader
+- June 20, 2025: Made all party leader cards clickable with detailed profiles and real parliamentary contact information
 - June 20, 2025: Implemented comprehensive platform enhancements based on AI assistant recommendations
   - Added data transparency layer with source badges and verification tooltips on all metrics and statistics
   - Created onboarding wizard that routes users based on their role (citizen, journalist, researcher, activist, developer, legal)
