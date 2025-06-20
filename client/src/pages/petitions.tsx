@@ -195,7 +195,11 @@ export default function Petitions() {
   ];
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
+    <VerificationGuard 
+      requiredPermission="canCreatePetitions"
+      fallbackMessage="Identity verification required to create and sign petitions"
+    >
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
