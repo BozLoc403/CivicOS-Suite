@@ -1,41 +1,201 @@
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LikeButton } from "@/components/ui/like-button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { VotingButtons } from "@/components/VotingButtons";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 import { InteractiveContent } from "@/components/InteractiveContent";
 import { 
-  Users, AlertTriangle, CheckCircle, AlertCircle, MapPin, Phone, Mail, 
-  Globe, Calendar, FileText, Vote, DollarSign, Eye, TrendingUp, Award, 
-  User, Search, Filter, ArrowRight, Building2, Crown, Star
+  Search, Filter, MapPin, Phone, Mail, Globe, Building, Shield, 
+  TrendingUp, AlertCircle, ExternalLink, Info, Link, Database, 
+  Lock, Users, Calendar, DollarSign, Vote
 } from "lucide-react";
-import { useState } from "react";
-import type { Politician } from "@shared/schema";
+
+interface DataSource {
+  name: string;
+  url: string;
+  type: 'official' | 'parliamentary' | 'electoral' | 'financial';
+  verified: boolean;
+}
+
+interface PoliticianData {
+  id: number;
+  name: string;
+  position: string;
+  riding?: string;
+  party?: string;
+  level: 'federal' | 'provincial' | 'municipal';
+  province?: string;
+  photo?: string;
+  email?: string;
+  phone?: string;
+  website?: string;
+  office_address?: string;
+  trust_score?: number;
+  total_spending?: number;
+  voting_participation?: number;
+  verified: boolean;
+  data_sources: DataSource[];
+  last_updated: string;
+}
+
+const DataSourceBadge = ({ source }: { source: DataSource }) => (
+  <TooltipProvider>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Badge 
+          variant={source.verified ? "default" : "secondary"}
+          className="cursor-pointer text-xs"
+        >
+          <Link className="w-3 h-3 mr-1" />
+          {source.name}
+        </Badge>
+      </TooltipTrigger>
+      <TooltipContent>
+        <div className="max-w-xs">
+          <p className="font-medium">{source.name}</p>
+          <p className="text-xs text-gray-500">{source.type} source</p>
+          <p className="text-xs mt-1">
+            <a href={source.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+              View Source
+            </a>
+          </p>
+        </div>
+      </TooltipContent>
+    </Tooltip>
+  </TooltipProvider>
+);
 
 export default function Politicians() {
-  const [selectedPolitician, setSelectedPolitician] = useState<Politician | null>(null);
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
-  const [partyFilter, setPartyFilter] = useState("all");
-  const [levelFilter, setLevelFilter] = useState("all");
+  const [selectedLevel, setSelectedLevel] = useState<string>("all");
+  const [selectedParty, setSelectedParty] = useState<string>("all");
+  const [selectedProvince, setSelectedProvince] = useState<string>("all");
+  const [selectedPolitician, setSelectedPolitician] = useState<PoliticianData | null>(null);
 
-  const { data: politicians = [], isLoading } = useQuery<Politician[]>({
-    queryKey: ["/api/politicians"],
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      toast({
+        title: "Authentication Required",
+        description: "You need to be logged in to view politician data.",
+        variant: "destructive",
+      });
+      setTimeout(() => {
+        window.location.href = "/api/login";
+      }, 1000);
+    }
+  }, [isAuthenticated, authLoading, toast]);
+
+  const { data: politicians, isLoading, error, refetch } = useQuery<PoliticianData[]>({
+    queryKey: ['/api/politicians', { search: searchTerm, level: selectedLevel, party: selectedParty, province: selectedProvince }],
+    enabled: isAuthenticated,
+    retry: 1,
+    refetchOnWindowFocus: false,
   });
+
+  // Show loading state while checking authentication
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Verifying authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show authentication required message
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Card className="max-w-md mx-auto">
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Lock className="w-5 h-5 mr-2" />
+              Authentication Required
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-600 mb-4">
+              You need to be logged in to access politician data and platform features.
+            </p>
+            <Button onClick={() => window.location.href = "/api/login"} className="w-full">
+              Login to Continue
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading verified politician data...</p>
+            <p className="text-sm text-gray-500 mt-2">Fetching from official government sources</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !politicians) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-6">
+        <div className="max-w-7xl mx-auto">
+          <Alert className="max-w-2xl mx-auto mt-12">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              <div className="space-y-2">
+                <p className="font-medium">Data Connection Failed</p>
+                <p>Unable to connect to government data sources. This could be due to:</p>
+                <ul className="list-disc list-inside text-sm space-y-1 ml-4">
+                  <li>Temporary API outages</li>
+                  <li>Network connectivity issues</li>
+                  <li>Government database maintenance</li>
+                </ul>
+                <Button 
+                  onClick={() => refetch()} 
+                  variant="outline" 
+                  size="sm" 
+                  className="mt-3"
+                >
+                  Retry Connection
+                </Button>
+              </div>
+            </AlertDescription>
+          </Alert>
+        </div>
+      </div>
+    );
+  }
 
   const filteredPoliticians = politicians.filter(politician => {
     const matchesSearch = politician.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         politician.constituency?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesParty = partyFilter === "all" || politician.party === partyFilter;
-    const matchesLevel = levelFilter === "all" || politician.level === levelFilter || 
-                        (levelFilter === "Canada" && politician.level === "Federal");
+                         politician.riding?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesParty = selectedParty === "all" || politician.party === selectedParty;
+    const matchesLevel = selectedLevel === "all" || politician.level === selectedLevel;
+    const matchesProvince = selectedProvince === "all" || politician.province === selectedProvince;
     
-    return matchesSearch && matchesParty && matchesLevel;
+    return matchesSearch && matchesParty && matchesLevel && matchesProvince;
   });
+
+  const hasRegionalData = politicians && politicians.length > 0;
 
   const getTrustScoreColor = (score: string) => {
     const numScore = parseFloat(score);
