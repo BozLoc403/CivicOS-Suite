@@ -2,8 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import notificationsRouter from "./routes/notifications";
-import notificationsRouter from "./routes/notifications";
+import simpleNotificationsRouter from "./simpleNotifications";
 import { registerIdentityRoutes } from "./routes/identity";
 
 import { authenticDataService } from "./authenticDataService";
