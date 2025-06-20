@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { VotingButtons } from "@/components/VotingButtons";
 import { InteractiveContent } from "@/components/InteractiveContent";
-import { LikeButton } from "@/components/ui/like-button";
+
 import { 
   FileText, Vote, Calendar, CheckCircle, XCircle, Clock, Users, TrendingUp, 
   Search, Filter, Eye, BarChart3, AlertTriangle, Crown, Building2

@@ -1,7 +1,7 @@
 import { db } from "./db";
 import { politicians, bills, votes, politicianStatements } from "@shared/schema";
 import { eq, desc, count, sql, and, gte, lte } from "drizzle-orm";
-import { dataVerification } from "./dataVerification";
+
 import { aggressiveScraper } from "./aggressiveDataScraper";
 
 interface SystemHealthMetrics {

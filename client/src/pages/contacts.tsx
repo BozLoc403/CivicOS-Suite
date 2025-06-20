@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Phone, Mail, MapPin, Globe, Clock, User, Building2, Calendar, FileText, ExternalLink, Shield, DollarSign, Heart, Users, Home, Car, Baby, ArrowLeft } from "lucide-react";
-import { LikeButton } from "@/components/ui/like-button";
+
 import { useState } from "react";
 import { Link } from "wouter";
 

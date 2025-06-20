@@ -75,13 +75,7 @@ app.use((req, res, next) => {
     // Initialize automatic government data sync
     initializeDataSync();
     
-    // Setup local authentication
-    setupLocalAuth(app);
-    
-    // Create user account on startup
-    setTimeout(() => {
-      createUserAccount();
-    }, 2000);
+    // Local authentication removed - using Replit Auth
     
     // Initialize confirmed government API data enhancement
     async function initializeConfirmedAPIs() {

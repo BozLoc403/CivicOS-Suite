@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { registerIdentityRoutes } from "./routes/identity";
-import { registerIdentityVerificationRoutes } from "./identityVerification";
+
 import { authenticDataService } from "./authenticDataService";
 import { politicianDataEnhancer } from "./politicianDataEnhancer";
 import { comprehensiveAnalytics } from "./comprehensiveAnalytics";
@@ -36,8 +36,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
 
-  // Identity verification routes
-  registerIdentityVerificationRoutes(app);
+  // Register identity verification routes
+  registerIdentityRoutes(app);
 
   // Auth routes
   app.get('/api/auth/user', async (req: any, res) => {
