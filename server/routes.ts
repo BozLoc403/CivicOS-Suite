@@ -1377,7 +1377,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
     return { isAllowed: true };
   }
 
-  // Comprehensive commenting system with moderation
+  // Fixed commenting system for targetType/targetId routes
+  app.post('/api/comments/:targetType/:targetId', async (req: any, res) => {
+    try {
+      const { targetType, targetId } = req.params;
+      const { content, parentCommentId } = req.body;
+      
+      // For development, use demo user ID
+      const userId = process.env.NODE_ENV !== 'production' ? '42199639' : 
+        (req.isAuthenticated() && req.user ? (req.user as any).id : null);
+
+      if (!userId) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      if (!content || content.trim().length === 0) {
+        return res.status(400).json({ message: "Comment content is required" });
+      }
+
+      // Content moderation check using the function defined below
+      const moderationResult = moderateComment(content);
+      if (!moderationResult.isAllowed) {
+        return res.status(400).json({ 
+          message: `Comment rejected: ${moderationResult.reason}` 
+        });
+      }
+
+      const result = await db.execute(sql`
+        INSERT INTO comments (author_id, target_type, target_id, content, parent_comment_id, created_at, like_count, can_delete)
+        VALUES (${userId}, ${targetType}, ${parseInt(targetId)}, ${content}, ${parentCommentId || null}, NOW(), 0, true)
+        RETURNING id, content, author_id, target_type, target_id, parent_comment_id, created_at, like_count, can_delete
+      `);
+
+      // Get user info for response
+      const user = await db.execute(sql`
+        SELECT first_name, last_name, email, profile_image_url 
+        FROM users WHERE id = ${userId}
+      `);
+
+      const comment = {
+        ...result.rows[0],
+        author: {
+          firstName: user.rows[0]?.first_name,
+          lastName: user.rows[0]?.last_name,
+          email: user.rows[0]?.email,
+          profileImageUrl: user.rows[0]?.profile_image_url
+        }
+      };
+
+      res.status(201).json({
+        message: "Comment posted successfully",
+        comment: comment
+      });
+    } catch (error) {
+      console.error("Error posting comment:", error);
+      res.status(500).json({ message: "Failed to post comment" });
+    }
+  });
+
+  // Comprehensive commenting system with moderation (alternative endpoint)
   app.post('/api/comments', async (req: any, res) => {
     try {
       const { targetType, targetId, content, parentCommentId } = req.body;
@@ -1406,8 +1464,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const result = await db.execute(sql`
-        INSERT INTO content_comments (target_type, target_id, author_id, content, parent_comment_id, created_at, updated_at)
-        VALUES (${targetType}, ${targetId}, ${userId}, ${content.trim()}, ${parentCommentId || null}, NOW(), NOW())
+        INSERT INTO comments (author_id, target_type, target_id, content, parent_comment_id, created_at, like_count, can_delete)
+        VALUES (${userId}, ${targetType}, ${targetId}, ${content.trim()}, ${parentCommentId || null}, NOW(), 0, true)
         RETURNING id, created_at
       `);
       
@@ -1430,48 +1488,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const comments = await db.execute(sql`
         SELECT 
-          cc.*,
+          c.id,
+          c.content,
+          c.author_id,
+          c.target_type,
+          c.target_id,
+          c.parent_comment_id,
+          c.created_at,
+          COALESCE(c.like_count, 0) as like_count,
+          COALESCE(c.can_delete, true) as can_delete,
           u.first_name,
           u.last_name,
           u.email,
-          u.profile_image_url,
-          COUNT(cl.id) as like_count
-        FROM content_comments cc
-        LEFT JOIN users u ON cc.author_id = u.id
-        LEFT JOIN comment_likes cl ON cc.id = cl.comment_id
-        WHERE cc.target_type = ${targetType} AND cc.target_id = ${targetId}
-        GROUP BY cc.id, u.first_name, u.last_name, u.email, u.profile_image_url
-        ORDER BY cc.created_at DESC
+          u.profile_image_url
+        FROM comments c
+        LEFT JOIN users u ON c.author_id = u.id::text
+        WHERE c.target_type = ${targetType} AND c.target_id = ${parseInt(targetId)} AND c.parent_comment_id IS NULL
+        ORDER BY c.created_at DESC
       `);
 
-      // Build nested comment structure
-      const commentMap = new Map();
-      const rootComments = [];
-
-      for (const comment of comments.rows) {
-        const commentObj = {
-          ...comment,
-          author: {
-            firstName: comment.first_name,
-            lastName: comment.last_name,
-            email: comment.email,
-            profileImageUrl: comment.profile_image_url
-          },
-          replies: []
-        };
-        commentMap.set(comment.id, commentObj);
-
-        if (comment.parent_comment_id) {
-          const parent = commentMap.get(comment.parent_comment_id);
-          if (parent) {
-            parent.replies.push(commentObj);
-          }
-        } else {
-          rootComments.push(commentObj);
-        }
-      }
-
-      res.json(rootComments);
+      // Get replies for each comment
+      const commentsWithReplies = await Promise.all(
+        comments.rows.map(async (comment) => {
+          const replies = await db.execute(sql`
+            SELECT 
+              c.id,
+              c.content,
+              c.author_id,
+              c.created_at,
+              COALESCE(c.like_count, 0) as like_count,
+              u.first_name,
+              u.last_name,
+              u.email,
+              u.profile_image_url
+            FROM comments c
+            LEFT JOIN users u ON c.author_id = u.id::text
+            WHERE c.parent_comment_id = ${comment.id}
+            ORDER BY c.created_at ASC
+          `);
+          
+          return {
+            ...comment,
+            replies: replies.rows.map((reply: any) => ({
+              ...reply,
+              author: {
+                firstName: reply.first_name,
+                lastName: reply.last_name,
+                email: reply.email,
+                profileImageUrl: reply.profile_image_url
+              }
+            })),
+            author: {
+              firstName: comment.first_name,
+              lastName: comment.last_name,
+              email: comment.email,
+              profileImageUrl: comment.profile_image_url
+            }
+          };
+        })
+      );
+      
+      res.json(commentsWithReplies);
     } catch (error) {
       console.error("Error fetching comments:", error);
       res.status(500).json({ message: "Failed to fetch comments" });
