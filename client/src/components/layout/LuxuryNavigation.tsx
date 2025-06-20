@@ -203,11 +203,14 @@ export function LuxuryNavigation() {
                       <p className="text-xs lg:text-sm font-medium text-gray-900 dark:text-white truncate">
                         {user.firstName || user.email}
                       </p>
-                      <div className="flex items-center space-x-1 lg:space-x-2">
-                        <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700">
-                          Civic Level 3
-                        </Badge>
-                        <span className="text-xs text-gray-500 hidden lg:inline">1,247 pts</span>
+                      <div className="flex flex-col space-y-1">
+                        <div className="flex items-center space-x-1 lg:space-x-2">
+                          <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700">
+                            Civic Level 3
+                          </Badge>
+                          <span className="text-xs text-gray-500 hidden lg:inline">1,247 pts</span>
+                        </div>
+                        <IdentityVerificationStatus />
                       </div>
                     </div>
                   </div>

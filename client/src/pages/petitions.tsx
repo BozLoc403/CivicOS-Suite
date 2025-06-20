@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { VotingButtons } from "@/components/VotingButtons";
 import { InteractiveContent } from "@/components/InteractiveContent";
 import { apiRequest } from "@/lib/queryClient";
+import { VerificationGuard } from "@/components/VerificationGuard";
 import { 
   FileText, 
   Users, 
