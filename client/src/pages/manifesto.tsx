@@ -6,7 +6,11 @@ import { Badge } from "@/components/ui/badge";
 import { Eye, Shield, Target, Zap, Users, CheckCircle } from "lucide-react";
 import { useLocation } from "wouter";
 
-export default function Manifesto() {
+interface ManifestoProps {
+  onAgree?: () => void;
+}
+
+export default function Manifesto({ onAgree }: ManifestoProps) {
   const [hasAgreed, setHasAgreed] = useState(false);
   const [, setLocation] = useLocation();
 
@@ -15,7 +19,12 @@ export default function Manifesto() {
       // Store agreement in localStorage
       localStorage.setItem('civicos-manifesto-agreed', 'true');
       localStorage.setItem('civicos-manifesto-date', new Date().toISOString());
-      setLocation('/dashboard');
+      
+      if (onAgree) {
+        onAgree();
+      } else {
+        setLocation('/dashboard');
+      }
     }
   };
 

@@ -3,6 +3,7 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { FloatingCivicBot } from "@/components/FloatingCivicBot";
 import { LuxuryNavigation } from "@/components/layout/LuxuryNavigation";
@@ -45,6 +46,9 @@ import dominionEmblem from "@assets/EFE54ED9-DEE5-4F72-88D4-4441CE2D11CB_1_105_c
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
+  const [hasAgreedToManifesto, setHasAgreedToManifesto] = useState(() => {
+    return localStorage.getItem('civicos-manifesto-agreed') === 'true';
+  });
 
   if (isLoading) {
     return (
@@ -59,7 +63,7 @@ function Router() {
 
   return (
     <div className="min-h-screen bg-background">
-      {isAuthenticated ? (
+      {isAuthenticated && hasAgreedToManifesto ? (
         <div className="flex">
           <LuxuryNavigation />
           <main className="flex-1 bg-gradient-civic-ambient min-h-screen overflow-x-auto">
@@ -119,6 +123,10 @@ function Router() {
             </div>
           </main>
         </div>
+      ) : isAuthenticated && !hasAgreedToManifesto ? (
+        <main>
+          <Manifesto onAgree={() => setHasAgreedToManifesto(true)} />
+        </main>
       ) : (
         <main>
           <Switch>
