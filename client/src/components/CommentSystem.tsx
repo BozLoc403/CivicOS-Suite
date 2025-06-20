@@ -48,11 +48,18 @@ export function CommentSystem({ targetType, targetId }: CommentSystemProps) {
   const [showEditHistory, setShowEditHistory] = useState<number | null>(null);
   const [editHistory, setEditHistory] = useState<any[]>([]);
 
-  // Fetch comments
-  const { data: comments = [], isLoading } = useQuery({
+  // Fetch comments with error handling
+  const { data: comments = [], isLoading, error } = useQuery({
     queryKey: ['comments', targetType, targetId],
     queryFn: () => apiRequest(`/api/comments/${targetType}/${targetId}`),
+    retry: 1,
+    refetchOnWindowFocus: false,
   });
+
+  // Handle query errors
+  if (error) {
+    console.error('Comments query error:', error);
+  }
 
   // Post comment mutation
   const commentMutation = useMutation({
@@ -155,17 +162,20 @@ export function CommentSystem({ targetType, targetId }: CommentSystemProps) {
     }
   };
 
-  const renderComment = (comment: Comment) => (
-    <div key={comment.id} className="border-b border-gray-100 dark:border-gray-800 last:border-b-0 pb-4 last:pb-0">
-      <div className="flex items-start space-x-3">
-        <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
-          {comment.first_name?.charAt(0) || '?'}
-        </div>
+  const renderComment = (comment: Comment) => {
+    if (!comment || !comment.id) return null;
+    
+    return (
+      <div key={comment.id} className="border-b border-gray-100 dark:border-gray-800 last:border-b-0 pb-4 last:pb-0">
+        <div className="flex items-start space-x-3">
+          <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
+            {comment.first_name?.charAt(0) || comment.email?.charAt(0) || '?'}
+          </div>
         <div className="flex-1">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2 mb-1">
               <span className="font-medium text-gray-900 dark:text-white">
-                {comment.first_name} {comment.last_name}
+                {comment.first_name || 'User'} {comment.last_name || ''}
               </span>
               <span className="text-xs text-gray-500">
                 {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
@@ -258,7 +268,13 @@ export function CommentSystem({ targetType, targetId }: CommentSystemProps) {
         </div>
       )}
     </div>
-  );
+    );
+  };
+
+  // Add error boundary and safe rendering
+  if (!targetType || !targetId) {
+    return null;
+  }
 
   return (
     <div className="mt-6">
@@ -266,7 +282,7 @@ export function CommentSystem({ targetType, targetId }: CommentSystemProps) {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <MessageCircle className="w-5 h-5" />
-            <span>Comments ({comments.length}) - Facebook Style</span>
+            <span>Comments ({Array.isArray(comments) ? comments.length : 0}) - Facebook Style</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -306,7 +322,7 @@ export function CommentSystem({ targetType, targetId }: CommentSystemProps) {
             </div>
           ) : (
             <div className="space-y-4">
-              {comments.map((comment: Comment) => renderComment(comment))}
+              {Array.isArray(comments) && comments.map((comment: Comment) => renderComment(comment))}
             </div>
           )}
         </CardContent>
