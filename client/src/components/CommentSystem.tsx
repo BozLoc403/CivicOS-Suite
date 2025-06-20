@@ -178,32 +178,34 @@ export function CommentSystem({ targetType, targetId }: CommentSystemProps) {
             </div>
             
             {comment.author_id === user?.id && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => startEditing(comment)}>
-                    <Edit className="mr-2 h-4 w-4" />
-                    Edit
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onClick={() => deleteComment(comment.id)}
-                    className="text-red-600"
+              <div className="flex space-x-1">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => startEditing(comment)}
+                  className="text-xs px-2 py-1 h-auto"
+                >
+                  Edit
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => deleteComment(comment.id)}
+                  className="text-xs px-2 py-1 h-auto text-red-600 hover:text-red-700"
+                >
+                  Delete
+                </Button>
+                {comment.is_edited && comment.edit_count && comment.edit_count > 0 && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => showCommentHistory(comment.id)}
+                    className="text-xs px-2 py-1 h-auto text-purple-600 hover:text-purple-700"
                   >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Delete
-                  </DropdownMenuItem>
-                  {comment.is_edited && comment.edit_count && comment.edit_count > 0 && (
-                    <DropdownMenuItem onClick={() => showCommentHistory(comment.id)}>
-                      <History className="mr-2 h-4 w-4" />
-                      View Edit History
-                    </DropdownMenuItem>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
+                    History
+                  </Button>
+                )}
+              </div>
             )}
           </div>
           
@@ -259,12 +261,12 @@ export function CommentSystem({ targetType, targetId }: CommentSystemProps) {
   );
 
   return (
-    <div>
+    <div className="mt-6">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <MessageCircle className="w-5 h-5" />
-            <span>Comments ({comments.length})</span>
+            <span>Comments ({comments.length}) - Facebook Style</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
