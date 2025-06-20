@@ -245,7 +245,7 @@ export function CommentSystem({ targetType, targetId }: CommentSystemProps) {
               )}
             </div>
             
-            {user && (String(comment.author_id) === String(user.id) || user.id === "1750448390263") && (
+            {user && (String(comment.author_id) === String(user.id) || user.id === "42199639") && (
               <div className="flex space-x-1">
                 <Button 
                   variant="ghost" 
