@@ -33,7 +33,7 @@ export default function Auth() {
         title: "Welcome to CivicOS",
         description: "You have successfully logged in",
       });
-      window.location.href = "/";
+      window.location.href = "/dashboard";
     },
     onError: (error: any) => {
       setErrors(prev => ({ ...prev, login: error.message || "Invalid email or password" }));
@@ -55,7 +55,7 @@ export default function Auth() {
         title: "Welcome to CivicOS",
         description: "Your account has been created successfully",
       });
-      window.location.href = "/";
+      window.location.href = "/dashboard";
     },
     onError: (error: any) => {
       setErrors(prev => ({ ...prev, register: error.message || "Registration failed" }));

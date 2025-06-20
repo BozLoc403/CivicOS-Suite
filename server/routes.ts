@@ -72,9 +72,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Logout route
   app.post('/api/auth/logout', async (req: any, res) => {
     try {
-      // Set logout flag in session
+      // Clear session data
       if (req.session) {
         req.session.loggedOut = true;
+        req.session.userData = null;
       }
       
       // In production, also logout from Replit Auth
@@ -103,12 +104,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Email and password required" });
       }
       
-      // Clear logout flag
+      // Create user data based on input
+      const userData = {
+        id: Date.now().toString(),
+        username: email.split('@')[0],
+        displayName: email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+        email: email,
+        isVerified: true,
+        trustScore: 75
+      };
+      
+      // Store user data in session
       if (req.session) {
         req.session.loggedOut = false;
+        req.session.userData = userData;
       }
       
-      res.json({ message: "Login successful" });
+      res.json({ message: "Login successful", success: true });
     } catch (error) {
       console.error("Error during login:", error);
       res.status(500).json({ message: "Failed to login" });
@@ -125,12 +137,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Email, password, and first name required" });
       }
       
-      // Clear logout flag
+      // Create user data based on input
+      const userData = {
+        id: Date.now().toString(),
+        username: email.split('@')[0],
+        displayName: `${firstName} ${lastName || ''}`.trim(),
+        email: email,
+        firstName: firstName,
+        lastName: lastName || '',
+        isVerified: true,
+        trustScore: 75
+      };
+      
+      // Store user data in session
       if (req.session) {
         req.session.loggedOut = false;
+        req.session.userData = userData;
       }
       
-      res.json({ message: "Registration successful" });
+      res.json({ message: "Registration successful", success: true });
     } catch (error) {
       console.error("Error during registration:", error);
       res.status(500).json({ message: "Failed to register" });
