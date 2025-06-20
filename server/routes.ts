@@ -1664,8 +1664,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get edit history for a comment
-  app.get('/api/comments/:commentId/history', async (req, res) => {
+  // Get edit history for a comment (must come before the general comments route)
+  app.get('/api/comments/history/:commentId', async (req, res) => {
     try {
       const { commentId } = req.params;
 
