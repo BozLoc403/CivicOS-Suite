@@ -76,7 +76,7 @@ export default function IdentityVerification() {
       
       toast({
         title: "Verification Code Sent",
-        description: `A 6-digit code has been sent to ${verificationData.email}`,
+        description: `Check the console/terminal for your 6-digit verification code (demo mode)`,
       });
     } catch (error: any) {
       toast({

@@ -65,8 +65,14 @@ export function verifyEmailCode(email: string, providedCode: string): { valid: b
 export async function sendVerificationEmail(email: string, code: string): Promise<boolean> {
   try {
     // Mock email sending for demo purposes
-    console.log(`📧 EMAIL VERIFICATION CODE for ${email}: ${code}`);
-    console.log(`This would be sent via email service in production`);
+    console.log(`\n🔥 EMAIL VERIFICATION CODE 🔥`);
+    console.log(`📧 Email: ${email}`);
+    console.log(`🔑 Code: ${code}`);
+    console.log(`⏰ Valid for 10 minutes`);
+    console.log(`📝 Copy this code to verify your email\n`);
+    
+    // Also log to a more visible format
+    console.warn(`VERIFICATION CODE FOR ${email}: ${code}`);
     
     // Simulate email sending delay
     await new Promise(resolve => setTimeout(resolve, 100));
