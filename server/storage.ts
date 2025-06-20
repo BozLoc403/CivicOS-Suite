@@ -163,10 +163,15 @@ export class DatabaseStorage implements IStorage {
   }
 
   async clearAllNotifications(userId: string): Promise<void> {
-    await db
-      .update(notifications)
-      .set({ isDeleted: true, updatedAt: new Date() })
-      .where(eq(notifications.userId, userId));
+    try {
+      const result = await db
+        .delete(notifications)
+        .where(eq(notifications.userId, userId));
+      console.log(`Cleared all notifications for user ${userId}`);
+    } catch (error) {
+      console.error("Error clearing notifications:", error);
+      throw error;
+    }
   }
 
   async getUserNotificationPreferences(userId: string): Promise<UserNotificationPreferences> {
