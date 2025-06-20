@@ -42,7 +42,7 @@ export default function Elections() {
   // Redirect to login if not authenticated
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
-      window.location.href = '/api/login';
+      window.location.href = '/auth';
     }
   }, [isAuthenticated, authLoading]);
 

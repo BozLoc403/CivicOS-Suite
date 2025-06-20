@@ -908,6 +908,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Authentic elections data endpoint
+  app.get("/api/elections/authentic", async (req: any, res) => {
+    try {
+      // Check authentication for development environment
+      if (process.env.NODE_ENV !== 'production') {
+        // Check if user is logged out in session
+        if (req.session?.loggedOut) {
+          return res.status(401).json({ message: "Authentication required" });
+        }
+        
+        // Allow access if session has user data or use demo mode
+        if (!req.session?.userData) {
+          return res.status(401).json({ message: "Authentication required" });
+        }
+      }
+
+      const { electionDataService } = await import('./electionDataService');
+      const electionData = await electionDataService.getAuthenticElectionData();
+      res.json(electionData);
+    } catch (error) {
+      console.error("Error fetching election data:", error);
+      res.status(500).json({ message: "Failed to fetch election data" });
+    }
+  });
+
   // Analytics routes
   app.get('/api/analytics/comprehensive', async (req, res) => {
     try {
