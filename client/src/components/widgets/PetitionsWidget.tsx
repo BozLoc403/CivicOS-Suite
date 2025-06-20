@@ -156,7 +156,7 @@ export default function PetitionsWidget() {
                           <Badge className={`text-xs ${getImpactColor(petition.impact)}`}>
                             {petition.impact}
                           </Badge>
-                          {petition.recentActivity.trending && (
+                          {petition.recentActivity?.trending && (
                             <TrendingUp className="h-3 w-3 text-orange-500" />
                           )}
                         </div>
@@ -171,8 +171,8 @@ export default function PetitionsWidget() {
                     <div className="flex items-center space-x-4 mb-2 text-xs text-gray-500">
                       <div className="flex items-center space-x-1">
                         <Users className="h-3 w-3" />
-                        <span>{petition.creator.name}</span>
-                        {petition.creator.verified && <span className="text-green-500">✓</span>}
+                        <span>{petition.creator?.name || 'Unknown'}</span>
+                        {petition.creator?.verified && <span className="text-green-500">✓</span>}
                       </div>
                       {petition.targetOfficial && (
                         <div className="flex items-center space-x-1">
@@ -195,7 +195,7 @@ export default function PetitionsWidget() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2 text-xs text-gray-500">
                         <TrendingUp className="h-3 w-3" />
-                        <span>+{petition.recentActivity.signaturesLast24h} today</span>
+                        <span>+{petition.recentActivity?.signaturesLast24h || 0} today</span>
                         {petition.deadlineDate && (
                           <>
                             <span>•</span>
