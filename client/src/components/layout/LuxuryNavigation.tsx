@@ -105,10 +105,9 @@ const navigationSections = [
 
 export function LuxuryNavigation() {
   const [location] = useLocation();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const [expandedSections, setExpandedSections] = useState<string[]>(["Political Intelligence Hub"]);
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const { toast } = useToast();
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
