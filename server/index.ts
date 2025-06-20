@@ -5,10 +5,7 @@ import { initializeDataSync } from "./dataSync";
 import { initializeNewsAnalysis } from "./newsAnalyzer";
 import { comprehensiveNewsAnalyzer } from "./comprehensiveNewsAnalyzer";
 import { realTimeMonitoring } from "./realTimeMonitoring";
-import { legalDataPopulator } from "./legalDataPopulator";
-// import { forumPopulator } from "./forumPopulator"; // Disabled to prevent duplicate categories
 import { confirmedAPIs } from "./confirmedAPIs";
-import { setupLocalAuth, createUserAccount } from "./localAuth";
 
 const app = express();
 app.use(express.json());

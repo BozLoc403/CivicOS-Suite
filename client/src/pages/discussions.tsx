@@ -14,8 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { VotingButtons } from "@/components/VotingButtons";
 import { InteractiveContent } from "@/components/InteractiveContent";
-import { LikeButton } from "@/components/ui/like-button";
-import { ReplyButton } from "@/components/ui/reply-button";
+
 import { 
   MessageCircle, 
   Heart, 
