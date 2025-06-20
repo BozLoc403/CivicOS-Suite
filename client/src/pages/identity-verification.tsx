@@ -71,7 +71,7 @@ export default function IdentityVerification() {
       title: "Email Verification",
       description: "Verify your email with OTP code",
       icon: <Mail className="w-5 h-5" />,
-      completed: false,
+      completed: emailVerified,
       current: currentStep === 1
     },
     {
@@ -169,8 +169,12 @@ export default function IdentityVerification() {
           />
         </div>
         
-        <Button className="w-full">
-          Send Verification Code
+        <Button 
+          onClick={handleSendEmailVerification}
+          disabled={!verificationData.email || sendingEmail}
+          className="w-full"
+        >
+          {sendingEmail ? 'Sending...' : 'Send Verification Code'}
         </Button>
         
         <div>
@@ -187,11 +191,11 @@ export default function IdentityVerification() {
         </div>
         
         <Button 
-          onClick={() => setCurrentStep(2)}
-          disabled={!verificationData.email || verificationData.otpCode.length !== 6}
+          onClick={handleVerifyEmailCode}
+          disabled={!verificationData.email || verificationData.otpCode.length !== 6 || verifyingEmail}
           className="w-full"
         >
-          Verify Email
+          {verifyingEmail ? 'Verifying...' : 'Verify Email'}
         </Button>
       </div>
     </div>
