@@ -51,11 +51,71 @@ export default function IdentityVerification() {
   const [isRecording, setIsRecording] = useState(false);
   const [totpQR, setTotpQR] = useState("");
   const [faceMatchScore, setFaceMatchScore] = useState<number | null>(null);
+  const [sendingEmail, setSendingEmail] = useState(false);
+  const [verifyingEmail, setVerifyingEmail] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(false);
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const { toast } = useToast();
+
+  const handleCaptchaComplete = (token: string) => {
+    setVerificationData(prev => ({ ...prev, captchaToken: token }));
+    setCurrentStep(1);
+  };
+
+  const handleSendEmailVerification = async () => {
+    if (!verificationData.email) return;
+    
+    setSendingEmail(true);
+    try {
+      await apiRequest("/api/identity/send-email-verification", "POST", {
+        email: verificationData.email
+      });
+      
+      toast({
+        title: "Verification Code Sent",
+        description: `A 6-digit code has been sent to ${verificationData.email}`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to send verification code",
+        variant: "destructive",
+      });
+    } finally {
+      setSendingEmail(false);
+    }
+  };
+
+  const handleVerifyEmailCode = async () => {
+    if (!verificationData.email || !verificationData.otpCode) return;
+    
+    setVerifyingEmail(true);
+    try {
+      await apiRequest("/api/identity/verify-email-code", "POST", {
+        email: verificationData.email,
+        code: verificationData.otpCode
+      });
+      
+      setEmailVerified(true);
+      setCurrentStep(2);
+      
+      toast({
+        title: "Email Verified",
+        description: "Your email has been successfully verified",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Verification Failed",
+        description: error.message || "Invalid verification code",
+        variant: "destructive",
+      });
+    } finally {
+      setVerifyingEmail(false);
+    }
+  };
 
   const steps: VerificationStep[] = [
     {

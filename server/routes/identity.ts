@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { storage } from "../storage";
 import { isAuthenticated } from "../replitAuth";
+import { generateEmailVerificationCode, verifyEmailCode, sendVerificationEmail } from "../emailService";
 
 export function registerIdentityRoutes(app: Express) {
   // Get user verification status
@@ -141,6 +142,66 @@ export function registerIdentityRoutes(app: Express) {
     } catch (error) {
       console.error("Error rejecting verification:", error);
       res.status(500).json({ message: "Failed to reject verification" });
+    }
+  });
+
+  // Send email verification code
+  app.post("/api/identity/send-email-verification", async (req, res) => {
+    const { email } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+    
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: "Invalid email format" });
+    }
+    
+    try {
+      const code = generateEmailVerificationCode(email);
+      const emailSent = await sendVerificationEmail(email, code);
+      
+      if (!emailSent) {
+        return res.status(500).json({ message: "Failed to send verification email" });
+      }
+      
+      res.json({ 
+        message: "Verification code sent to your email",
+        success: true 
+      });
+    } catch (error) {
+      console.error("Email verification error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Verify email OTP code
+  app.post("/api/identity/verify-email-code", async (req, res) => {
+    const { email, code } = req.body;
+    
+    if (!email || !code) {
+      return res.status(400).json({ message: "Email and code are required" });
+    }
+    
+    try {
+      const verification = verifyEmailCode(email, code);
+      
+      if (!verification.valid) {
+        return res.status(400).json({ 
+          message: verification.error || "Invalid verification code",
+          success: false 
+        });
+      }
+      
+      res.json({ 
+        message: "Email verified successfully",
+        success: true 
+      });
+    } catch (error) {
+      console.error("Email verification error:", error);
+      res.status(500).json({ message: "Internal server error" });
     }
   });
 }
