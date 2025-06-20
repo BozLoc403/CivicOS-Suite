@@ -1590,6 +1590,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         })
       );
       
+      console.log('Final comments response:', JSON.stringify(commentsWithReplies, null, 2));
       res.json(commentsWithReplies);
     } catch (error) {
       console.error("Error fetching comments:", error);

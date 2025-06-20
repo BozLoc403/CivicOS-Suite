@@ -55,6 +55,7 @@ export function CommentSystem({ targetType, targetId }: CommentSystemProps) {
       console.log('Fetching comments for:', targetType, targetId);
       const result = await apiRequest(`/api/comments/${targetType}/${targetId}`);
       console.log('Comments response:', result);
+      console.log('Comments is array:', Array.isArray(result), 'Length:', result?.length);
       return Array.isArray(result) ? result : [];
     },
     retry: 1,
@@ -343,6 +344,12 @@ export function CommentSystem({ targetType, targetId }: CommentSystemProps) {
             <div className="text-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
               <p className="text-gray-500 mt-2">Loading comments...</p>
+            </div>
+          ) : error ? (
+            <div className="text-center py-8">
+              <MessageCircle className="w-12 h-12 text-red-400 mx-auto mb-3" />
+              <h3 className="font-medium text-red-900 mb-1">Error loading comments</h3>
+              <p className="text-red-500">Please try refreshing the page</p>
             </div>
           ) : !Array.isArray(comments) || comments.length === 0 ? (
             <div className="text-center py-8">
