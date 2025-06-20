@@ -102,6 +102,14 @@ const navigationSections = [
       { title: "Trust Metrics", href: "/trust", icon: BarChart3 },
       { title: "Engagement Maps", href: "/maps", icon: TrendingUp }
     ]
+  },
+  {
+    title: "Intelligence Hub",
+    items: [
+      { title: "Manifesto", href: "/manifesto", icon: BookOpen, badge: "Core" },
+      { title: "Leak Archive", href: "/leaks", icon: Archive, badge: "Secure" },
+      { title: "FOI Repository", href: "/foi", icon: Eye }
+    ]
   }
 ];
 
