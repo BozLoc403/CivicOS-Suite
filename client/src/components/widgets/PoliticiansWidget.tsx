@@ -86,8 +86,8 @@ export default function PoliticiansWidget() {
   }
 
   return (
-    <Card className="h-96 overflow-hidden">
-      <CardHeader className="pb-3">
+    <Card className="h-96 flex flex-col">
+      <CardHeader className="pb-3 flex-shrink-0">
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Users className="h-5 w-5" />
@@ -98,7 +98,7 @@ export default function PoliticiansWidget() {
           </Badge>
         </CardTitle>
       </CardHeader>
-      <CardContent className="overflow-y-auto">
+      <CardContent className="flex-1 overflow-y-auto pr-2">
         <div className="space-y-3">
           {/* Featured Politician */}
           {featuredPolitician && (

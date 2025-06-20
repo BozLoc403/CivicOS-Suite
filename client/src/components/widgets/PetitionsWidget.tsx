@@ -104,8 +104,8 @@ export default function PetitionsWidget() {
   }
 
   return (
-    <Card className="h-96 overflow-hidden">
-      <CardHeader className="pb-3">
+    <Card className="h-96 flex flex-col">
+      <CardHeader className="pb-3 flex-shrink-0">
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <FileText className="h-5 w-5" />
@@ -123,7 +123,7 @@ export default function PetitionsWidget() {
           </div>
         </CardTitle>
       </CardHeader>
-      <CardContent className="overflow-y-auto">
+      <CardContent className="flex-1 overflow-y-auto pr-2">
         <div className="space-y-3">
           {/* Show empty state when no authentic data is available */}
           {petitions.length === 0 ? (

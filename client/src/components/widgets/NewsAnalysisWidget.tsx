@@ -130,14 +130,14 @@ export function NewsAnalysisWidget() {
 
   if (isLoading) {
     return (
-      <Card className="glass-card">
-        <CardHeader>
+      <Card className="h-96 flex flex-col">
+        <CardHeader className="flex-shrink-0">
           <CardTitle className="flex items-center gap-2">
             <Brain className="h-5 w-5 text-civic-blue" />
             AI News Analysis
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex-1 overflow-y-auto pr-2">
           <div className="space-y-3">
             {[1, 2, 3].map(i => (
               <div key={i} className="h-16 bg-gray-200 rounded animate-pulse" />
@@ -150,8 +150,8 @@ export function NewsAnalysisWidget() {
 
   if (selectedArticle && analysisData) {
     return (
-      <Card className="glass-card">
-        <CardHeader>
+      <Card className="h-96 flex flex-col">
+        <CardHeader className="flex-shrink-0">
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <Brain className="h-5 w-5 text-civic-blue" />
@@ -169,7 +169,7 @@ export function NewsAnalysisWidget() {
             </Button>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex-1 overflow-y-auto pr-2">
           <div className="space-y-6">
             {/* Article Header */}
             <div className="p-4 border rounded-lg bg-gradient-to-r from-civic-blue/5 to-civic-green/5">
