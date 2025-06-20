@@ -9,6 +9,14 @@ import {
   generateOfflineTOTP,
   verifyOfflineTOTP
 } from "../offlineVerification";
+import {
+  initializeGCKeyAuth,
+  initializeBankingAuth,
+  verifyGCKeyCallback,
+  verifyBankingCallback,
+  getAvailableAuthMethods,
+  getProvincialAuthMethods
+} from "../canadianAuth";
 
 export function registerIdentityRoutes(app: Express) {
   // Get user verification status
@@ -296,6 +304,127 @@ export function registerIdentityRoutes(app: Express) {
     } catch (error) {
       console.error("Offline TOTP verification error:", error);
       res.status(500).json({ message: "Failed to verify TOTP" });
+    }
+  });
+
+  // Get available Canadian authentication methods
+  app.get("/api/auth/canadian-methods", async (req, res) => {
+    try {
+      const authMethods = getAvailableAuthMethods();
+      const provincialMethods = getProvincialAuthMethods();
+      
+      res.json({
+        success: true,
+        methods: {
+          ...authMethods,
+          provincial: provincialMethods
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching auth methods:", error);
+      res.status(500).json({ message: "Failed to fetch authentication methods" });
+    }
+  });
+
+  // Initialize GCKey authentication
+  app.post("/api/auth/gckey/init", async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub || req.body.userId || 'anonymous';
+      const { authUrl, sessionId } = initializeGCKeyAuth(userId);
+      
+      res.json({
+        success: true,
+        authUrl,
+        sessionId,
+        message: "GCKey authentication initialized"
+      });
+    } catch (error) {
+      console.error("GCKey init error:", error);
+      res.status(500).json({ message: "Failed to initialize GCKey authentication" });
+    }
+  });
+
+  // GCKey callback handler
+  app.get("/api/auth/gckey/callback", async (req, res) => {
+    const { code, state } = req.query;
+    
+    if (!code || !state) {
+      return res.status(400).json({ message: "Missing authentication code or state" });
+    }
+    
+    try {
+      const result = verifyGCKeyCallback(code as string, state as string);
+      
+      if (result.success) {
+        // Store verified GCKey profile in session or database
+        res.json({
+          success: true,
+          userProfile: result.userProfile,
+          message: "GCKey authentication successful"
+        });
+      } else {
+        res.status(401).json({
+          success: false,
+          message: result.error || "GCKey authentication failed"
+        });
+      }
+    } catch (error) {
+      console.error("GCKey callback error:", error);
+      res.status(500).json({ message: "Failed to process GCKey authentication" });
+    }
+  });
+
+  // Initialize banking authentication
+  app.post("/api/auth/banking/init", async (req: any, res) => {
+    const { provider } = req.body;
+    
+    if (!provider || !['rbc', 'td', 'scotiabank', 'bmo', 'cibc'].includes(provider)) {
+      return res.status(400).json({ message: "Valid banking provider required" });
+    }
+    
+    try {
+      const userId = req.user?.claims?.sub || req.body.userId || 'anonymous';
+      const { authUrl, sessionId } = initializeBankingAuth(userId, provider);
+      
+      res.json({
+        success: true,
+        authUrl,
+        sessionId,
+        provider,
+        message: `${provider.toUpperCase()} banking authentication initialized`
+      });
+    } catch (error) {
+      console.error("Banking auth init error:", error);
+      res.status(500).json({ message: "Failed to initialize banking authentication" });
+    }
+  });
+
+  // Banking callback handler
+  app.get("/api/auth/banking/callback", async (req, res) => {
+    const { code, state } = req.query;
+    
+    if (!code || !state) {
+      return res.status(400).json({ message: "Missing authentication code or state" });
+    }
+    
+    try {
+      const result = verifyBankingCallback(code as string, state as string);
+      
+      if (result.success) {
+        res.json({
+          success: true,
+          userProfile: result.userProfile,
+          message: "Banking authentication successful"
+        });
+      } else {
+        res.status(401).json({
+          success: false,
+          message: result.error || "Banking authentication failed"
+        });
+      }
+    } catch (error) {
+      console.error("Banking callback error:", error);
+      res.status(500).json({ message: "Failed to process banking authentication" });
     }
   });
 }

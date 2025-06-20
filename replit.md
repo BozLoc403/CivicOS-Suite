@@ -85,6 +85,12 @@ The platform is designed for deployment on Replit with the following configurati
 
 ## Changelog
 
+- June 20, 2025: Implemented Canadian government and banking authentication integration
+  - Added GCKey (Government of Canada) OAuth integration for official government verification
+  - Built Canadian banking authentication supporting RBC, TD, Scotiabank, BMO, and CIBC
+  - Integrated provincial authentication methods: Ontario.ca, clicSÉQUR (QC), BC Services Card, MyAlberta
+  - Created trust scoring system: GCKey (95%), Banking (90%), Provincial (85%)
+  - All authentication uses existing Canadian infrastructure - no external APIs required from our side
 - June 20, 2025: Implemented comprehensive offline verification system - no external APIs required
   - Created mathematical challenge verification system with random equations and pattern recognition
   - Built offline TOTP generation using speakeasy library with QR codes generated locally
