@@ -1497,6 +1497,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           c.target_id,
           c.parent_comment_id,
           c.created_at,
+          c.is_edited,
+          c.edit_count,
+          c.last_edited_at,
           COALESCE(c.like_count, 0) as like_count,
           COALESCE(c.can_delete, true) as can_delete,
           u.first_name,
@@ -1518,6 +1521,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
               c.content,
               c.author_id,
               c.created_at,
+              c.is_edited,
+              c.edit_count,
+              c.last_edited_at,
               COALESCE(c.like_count, 0) as like_count,
               u.first_name,
               u.last_name,
@@ -1554,6 +1560,127 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching comments:", error);
       res.status(500).json({ message: "Failed to fetch comments" });
+    }
+  });
+
+  // Delete comment (user can only delete their own comments)
+  app.delete('/api/comments/:commentId', async (req: any, res) => {
+    try {
+      const { commentId } = req.params;
+      const userId = process.env.NODE_ENV !== 'production' ? '42199639' : 
+        (req.isAuthenticated() && req.user ? (req.user as any).id : null);
+
+      if (!userId) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      // Check if comment exists and belongs to user
+      const comment = await db.execute(sql`
+        SELECT author_id FROM comments WHERE id = ${commentId}
+      `);
+
+      if (comment.rows.length === 0) {
+        return res.status(404).json({ message: "Comment not found" });
+      }
+
+      if (comment.rows[0].author_id !== userId) {
+        return res.status(403).json({ message: "You can only delete your own comments" });
+      }
+
+      // Delete the comment and its edit history
+      await db.execute(sql`DELETE FROM comment_edit_history WHERE comment_id = ${commentId}`);
+      await db.execute(sql`DELETE FROM comments WHERE id = ${commentId}`);
+
+      res.json({ message: "Comment deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting comment:", error);
+      res.status(500).json({ message: "Failed to delete comment" });
+    }
+  });
+
+  // Edit comment (user can only edit their own comments)
+  app.put('/api/comments/:commentId', async (req: any, res) => {
+    try {
+      const { commentId } = req.params;
+      const { content } = req.body;
+      const userId = process.env.NODE_ENV !== 'production' ? '42199639' : 
+        (req.isAuthenticated() && req.user ? (req.user as any).id : null);
+
+      if (!userId) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      if (!content || content.trim().length === 0) {
+        return res.status(400).json({ message: "Comment content is required" });
+      }
+
+      // Content moderation check
+      const moderationResult = moderateComment(content);
+      if (!moderationResult.isAllowed) {
+        return res.status(400).json({ 
+          message: `Comment rejected: ${moderationResult.reason}` 
+        });
+      }
+
+      // Check if comment exists and belongs to user
+      const comment = await db.execute(sql`
+        SELECT author_id, content, edit_count FROM comments WHERE id = ${commentId}
+      `);
+
+      if (comment.rows.length === 0) {
+        return res.status(404).json({ message: "Comment not found" });
+      }
+
+      if (comment.rows[0].author_id !== userId) {
+        return res.status(403).json({ message: "You can only edit your own comments" });
+      }
+
+      const originalContent = comment.rows[0].content;
+      const currentEditCount = comment.rows[0].edit_count || 0;
+
+      // Save original content to edit history
+      await db.execute(sql`
+        INSERT INTO comment_edit_history (comment_id, original_content, edit_number)
+        VALUES (${commentId}, ${originalContent}, ${currentEditCount + 1})
+      `);
+
+      // Update the comment
+      await db.execute(sql`
+        UPDATE comments 
+        SET content = ${content.trim()}, 
+            is_edited = true, 
+            edit_count = ${currentEditCount + 1},
+            last_edited_at = NOW()
+        WHERE id = ${commentId}
+      `);
+
+      res.json({ 
+        message: "Comment updated successfully",
+        editCount: currentEditCount + 1
+      });
+    } catch (error) {
+      console.error("Error updating comment:", error);
+      res.status(500).json({ message: "Failed to update comment" });
+    }
+  });
+
+  // Get edit history for a comment
+  app.get('/api/comments/:commentId/history', async (req, res) => {
+    try {
+      const { commentId } = req.params;
+
+      const history = await db.execute(sql`
+        SELECT ceh.*, c.content as current_content, c.edit_count
+        FROM comment_edit_history ceh
+        JOIN comments c ON ceh.comment_id = c.id
+        WHERE ceh.comment_id = ${commentId}
+        ORDER BY ceh.edit_number DESC
+      `);
+
+      res.json(history.rows);
+    } catch (error) {
+      console.error("Error fetching comment history:", error);
+      res.status(500).json({ message: "Failed to fetch comment history" });
     }
   });
 
