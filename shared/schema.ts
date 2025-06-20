@@ -611,18 +611,7 @@ export const campaignFinance = pgTable("campaign_finance", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// Notifications table
-export const notifications = pgTable("notifications", {
-  id: serial("id").primaryKey(),
-  userId: varchar("user_id").notNull().references(() => users.id),
-  title: varchar("title").notNull(),
-  message: text("message").notNull(),
-  type: varchar("type").default("info"), // info, warning, urgent, petition
-  isRead: boolean("is_read").default(false),
-  relatedBillId: integer("related_bill_id").references(() => bills.id),
-  relatedPetitionId: integer("related_petition_id").references(() => petitions.id),
-  createdAt: timestamp("created_at").defaultNow(),
-});
+
 
 // Discussion board system
 export const discussions = pgTable("discussions", {
@@ -989,6 +978,13 @@ export const usersRelations = relations(users, ({ many }) => ({
   petitionSignatures: many(petitionSignatures),
 }));
 
+export const notificationsRelations = relations(notifications, ({ one }) => ({
+  user: one(users, {
+    fields: [notifications.userId],
+    references: [users.id],
+  }),
+}));
+
 
 
 export const petitionsRelations = relations(petitions, ({ one, many }) => ({
@@ -1103,10 +1099,7 @@ export const insertPoliticianSchema = createInsertSchema(politicians).omit({
   updatedAt: true,
 });
 
-export const insertNotificationSchema = createInsertSchema(notifications).omit({
-  id: true,
-  createdAt: true,
-});
+
 
 // Types
 export type UpsertUser = typeof users.$inferInsert;
@@ -1127,6 +1120,12 @@ export type Politician = typeof politicians.$inferSelect;
 export type InsertPolitician = z.infer<typeof insertPoliticianSchema>;
 export type PoliticianStatement = typeof politicianStatements.$inferSelect;
 export type Notification = typeof notifications.$inferSelect;
+export const insertNotificationSchema = createInsertSchema(notifications).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export type InsertNotification = z.infer<typeof insertNotificationSchema>;
 
 // Type definitions for new tables

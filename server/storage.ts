@@ -5,8 +5,11 @@ import {
   politicians,
   politicianStatements,
   notifications,
+  userNotificationPreferences,
   petitions,
   petitionSignatures,
+  userVotes,
+  voteCounts,
   userActivity,
   type User,
   type UpsertUser,
@@ -19,6 +22,12 @@ import {
   type PoliticianStatement,
   type Notification,
   type InsertNotification,
+  type UserNotificationPreferences,
+  type InsertUserNotificationPreferences,
+  type Petition,
+  type InsertPetition,
+  type PetitionSignature,
+  type InsertPetitionSignature,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, sql, count } from "drizzle-orm";
@@ -58,7 +67,13 @@ export interface IStorage {
   // Notification operations
   getUserNotifications(userId: string): Promise<Notification[]>;
   createNotification(notification: InsertNotification): Promise<Notification>;
-  markNotificationRead(id: number): Promise<void>;
+  markNotificationAsRead(notificationId: number, userId: string): Promise<void>;
+  deleteNotification(notificationId: number, userId: string): Promise<void>;
+  clearAllNotifications(userId: string): Promise<void>;
+  
+  // Notification preferences operations
+  getUserNotificationPreferences(userId: string): Promise<UserNotificationPreferences>;
+  updateUserNotificationPreferences(userId: string, preferences: Partial<InsertUserNotificationPreferences>): Promise<UserNotificationPreferences>;
   
   // Analytics
   getUserStats(userId: string): Promise<{ voteCount: number; trustScore: string; civicLevel: string }>;
@@ -474,7 +489,8 @@ export class DatabaseStorage implements IStorage {
         title: "Petition Successful!",
         message: `Your petition "${petition.title}" has reached its target of ${petition.targetSignatures} signatures.`,
         type: "petition",
-        relatedPetitionId: petitionId,
+        sourceModule: `Petition #${petitionId}`,
+        sourceId: petitionId.toString(),
       });
     }
   }
