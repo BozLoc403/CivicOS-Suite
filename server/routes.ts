@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import { registerIdentityRoutes } from "./routes/identity";
 import { registerIdentityVerificationRoutes } from "./identityVerification";
 import { authenticDataService } from "./authenticDataService";
 import { politicianDataEnhancer } from "./politicianDataEnhancer";

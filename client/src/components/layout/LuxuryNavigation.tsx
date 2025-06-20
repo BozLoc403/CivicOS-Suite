@@ -210,7 +210,7 @@ export function LuxuryNavigation() {
                           </Badge>
                           <span className="text-xs text-gray-500 hidden lg:inline">1,247 pts</span>
                         </div>
-                        <IdentityVerificationStatus />
+                        <VerificationStatusBadge />
                       </div>
                     </div>
                   </div>
