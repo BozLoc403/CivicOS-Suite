@@ -124,8 +124,25 @@ export function CommentSystem({ targetType, targetId }: CommentSystemProps) {
   });
 
   const handleSubmitComment = () => {
-    if (!newComment.trim()) return;
-    commentMutation.mutate(newComment);
+    if (!user) {
+      toast({
+        title: "Login Required",
+        description: "Please log in to post comments",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!newComment.trim()) {
+      toast({
+        title: "Empty Comment",
+        description: "Please enter a comment before posting",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    commentMutation.mutate(newComment.trim());
   };
 
   const startEditing = (comment: Comment) => {

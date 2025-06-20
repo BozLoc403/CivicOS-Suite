@@ -114,7 +114,7 @@ export function InteractiveContent({
 
       {/* Facebook-style Comments Section */}
       {showComments && (
-        <CommentSystem targetType={targetType} targetId={targetId} />
+        <CommentSystem targetType={targetType} targetId={targetId.toString()} />
       )}
     </div>
   );
