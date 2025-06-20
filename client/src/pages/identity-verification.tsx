@@ -76,7 +76,7 @@ export default function IdentityVerification() {
       
       toast({
         title: "Verification Code Sent",
-        description: `Check the console/terminal for your 6-digit verification code (demo mode)`,
+        description: `Check your email inbox for the 6-digit verification code. Also check the console in development mode.`,
       });
     } catch (error: any) {
       toast({
