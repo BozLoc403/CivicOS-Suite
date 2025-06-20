@@ -933,6 +933,23 @@ export const propagandaDetection = pgTable("propaganda_detection", {
   detectedAt: timestamp("detected_at").defaultNow(),
 });
 
+// Identity verification tables (temporarily commented for cleanup)
+// Will be re-enabled after application is stable
+/*
+export const identityVerifications = pgTable("identity_verifications", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull(),
+  status: varchar("status").notNull().default("pending"),
+  submittedAt: timestamp("submitted_at").defaultNow(),
+});
+
+export const userVerificationStatus = pgTable("user_verification_status", {
+  userId: varchar("user_id").primaryKey(),
+  isVerified: boolean("is_verified").default(false),
+  verificationLevel: varchar("verification_level").default("none"),
+});
+*/
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   votes: many(votes),

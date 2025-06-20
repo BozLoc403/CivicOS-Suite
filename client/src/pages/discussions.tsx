@@ -497,17 +497,9 @@ export default function Discussions() {
                             <span>{post.viewCount || 0}</span>
                           </div>
 
-                          <LikeButton
-                            itemId={post.id}
-                            itemType="post"
-                            initialLikeCount={post.likeCount || 0}
-                            size="sm"
-                          />
-                          
-                          <ReplyButton
-                            postId={post.id}
-                            replyCount={post.replyCount || 0}
-                            size="sm"
+                          <VotingButtons
+                            targetType="post"
+                            targetId={post.id}
                           />
                         </div>
                       </div>

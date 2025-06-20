@@ -397,12 +397,10 @@ export default function FinancePage() {
                     </div>
                     
                     <div className="flex items-center gap-2">
-                      <LikeButton
-                        itemId={record.id}
-                        itemType="comment"
-                        variant="outline"
-                        className="flex-shrink-0"
-                        initialLikeCount={0}
+                      <VotingButtons
+                        targetType="finance"
+                        targetId={record.id}
+                        size="sm"
                       />
                       <Button variant="outline" size="sm" asChild>
                         <a href={record.sourceUrl} target="_blank" rel="noopener noreferrer">
