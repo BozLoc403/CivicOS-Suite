@@ -117,6 +117,68 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, id));
   }
 
+  // Notification operations
+  async getUserNotifications(userId: string): Promise<Notification[]> {
+    return await db.select()
+      .from(notifications)
+      .where(and(eq(notifications.userId, userId), eq(notifications.isDeleted, false)))
+      .orderBy(desc(notifications.createdAt));
+  }
+
+  async createNotification(notification: InsertNotification): Promise<Notification> {
+    const [newNotification] = await db.insert(notifications).values(notification).returning();
+    return newNotification;
+  }
+
+  async markNotificationAsRead(notificationId: number, userId: string): Promise<void> {
+    await db
+      .update(notifications)
+      .set({ isRead: true, updatedAt: new Date() })
+      .where(and(eq(notifications.id, notificationId), eq(notifications.userId, userId)));
+  }
+
+  async deleteNotification(notificationId: number, userId: string): Promise<void> {
+    await db
+      .update(notifications)
+      .set({ isDeleted: true, updatedAt: new Date() })
+      .where(and(eq(notifications.id, notificationId), eq(notifications.userId, userId)));
+  }
+
+  async clearAllNotifications(userId: string): Promise<void> {
+    await db
+      .update(notifications)
+      .set({ isDeleted: true, updatedAt: new Date() })
+      .where(eq(notifications.userId, userId));
+  }
+
+  async getUserNotificationPreferences(userId: string): Promise<UserNotificationPreferences> {
+    let [preferences] = await db.select()
+      .from(userNotificationPreferences)
+      .where(eq(userNotificationPreferences.userId, userId));
+    
+    // Create default preferences if none exist
+    if (!preferences) {
+      [preferences] = await db.insert(userNotificationPreferences)
+        .values({ userId })
+        .returning();
+    }
+    
+    return preferences;
+  }
+
+  async updateUserNotificationPreferences(userId: string, preferencesData: Partial<InsertUserNotificationPreferences>): Promise<UserNotificationPreferences> {
+    // First ensure preferences exist
+    await this.getUserNotificationPreferences(userId);
+    
+    const [updatedPreferences] = await db
+      .update(userNotificationPreferences)
+      .set({ ...preferencesData, updatedAt: new Date() })
+      .where(eq(userNotificationPreferences.userId, userId))
+      .returning();
+    
+    return updatedPreferences;
+  }
+
   // Bill operations
   async getAllBills(): Promise<Bill[]> {
     return await db.select().from(bills).orderBy(desc(bills.createdAt));
@@ -538,12 +600,6 @@ export class DatabaseStorage implements IStorage {
         sourceModule: `Petition #${petitionId}`,
         sourceId: petitionId.toString(),
       });
-    }
-
-    if (notifications.length > 0) {
-      // Use the notifications table from schema (import at top if needed)
-      // For now, just log the notifications - table may not exist
-      console.log(`Would create ${notifications.length} notifications for bill ${billId}`);
     }
   }
 

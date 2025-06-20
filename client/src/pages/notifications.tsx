@@ -1,12 +1,20 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Bell, Check, X, Settings, AlertCircle, Users, FileText, Vote } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { 
+  Bell, Settings, Filter, X, Clock, AlertCircle, 
+  FileText, Users, Vote, Megaphone, Calendar, Check, Trash2
+} from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
+import type { Notification, UserNotificationPreferences } from "@shared/schema";
 
 export default function Notifications() {
   const [filter, setFilter] = useState<'all' | 'unread' | 'petition' | 'bill' | 'foi' | 'system'>('all');
