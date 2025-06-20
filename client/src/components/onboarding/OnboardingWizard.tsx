@@ -93,7 +93,7 @@ export function OnboardingWizard({ isOpen, onClose }: OnboardingWizardProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 backdrop-blur-sm border-slate-200 dark:border-slate-700">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 backdrop-blur-sm border-slate-200 dark:border-slate-700 w-[95vw] sm:w-full p-4 sm:p-6">
         <DialogHeader>
           <DialogTitle className="text-2xl text-center bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent font-serif">
             Welcome to CivicOS
@@ -103,26 +103,26 @@ export function OnboardingWizard({ isOpen, onClose }: OnboardingWizardProps) {
           </p>
         </DialogHeader>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mt-6">
           {USER_TYPES.map((userType) => (
             <Card 
               key={userType.id}
               className="cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-105 border-2 hover:border-primary bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-600"
               onClick={() => handleUserTypeSelect(userType)}
             >
-              <CardHeader className="text-center">
-                <div className="mx-auto mb-2 text-primary p-3 rounded-full bg-primary/10 dark:bg-primary/20">
+              <CardHeader className="text-center pb-3 sm:pb-4">
+                <div className="mx-auto mb-2 text-primary p-2 sm:p-3 rounded-full bg-primary/10 dark:bg-primary/20">
                   {userType.icon}
                 </div>
-                <CardTitle className="text-lg font-serif">{userType.title}</CardTitle>
-                <CardDescription className="text-muted-foreground">{userType.description}</CardDescription>
+                <CardTitle className="text-base sm:text-lg font-serif">{userType.title}</CardTitle>
+                <CardDescription className="text-muted-foreground text-sm">{userType.description}</CardDescription>
               </CardHeader>
-              <CardContent>
-                <ul className="space-y-1 text-sm">
+              <CardContent className="pt-0">
+                <ul className="space-y-1 text-xs sm:text-sm">
                   {userType.features.map((feature, index) => (
                     <li key={index} className="flex items-center">
-                      <span className="w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mr-2"></span>
-                      <span className="text-slate-700 dark:text-slate-300">{feature}</span>
+                      <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mr-2 flex-shrink-0"></span>
+                      <span className="text-slate-700 dark:text-slate-300 leading-relaxed">{feature}</span>
                     </li>
                   ))}
                 </ul>
@@ -131,17 +131,17 @@ export function OnboardingWizard({ isOpen, onClose }: OnboardingWizardProps) {
           ))}
         </div>
 
-        <div className="flex justify-center gap-4 mt-6">
+        <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mt-6">
           <Button 
             variant="outline" 
             onClick={handleSkip}
-            className="bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border-slate-300 dark:border-slate-600 hover:bg-white/80 dark:hover:bg-slate-800/80"
+            className="bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border-slate-300 dark:border-slate-600 hover:bg-white/80 dark:hover:bg-slate-800/80 w-full sm:w-auto"
           >
             Skip for now
           </Button>
           <Button 
             onClick={() => navigate("/dashboard")}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg"
+            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg w-full sm:w-auto"
           >
             Explore all features
           </Button>
