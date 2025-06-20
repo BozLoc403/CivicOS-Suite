@@ -45,27 +45,31 @@ export default function Dashboard() {
       <IdentityVerificationBanner />
 
       <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview" className="flex items-center space-x-2">
-            <Activity className="w-4 h-4" />
-            <span>Overview</span>
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4">
+          <TabsTrigger value="overview" className="flex items-center space-x-1 md:space-x-2 text-xs md:text-sm p-2 md:p-3">
+            <Activity className="w-3 h-3 md:w-4 md:h-4" />
+            <span className="hidden sm:inline">Overview</span>
+            <span className="sm:hidden">Home</span>
           </TabsTrigger>
-          <TabsTrigger value="engagement" className="flex items-center space-x-2">
-            <Vote className="w-4 h-4" />
-            <span>Engagement</span>
+          <TabsTrigger value="engagement" className="flex items-center space-x-1 md:space-x-2 text-xs md:text-sm p-2 md:p-3">
+            <Vote className="w-3 h-3 md:w-4 md:h-4" />
+            <span className="hidden sm:inline">Engagement</span>
+            <span className="sm:hidden">Vote</span>
           </TabsTrigger>
-          <TabsTrigger value="intelligence" className="flex items-center space-x-2">
-            <Eye className="w-4 h-4" />
-            <span>Intelligence</span>
+          <TabsTrigger value="intelligence" className="flex items-center space-x-1 md:space-x-2 text-xs md:text-sm p-2 md:p-3">
+            <Eye className="w-3 h-3 md:w-4 md:h-4" />
+            <span className="hidden sm:inline">Intelligence</span>
+            <span className="sm:hidden">Intel</span>
           </TabsTrigger>
-          <TabsTrigger value="legal" className="flex items-center space-x-2">
-            <Shield className="w-4 h-4" />
-            <span>Legal</span>
+          <TabsTrigger value="legal" className="flex items-center space-x-1 md:space-x-2 text-xs md:text-sm p-2 md:p-3">
+            <Shield className="w-3 h-3 md:w-4 md:h-4" />
+            <span className="hidden sm:inline">Legal</span>
+            <span className="sm:hidden">Law</span>
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <TabsContent value="overview" className="space-y-4 md:space-y-6">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6">
             <PoliticiansWidget />
             <BillsVotingWidget />
             <PetitionsWidget />
@@ -73,22 +77,22 @@ export default function Dashboard() {
           </div>
         </TabsContent>
 
-        <TabsContent value="engagement" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <TabsContent value="engagement" className="space-y-4 md:space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
             <BillsVotingWidget />
             <PetitionsWidget />
           </div>
         </TabsContent>
 
-        <TabsContent value="intelligence" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <TabsContent value="intelligence" className="space-y-4 md:space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
             <PrimeMinisterIntelligence />
             <ComprehensiveNewsWidget />
           </div>
         </TabsContent>
 
-        <TabsContent value="legal" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <TabsContent value="legal" className="space-y-4 md:space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
             <LegalSystemWidget />
             <NewsAnalysisWidget />
           </div>
