@@ -1,120 +1,25 @@
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Shield, 
-  Mail, 
-  Camera, 
-  FileText, 
-  CheckCircle, 
-  AlertTriangle,
-  Upload,
-  Eye,
-  Lock,
-  QrCode
-} from "lucide-react";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { Shield, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
-interface VerificationStep {
-  id: string;
-  title: string;
-  description: string;
-  icon: React.ReactNode;
-  completed: boolean;
-  current: boolean;
-}
+import { CanadianAuthWidget } from "@/components/CanadianAuthWidget";
 
 export default function IdentityVerification() {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [verificationData, setVerificationData] = useState({
-    email: "",
-    otpCode: "",
-    totpCode: "",
-    idFrontFile: null as File | null,
-    idBackFile: null as File | null,
-    selfieFile: null as File | null,
-    livenessVideo: null as Blob | null,
-    digitalSignature: "",
-    termsAgreed: false,
-    captchaToken: ""
-  });
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isRecording, setIsRecording] = useState(false);
-  const [totpQR, setTotpQR] = useState("");
-  const [faceMatchScore, setFaceMatchScore] = useState<number | null>(null);
-  const [sendingEmail, setSendingEmail] = useState(false);
-  const [verifyingEmail, setVerifyingEmail] = useState(false);
-  const [emailVerified, setEmailVerified] = useState(false);
-  
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const [verificationStatus, setVerificationStatus] = useState<'pending' | 'verified' | 'failed'>('pending');
+  const [verificationProfile, setVerificationProfile] = useState<any>(null);
+  const [verificationMethod, setVerificationMethod] = useState<string>('');
   const { toast } = useToast();
 
-  const handleCaptchaComplete = (token: string) => {
-    setVerificationData(prev => ({ ...prev, captchaToken: token }));
-    setCurrentStep(1);
-  };
-
-  const handleSendEmailVerification = async () => {
-    if (!verificationData.email) return;
+  const handleVerificationComplete = (profile: any, method: string) => {
+    setVerificationProfile(profile);
+    setVerificationMethod(method);
+    setVerificationStatus('verified');
     
-    setSendingEmail(true);
-    try {
-      await apiRequest("/api/identity/send-email-verification", "POST", {
-        email: verificationData.email
-      });
-      
-      toast({
-        title: "Verification Code Generated",
-        description: `Check the browser console for your 6-digit verification code - no external services required!`,
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to send verification code",
-        variant: "destructive",
-      });
-    } finally {
-      setSendingEmail(false);
-    }
-  };
-
-  const handleVerifyEmailCode = async () => {
-    if (!verificationData.email || !verificationData.otpCode) return;
-    
-    setVerifyingEmail(true);
-    try {
-      await apiRequest("/api/identity/verify-email-code", "POST", {
-        email: verificationData.email,
-        code: verificationData.otpCode
-      });
-      
-      setEmailVerified(true);
-      setCurrentStep(2);
-      
-      toast({
-        title: "Email Verified",
-        description: "Your email has been successfully verified",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Verification Failed",
-        description: error.message || "Invalid verification code",
-        variant: "destructive",
-      });
-    } finally {
-      setVerifyingEmail(false);
-    }
+    toast({
+      title: "Identity Verified",
+      description: `Successfully verified through ${method}`,
+    });
   };
 
   const steps: VerificationStep[] = [
