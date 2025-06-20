@@ -96,13 +96,29 @@ export function InteractiveContent({
 
   const likeMutation = useMutation({
     mutationFn: async (commentId: number) => {
-      const res = await apiRequest("POST", "/api/comments/like", {
-        commentId
+      return await apiRequest("/api/vote", "POST", {
+        targetType: "comment",
+        targetId: commentId,
+        voteType: "upvote"
       });
-      return res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/comments/${targetType}/${targetId}`] });
+    },
+    onError: (error: Error) => {
+      if (error.message.includes("already voted")) {
+        toast({
+          title: "Already Liked",
+          description: "You have already liked this comment.",
+          variant: "default"
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to like comment",
+          variant: "destructive"
+        });
+      }
     }
   });
 
@@ -166,14 +182,14 @@ export function InteractiveContent({
             <div className="flex-1">
               <div className="flex items-center space-x-2 mb-2">
                 <span className="font-medium text-sm">
-                  {comment.author?.firstName} {comment.author?.lastName}
+                  {comment.author?.firstName || comment.first_name} {comment.author?.lastName || comment.last_name}
                 </span>
                 <Badge variant="outline" className="text-xs">
                   Civic Level 2
                 </Badge>
                 <span className="text-xs text-gray-500 flex items-center">
                   <Clock className="w-3 h-3 mr-1" />
-                  {comment.createdAt ? formatDistanceToNow(new Date(comment.createdAt)) : 'Just now'} ago
+                  {comment.created_at ? formatDistanceToNow(new Date(comment.created_at)) : 'Just now'} ago
                 </span>
               </div>
               
@@ -185,9 +201,10 @@ export function InteractiveContent({
                   size="sm"
                   onClick={() => likeMutation.mutate(comment.id)}
                   className="text-gray-500 hover:text-red-500"
+                  disabled={likeMutation.isPending}
                 >
                   <Heart className="w-4 h-4 mr-1" />
-                  {comment.likeCount}
+                  {comment.like_count || 0}
                 </Button>
                 
                 <Button

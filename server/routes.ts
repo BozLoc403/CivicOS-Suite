@@ -442,29 +442,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Universal voting/like system for all items
-  app.get('/api/vote/:itemType/:itemId', async (req, res) => {
+  app.get('/api/vote/:targetType/:targetId', async (req, res) => {
     try {
-      const { itemType, itemId } = req.params;
+      const { targetType, targetId } = req.params;
+      const userId = (req as any).user?.claims?.sub;
       
+      // Get vote counts
       const votes = await db.execute(sql`
         SELECT 
-          COUNT(CASE WHEN vote_value = 1 THEN 1 END) as upvotes,
-          COUNT(CASE WHEN vote_value = -1 THEN 1 END) as downvotes,
-          SUM(vote_value) as totalScore
-        FROM votes 
-        WHERE item_id = ${parseInt(itemId)} AND item_type = ${itemType}
+          COALESCE(upvotes, 0) as upvotes,
+          COALESCE(downvotes, 0) as downvotes,
+          COALESCE(total_score, 0) as total_score
+        FROM vote_counts 
+        WHERE target_type = ${targetType} AND target_id = ${parseInt(targetId)}
       `);
       
-      const result = votes.rows[0] || { upvotes: 0, downvotes: 0, totalscore: 0 };
+      // Get user's vote if logged in
+      let userVote = null;
+      if (userId) {
+        const userVoteResult = await db.execute(sql`
+          SELECT vote_type FROM user_votes 
+          WHERE user_id = ${userId} AND target_type = ${targetType} AND target_id = ${parseInt(targetId)}
+        `);
+        userVote = userVoteResult.rows[0]?.vote_type || null;
+      }
+      
+      const result = votes.rows[0] || { upvotes: 0, downvotes: 0, total_score: 0 };
       res.json({
         upvotes: Number(result.upvotes || 0),
         downvotes: Number(result.downvotes || 0),
-        totalScore: Number(result.totalscore || 0),
-        hasVoted: false
+        totalScore: Number(result.total_score || 0),
+        userVote: userVote
       });
     } catch (error) {
       console.error("Error fetching votes:", error);
-      res.json({ upvotes: 0, downvotes: 0, totalScore: 0, hasVoted: false });
+      res.json({ upvotes: 0, downvotes: 0, totalScore: 0, userVote: null });
     }
   });
 
@@ -485,23 +497,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/votes', isAuthenticated, async (req: any, res) => {
+  // Unified voting endpoint
+  app.post('/api/vote', isAuthenticated, async (req: any, res) => {
     try {
-      const { itemId, itemType, vote } = req.body;
+      const { targetType, targetId, voteType } = req.body;
       const userId = req.user.claims.sub;
 
-      // Simple vote recording without external voting system
-      await db.execute(sql`
-        INSERT INTO votes (user_id, item_id, item_type, vote_value, created_at)
-        VALUES (${userId}, ${itemId}, ${itemType}, ${vote}, NOW())
-        ON CONFLICT (user_id, item_id, item_type) 
-        DO UPDATE SET vote_value = ${vote}, created_at = NOW()
+      if (!['upvote', 'downvote'].includes(voteType)) {
+        return res.status(400).json({ message: "Invalid vote type" });
+      }
+
+      if (!['politician', 'bill', 'post', 'comment', 'petition', 'news', 'finance'].includes(targetType)) {
+        return res.status(400).json({ message: "Invalid target type" });
+      }
+
+      // Check if user already voted
+      const existingVote = await db.execute(sql`
+        SELECT vote_type FROM user_votes 
+        WHERE user_id = ${userId} AND target_type = ${targetType} AND target_id = ${targetId}
       `);
-      
-      res.json({ message: "Vote recorded successfully", vote });
+
+      if (existingVote.rows.length > 0) {
+        return res.status(400).json({ message: "You have already voted on this item" });
+      }
+
+      // Record the vote
+      await db.execute(sql`
+        INSERT INTO user_votes (user_id, target_type, target_id, vote_type, created_at)
+        VALUES (${userId}, ${targetType}, ${targetId}, ${voteType}, NOW())
+      `);
+
+      // Update vote counts
+      await db.execute(sql`
+        INSERT INTO vote_counts (target_type, target_id, upvotes, downvotes, total_score)
+        VALUES (${targetType}, ${targetId}, 
+          ${voteType === 'upvote' ? 1 : 0}, 
+          ${voteType === 'downvote' ? 1 : 0},
+          ${voteType === 'upvote' ? 1 : -1}
+        )
+        ON CONFLICT (target_type, target_id) 
+        DO UPDATE SET 
+          upvotes = vote_counts.upvotes + ${voteType === 'upvote' ? 1 : 0},
+          downvotes = vote_counts.downvotes + ${voteType === 'downvote' ? 1 : 0},
+          total_score = vote_counts.total_score + ${voteType === 'upvote' ? 1 : -1}
+      `);
+
+      // Get updated counts
+      const updatedCounts = await db.execute(sql`
+        SELECT upvotes, downvotes, total_score FROM vote_counts 
+        WHERE target_type = ${targetType} AND target_id = ${targetId}
+      `);
+
+      const result = updatedCounts.rows[0];
+      res.json({
+        upvotes: Number(result.upvotes),
+        downvotes: Number(result.downvotes),
+        totalScore: Number(result.total_score),
+        userVote: voteType
+      });
+
     } catch (error) {
-      console.error("Error casting vote:", error);
-      res.status(500).json({ message: "Failed to cast vote" });
+      console.error("Error processing vote:", error);
+      res.status(500).json({ message: "Failed to process vote" });
     }
   });
 
