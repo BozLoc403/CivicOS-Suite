@@ -81,6 +81,7 @@ function Router() {
             <div className="p-2 sm:p-4 lg:p-6">
               <Switch>
                 <Route path="/" component={Dashboard} />
+                <Route path="/dashboard" component={Dashboard} />
                 <Route path="/voting" component={Voting} />
                 <Route path="/ledger" component={Ledger} />
                 <Route path="/politicians" component={Politicians} />
