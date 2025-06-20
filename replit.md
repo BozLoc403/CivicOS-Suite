@@ -85,6 +85,13 @@ The platform is designed for deployment on Replit with the following configurati
 
 ## Changelog
 
+- June 20, 2025: Refactored Elections page to display only authentic election data from verified government sources
+  - Removed all placeholder and dummy election dates
+  - Added authentication requirement for personalized election notices
+  - Created modular ElectionDataService for fetching from Elections Canada and provincial authorities
+  - Implemented "No scheduled election" messaging when no confirmed elections exist
+  - Added proper source attribution and external links to official election websites
+  - Structured for future expansion with municipal elections
 - June 20, 2025: Added party color-coding to all MP badges for quick visual identification (Liberal=Red, Conservative=Blue, NDP=Orange, Bloc=Cyan, Green=Green, PPC=Purple)
 - June 20, 2025: Removed placeholder trust scores from politician profiles - scores will be generated organically through user voting and engagement within the platform
 - June 20, 2025: Updated party leaders with accurate current information - Mark Carney as PM, Candice Bergen as Conservative leader
