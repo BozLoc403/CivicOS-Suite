@@ -304,8 +304,21 @@ export function CommentSystem({ targetType, targetId }: CommentSystemProps) {
           )}
           
           <div className="flex items-center space-x-4 text-xs text-gray-500">
-            <button className="hover:text-blue-600 transition-colors">
-              Like ({comment.like_count})
+            <button 
+              onClick={() => voteMutation.mutate({ commentId: comment.id, vote: 'up' })}
+              className="flex items-center space-x-1 hover:text-blue-600 transition-colors"
+              disabled={voteMutation.isPending}
+            >
+              <span>👍</span>
+              <span>Like ({comment.like_count || 0})</span>
+            </button>
+            <button 
+              onClick={() => voteMutation.mutate({ commentId: comment.id, vote: 'down' })}
+              className="flex items-center space-x-1 hover:text-red-600 transition-colors"
+              disabled={voteMutation.isPending}
+            >
+              <span>👎</span>
+              <span>Dislike</span>
             </button>
             <button className="hover:text-blue-600 transition-colors">
               Reply
