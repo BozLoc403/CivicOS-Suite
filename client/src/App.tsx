@@ -39,6 +39,7 @@ import Maps from "@/pages/maps";
 import Notifications from "@/pages/notifications";
 import UserProfile from "@/pages/user-profile";
 
+import Manifesto from "@/pages/manifesto";
 import NotFound from "@/pages/not-found";
 import dominionEmblem from "@assets/EFE54ED9-DEE5-4F72-88D4-4441CE2D11CB_1_105_c_1749411960407.jpeg";
 
@@ -124,6 +125,7 @@ function Router() {
             <Route path="/auth" component={Auth} />
             <Route path="/login" component={Auth} />
             <Route path="/register" component={Auth} />
+            <Route path="/manifesto" component={Manifesto} />
             <Route path="*">
               {() => <NotFound />}
             </Route>

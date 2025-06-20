@@ -4,18 +4,18 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Eye, Shield, Target, Zap, Users, CheckCircle } from "lucide-react";
-import { useNavigate } from "wouter";
+import { useLocation } from "wouter";
 
 export default function Manifesto() {
   const [hasAgreed, setHasAgreed] = useState(false);
-  const [, navigate] = useNavigate();
+  const [, setLocation] = useLocation();
 
   const handleAgreeAndContinue = () => {
     if (hasAgreed) {
       // Store agreement in localStorage
       localStorage.setItem('civicos-manifesto-agreed', 'true');
       localStorage.setItem('civicos-manifesto-date', new Date().toISOString());
-      navigate('/dashboard');
+      setLocation('/dashboard');
     }
   };
 
