@@ -1590,8 +1590,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         })
       );
       
-      console.log('Final comments response:', JSON.stringify(commentsWithReplies, null, 2));
-      res.json(commentsWithReplies);
+      const cleanedComments = commentsWithReplies.map(comment => ({
+        id: comment.id,
+        content: comment.content,
+        author_id: comment.author_id,
+        created_at: comment.created_at,
+        is_edited: comment.is_edited || false,
+        edit_count: comment.edit_count || 0,
+        last_edited_at: comment.last_edited_at,
+        like_count: comment.like_count || 0,
+        first_name: comment.first_name,
+        last_name: comment.last_name,
+        email: comment.email,
+        profile_image_url: comment.profile_image_url,
+        replies: comment.replies || []
+      }));
+      console.log('Returning', cleanedComments.length, 'clean comments');
+      res.json(cleanedComments);
     } catch (error) {
       console.error("Error fetching comments:", error);
       res.status(500).json({ message: "Failed to fetch comments" });
