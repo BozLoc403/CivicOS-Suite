@@ -51,7 +51,12 @@ export function CommentSystem({ targetType, targetId }: CommentSystemProps) {
   // Fetch comments with error handling
   const { data: comments = [], isLoading, error } = useQuery({
     queryKey: ['comments', targetType, targetId],
-    queryFn: () => apiRequest(`/api/comments/${targetType}/${targetId}`),
+    queryFn: async () => {
+      console.log('Fetching comments for:', targetType, targetId);
+      const result = await apiRequest(`/api/comments/${targetType}/${targetId}`);
+      console.log('Comments response:', result);
+      return result;
+    },
     retry: 1,
     refetchOnWindowFocus: false,
   });
@@ -331,7 +336,7 @@ export function CommentSystem({ targetType, targetId }: CommentSystemProps) {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
               <p className="text-gray-500 mt-2">Loading comments...</p>
             </div>
-          ) : comments.length === 0 ? (
+          ) : !Array.isArray(comments) || comments.length === 0 ? (
             <div className="text-center py-8">
               <MessageCircle className="w-12 h-12 text-gray-400 mx-auto mb-3" />
               <h3 className="font-medium text-gray-900 mb-1">No comments yet</h3>
@@ -339,7 +344,7 @@ export function CommentSystem({ targetType, targetId }: CommentSystemProps) {
             </div>
           ) : (
             <div className="space-y-4">
-              {Array.isArray(comments) && comments.map((comment: Comment) => renderComment(comment))}
+              {comments.map((comment: Comment) => renderComment(comment))}
             </div>
           )}
         </CardContent>
