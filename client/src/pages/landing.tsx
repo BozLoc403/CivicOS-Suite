@@ -21,48 +21,49 @@ import {
 export default function Landing() {
   return (
     <div className="min-h-screen bg-white">
-      {/* Official Government Header */}
-      <header className="bg-red-600 text-white">
+      {/* Official Government Header - GOC Style */}
+      <header className="bg-red-600 text-white shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Government Banner */}
-          <div className="border-b border-red-500 py-2">
-            <div className="flex items-center justify-between text-sm">
-              <div className="flex items-center space-x-6">
-                <span className="flex items-center space-x-2">
+          {/* Government of Canada Banner */}
+          <div className="border-b border-red-400 py-1">
+            <div className="flex items-center justify-between text-xs font-medium">
+              <div className="flex items-center space-x-8">
+                <span className="flex items-center space-x-1">
                   <CanadianMapleLeaf size="sm" />
-                  <span>Government of Canada</span>
+                  <span className="font-semibold">Government of Canada</span>
                 </span>
-                <span className="flex items-center space-x-2">
+                <span className="text-red-200">•</span>
+                <span className="flex items-center space-x-1">
                   <CanadianMapleLeaf size="sm" />
-                  <span>Gouvernement du Canada</span>
+                  <span className="font-semibold">Gouvernement du Canada</span>
                 </span>
               </div>
-              <div className="flex items-center space-x-4">
-                <button className="hover:underline">English</button>
-                <span>|</span>
-                <button className="hover:underline">Français</button>
+              <div className="flex items-center space-x-3 text-xs">
+                <span className="text-red-200 font-medium">NOT OFFICIAL GOC SITE</span>
+                <span className="text-red-300">•</span>
+                <button className="px-2 py-1 bg-red-700 rounded text-white font-medium">EN</button>
+                <button className="px-2 py-1 hover:bg-red-500 rounded text-red-100 hover:text-white transition-colors">FR</button>
               </div>
             </div>
           </div>
           
-          {/* Main Header */}
-          <div className="flex justify-between items-center py-6">
+          {/* Main Header Section */}
+          <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-4">
               <CanadianCoatOfArms size="md" />
               <div>
-                <h1 className="text-2xl font-bold">CivicOS</h1>
-                <p className="text-red-100">Canadian Digital Democracy Platform</p>
-                <p className="text-red-100 text-sm">Plateforme Démocratique Numérique Canadienne</p>
+                <h1 className="text-2xl font-bold tracking-tight">CivicOS</h1>
+                <p className="text-red-100 text-sm font-medium">Canadian Digital Democracy Platform</p>
+                <p className="text-red-200 text-xs">Plateforme Démocratique Numérique Canadienne</p>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
-              <Badge className="bg-white text-red-600 hover:bg-red-50">
-                <CheckCircle className="w-3 h-3 mr-1" />
-                Official Platform
-              </Badge>
+            <div className="flex items-center space-x-3">
+              <div className="px-3 py-1 bg-yellow-400 text-gray-900 rounded-md text-xs font-bold uppercase tracking-wide">
+                Independent Platform
+              </div>
               <Button 
                 onClick={() => window.location.href = '/api/login'}
-                className="bg-white text-red-600 hover:bg-red-50 font-semibold"
+                className="bg-white text-red-600 hover:bg-red-50 font-semibold px-6 py-2 rounded-md border-2 border-white"
               >
                 Access Platform
                 <ArrowRight className="w-4 h-4 ml-2" />
@@ -72,41 +73,64 @@ export default function Landing() {
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="bg-gray-50 py-16 px-4 sm:px-6 lg:px-8">
+      {/* Hero Section - GOC Style */}
+      <section className="bg-white py-12 px-4 sm:px-6 lg:px-8 border-b-4 border-red-600">
         <div className="max-w-7xl mx-auto">
           <div className="text-center">
-            <div className="flex justify-center mb-6">
-              <Badge className="bg-red-600 text-white px-6 py-2 text-sm font-semibold">
+            <div className="flex justify-center mb-8">
+              <div className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-sm text-sm font-bold uppercase tracking-wider">
                 <Shield className="w-4 h-4 mr-2" />
-                Official Government Platform
-              </Badge>
+                Government Accountability & Transparency Platform
+              </div>
             </div>
             
-            <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
+            {/* Important Disclaimer */}
+            <div className="max-w-4xl mx-auto mb-8">
+              <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <CheckCircle className="h-5 w-5 text-yellow-400" />
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm text-yellow-700 font-medium">
+                      <strong>Important Notice:</strong> This is NOT an official Government of Canada website. 
+                      CivicOS is an independent platform for government accountability and transparency.
+                    </p>
+                    <p className="text-xs text-yellow-600 mt-1">
+                      <strong>Avis important:</strong> Ce n'est PAS un site officiel du gouvernement du Canada. 
+                      CivicOS est une plateforme indépendante pour la responsabilité gouvernementale.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 tracking-tight">
               Canadian Digital Democracy
             </h1>
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-700 mb-6">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-red-600 mb-8 tracking-tight">
               Démocratie Numérique Canadienne
             </h2>
             
-            <p className="text-lg text-gray-700 mb-4 max-w-4xl mx-auto leading-relaxed">
-              Access real-time Canadian government data, track parliamentary proceedings, 
-              monitor your elected representatives, and engage with democratic processes 
-              across federal, provincial, and municipal levels.
-            </p>
-            
-            <p className="text-lg text-gray-700 mb-8 max-w-4xl mx-auto leading-relaxed">
-              Accédez aux données gouvernementales canadiennes en temps réel, suivez les 
-              délibérations parlementaires, surveillez vos représentants élus et participez 
-              aux processus démocratiques aux niveaux fédéral, provincial et municipal.
-            </p>
+            <div className="max-w-4xl mx-auto mb-8">
+              <p className="text-lg text-gray-700 mb-4 leading-relaxed font-medium">
+                Access real-time Canadian government data, track parliamentary proceedings, 
+                monitor your elected representatives, and engage with democratic processes 
+                across federal, provincial, and municipal levels.
+              </p>
+              
+              <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+                Accédez aux données gouvernementales canadiennes en temps réel, suivez les 
+                délibérations parlementaires, surveillez vos représentants élus et participez 
+                aux processus démocratiques aux niveaux fédéral, provincial et municipal.
+              </p>
+            </div>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
               <Button 
                 size="lg"
                 onClick={() => window.location.href = '/api/login'}
-                className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 font-semibold"
+                className="bg-red-600 hover:bg-red-700 text-white px-8 py-4 font-bold text-base uppercase tracking-wide rounded-sm"
               >
                 Access Platform / Accéder à la Plateforme
                 <ArrowRight className="w-5 h-5 ml-2" />
@@ -114,34 +138,38 @@ export default function Landing() {
               <Button 
                 size="lg" 
                 variant="outline"
-                className="border-red-600 text-red-600 hover:bg-red-50 px-8 py-3"
+                className="border-2 border-red-600 text-red-600 hover:bg-red-50 px-8 py-4 font-semibold rounded-sm"
               >
                 Learn More / En Savoir Plus
                 <FileText className="w-5 h-5 ml-2" />
               </Button>
             </div>
 
-            {/* Government Statistics */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-5xl mx-auto bg-white rounded-lg shadow-sm p-8 border border-gray-200">
-              <div className="text-center border-r border-gray-200 last:border-r-0">
-                <div className="text-3xl font-bold text-red-600">338</div>
-                <div className="text-sm text-gray-600 font-medium">Federal MPs</div>
-                <div className="text-xs text-gray-500">Députés fédéraux</div>
-              </div>
-              <div className="text-center border-r border-gray-200 last:border-r-0">
-                <div className="text-3xl font-bold text-red-600">905</div>
-                <div className="text-sm text-gray-600 font-medium">Provincial MLAs</div>
-                <div className="text-xs text-gray-500">Députés provinciaux</div>
-              </div>
-              <div className="text-center border-r border-gray-200 last:border-r-0">
-                <div className="text-3xl font-bold text-red-600">3,600+</div>
-                <div className="text-sm text-gray-600 font-medium">Municipal Officials</div>
-                <div className="text-xs text-gray-500">Élus municipaux</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-red-600">24/7</div>
-                <div className="text-sm text-gray-600 font-medium">Real-time Updates</div>
-                <div className="text-xs text-gray-500">Mises à jour</div>
+            {/* Government Statistics - GOC Style */}
+            <div className="max-w-6xl mx-auto">
+              <div className="bg-gray-50 border-l-4 border-red-600 p-8 mb-8">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                  <div className="text-center">
+                    <div className="text-4xl font-bold text-red-600 mb-2">338</div>
+                    <div className="text-sm text-gray-700 font-semibold uppercase tracking-wide">Federal MPs</div>
+                    <div className="text-xs text-gray-500 mt-1">Députés fédéraux</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-4xl font-bold text-red-600 mb-2">905</div>
+                    <div className="text-sm text-gray-700 font-semibold uppercase tracking-wide">Provincial MLAs</div>
+                    <div className="text-xs text-gray-500 mt-1">Députés provinciaux</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-4xl font-bold text-red-600 mb-2">3,600+</div>
+                    <div className="text-sm text-gray-700 font-semibold uppercase tracking-wide">Municipal Officials</div>
+                    <div className="text-xs text-gray-500 mt-1">Élus municipaux</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-4xl font-bold text-red-600 mb-2">24/7</div>
+                    <div className="text-sm text-gray-700 font-semibold uppercase tracking-wide">Real-time Updates</div>
+                    <div className="text-xs text-gray-500 mt-1">Mises à jour</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -292,9 +320,14 @@ export default function Landing() {
             Accédez à Vos Informations Gouvernementales
           </h3>
           <p className="text-lg text-red-100 mb-8">
-            Connect with your democracy through official government data, representative information, 
-            and parliamentary proceedings. All data sourced directly from official Canadian government sources.
+            Connect with your democracy through independent government accountability tracking, representative monitoring, 
+            and parliamentary oversight. All data sourced from public Canadian government sources for transparency.
           </p>
+          <div className="bg-red-800 bg-opacity-50 p-4 rounded-md mb-4">
+            <p className="text-sm text-red-100 font-medium">
+              ⚠️ DISCLAIMER: CivicOS is an independent platform, NOT affiliated with the Government of Canada
+            </p>
+          </div>
           <Button 
             size="lg"
             onClick={() => window.location.href = '/api/login'}
@@ -316,8 +349,12 @@ export default function Landing() {
                 <span className="font-bold text-lg text-gray-900">CivicOS</span>
               </div>
               <p className="text-gray-600 text-sm">
-                Official Canadian Digital Democracy Platform<br />
-                Plateforme Démocratique Numérique Officielle du Canada
+                Independent Canadian Government Accountability Platform<br />
+                Plateforme Indépendante de Responsabilité Gouvernementale Canadienne
+              </p>
+              <p className="text-yellow-600 text-xs font-medium mt-2">
+                * Not affiliated with the Government of Canada<br />
+                * Non affilié au gouvernement du Canada
               </p>
             </div>
             
