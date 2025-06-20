@@ -102,17 +102,17 @@ export default function BillsVotingWidget() {
   return (
     <Card className="h-96 flex flex-col">
       <CardHeader className="pb-3 flex-shrink-0">
-        <CardTitle className="flex items-center justify-between">
+        <CardTitle className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
           <div className="flex items-center space-x-2">
-            <Vote className="h-5 w-5" />
-            <span>Bills & Voting</span>
+            <Vote className="h-4 w-4 sm:h-5 sm:w-5" />
+            <span className="text-sm sm:text-base">Bills & Voting</span>
           </div>
-          <div className="flex items-center space-x-2">
-            <Badge variant="outline" className="text-xs">
+          <div className="flex items-center space-x-1 sm:space-x-2">
+            <Badge variant="outline" className="text-xs px-1 sm:px-2">
               {bills.filter(b => b.status === 'active').length} Active
             </Badge>
             {votingStats && (
-              <Badge variant="secondary" className="text-xs">
+              <Badge variant="secondary" className="text-xs px-1 sm:px-2">
                 {(votingStats as any).totalParticipants || 0} Voters
               </Badge>
             )}
