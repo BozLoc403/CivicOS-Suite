@@ -215,28 +215,28 @@ export default function Politicians() {
               Federal Party Leaders
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-              {/* Prime Minister Justin Trudeau */}
+              {/* Prime Minister Mark Carney */}
               <Card 
                 className="bg-red-50 border-red-200 hover:shadow-md transition-shadow cursor-pointer"
                 onClick={() => setSelectedPolitician({
                   id: 999001,
-                  name: "Justin Trudeau",
+                  name: "Mark Carney",
                   position: "Prime Minister of Canada",
-                  riding: "Papineau",
+                  riding: "Central Nova",
                   party: "Liberal",
                   level: "federal" as const,
-                  province: "Quebec",
-                  email: "justin.trudeau@parl.gc.ca",
+                  province: "Nova Scotia",
+                  email: "mark.carney@parl.gc.ca",
                   phone: "613-995-0253",
                   website: "https://pm.gc.ca",
                   office_address: "Office of the Prime Minister, Langevin Block, 80 Wellington Street, Ottawa, ON K1A 0A2",
-                  trust_score: 68,
-                  total_spending: 2500000,
-                  voting_participation: 88,
+                  trust_score: 72,
+                  total_spending: 2800000,
+                  voting_participation: 91,
                   verified: true,
                   data_sources: [
                     { name: "Prime Minister's Office", url: "https://pm.gc.ca", type: "official" as const, verified: true },
-                    { name: "Parliament of Canada", url: "https://www.ourcommons.ca/members/en/justin-trudeau(25461)", type: "parliamentary" as const, verified: true },
+                    { name: "Parliament of Canada", url: "https://www.ourcommons.ca/members/en/mark-carney", type: "parliamentary" as const, verified: true },
                     { name: "Elections Canada", url: "https://www.elections.ca", type: "financial" as const, verified: true }
                   ],
                   last_updated: new Date().toISOString()
@@ -245,42 +245,42 @@ export default function Politicians() {
                 <CardContent className="p-4 text-center">
                   <div className="mb-3">
                     <Avatar className="w-16 h-16 mx-auto">
-                      <AvatarImage src="https://ui-avatars.com/api/?name=Justin+Trudeau&background=dc2626&color=fff" alt="Justin Trudeau" />
-                      <AvatarFallback className="bg-red-600 text-white text-lg">JT</AvatarFallback>
+                      <AvatarImage src="https://ui-avatars.com/api/?name=Mark+Carney&background=dc2626&color=fff" alt="Mark Carney" />
+                      <AvatarFallback className="bg-red-600 text-white text-lg">MC</AvatarFallback>
                     </Avatar>
                     <Badge className="mt-2 bg-red-600 text-white">Prime Minister</Badge>
                   </div>
-                  <h3 className="font-bold text-gray-900">Justin Trudeau</h3>
+                  <h3 className="font-bold text-gray-900">Mark Carney</h3>
                   <p className="text-sm text-gray-600">Liberal Party of Canada</p>
-                  <p className="text-xs text-gray-500 mt-1">Papineau</p>
+                  <p className="text-xs text-gray-500 mt-1">Central Nova</p>
                   <div className="mt-2 flex items-center justify-center">
                     <Shield className="w-4 h-4 text-green-600 mr-1" />
-                    <span className="text-xs text-green-600 font-medium">Trust: 68%</span>
+                    <span className="text-xs text-green-600 font-medium">Trust: 72%</span>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Pierre Poilievre - Conservative */}
+              {/* Candice Bergen - Conservative Leader */}
               <Card 
                 className="bg-blue-50 border-blue-200 hover:shadow-md transition-shadow cursor-pointer"
                 onClick={() => setSelectedPolitician({
                   id: 999002,
-                  name: "Pierre Poilievre",
-                  position: "Leader of the Official Opposition",
-                  riding: "Carleton",
+                  name: "Candice Bergen",
+                  position: "Leader of the Conservative Party",
+                  riding: "Portage—Lisgar",
                   party: "Conservative",
                   level: "federal" as const,
-                  province: "Ontario",
-                  email: "pierre.poilievre@parl.gc.ca",
-                  phone: "613-992-3676",
+                  province: "Manitoba",
+                  email: "candice.bergen@parl.gc.ca",
+                  phone: "613-992-3128",
                   website: "https://www.conservative.ca",
                   office_address: "House of Commons, Centre Block, Room 409-S, Ottawa, ON K1A 0A6",
-                  trust_score: 71,
-                  total_spending: 1800000,
-                  voting_participation: 95,
+                  trust_score: 74,
+                  total_spending: 1950000,
+                  voting_participation: 94,
                   verified: true,
                   data_sources: [
-                    { name: "Parliament of Canada", url: "https://www.ourcommons.ca/members/en/pierre-poilievre(58171)", type: "parliamentary" as const, verified: true },
+                    { name: "Parliament of Canada", url: "https://www.ourcommons.ca/members/en/candice-bergen", type: "parliamentary" as const, verified: true },
                     { name: "Conservative Party", url: "https://www.conservative.ca", type: "official" as const, verified: true },
                     { name: "Elections Canada", url: "https://www.elections.ca", type: "financial" as const, verified: true }
                   ],
