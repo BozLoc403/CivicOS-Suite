@@ -51,7 +51,11 @@ export function CommentSystem({ targetType, targetId }: CommentSystemProps) {
   // Fetch comments with error handling
   const { data: comments = [], isLoading, error, refetch } = useQuery({
     queryKey: ['comments', targetType, targetId],
-    queryFn: () => apiRequest(`/api/comments/${targetType}/${targetId}`),
+    queryFn: async () => {
+      const result = await apiRequest(`/api/comments/${targetType}/${targetId}`);
+      console.log('Comments loaded:', result?.length || 0);
+      return Array.isArray(result) ? result : [];
+    },
     retry: 1,
     refetchOnWindowFocus: false,
   });
@@ -63,10 +67,13 @@ export function CommentSystem({ targetType, targetId }: CommentSystemProps) {
 
   // Post comment mutation
   const commentMutation = useMutation({
-    mutationFn: (content: string) => 
-      apiRequest(`/api/comments/${targetType}/${targetId}`, 'POST', { content }),
+    mutationFn: async (content: string) => {
+      return await apiRequest(`/api/comments/${targetType}/${targetId}`, 'POST', { content });
+    },
     onSuccess: () => {
       setNewComment('');
+      // Force refetch of comments
+      refetch();
       queryClient.invalidateQueries({ queryKey: ['comments', targetType, targetId] });
       toast({
         title: "Success",
@@ -74,6 +81,7 @@ export function CommentSystem({ targetType, targetId }: CommentSystemProps) {
       });
     },
     onError: (error: any) => {
+      console.error('Comment error:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to post comment",
