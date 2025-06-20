@@ -114,6 +114,8 @@ function Router() {
                 <Route path="/trust" component={Trust} />
                 <Route path="/maps" component={Maps} />
                 <Route path="/manifesto" component={Manifesto} />
+                <Route path="/identity-verification" component={IdentityVerification} />
+                <Route path="/admin/identity-review" component={IdentityReview} />
                 <Route path="/notifications" component={Notifications} />
                 <Route path="/users/:userId" component={UserProfile} />
                 <Route path="*">

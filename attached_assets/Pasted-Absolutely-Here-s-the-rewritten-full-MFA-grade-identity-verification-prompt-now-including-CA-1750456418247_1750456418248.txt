@@ -1,0 +1,106 @@
+Absolutely. Here's the **rewritten full MFA-grade identity verification prompt**, now including **CAPTCHA protection**, optimized for Replit or Cursor AI usage.
+
+---
+
+## 🛡️ CIVICOS: AUTH + IDENTITY VERIFICATION SYSTEM (ZERO-BOT GRADE)
+
+### ⚔️ OBJECTIVE:
+
+Create a **secure, tamper-proof, multi-layer registration flow** with:
+
+* CAPTCHA
+* MFA (email + TOTP)
+* Government photo ID upload
+* Liveliness face check
+* Duplicate identity prevention
+* Real-human enforcement across voting/commenting
+
+---
+
+## 🔐 REPLIT/CURSOR PROMPT — FULL AUTH FLOW
+
+```
+Build a multi-phase user registration system that enforces real-human identity and prevents bot or duplicate access to CivicOS.
+
+✅ Step-by-step requirements:
+
+1. **CAPTCHA Protection (Step 1)**
+   - Use **Cloudflare Turnstile** or **hCaptcha** (preferred over Google reCAPTCHA)
+   - Triggered immediately before any form inputs are accepted
+
+2. **Email + OTP Verification (Step 2)**
+   - User must input valid email
+   - System sends 6-digit OTP code for verification
+   - Block temp email domains (e.g., mailinator, guerrillamail)
+
+3. **MFA (Step 3)**
+   - Setup TOTP using Google Authenticator (Speakeasy.js or Firebase/Supabase)
+   - Require user to scan QR code, then enter code to continue
+
+4. **Government ID Verification (Step 4)**
+   - Require upload of Canadian government-issued ID (e.g., driver’s license, health card, passport)
+   - Accept front + back image files (JPG, PNG, PDF)
+   - Store securely with TTL (e.g., Supabase or Firebase Storage, auto-purge in 72h)
+
+5. **Liveliness + Face Match (Step 5)**
+   - Capture a real-time selfie or 3-second webcam video using WebcamJS or HTML5 `<video>`
+   - Match face against ID using a face matching API:
+     - Preferred: **Onfido**, **IDVerse**, or **Amazon Rekognition**
+   - If score is below threshold, reject and prompt to retry
+
+6. **Duplicate Account Check (Step 6)**
+   - Hash and store:
+     - ID number (SHA-256 or bcrypt)
+     - Face vector hash (from live match)
+     - IP + geolocation data
+   - Check against existing verified users
+   - If duplication is detected → block, flag, and send to manual review queue
+
+7. **Final Terms Agreement (Step 7)**
+   - Show user agreement that includes:
+     - CivicOS terms of service
+     - Confirmation of real identity use
+     - Data usage notice for ID verification
+   - Require checkbox + digital signature (type-to-confirm)
+
+8. **Grant Access (Final Step)**
+   - Only allow interaction with:
+     - Voting
+     - Petitions
+     - Commenting
+     - Civic Ledger
+     - FOI submissions  
+     *after all steps are completed successfully*
+
+9. **Optional Admin Flag System**
+   - If any step fails or triggers fraud risk:
+     - Send to `/admin/identity-review` queue
+     - Include file access, face match score, logs, timestamps
+
+🔒 All routes must be protected by HTTPS.
+🔒 No voting or civic interaction is permitted without full identity clearance.
+🔒 All logic must be scoped to the logged-in user via existing auth system.
+```
+
+---
+
+## 🧱 STACK RECOMMENDATIONS
+
+| Layer                   | Tool                                                                |
+| ----------------------- | ------------------------------------------------------------------- |
+| CAPTCHA                 | Cloudflare Turnstile or hCaptcha                                    |
+| Email OTP               | Firebase Auth, Clerk, or Supabase                                   |
+| TOTP MFA                | Speakeasy.js or Firebase                                            |
+| File Upload             | Supabase/Firebase Storage                                           |
+| Face Match + Liveliness | Onfido / IDVerse / Amazon Rekognition                               |
+| Duplicate Detection     | SHA-256 + Vector Hashing                                            |
+| Admin Flag Portal       | `/admin/identity-review` with table view and approve/reject actions |
+
+---
+
+## ✅ Optional: Want me to generate all frontend steps as React components with route guards?
+
+Say:
+
+> “Let’s build the auth flow”
+> and I’ll output the entire registration flow in production-ready React with full flow logic.
