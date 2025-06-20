@@ -911,16 +911,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Authentic elections data endpoint
   app.get("/api/elections/authentic", async (req: any, res) => {
     try {
-      // Check authentication for development environment
+      // For development, use the same auth logic as other endpoints
       if (process.env.NODE_ENV !== 'production') {
-        // Check if user is logged out in session
+        // Check if user is logged out
         if (req.session?.loggedOut) {
           return res.status(401).json({ message: "Authentication required" });
         }
         
-        // Allow access if session has user data or use demo mode
+        // If no session data, check if we can use demo mode (same as auth/user endpoint)
         if (!req.session?.userData) {
-          return res.status(401).json({ message: "Authentication required" });
+          // Return demo user as fallback (same as auth endpoint)
+          const demoUser = {
+            id: '42199639',
+            username: 'demo_user',
+            displayName: 'Demo User',
+            email: 'demo@civicos.ca',
+            isVerified: true,
+            trustScore: 85
+          };
+          // Allow access with demo user
         }
       }
 

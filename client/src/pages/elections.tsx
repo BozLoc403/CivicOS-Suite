@@ -37,6 +37,7 @@ export default function Elections() {
     queryKey: ['/api/elections/authentic'],
     enabled: isAuthenticated,
     refetchInterval: 1000 * 60 * 60, // Refetch every hour
+    retry: false
   });
 
   // Redirect to login if not authenticated
