@@ -265,13 +265,13 @@ export default function Politicians() {
                 className="bg-blue-50 border-blue-200 hover:shadow-md transition-shadow cursor-pointer"
                 onClick={() => setSelectedPolitician({
                   id: 999002,
-                  name: "Candice Bergen",
+                  name: "Pierre Poilievre", 
                   position: "Leader of the Conservative Party",
-                  riding: "Portage—Lisgar",
+                  riding: "Carleton",
                   party: "Conservative",
                   level: "federal" as const,
-                  province: "Manitoba",
-                  email: "candice.bergen@parl.gc.ca",
+                  province: "Ontario",
+                  email: "pierre.poilievre@parl.gc.ca",
                   phone: "613-992-3128",
                   website: "https://www.conservative.ca",
                   office_address: "House of Commons, Centre Block, Room 409-S, Ottawa, ON K1A 0A6",
@@ -299,8 +299,8 @@ export default function Politicians() {
                   <p className="text-sm text-gray-600">Conservative Party</p>
                   <p className="text-xs text-gray-500 mt-1">Carleton</p>
                   <div className="mt-2 flex items-center justify-center">
-                    <Shield className="w-4 h-4 text-green-600 mr-1" />
-                    <span className="text-xs text-green-600 font-medium">Trust: 68%</span>
+                    <Shield className="w-4 h-4 text-blue-600 mr-1" />
+                    <span className="text-xs text-blue-600 font-medium">Verified Profile</span>
                   </div>
                 </CardContent>
               </Card>
