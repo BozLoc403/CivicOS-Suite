@@ -23,16 +23,16 @@ export default function Notifications() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  // Fetch user notifications
+  // Fetch user notifications - always enabled for demo
   const { data: notifications = [], isLoading } = useQuery<Notification[]>({
     queryKey: ['/api/notifications'],
-    enabled: isAuthenticated,
+    enabled: true,
   });
 
-  // Fetch user notification preferences
+  // Fetch user notification preferences - always enabled for demo
   const { data: preferences } = useQuery<UserNotificationPreferences>({
     queryKey: ['/api/notifications/preferences'],
-    enabled: isAuthenticated,
+    enabled: true,
   });
 
   // Delete notification mutation

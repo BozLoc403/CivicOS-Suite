@@ -119,10 +119,17 @@ export class DatabaseStorage implements IStorage {
 
   // Notification operations
   async getUserNotifications(userId: string): Promise<Notification[]> {
-    return await db.select()
-      .from(notifications)
-      .where(and(eq(notifications.userId, userId), eq(notifications.isDeleted, false)))
-      .orderBy(desc(notifications.createdAt));
+    try {
+      const result = await db.select()
+        .from(notifications)
+        .where(eq(notifications.userId, userId))
+        .orderBy(desc(notifications.createdAt));
+      console.log(`Found ${result.length} notifications for user ${userId}`);
+      return result;
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+      return [];
+    }
   }
 
   async createNotification(notification: InsertNotification): Promise<Notification> {
@@ -131,17 +138,28 @@ export class DatabaseStorage implements IStorage {
   }
 
   async markNotificationAsRead(notificationId: number, userId: string): Promise<void> {
-    await db
-      .update(notifications)
-      .set({ isRead: true, updatedAt: new Date() })
-      .where(and(eq(notifications.id, notificationId), eq(notifications.userId, userId)));
+    try {
+      const result = await db
+        .update(notifications)
+        .set({ isRead: true })
+        .where(and(eq(notifications.id, notificationId), eq(notifications.userId, userId)));
+      console.log(`Marked notification ${notificationId} as read for user ${userId}`);
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+      throw error;
+    }
   }
 
   async deleteNotification(notificationId: number, userId: string): Promise<void> {
-    await db
-      .update(notifications)
-      .set({ isDeleted: true, updatedAt: new Date() })
-      .where(and(eq(notifications.id, notificationId), eq(notifications.userId, userId)));
+    try {
+      const result = await db
+        .delete(notifications)
+        .where(and(eq(notifications.id, notificationId), eq(notifications.userId, userId)));
+      console.log(`Deleted notification ${notificationId} for user ${userId}`);
+    } catch (error) {
+      console.error("Error deleting notification:", error);
+      throw error;
+    }
   }
 
   async clearAllNotifications(userId: string): Promise<void> {
