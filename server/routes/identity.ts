@@ -1,5 +1,6 @@
 import type { Express } from "express";
 import { storage } from "../storage";
+import { identityStorage } from "../storage/identity";
 import { isAuthenticated } from "../replitAuth";
 
 export function registerIdentityRoutes(app: Express) {
@@ -8,20 +9,35 @@ export function registerIdentityRoutes(app: Express) {
     try {
       const userId = req.user.claims.sub;
       
-      // For now, return mock data until we implement the full verification system
-      const mockStatus = {
-        isVerified: false,
-        verificationLevel: 'none',
-        verifiedAt: null,
-        permissions: {
-          canVote: false,
-          canComment: true, // Allow basic commenting without verification
-          canCreatePetitions: false,
-          canAccessFOI: false
-        }
-      };
+      const verificationStatus = await identityStorage.getUserVerificationStatus(userId);
       
-      res.json(mockStatus);
+      if (!verificationStatus) {
+        // User has no verification status yet
+        res.json({
+          isVerified: false,
+          verificationLevel: 'none',
+          verifiedAt: null,
+          permissions: {
+            canVote: false,
+            canComment: true, // Allow basic commenting without verification
+            canCreatePetitions: false,
+            canAccessFOI: false
+          }
+        });
+        return;
+      }
+
+      res.json({
+        isVerified: verificationStatus.isVerified,
+        verificationLevel: verificationStatus.verificationLevel,
+        verifiedAt: verificationStatus.verifiedAt,
+        permissions: {
+          canVote: verificationStatus.canVote,
+          canComment: verificationStatus.canComment,
+          canCreatePetitions: verificationStatus.canCreatePetitions,
+          canAccessFOI: verificationStatus.canAccessFOI
+        }
+      });
     } catch (error) {
       console.error("Error fetching verification status:", error);
       res.status(500).json({ message: "Failed to fetch verification status" });
@@ -62,6 +78,70 @@ export function registerIdentityRoutes(app: Express) {
     } catch (error) {
       console.error("Error submitting verification step:", error);
       res.status(500).json({ message: "Failed to submit verification step" });
+    }
+  });
+
+  // Admin routes for verification management
+  app.get('/api/admin/verification-queue', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (!user?.isAdmin) {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const pendingVerifications = await identityStorage.getPendingVerifications();
+      res.json(pendingVerifications);
+    } catch (error) {
+      console.error("Error fetching verification queue:", error);
+      res.status(500).json({ message: "Failed to fetch verification queue" });
+    }
+  });
+
+  app.post('/api/admin/approve-verification', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (!user?.isAdmin) {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { verificationId } = req.body;
+      const success = await identityStorage.approveVerification(verificationId, userId);
+      
+      if (success) {
+        res.json({ success: true, message: "Verification approved successfully" });
+      } else {
+        res.status(500).json({ message: "Failed to approve verification" });
+      }
+    } catch (error) {
+      console.error("Error approving verification:", error);
+      res.status(500).json({ message: "Failed to approve verification" });
+    }
+  });
+
+  app.post('/api/admin/reject-verification', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (!user?.isAdmin) {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { verificationId, reason } = req.body;
+      const success = await identityStorage.rejectVerification(verificationId, userId, reason);
+      
+      if (success) {
+        res.json({ success: true, message: "Verification rejected successfully" });
+      } else {
+        res.status(500).json({ message: "Failed to reject verification" });
+      }
+    } catch (error) {
+      console.error("Error rejecting verification:", error);
+      res.status(500).json({ message: "Failed to reject verification" });
     }
   });
 }
