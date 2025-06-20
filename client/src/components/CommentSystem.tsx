@@ -52,11 +52,20 @@ export function CommentSystem({ targetType, targetId }: CommentSystemProps) {
   const { data: comments = [], isLoading, error, refetch } = useQuery({
     queryKey: ['comments', targetType, targetId],
     queryFn: async () => {
-      console.log('Fetching comments for:', targetType, targetId);
-      const result = await apiRequest(`/api/comments/${targetType}/${targetId}`);
-      console.log('Comments response:', result);
-      console.log('Comments is array:', Array.isArray(result), 'Length:', result?.length);
-      return Array.isArray(result) ? result : [];
+      try {
+        console.log('Fetching comments for:', targetType, targetId);
+        const response = await fetch(`/api/comments/${targetType}/${targetId}`);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        const result = await response.json();
+        console.log('Comments raw response:', result);
+        console.log('Comments is array:', Array.isArray(result), 'Length:', result?.length);
+        return Array.isArray(result) ? result : [];
+      } catch (err) {
+        console.error('Error fetching comments:', err);
+        throw err;
+      }
     },
     retry: 1,
     refetchOnWindowFocus: false,
@@ -70,17 +79,37 @@ export function CommentSystem({ targetType, targetId }: CommentSystemProps) {
   // Post comment mutation
   const commentMutation = useMutation({
     mutationFn: async (content: string) => {
-      console.log('Posting comment:', content, 'to', targetType, targetId);
-      const result = await apiRequest(`/api/comments/${targetType}/${targetId}`, 'POST', { content });
-      console.log('Comment post result:', result);
-      return result;
+      try {
+        console.log('Posting comment:', content, 'to', targetType, targetId);
+        const response = await fetch(`/api/comments/${targetType}/${targetId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ content }),
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || `HTTP ${response.status}`);
+        }
+        
+        const result = await response.json();
+        console.log('Comment post result:', result);
+        return result;
+      } catch (err) {
+        console.error('Error posting comment:', err);
+        throw err;
+      }
     },
     onSuccess: (data) => {
       console.log('Comment posted successfully:', data);
       setNewComment('');
-      // Force immediate refetch instead of just invalidating
-      refetch();
-      queryClient.invalidateQueries({ queryKey: ['comments', targetType, targetId] });
+      // Force immediate refetch and invalidate cache
+      setTimeout(() => {
+        refetch();
+        queryClient.invalidateQueries({ queryKey: ['comments'] });
+      }, 100);
       toast({
         title: "Success",
         description: "Comment posted successfully",
