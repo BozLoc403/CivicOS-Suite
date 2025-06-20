@@ -75,8 +75,8 @@ export default function IdentityVerification() {
       });
       
       toast({
-        title: "Verification Code Sent",
-        description: `Check your email inbox for the 6-digit verification code. Also check the console in development mode.`,
+        title: "Verification Code Generated",
+        description: `Check the browser console for your 6-digit verification code - no external services required!`,
       });
     } catch (error: any) {
       toast({
