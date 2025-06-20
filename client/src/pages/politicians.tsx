@@ -546,7 +546,7 @@ export default function Politicians() {
           </Alert>
         )}
 
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
           {filteredPoliticians.map((politician) => {
             // Get party colors for border
             const getPartyBorderColor = (party: string) => {
@@ -575,8 +575,8 @@ export default function Politicians() {
                 onClick={() => setSelectedPolitician(politician)}
               >
                 <CardContent className="p-6">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start space-x-4 flex-1 min-w-0">
+                  <div className="flex flex-col space-y-4">
+                    <div className="flex items-start space-x-4">
                       <Avatar className="w-16 h-16 flex-shrink-0">
                         <AvatarImage 
                           src={`https://ui-avatars.com/api/?name=${encodeURIComponent(politician.name)}&background=6b7280&color=fff`} 
@@ -588,10 +588,10 @@ export default function Politicians() {
                       </Avatar>
                       
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-gray-900 text-xl mb-2">
+                        <h3 className="font-bold text-gray-900 text-lg mb-2">
                           {politician.name}
                         </h3>
-                        <p className="text-base text-gray-700 font-medium mb-3">
+                        <p className="text-sm text-gray-700 font-medium mb-2">
                           {politician.position}
                         </p>
                         {(politician.riding || politician.constituency) && (
@@ -600,9 +600,9 @@ export default function Politicians() {
                             <span className="font-medium">{politician.riding || politician.constituency}</span>
                           </p>
                         )}
-                        <div className="flex flex-wrap items-center gap-3">
+                        <div className="flex flex-wrap items-center gap-2 mb-3">
                           {politician.party && (
-                            <Badge className={`text-sm px-3 py-1 font-medium ${(() => {
+                            <Badge className={`text-sm px-2 py-1 font-medium ${(() => {
                               const partyLower = politician.party.toLowerCase();
                               if (partyLower.includes('liberal')) {
                                 return 'bg-red-600 text-white';
@@ -623,18 +623,18 @@ export default function Politicians() {
                               {politician.party}
                             </Badge>
                           )}
-                          <Badge variant="outline" className="text-sm px-3 py-1 font-medium">
+                          <Badge variant="outline" className="text-sm px-2 py-1 font-medium">
                             {politician.level}
                           </Badge>
                           <div className="flex items-center">
-                            <Shield className="w-4 h-4 text-blue-600 mr-2" />
+                            <Shield className="w-4 h-4 text-blue-600 mr-1" />
                             <span className="text-sm text-blue-600 font-medium">Verified</span>
                           </div>
                         </div>
                       </div>
                     </div>
                     
-                    <div className="flex flex-col items-end space-y-2 flex-shrink-0 ml-4">
+                    <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                       <InteractiveContent
                         type="politician"
                         targetId={politician.id.toString()}
@@ -647,7 +647,7 @@ export default function Politicians() {
                           e.stopPropagation();
                           setSelectedPolitician(politician);
                         }}
-                        className="text-sm font-medium px-4 py-2"
+                        className="text-sm font-medium px-3 py-2"
                       >
                         View Profile
                       </Button>
