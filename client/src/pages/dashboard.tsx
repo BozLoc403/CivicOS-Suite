@@ -16,12 +16,12 @@ import {
   Zap
 } from "lucide-react";
 
-import { PoliticiansWidget } from "@/components/widgets/PoliticiansWidget";
-import { BillsVotingWidget } from "@/components/widgets/BillsVotingWidget";
-import { PetitionsWidget } from "@/components/widgets/PetitionsWidget";
+import PoliticiansWidget from "@/components/widgets/PoliticiansWidget";
+import BillsVotingWidget from "@/components/widgets/BillsVotingWidget";
+import PetitionsWidget from "@/components/widgets/PetitionsWidget";
 import { NewsAnalysisWidget } from "@/components/widgets/NewsAnalysisWidget";
 import { LegalSystemWidget } from "@/components/widgets/LegalSystemWidget";
-import { ComprehensiveNewsWidget } from "@/components/widgets/ComprehensiveNewsWidget";
+import ComprehensiveNewsWidget from "@/components/widgets/ComprehensiveNewsWidget";
 import { PrimeMinisterIntelligence } from "@/components/widgets/PrimeMinisterIntelligence";
 
 export default function Dashboard() {

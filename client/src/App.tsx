@@ -149,12 +149,7 @@ function Router() {
 }
 
 function AppWithBot() {
-  return (
-    <>
-      <Router />
-      <FloatingCivicBot />
-    </>
-  );
+  return <Router />;
 }
 
 function App() {
