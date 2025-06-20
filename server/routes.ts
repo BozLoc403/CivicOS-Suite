@@ -42,7 +42,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Unauthorized" });
       }
 
-      // For development, always return demo user unless explicitly logged out
+      // Check for session-based user data first
+      if (req.session?.userData) {
+        return res.json(req.session.userData);
+      }
+
+      // For development, return demo user as fallback
       if (process.env.NODE_ENV !== 'production') {
         const demoUser = {
           id: '42199639',
@@ -111,7 +116,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         displayName: email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
         email: email,
         isVerified: true,
-        trustScore: 75
+        trustScore: Math.floor(Math.random() * 30) + 70, // Random score 70-99
+        civicLevel: Math.floor(Math.random() * 5) + 1, // Level 1-5
+        civicPoints: Math.floor(Math.random() * 2000) + 500 // 500-2500 points
       };
       
       // Store user data in session
@@ -146,7 +153,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         firstName: firstName,
         lastName: lastName || '',
         isVerified: true,
-        trustScore: 75
+        trustScore: Math.floor(Math.random() * 30) + 70, // Random score 70-99
+        civicLevel: Math.floor(Math.random() * 5) + 1, // Level 1-5
+        civicPoints: Math.floor(Math.random() * 2000) + 500 // 500-2500 points
       };
       
       // Store user data in session
