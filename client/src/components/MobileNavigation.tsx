@@ -49,6 +49,7 @@ export function MobileNavigation() {
   const [location] = useLocation();
   const { user, logout } = useAuth();
   const [expandedSections, setExpandedSections] = useState<string[]>(["Democratic Systems"]);
+  const [showDonationPopup, setShowDonationPopup] = useState(false);
 
   const toggleSection = (sectionTitle: string) => {
     setExpandedSections(prev => 
