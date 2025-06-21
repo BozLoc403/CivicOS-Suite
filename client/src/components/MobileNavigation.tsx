@@ -130,16 +130,16 @@ export function MobileNavigation() {
           {/* Header with User Profile */}
           <div className="p-4 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center space-x-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900 flex items-center justify-center shadow-lg border border-slate-600 overflow-hidden">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-red-600 via-red-700 to-red-800 flex items-center justify-center shadow-lg border border-red-500 overflow-hidden">
                 <img 
-                  src={dominionEmblem} 
+                  src={canadianCrest} 
                   alt="CivicOS" 
-                  className="w-8 h-8 object-cover rounded-full filter brightness-125 contrast-125"
+                  className="w-8 h-8 object-contain rounded-full"
                 />
               </div>
               <div>
                 <h1 className="text-xl font-bold font-serif text-slate-900 dark:text-slate-100">CivicOS</h1>
-                <p className="text-xs text-slate-600 dark:text-slate-400 font-medium tracking-wide">DOMINION INTELLIGENCE</p>
+                <p className="text-xs text-slate-600 dark:text-slate-400 font-medium tracking-wide">DIGITAL DEMOCRACY</p>
               </div>
             </div>
             
