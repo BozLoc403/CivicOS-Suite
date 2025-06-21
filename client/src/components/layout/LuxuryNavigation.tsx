@@ -11,6 +11,8 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { CanadianCoatOfArms, CanadianMapleLeaf } from "@/components/CanadianCoatOfArms";
+import DonationPopup from "@/components/DonationPopup";
+import DonationSuccess from "@/components/DonationSuccess";
 import civicOSLogo from "@assets/ChatGPT Image Jun 20, 2025, 05_42_18 PM_1750462997583.png";
 import canadianCrest from "@assets/ChatGPT Image Jun 20, 2025, 06_03_54 PM_1750464244456.png";
 import { 
@@ -39,7 +41,8 @@ import {
   Menu,
   X,
   LogOut,
-  BookOpen
+  BookOpen,
+  Heart
 } from "lucide-react";
 
 interface NavItem {
@@ -297,6 +300,18 @@ export function LuxuryNavigation() {
             </Button>
           </Link>
           
+          {/* Donation Button */}
+          <Button
+            onClick={() => setShowDonationPopup(true)}
+            className="w-full justify-start space-x-2 lg:space-x-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white border-0 shadow-lg animate-pulse hover:animate-none transition-all duration-300 group text-xs lg:text-sm h-8 lg:h-9 px-2 lg:px-3"
+          >
+            <Heart className="w-3 h-3 lg:w-4 lg:h-4 group-hover:scale-110 transition-transform duration-200" />
+            <span className="font-semibold">Donate Now</span>
+            <div className="ml-auto">
+              <div className="w-2 h-2 bg-yellow-300 rounded-full animate-bounce"></div>
+            </div>
+          </Button>
+
           <Link href="/notifications">
             <Button 
               variant={isActive("/notifications") ? "secondary" : "ghost"} 
@@ -334,6 +349,23 @@ export function LuxuryNavigation() {
           </div>
         </div>
       </div>
+
+      {/* Donation Popups */}
+      <DonationPopup
+        isOpen={showDonationPopup}
+        onClose={() => setShowDonationPopup(false)}
+        onSuccess={() => {
+          setShowDonationPopup(false);
+          setDonatedAmount(25); // Default success amount
+          setShowDonationSuccess(true);
+        }}
+      />
+
+      <DonationSuccess
+        isOpen={showDonationSuccess}
+        onClose={() => setShowDonationSuccess(false)}
+        amount={donatedAmount}
+      />
     </div>
   );
 }
