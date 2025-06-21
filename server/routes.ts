@@ -17,6 +17,12 @@ import { sql, eq } from "drizzle-orm";
 import multer from "multer";
 import { users } from "@shared/schema";
 import { randomBytes } from "crypto";
+import Stripe from "stripe";
+
+// Initialize Stripe
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2023-10-16',
+});
 
 // Configure multer for profile picture uploads
 const storage_multer = multer.memoryStorage();
