@@ -292,7 +292,16 @@ export function LuxuryNavigation() {
         )}
       </div>
       <div className="flex-shrink-0 p-3 lg:p-4 border-t border-gray-200 dark:border-gray-700">
-        <div className="space-y-1 lg:space-y-2">
+        <div className="space-y-2 lg:space-y-3">
+          {/* Donation Button - Make it prominent */}
+          <Button
+            onClick={() => setShowDonationPopup(true)}
+            className="w-full justify-start space-x-2 lg:space-x-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200 group text-xs lg:text-sm h-10 lg:h-11 px-3 lg:px-4 mb-2"
+          >
+            <Heart className="w-4 h-4 lg:w-5 lg:h-5 group-hover:scale-105 transition-transform duration-150" />
+            <span className="font-semibold">Support Platform</span>
+          </Button>
+          
           <Link href="/settings">
             <Button
               variant={isActive("/settings") ? "secondary" : "ghost"}
@@ -302,15 +311,6 @@ export function LuxuryNavigation() {
               <span>Settings</span>
             </Button>
           </Link>
-          
-          {/* Donation Button */}
-          <Button
-            onClick={() => setShowDonationPopup(true)}
-            className="w-full justify-start space-x-2 lg:space-x-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white border-0 shadow-sm hover:shadow-md transition-all duration-200 group text-xs lg:text-sm h-8 lg:h-9 px-2 lg:px-3"
-          >
-            <Heart className="w-3 h-3 lg:w-4 lg:h-4 group-hover:scale-105 transition-transform duration-150" />
-            <span className="font-medium">Support Platform</span>
-          </Button>
 
           <Link href="/notifications">
             <Button 
