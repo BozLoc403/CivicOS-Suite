@@ -74,7 +74,7 @@ function Router() {
           <LuxuryNavigation />
           <main className="flex-1 bg-gradient-civic-ambient min-h-screen overflow-x-auto">
             {/* Mobile Navigation */}
-            <div className="md:hidden bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 p-3">
+            <div className="lg:hidden bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 p-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900 flex items-center justify-center shadow-lg border border-slate-600 overflow-hidden">

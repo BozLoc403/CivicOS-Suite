@@ -125,10 +125,10 @@ export function MobileNavigation() {
           <Menu className="w-5 h-5" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-80 p-0 bg-white dark:bg-gray-900">
+      <SheetContent side="left" className="w-80 p-0 bg-white dark:bg-gray-900 h-full">
         <div className="flex flex-col h-full">
           {/* Header with User Profile */}
-          <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
             <div className="flex items-center space-x-3 mb-4">
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-red-600 via-red-700 to-red-800 flex items-center justify-center shadow-lg border border-red-500 overflow-hidden">
                 <img 
@@ -170,7 +170,7 @@ export function MobileNavigation() {
           </div>
 
           {/* Navigation Content with Scrolling */}
-          <div className="flex-1 overflow-y-auto p-4 scrollable">
+          <div className="flex-1 overflow-y-auto p-4 scrollable max-h-[calc(100vh-200px)]">
             <div className="space-y-4">
               {navigationSections.map((section) => (
                 <div key={section.title} className="space-y-2">
