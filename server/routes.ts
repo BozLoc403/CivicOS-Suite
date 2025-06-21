@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import aiRouter from "./routes/ai";
 import simpleNotificationsRouter from "./simpleNotifications";
 import { registerIdentityRoutes } from "./routes/identity";
 
