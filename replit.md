@@ -92,6 +92,14 @@ The platform is designed for deployment on Replit with the following configurati
   - GCKey, banking, and provincial authentication buttons disabled with "In Development" labels
   - Clean fallback system allows platform testing while awaiting official government API access
   - Maintained Canadian authentication framework ready for production integration
+- June 20, 2025: Created comprehensive "Learn More" page with detailed platform information
+  - Built complete About page accessible via landing page "Learn More" button
+  - Added detailed platform features, technology stack, and security information
+  - Included mission, vision, and values sections with professional card layouts
+  - Listed authentic data sources from federal, provincial, and municipal governments
+  - Added comprehensive independence statement and developer attribution
+  - Integrated proper routing for /about page in both authenticated and non-authenticated states
+  - Maintained consistent branding with coat of arms and professional typography
 - June 20, 2025: Redesigned landing page to remove fake government styling and create professional platform aesthetic
   - Removed all "Government of Canada" banners and official government styling to avoid fraudulent appearance
   - Enhanced CivicOS logo prominence in header for authentic platform branding

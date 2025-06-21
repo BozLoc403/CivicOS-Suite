@@ -110,6 +110,7 @@ export default function Landing() {
               <Button 
                 size="lg" 
                 variant="outline"
+                onClick={() => window.location.href = '/about'}
                 className="border-2 border-red-600 text-red-600 hover:bg-red-50 px-10 py-4 font-semibold text-lg rounded-lg"
               >
                 Learn More / En Savoir Plus
