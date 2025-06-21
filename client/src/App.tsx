@@ -48,7 +48,7 @@ import IdentityVerification from "@/pages/identity-verification";
 import IdentityReview from "@/pages/admin/identity-review";
 import Manifesto from "@/pages/manifesto";
 import NotFound from "@/pages/not-found";
-import dominionEmblem from "@assets/EFE54ED9-DEE5-4F72-88D4-4441CE2D11CB_1_105_c_1749411960407.jpeg";
+import canadianCrest from "@assets/ChatGPT Image Jun 20, 2025, 06_03_54 PM_1750464244456.png";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -79,9 +79,9 @@ function Router() {
                 <div className="flex items-center space-x-2">
                   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900 flex items-center justify-center shadow-lg border border-slate-600 overflow-hidden">
                     <img 
-                      src={dominionEmblem} 
+                      src={canadianCrest} 
                       alt="CivicOS" 
-                      className="w-6 h-6 object-cover rounded-full filter brightness-125 contrast-125"
+                      className="w-6 h-6 object-contain rounded-full"
                     />
                   </div>
                   <h1 className="text-lg font-bold font-serif text-slate-900 dark:text-slate-100">CivicOS</h1>

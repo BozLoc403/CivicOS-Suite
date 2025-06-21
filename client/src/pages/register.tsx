@@ -8,7 +8,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Lock, Mail, Shield, User } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import dominionEmblem from "@assets/EFE54ED9-DEE5-4F72-88D4-4441CE2D11CB_1_105_c_1749411960407.jpeg";
+import canadianCrest from "@assets/ChatGPT Image Jun 20, 2025, 06_03_54 PM_1750464244456.png";
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -72,9 +72,9 @@ export default function Register() {
           <div className="flex justify-center mb-4">
             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900 flex items-center justify-center shadow-2xl border border-slate-600 overflow-hidden">
               <img 
-                src={dominionEmblem} 
+                src={canadianCrest} 
                 alt="CivicOS" 
-                className="w-14 h-14 object-cover rounded-full filter brightness-125 contrast-125"
+                className="w-14 h-14 object-contain rounded-full"
               />
             </div>
           </div>
