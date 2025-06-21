@@ -50,6 +50,7 @@ import IdentityVerification from "@/pages/identity-verification";
 import IdentityReview from "@/pages/admin/identity-review";
 import Manifesto from "@/pages/manifesto";
 import NotFound from "@/pages/not-found";
+import Donate from "@/pages/donate";
 import canadianCrest from "@assets/ChatGPT Image Jun 20, 2025, 06_03_54 PM_1750464244456.png";
 
 function Router() {
@@ -129,6 +130,7 @@ function Router() {
                 <Route path="/admin/identity-review" component={IdentityReview} />
                 <Route path="/notifications" component={Notifications} />
                 <Route path="/users/:userId" component={UserProfile} />
+                <Route path="/donate" component={Donate} />
                 <Route path="*">
                   {() => <NotFound />}
                 </Route>
