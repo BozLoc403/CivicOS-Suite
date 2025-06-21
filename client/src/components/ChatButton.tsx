@@ -16,7 +16,7 @@ export function ChatButton({ variant = 'icon', className = '' }: ChatButtonProps
       <>
         <Button
           variant="ghost"
-          className={`w-full justify-start space-x-2 lg:space-x-3 text-xs lg:text-sm h-8 lg:h-9 px-2 lg:px-3 hover:bg-blue-50 hover:text-blue-600 ${className}`}
+          className={`w-full justify-start space-x-2 lg:space-x-3 text-xs lg:text-sm h-8 lg:h-9 px-2 lg:px-3 hover:bg-blue-50 hover:text-blue-600 text-slate-700 dark:text-slate-300 ${className}`}
           onClick={() => setIsChatOpen(true)}
           title="Chat with CivicAI"
         >
