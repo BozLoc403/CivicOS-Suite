@@ -56,7 +56,12 @@ export default function Donate() {
 
       if (response.ok && data.url) {
         console.log('Redirecting to Stripe checkout:', data.url);
-        window.location.href = data.url;
+        // Use window.open instead of location.href to avoid popup blockers
+        const newWindow = window.open(data.url, '_blank');
+        if (!newWindow) {
+          // Fallback if popup blocked
+          window.location.href = data.url;
+        }
       } else {
         console.error('Failed to create payment session:', data);
         alert('Failed to create payment session. Please try again.');
