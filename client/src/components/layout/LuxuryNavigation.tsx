@@ -164,22 +164,8 @@ export function LuxuryNavigation() {
       "hidden md:flex", // Hide on mobile, show on md and up
       isCollapsed ? "w-16" : "w-64 lg:w-72"
     )}>
-      {/* Canadian Government Header */}
-      <div className="flex-shrink-0 bg-white border-b-4 border-red-600">
-        {/* GOC Banner */}
-        <div className="border-b border-gray-200 px-3 py-2 bg-gray-50">
-          <div className="flex items-center justify-between text-xs">
-            <div className="flex items-center space-x-2">
-              <CanadianMapleLeaf size="sm" className="text-red-600" />
-              <span className="font-semibold text-gray-800">Government of Canada</span>
-            </div>
-            {!isCollapsed && (
-              <span className="text-red-600 font-bold bg-yellow-100 px-1 rounded text-xs">NOT OFFICIAL</span>
-            )}
-          </div>
-        </div>
-        
-        {/* Main Header */}
+      {/* Clean Header */}
+      <div className="flex-shrink-0 bg-white border-b border-gray-200">
         <div className="p-4">
           <div className="flex items-center justify-between mb-4">
             <Button
@@ -190,51 +176,26 @@ export function LuxuryNavigation() {
             >
               {isCollapsed ? <Menu className="w-5 h-5" /> : <X className="w-5 h-5" />}
             </Button>
-            {!isCollapsed && (
-              <div className="px-2 py-1 bg-yellow-100 text-red-600 rounded text-xs font-bold uppercase tracking-wide border border-yellow-300">
-                Independent
-              </div>
-            )}
           </div>
           
           {!isCollapsed && (
-            <div className="space-y-3">
-              <div className="flex items-center justify-center">
-                <img 
-                  src={canadianCrest} 
-                  alt="Canadian Heraldic Crest" 
-                  className="w-12 h-12 object-contain"
-                />
-              </div>
+            <div className="space-y-4">
               <div className="flex justify-center">
                 <img 
                   src={civicOSLogo} 
                   alt="CivicOS" 
-                  className="h-8 w-auto"
+                  className="h-10 w-auto"
                 />
-              </div>
-              <div className="text-center">
-                <p className="text-gray-600 text-xs font-medium">Government Accountability Platform</p>
-                <p className="text-gray-500 text-xs">Plateforme de Responsabilité</p>
               </div>
             </div>
           )}
         </div>
-        
-        {/* Disclaimer Banner */}
-        {!isCollapsed && (
-          <div className="bg-yellow-50 border-2 border-yellow-300 mx-3 mb-3 p-3 rounded">
-            <p className="text-xs text-yellow-800 font-bold text-center">
-              Independent platform, NOT affiliated with Government of Canada
-            </p>
-          </div>
-        )}
             
         {/* User Profile Section */}
         {user && !isCollapsed && (
-          <div className="bg-red-50 border border-red-200 mx-3 rounded-lg p-3 mb-3">
+          <div className="bg-gray-50 border-t border-gray-200 px-4 py-3">
             <Link href={`/users/${user.id || 'profile'}`}>
-              <div className="flex items-center space-x-3 hover:bg-red-100 rounded p-2 transition-colors cursor-pointer">
+              <div className="flex items-center space-x-3 hover:bg-gray-100 rounded p-2 transition-colors cursor-pointer">
                 <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center flex-shrink-0">
                   <span className="text-sm font-bold text-white">
                     {user.firstName?.[0] || user.email?.[0] || "U"}
@@ -244,12 +205,9 @@ export function LuxuryNavigation() {
                   <p className="text-sm font-medium text-gray-800 truncate">
                     {user.firstName || user.email}
                   </p>
-                  <div className="flex items-center space-x-2 mt-1">
-                    <Badge className="text-xs bg-red-600 text-white font-semibold">
-                      Verified Citizen
-                    </Badge>
-                  </div>
-                  <VerificationStatusBadge />
+                  <Badge className="text-xs bg-green-100 text-green-700 font-semibold mt-1">
+                    Verified Citizen
+                  </Badge>
                 </div>
               </div>
             </Link>
