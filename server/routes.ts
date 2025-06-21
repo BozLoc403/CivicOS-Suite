@@ -2918,7 +2918,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Real Stripe integration - Create checkout session
-      const Stripe = require('stripe');
+      const { default: Stripe } = await import('stripe');
       const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
         apiVersion: '2023-10-16',
       });
