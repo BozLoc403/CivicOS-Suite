@@ -3,6 +3,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { CanadianCoatOfArms, CanadianMapleLeaf } from "@/components/CanadianCoatOfArms";
+import civicOSLogo from "@assets/ChatGPT Image Jun 20, 2025, 05_42_18 PM_1750462997583.png";
+import canadianCrest from "@assets/ChatGPT Image Jun 20, 2025, 06_03_54 PM_1750464244456.png";
 import { 
   Shield, 
   Vote, 
@@ -21,49 +23,56 @@ import {
 export default function Landing() {
   return (
     <div className="min-h-screen bg-white">
-      {/* Official Government Header - GOC Style */}
-      <header className="bg-red-600 text-white shadow-lg">
+      {/* Official Government Header - Canadian Style */}
+      <header className="bg-white border-b-4 border-red-600 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Government of Canada Banner */}
-          <div className="border-b border-red-400 py-1">
+          <div className="border-b border-gray-200 py-2 bg-gray-50">
             <div className="flex items-center justify-between text-xs font-medium">
               <div className="flex items-center space-x-8">
                 <span className="flex items-center space-x-1">
-                  <CanadianMapleLeaf size="sm" />
-                  <span className="font-semibold">Government of Canada</span>
+                  <CanadianMapleLeaf size="sm" className="text-red-600" />
+                  <span className="font-semibold text-gray-800">Government of Canada</span>
                 </span>
-                <span className="text-red-200">•</span>
+                <span className="text-gray-400">•</span>
                 <span className="flex items-center space-x-1">
-                  <CanadianMapleLeaf size="sm" />
-                  <span className="font-semibold">Gouvernement du Canada</span>
+                  <CanadianMapleLeaf size="sm" className="text-red-600" />
+                  <span className="font-semibold text-gray-800">Gouvernement du Canada</span>
                 </span>
               </div>
               <div className="flex items-center space-x-3 text-xs">
-                <span className="text-red-200 font-medium">NOT OFFICIAL GOC SITE</span>
-                <span className="text-red-300">•</span>
-                <button className="px-2 py-1 bg-red-700 rounded text-white font-medium">EN</button>
-                <button className="px-2 py-1 hover:bg-red-500 rounded text-red-100 hover:text-white transition-colors">FR</button>
+                <span className="text-red-600 font-bold bg-yellow-100 px-2 py-1 rounded">NOT OFFICIAL GOC SITE</span>
+                <button className="px-2 py-1 bg-red-600 rounded text-white font-medium">EN</button>
+                <button className="px-2 py-1 hover:bg-red-100 rounded text-red-600 hover:text-red-800 transition-colors">FR</button>
               </div>
             </div>
           </div>
           
           {/* Main Header Section */}
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center space-x-4">
-              <CanadianCoatOfArms size="md" />
+          <div className="flex justify-between items-center py-6">
+            <div className="flex items-center space-x-6">
+              <img 
+                src={canadianCrest} 
+                alt="Canadian Heraldic Crest" 
+                className="w-16 h-16 object-contain"
+              />
               <div>
-                <h1 className="text-2xl font-bold tracking-tight">CivicOS</h1>
-                <p className="text-red-100 text-sm font-medium">Canadian Digital Democracy Platform</p>
-                <p className="text-red-200 text-xs">Plateforme Démocratique Numérique Canadienne</p>
+                <img 
+                  src={civicOSLogo} 
+                  alt="CivicOS" 
+                  className="h-12 w-auto mb-2"
+                />
+                <p className="text-gray-600 text-sm font-medium">Canadian Digital Democracy Platform</p>
+                <p className="text-gray-500 text-xs">Plateforme Démocratique Numérique Canadienne</p>
               </div>
             </div>
             <div className="flex items-center space-x-3">
-              <div className="px-3 py-1 bg-yellow-400 text-gray-900 rounded-md text-xs font-bold uppercase tracking-wide">
+              <div className="px-3 py-1 bg-yellow-100 text-red-600 rounded-md text-xs font-bold uppercase tracking-wide border border-yellow-300">
                 Independent Platform
               </div>
               <Button 
                 onClick={() => window.location.href = '/login'}
-                className="bg-white text-red-600 hover:bg-red-50 font-semibold px-6 py-2 rounded-md border-2 border-white"
+                className="bg-red-600 text-white hover:bg-red-700 font-semibold px-6 py-2 rounded-md"
               >
                 Access Platform
                 <ArrowRight className="w-4 h-4 ml-2" />
@@ -73,30 +82,39 @@ export default function Landing() {
         </div>
       </header>
 
-      {/* Hero Section - GOC Style */}
-      <section className="bg-white py-12 px-4 sm:px-6 lg:px-8 border-b-4 border-red-600">
+      {/* Hero Section - Canadian Style */}
+      <section className="bg-gray-50 py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center">
             <div className="flex justify-center mb-8">
-              <div className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-sm text-sm font-bold uppercase tracking-wider">
-                <Shield className="w-4 h-4 mr-2" />
+              <div className="inline-flex items-center px-6 py-3 bg-white border-2 border-red-600 text-red-600 rounded-lg text-sm font-bold uppercase tracking-wider shadow-lg">
+                <Shield className="w-5 h-5 mr-3" />
                 Government Accountability & Transparency Platform
               </div>
             </div>
             
+            {/* Canadian Heraldic Crest */}
+            <div className="flex justify-center mb-8">
+              <img 
+                src={canadianCrest} 
+                alt="Canadian Heraldic Crest - Sapientia et Luce (Wisdom and Light)" 
+                className="w-24 h-24 object-contain"
+              />
+            </div>
+            
             {/* Important Disclaimer */}
             <div className="max-w-4xl mx-auto mb-8">
-              <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+              <div className="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-6 mb-6 shadow-sm">
                 <div className="flex">
                   <div className="flex-shrink-0">
-                    <CheckCircle className="h-5 w-5 text-yellow-400" />
+                    <CheckCircle className="h-6 w-6 text-yellow-500" />
                   </div>
-                  <div className="ml-3">
-                    <p className="text-sm text-yellow-700 font-medium">
+                  <div className="ml-4">
+                    <p className="text-sm text-yellow-800 font-bold">
                       <strong>Important Notice:</strong> This is NOT an official Government of Canada website. 
                       CivicOS is an independent platform for government accountability and transparency.
                     </p>
-                    <p className="text-xs text-yellow-600 mt-1">
+                    <p className="text-xs text-yellow-700 mt-2 font-medium">
                       <strong>Avis important:</strong> Ce n'est PAS un site officiel du gouvernement du Canada. 
                       CivicOS est une plateforme indépendante pour la responsabilité gouvernementale.
                     </p>

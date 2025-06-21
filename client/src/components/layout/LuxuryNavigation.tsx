@@ -11,6 +11,8 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { CanadianCoatOfArms, CanadianMapleLeaf } from "@/components/CanadianCoatOfArms";
+import civicOSLogo from "@assets/ChatGPT Image Jun 20, 2025, 05_42_18 PM_1750462997583.png";
+import canadianCrest from "@assets/ChatGPT Image Jun 20, 2025, 06_03_54 PM_1750464244456.png";
 import { 
   Home, 
   Users, 
@@ -158,50 +160,62 @@ export function LuxuryNavigation() {
 
   return (
     <div className={cn(
-      "bg-white border-r-4 border-red-600 h-screen flex flex-col transition-all duration-300 ease-in-out",
+      "bg-white border-r-2 border-gray-200 h-screen flex flex-col transition-all duration-300 ease-in-out shadow-lg",
       "hidden md:flex", // Hide on mobile, show on md and up
       isCollapsed ? "w-16" : "w-64 lg:w-72"
     )}>
-      {/* Government of Canada Header */}
-      <div className="flex-shrink-0 bg-red-600 text-white">
+      {/* Canadian Government Header */}
+      <div className="flex-shrink-0 bg-white border-b-4 border-red-600">
         {/* GOC Banner */}
-        <div className="border-b border-red-400 px-3 py-1">
+        <div className="border-b border-gray-200 px-3 py-2 bg-gray-50">
           <div className="flex items-center justify-between text-xs">
             <div className="flex items-center space-x-2">
-              <CanadianMapleLeaf size="sm" />
-              <span className="font-semibold">Government of Canada</span>
+              <CanadianMapleLeaf size="sm" className="text-red-600" />
+              <span className="font-semibold text-gray-800">Government of Canada</span>
             </div>
             {!isCollapsed && (
-              <span className="text-red-200 font-medium text-xs">NOT OFFICIAL</span>
+              <span className="text-red-600 font-bold bg-yellow-100 px-1 rounded text-xs">NOT OFFICIAL</span>
             )}
           </div>
         </div>
         
         {/* Main Header */}
         <div className="p-4">
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center justify-between mb-4">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setIsCollapsed(!isCollapsed)}
-              className="text-white hover:bg-red-700 hover:text-white"
+              className="text-gray-600 hover:bg-gray-100 hover:text-gray-800"
             >
               {isCollapsed ? <Menu className="w-5 h-5" /> : <X className="w-5 h-5" />}
             </Button>
             {!isCollapsed && (
-              <div className="px-2 py-1 bg-yellow-400 text-gray-900 rounded text-xs font-bold uppercase tracking-wide">
+              <div className="px-2 py-1 bg-yellow-100 text-red-600 rounded text-xs font-bold uppercase tracking-wide border border-yellow-300">
                 Independent
               </div>
             )}
           </div>
           
           {!isCollapsed && (
-            <div className="flex items-center space-x-3">
-              <CanadianCoatOfArms size="md" />
-              <div>
-                <h1 className="text-xl font-bold tracking-tight">CivicOS</h1>
-                <p className="text-red-100 text-xs font-medium">Government Accountability Platform</p>
-                <p className="text-red-200 text-xs">Plateforme de Responsabilité</p>
+            <div className="space-y-3">
+              <div className="flex items-center justify-center">
+                <img 
+                  src={canadianCrest} 
+                  alt="Canadian Heraldic Crest" 
+                  className="w-12 h-12 object-contain"
+                />
+              </div>
+              <div className="flex justify-center">
+                <img 
+                  src={civicOSLogo} 
+                  alt="CivicOS" 
+                  className="h-8 w-auto"
+                />
+              </div>
+              <div className="text-center">
+                <p className="text-gray-600 text-xs font-medium">Government Accountability Platform</p>
+                <p className="text-gray-500 text-xs">Plateforme de Responsabilité</p>
               </div>
             </div>
           )}
@@ -209,8 +223,8 @@ export function LuxuryNavigation() {
         
         {/* Disclaimer Banner */}
         {!isCollapsed && (
-          <div className="bg-yellow-50 border-l-4 border-yellow-400 mx-3 mb-3 p-2">
-            <p className="text-xs text-yellow-700 font-medium">
+          <div className="bg-yellow-50 border-2 border-yellow-300 mx-3 mb-3 p-3 rounded">
+            <p className="text-xs text-yellow-800 font-bold text-center">
               Independent platform, NOT affiliated with Government of Canada
             </p>
           </div>
@@ -218,20 +232,20 @@ export function LuxuryNavigation() {
             
         {/* User Profile Section */}
         {user && !isCollapsed && (
-          <div className="bg-red-700 mx-3 rounded p-3 mb-3">
+          <div className="bg-red-50 border border-red-200 mx-3 rounded-lg p-3 mb-3">
             <Link href={`/users/${user.id || 'profile'}`}>
-              <div className="flex items-center space-x-3 hover:bg-red-600 rounded p-2 transition-colors cursor-pointer">
-                <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center flex-shrink-0">
-                  <span className="text-sm font-bold text-red-600">
+              <div className="flex items-center space-x-3 hover:bg-red-100 rounded p-2 transition-colors cursor-pointer">
+                <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center flex-shrink-0">
+                  <span className="text-sm font-bold text-white">
                     {user.firstName?.[0] || user.email?.[0] || "U"}
                   </span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-white truncate">
+                  <p className="text-sm font-medium text-gray-800 truncate">
                     {user.firstName || user.email}
                   </p>
                   <div className="flex items-center space-x-2 mt-1">
-                    <Badge className="text-xs bg-white text-red-600 font-semibold">
+                    <Badge className="text-xs bg-red-600 text-white font-semibold">
                       Verified Citizen
                     </Badge>
                   </div>
@@ -243,7 +257,7 @@ export function LuxuryNavigation() {
         )}
       </div>
       {/* Navigation Content */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden px-3 py-4 bg-gray-50">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden px-3 py-4 bg-white">
         {isCollapsed ? (
           // Collapsed view - show only icons
           (<div className="space-y-2">
@@ -253,7 +267,7 @@ export function LuxuryNavigation() {
                   variant="ghost"
                   size="icon"
                   className={cn(
-                    "w-10 h-10 text-gray-700 hover:bg-red-100 hover:text-red-700 border border-gray-200",
+                    "w-10 h-10 text-gray-600 hover:bg-red-50 hover:text-red-600 border border-gray-200",
                     isActive(item.href) && "bg-red-600 text-white hover:bg-red-700 hover:text-white"
                   )}
                   title={item.title}
