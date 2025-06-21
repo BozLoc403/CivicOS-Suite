@@ -344,10 +344,10 @@ export default function Landing() {
             <div>
               <h3 className="font-semibold mb-4 text-gray-900">Resources</h3>
               <ul className="space-y-2 text-sm text-gray-600">
-                <li>Contact Information</li>
-                <li>Privacy Policy</li>
-                <li>Terms of Service</li>
-                <li>Accessibility</li>
+                <li><a href="/contact" className="hover:text-red-600 transition-colors cursor-pointer">Contact Information</a></li>
+                <li><a href="/privacy" className="hover:text-red-600 transition-colors cursor-pointer">Privacy Policy</a></li>
+                <li><a href="/terms" className="hover:text-red-600 transition-colors cursor-pointer">Terms of Service</a></li>
+                <li><a href="/accessibility" className="hover:text-red-600 transition-colors cursor-pointer">Accessibility</a></li>
               </ul>
             </div>
             
