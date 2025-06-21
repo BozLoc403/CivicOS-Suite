@@ -63,48 +63,48 @@ export default function About() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative bg-white py-16 px-4 sm:px-6 lg:px-8 overflow-hidden">
+      <section className="relative bg-white py-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
         {/* Background Coat of Arms */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-3">
+        <div className="absolute inset-0 flex items-center justify-center opacity-[0.015]">
           <img 
             src={canadianCrest} 
             alt="Background emblem" 
-            className="w-96 h-96 object-contain"
+            className="w-[600px] h-[600px] object-contain"
           />
         </div>
         
         <div className="relative max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center px-6 py-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm font-semibold mb-8">
-            <Shield className="w-5 h-5 mr-3" />
-            Independent Government Accountability Platform
+          <div className="inline-flex items-center px-8 py-4 bg-red-600 border-2 border-red-700 text-white rounded-xl text-sm font-bold mb-10 shadow-lg">
+            <Shield className="w-6 h-6 mr-3" />
+            INDEPENDENT GOVERNMENT ACCOUNTABILITY PLATFORM
           </div>
           
-          <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6 tracking-tight">
+          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black text-gray-900 mb-8 tracking-tight leading-tight">
             About CivicOS
           </h1>
           
-          <p className="text-xl text-gray-700 mb-8 leading-relaxed">
-            CivicOS is Canada's premier independent platform for government accountability and democratic transparency. 
-            We provide citizens with real-time access to political data, enabling informed civic engagement across 
-            all levels of Canadian government.
+          <p className="text-2xl font-semibold text-gray-800 mb-12 leading-relaxed max-w-3xl mx-auto">
+            Canada's premier independent platform for government accountability and democratic transparency. 
+            Providing citizens with real-time access to political data and enabling informed civic engagement 
+            across all levels of Canadian government.
           </p>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-red-600 mb-2">85,000+</div>
-              <div className="text-sm text-gray-600">Politicians Tracked</div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16">
+            <div className="text-center bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-gray-200">
+              <div className="text-4xl font-black text-red-600 mb-3">85,000+</div>
+              <div className="text-sm font-bold text-gray-700 uppercase tracking-wide">Politicians Tracked</div>
             </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-red-600 mb-2">24/7</div>
-              <div className="text-sm text-gray-600">Real-time Updates</div>
+            <div className="text-center bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-gray-200">
+              <div className="text-4xl font-black text-red-600 mb-3">24/7</div>
+              <div className="text-sm font-bold text-gray-700 uppercase tracking-wide">Real-time Updates</div>
             </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-red-600 mb-2">100%</div>
-              <div className="text-sm text-gray-600">Independent</div>
+            <div className="text-center bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-gray-200">
+              <div className="text-4xl font-black text-red-600 mb-3">100%</div>
+              <div className="text-sm font-bold text-gray-700 uppercase tracking-wide">Independent</div>
             </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-red-600 mb-2">3</div>
-              <div className="text-sm text-gray-600">Government Levels</div>
+            <div className="text-center bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-gray-200">
+              <div className="text-4xl font-black text-red-600 mb-3">3</div>
+              <div className="text-sm font-bold text-gray-700 uppercase tracking-wide">Government Levels</div>
             </div>
           </div>
         </div>
@@ -114,39 +114,39 @@ export default function About() {
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-50">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-            <Card className="text-center">
+            <Card className="text-center shadow-xl border-2 border-gray-200">
               <CardHeader>
-                <Target className="w-12 h-12 text-red-600 mx-auto mb-4" />
-                <CardTitle className="text-xl font-bold">Our Mission</CardTitle>
+                <Target className="w-14 h-14 text-red-600 mx-auto mb-6" />
+                <CardTitle className="text-2xl font-black tracking-tight">Our Mission</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 leading-relaxed">
+                <p className="text-gray-700 leading-relaxed font-semibold">
                   To strengthen Canadian democracy by providing transparent, accessible, and authentic government data 
                   to all citizens, enabling informed civic participation and accountability.
                 </p>
               </CardContent>
             </Card>
             
-            <Card className="text-center">
+            <Card className="text-center shadow-xl border-2 border-gray-200">
               <CardHeader>
-                <Eye className="w-12 h-12 text-red-600 mx-auto mb-4" />
-                <CardTitle className="text-xl font-bold">Our Vision</CardTitle>
+                <Eye className="w-14 h-14 text-red-600 mx-auto mb-6" />
+                <CardTitle className="text-2xl font-black tracking-tight">Our Vision</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 leading-relaxed">
+                <p className="text-gray-700 leading-relaxed font-semibold">
                   A Canada where every citizen has immediate access to government information, where transparency 
                   is the norm, and where democratic engagement is enhanced through technology.
                 </p>
               </CardContent>
             </Card>
             
-            <Card className="text-center">
+            <Card className="text-center shadow-xl border-2 border-gray-200">
               <CardHeader>
-                <Heart className="w-12 h-12 text-red-600 mx-auto mb-4" />
-                <CardTitle className="text-xl font-bold">Our Values</CardTitle>
+                <Heart className="w-14 h-14 text-red-600 mx-auto mb-6" />
+                <CardTitle className="text-2xl font-black tracking-tight">Our Values</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 leading-relaxed">
+                <p className="text-gray-700 leading-relaxed font-semibold">
                   Independence, transparency, authenticity, and accessibility. We believe in empowering citizens 
                   with factual information to make informed democratic choices.
                 </p>
@@ -159,9 +159,9 @@ export default function About() {
       {/* Platform Features */}
       <section className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Platform Features</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-black text-gray-900 mb-6 tracking-tight">Platform Features</h2>
+            <p className="text-xl font-semibold text-gray-700 max-w-3xl mx-auto">
               Comprehensive tools for government accountability and democratic engagement
             </p>
           </div>
@@ -281,9 +281,9 @@ export default function About() {
       {/* Technology & Security */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-50">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Technology & Security</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-black text-gray-900 mb-6 tracking-tight">Technology & Security</h2>
+            <p className="text-xl font-semibold text-gray-700 max-w-3xl mx-auto">
               Built with cutting-edge technology and enterprise-grade security
             </p>
           </div>
@@ -349,9 +349,9 @@ export default function About() {
       {/* Data Sources */}
       <section className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Authentic Data Sources</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-black text-gray-900 mb-6 tracking-tight">Authentic Data Sources</h2>
+            <p className="text-xl font-semibold text-gray-700 max-w-3xl mx-auto">
               All data sourced directly from official Canadian government sources
             </p>
           </div>
@@ -401,24 +401,24 @@ export default function About() {
             INDEPENDENCE STATEMENT
           </div>
           
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">
+          <h2 className="text-3xl font-black text-gray-900 mb-8 tracking-tight">
             Complete Independence from Government
           </h2>
           
-          <div className="prose prose-lg max-w-none text-gray-700">
-            <p className="mb-4">
-              CivicOS is a completely independent platform with <strong>no affiliation</strong> to any level of 
+          <div className="prose prose-xl max-w-none text-gray-800">
+            <p className="mb-6 font-semibold text-lg leading-relaxed">
+              CivicOS is a completely independent platform with <strong className="text-red-600">no affiliation</strong> to any level of 
               Canadian government. We are not funded by, controlled by, or associated with any government entity, 
               political party, or special interest group.
             </p>
             
-            <p className="mb-4">
+            <p className="mb-6 font-semibold text-lg leading-relaxed">
               Our independence ensures that we can provide unbiased, factual information about government activities 
               without political influence or agenda. We maintain editorial independence and technical autonomy to 
               serve the public interest.
             </p>
             
-            <p className="text-sm font-medium text-yellow-800">
+            <p className="text-base font-bold text-yellow-800 bg-yellow-100 p-4 rounded-lg border border-yellow-300">
               Built by Jordan Kenneth Boisclair • Independent Canadian Developer • Not affiliated with any government
             </p>
           </div>
@@ -428,10 +428,10 @@ export default function About() {
       {/* Call to Action */}
       <section className="bg-red-600 text-white py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-6">
+          <h2 className="text-4xl font-black mb-8 tracking-tight">
             Join the Democratic Revolution
           </h2>
-          <p className="text-xl text-red-100 mb-10 leading-relaxed">
+          <p className="text-2xl font-semibold text-red-100 mb-12 leading-relaxed max-w-4xl mx-auto">
             Become part of Canada's most comprehensive government accountability platform. 
             Access real-time data, engage with democracy, and hold your representatives accountable.
           </p>
