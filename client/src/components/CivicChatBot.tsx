@@ -25,8 +25,12 @@ interface AIResponse {
   relatedTopics?: string[];
 }
 
-export function CivicChatBot() {
-  const [isOpen, setIsOpen] = useState(false);
+interface CivicChatBotProps {
+  onClose?: () => void;
+}
+
+export function CivicChatBot({ onClose }: CivicChatBotProps) {
+  const [isOpen, setIsOpen] = useState(true);
   const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -138,15 +142,7 @@ export function CivicChatBot() {
   };
 
   if (!isOpen) {
-    return (
-      <Button
-        onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 h-14 w-14 rounded-full bg-red-600 hover:bg-red-700 text-white shadow-lg z-50"
-        size="icon"
-      >
-        <MessageCircle className="h-6 w-6" />
-      </Button>
-    );
+    return null; // Chat button will be in navigation instead
   }
 
   return (
@@ -177,7 +173,10 @@ export function CivicChatBot() {
             variant="ghost"
             size="icon"
             className="h-7 w-7 text-white hover:bg-white/20"
-            onClick={() => setIsOpen(false)}
+            onClick={() => {
+              setIsOpen(false);
+              onClose?.();
+            }}
           >
             <X className="h-4 w-4" />
           </Button>
