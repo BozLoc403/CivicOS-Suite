@@ -126,11 +126,14 @@ export default function Ledger() {
 
   if (authLoading || isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <NavigationHeader />
+      <div className="min-h-screen bg-gray-50 p-4 lg:p-8">
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-gray-900">Civic Ledger</h1>
+          <p className="text-gray-600">Loading your civic ledger...</p>
+        </div>
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-civic-blue mx-auto mb-4"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
             <p className="text-gray-600">Loading your civic ledger...</p>
           </div>
         </div>
@@ -141,10 +144,8 @@ export default function Ledger() {
   if (!isAuthenticated) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <NavigationHeader />
-      
-      <main className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-gray-50 p-4 lg:p-8">
+      <main className="container mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Civic Ledger</h1>
           <p className="text-gray-600">Complete history of your democratic participation and civic engagement</p>

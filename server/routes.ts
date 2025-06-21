@@ -38,6 +38,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
 
+  // AI routes
+  app.use('/api/ai', aiRouter);
+
   // Simple notifications routes (no auth required)
   app.use("/api/notifications", simpleNotificationsRouter);
 
