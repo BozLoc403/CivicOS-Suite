@@ -109,7 +109,7 @@ export default function Auth() {
           <div className="flex justify-center mb-3 sm:mb-4">
             <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900 flex items-center justify-center shadow-2xl border border-slate-600 overflow-hidden">
               <img 
-                src={dominionEmblem} 
+                src={canadianCrest} 
                 alt="CivicOS" 
                 className="w-12 h-12 sm:w-14 sm:h-14 object-cover rounded-full filter brightness-125 contrast-125"
               />
