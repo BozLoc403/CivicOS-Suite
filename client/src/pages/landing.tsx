@@ -26,25 +26,27 @@ export default function Landing() {
       {/* Professional Platform Header */}
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
+          <div className="flex justify-between items-center py-6">
             <div className="flex items-center space-x-4">
-              <img 
-                src={civicOSLogo} 
-                alt="CivicOS - Canadian Digital Democracy Platform" 
-                className="h-16 w-auto"
-              />
+              <div className="flex items-center space-x-3">
+                <CanadianMapleLeaf size="lg" className="text-red-600 w-12 h-12" />
+                <div>
+                  <h1 className="text-4xl font-bold text-gray-900 tracking-tight">CivicOS</h1>
+                  <p className="text-sm text-gray-600 font-medium">Digital Democracy Platform</p>
+                </div>
+              </div>
             </div>
             <div className="flex items-center space-x-4">
               <div className="text-right">
-                <div className="text-sm text-gray-600">Canadian Digital Democracy Platform</div>
-                <div className="text-xs text-gray-500">Independent Government Accountability</div>
+                <div className="text-sm text-gray-600 font-medium">Canadian Government Accountability</div>
+                <div className="text-xs text-gray-500">Independent • Transparent • Authentic</div>
               </div>
               <Button 
                 onClick={() => window.location.href = '/login'}
-                className="bg-red-600 text-white hover:bg-red-700 font-semibold px-6 py-3 rounded-lg"
+                className="bg-red-600 text-white hover:bg-red-700 font-semibold px-8 py-3 rounded-lg text-lg"
               >
                 Access Platform
-                <ArrowRight className="w-4 h-4 ml-2" />
+                <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </div>
           </div>

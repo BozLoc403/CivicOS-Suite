@@ -180,12 +180,9 @@ export function LuxuryNavigation() {
           
           {!isCollapsed && (
             <div className="space-y-4">
-              <div className="flex justify-center">
-                <img 
-                  src={civicOSLogo} 
-                  alt="CivicOS" 
-                  className="h-10 w-auto"
-                />
+              <div className="flex items-center justify-center space-x-2">
+                <CanadianMapleLeaf size="md" className="text-red-600 w-8 h-8" />
+                <h1 className="text-2xl font-bold text-gray-900 tracking-tight">CivicOS</h1>
               </div>
             </div>
           )}
