@@ -306,13 +306,10 @@ export function LuxuryNavigation() {
           {/* Donation Button */}
           <Button
             onClick={() => setShowDonationPopup(true)}
-            className="w-full justify-start space-x-2 lg:space-x-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white border-0 shadow-lg animate-pulse hover:animate-none transition-all duration-300 group text-xs lg:text-sm h-8 lg:h-9 px-2 lg:px-3"
+            className="w-full justify-start space-x-2 lg:space-x-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white border-0 shadow-sm hover:shadow-md transition-all duration-200 group text-xs lg:text-sm h-8 lg:h-9 px-2 lg:px-3"
           >
-            <Heart className="w-3 h-3 lg:w-4 lg:h-4 group-hover:scale-110 transition-transform duration-200" />
-            <span className="font-semibold">Donate Now</span>
-            <div className="ml-auto">
-              <div className="w-2 h-2 bg-yellow-300 rounded-full animate-bounce"></div>
-            </div>
+            <Heart className="w-3 h-3 lg:w-4 lg:h-4 group-hover:scale-105 transition-transform duration-150" />
+            <span className="font-medium">Support Platform</span>
           </Button>
 
           <Link href="/notifications">

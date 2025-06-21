@@ -80,12 +80,18 @@ export default function DonationSection() {
         <CardContent className="space-y-6">
           {/* Support Message */}
           <div>
-            <p className="text-lg font-semibold text-gray-800 mb-3">
-              Help maintain Canada's premier government transparency platform
+            <p className="text-lg font-bold text-gray-900 mb-2">
+              Power Independent Journalism
             </p>
-            <p className="text-gray-600 mb-4">
-              Your donations keep democracy accountable by supporting our independent infrastructure.
+            <p className="text-gray-700 mb-3 text-sm">
+              Direct funding for government accountability tools
             </p>
+            <div className="bg-yellow-50 border border-yellow-200 rounded p-3 mb-4">
+              <p className="text-xs text-yellow-800">
+                <strong>Transparency Crisis:</strong> Traditional media can't track 85,000+ politicians. 
+                Your support funds the technology that can.
+              </p>
+            </div>
           </div>
 
           {/* What Donations Support */}

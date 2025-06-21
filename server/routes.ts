@@ -2905,19 +2905,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid donation amount" });
       }
 
-      // In a real implementation, this would create a Stripe payment intent
-      // For now, we'll simulate the response
-      const paymentIntent = {
-        id: `pi_${Math.random().toString(36).substr(2, 9)}`,
-        client_secret: `pi_${Math.random().toString(36).substr(2, 9)}_secret_${Math.random().toString(36).substr(2, 9)}`,
+      // Check if we have Stripe configured
+      if (!process.env.STRIPE_SECRET_KEY) {
+        // Fallback to simulation for development
+        const paymentIntent = {
+          id: `pi_${Math.random().toString(36).substr(2, 9)}`,
+          client_secret: `pi_${Math.random().toString(36).substr(2, 9)}_secret_${Math.random().toString(36).substr(2, 9)}`,
+          amount: Math.round(amount * 100),
+          currency: "cad",
+          status: "requires_payment_method"
+        };
+        
+        return res.json({ 
+          clientSecret: paymentIntent.client_secret,
+          paymentIntentId: paymentIntent.id,
+          isSimulated: true
+        });
+      }
+
+      // Real Stripe integration
+      const Stripe = require('stripe');
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+        apiVersion: '2023-10-16',
+      });
+
+      const paymentIntent = await stripe.paymentIntents.create({
         amount: Math.round(amount * 100), // Convert to cents
-        currency: "cad",
-        status: "requires_payment_method"
-      };
+        currency: 'cad',
+        metadata: {
+          platform: 'CivicOS',
+          purpose: 'Platform Support Donation'
+        },
+        description: `CivicOS Platform Support - $${amount} CAD`,
+      });
 
       res.json({ 
         clientSecret: paymentIntent.client_secret,
-        paymentIntentId: paymentIntent.id
+        paymentIntentId: paymentIntent.id,
+        isSimulated: false
       });
     } catch (error: any) {
       console.error("Payment intent creation error:", error);
