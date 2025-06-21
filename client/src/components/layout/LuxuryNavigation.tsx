@@ -124,6 +124,9 @@ export function LuxuryNavigation() {
   const { user, logout } = useAuth();
   const [expandedSections, setExpandedSections] = useState<string[]>(["Political Intelligence Hub"]);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [showDonationPopup, setShowDonationPopup] = useState(false);
+  const [showDonationSuccess, setShowDonationSuccess] = useState(false);
+  const [donatedAmount, setDonatedAmount] = useState(0);
 
   const logoutMutation = useMutation({
     mutationFn: async () => {

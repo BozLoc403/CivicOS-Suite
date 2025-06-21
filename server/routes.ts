@@ -2896,6 +2896,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Stripe payment route for donations
+  app.post("/api/create-payment-intent", async (req, res) => {
+    try {
+      const { amount } = req.body;
+      
+      if (!amount || amount < 1) {
+        return res.status(400).json({ message: "Invalid donation amount" });
+      }
+
+      // In a real implementation, this would create a Stripe payment intent
+      // For now, we'll simulate the response
+      const paymentIntent = {
+        id: `pi_${Math.random().toString(36).substr(2, 9)}`,
+        client_secret: `pi_${Math.random().toString(36).substr(2, 9)}_secret_${Math.random().toString(36).substr(2, 9)}`,
+        amount: Math.round(amount * 100), // Convert to cents
+        currency: "cad",
+        status: "requires_payment_method"
+      };
+
+      res.json({ 
+        clientSecret: paymentIntent.client_secret,
+        paymentIntentId: paymentIntent.id
+      });
+    } catch (error: any) {
+      console.error("Payment intent creation error:", error);
+      res.status(500).json({ 
+        message: "Error creating payment intent: " + error.message 
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
