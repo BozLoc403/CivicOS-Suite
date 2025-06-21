@@ -42,6 +42,7 @@ export default function Donate() {
 
   const handleDonate = async (amount: number) => {
     try {
+      console.log('Creating payment session for amount:', amount);
       const response = await fetch('/api/create-payment-intent', {
         method: 'POST',
         headers: {
@@ -50,14 +51,19 @@ export default function Donate() {
         body: JSON.stringify({ amount }),
       });
 
-      if (response.ok) {
-        const { url } = await response.json();
-        window.location.href = url;
+      const data = await response.json();
+      console.log('Payment response:', data);
+
+      if (response.ok && data.url) {
+        console.log('Redirecting to Stripe checkout:', data.url);
+        window.location.href = data.url;
       } else {
-        console.error('Failed to create payment session');
+        console.error('Failed to create payment session:', data);
+        alert('Failed to create payment session. Please try again.');
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error creating payment:', error);
+      alert('Error creating payment. Please try again.');
     }
   };
 
@@ -110,7 +116,10 @@ export default function Donate() {
               className={`relative cursor-pointer transition-all duration-200 hover:shadow-lg ${
                 selectedAmount === tier.amount ? 'ring-2 ring-red-500' : ''
               }`}
-              onClick={() => setSelectedAmount(tier.amount)}
+              onClick={() => {
+                setSelectedAmount(tier.amount);
+                handleDonate(tier.amount);
+              }}
             >
               {tier.popular && (
                 <Badge className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-red-600 text-white">

@@ -155,6 +155,7 @@ function Router() {
             <Route path="/login" component={Auth} />
             <Route path="/register" component={Auth} />
             <Route path="/manifesto" component={Manifesto} />
+            <Route path="/donate" component={Donate} />
             <Route path="*">
               {() => <NotFound />}
             </Route>
