@@ -292,9 +292,6 @@ export function LuxuryNavigation() {
       </div>
       <div className="flex-shrink-0 p-3 lg:p-4 border-t border-gray-200 dark:border-gray-700">
         <div className="space-y-2 lg:space-y-3">
-          {/* Chat Button */}
-          <ChatButton variant="full" />
-          
           {/* Donation Button - Make it prominent */}
           <Button
             onClick={() => setShowDonationPopup(true)}
