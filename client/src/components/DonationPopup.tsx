@@ -91,53 +91,52 @@ export default function DonationPopup({ isOpen, onClose, onSuccess }: DonationPo
           </div>
         </DialogHeader>
 
-        <div className="space-y-6">
-          {/* Support Message */}
-          <div className="text-center">
-            <p className="text-xl font-bold text-gray-900 mb-3">
-              Keep Democracy Transparent
-            </p>
-            <p className="text-gray-700 mb-4">
-              Your support powers independent government accountability in Canada
-            </p>
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-              <p className="text-sm text-blue-800 font-medium">
-                🎯 <strong>Impact:</strong> Every dollar directly funds real-time government data access, 
-                server infrastructure, and the tools that keep 85,000+ politicians accountable to Canadians.
+            {/* Support Message */}
+            <div className="text-center">
+              <p className="text-lg font-bold text-gray-900 mb-2">
+                Keep Democracy Transparent
               </p>
+              <p className="text-gray-700 mb-3 text-sm">
+                Your support powers independent government accountability in Canada
+              </p>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <p className="text-xs text-blue-800 font-medium">
+                  Impact: Every dollar directly funds real-time government data access, 
+                  server infrastructure, and the tools that keep 85,000+ politicians accountable to Canadians.
+                </p>
+              </div>
             </div>
-          </div>
 
-          {/* What Your Donation Supports */}
-          <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-4">
-            <h3 className="font-bold text-green-900 mb-3 text-center">Monthly Platform Costs</h3>
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div className="flex items-center space-x-2">
-                <Server className="w-4 h-4 text-green-600" />
-                <span className="text-green-800">API Access: $890/mo</span>
+            {/* What Your Donation Supports */}
+            <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-3">
+              <h3 className="font-bold text-green-900 mb-2 text-center text-sm">Monthly Platform Costs</h3>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="flex items-center space-x-1">
+                  <Server className="w-3 h-3 text-green-600" />
+                  <span className="text-green-800">API Access: $890/mo</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <Zap className="w-3 h-3 text-green-600" />
+                  <span className="text-green-800">Servers: $340/mo</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <Database className="w-3 h-3 text-green-600" />
+                  <span className="text-green-800">Database: $180/mo</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <Heart className="w-3 h-3 text-green-600" />
+                  <span className="text-green-800">Development: $1,200/mo</span>
+                </div>
               </div>
-              <div className="flex items-center space-x-2">
-                <Zap className="w-4 h-4 text-green-600" />
-                <span className="text-green-800">Servers: $340/mo</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Database className="w-4 h-4 text-green-600" />
-                <span className="text-green-800">Database: $180/mo</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Heart className="w-4 h-4 text-green-600" />
-                <span className="text-green-800">Development: $1,200/mo</span>
+              <div className="mt-2 pt-2 border-t border-green-200">
+                <p className="text-center font-bold text-green-900 text-sm">
+                  Total Monthly: <span className="text-base">$2,610</span>
+                </p>
+                <p className="text-center text-xs text-green-700">
+                  100% goes to platform operations - no salaries or profit
+                </p>
               </div>
             </div>
-            <div className="mt-3 pt-3 border-t border-green-200">
-              <p className="text-center font-bold text-green-900">
-                Total Monthly: <span className="text-lg">$2,610</span>
-              </p>
-              <p className="text-center text-xs text-green-700 mt-1">
-                100% goes to platform operations - no salaries or profit
-              </p>
-            </div>
-          </div>
 
           {/* Preset Donation Amounts */}
           <div>
@@ -234,6 +233,7 @@ export default function DonationPopup({ isOpen, onClose, onSuccess }: DonationPo
             <p className="text-xs text-gray-500 text-center">
               CivicOS is a registered non-profit platform. Donations support infrastructure costs only.
             </p>
+          </div>
           </div>
         </div>
       </DialogContent>
