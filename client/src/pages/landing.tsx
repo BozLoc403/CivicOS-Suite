@@ -29,7 +29,11 @@ export default function Landing() {
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-3">
-                <CanadianMapleLeaf size="lg" className="text-red-600 w-12 h-12" />
+                <img 
+                  src={canadianCrest} 
+                  alt="CivicOS Heraldic Crest" 
+                  className="w-12 h-12 object-contain"
+                />
                 <div>
                   <h1 className="text-4xl font-bold text-gray-900 tracking-tight">CivicOS</h1>
                   <p className="text-sm text-gray-600 font-medium">Digital Democracy Platform</p>

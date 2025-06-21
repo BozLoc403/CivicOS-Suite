@@ -181,7 +181,11 @@ export function LuxuryNavigation() {
           {!isCollapsed && (
             <div className="space-y-4">
               <div className="flex items-center justify-center space-x-2">
-                <CanadianMapleLeaf size="md" className="text-red-600 w-8 h-8" />
+                <img 
+                  src={canadianCrest} 
+                  alt="CivicOS Crest" 
+                  className="w-8 h-8 object-contain"
+                />
                 <h1 className="text-2xl font-bold text-gray-900 tracking-tight">CivicOS</h1>
               </div>
             </div>
