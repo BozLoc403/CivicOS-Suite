@@ -96,8 +96,8 @@ const navigationSections = [
   {
     title: "Transparency Arsenal",
     items: [
-      { title: "Leak Archive", href: "/leaks", icon: Archive, badge: "Secure" },
-      { title: "FOI Repository", href: "/foi", icon: Eye },
+      { title: "Document Leaks", href: "/leaks", icon: Archive, badge: "Secure" },
+      { title: "Freedom of Information", href: "/foi", icon: Eye },
       { title: "Whistleblower Portal", href: "/whistleblower", icon: AlertTriangle },
       { title: "Corruption Patterns", href: "/corruption", icon: Activity }
     ]
@@ -111,11 +111,9 @@ const navigationSections = [
     ]
   },
   {
-    title: "Intelligence Hub",
+    title: "Platform Hub",
     items: [
-      { title: "Manifesto", href: "/manifesto", icon: BookOpen, badge: "Core" },
-      { title: "Leak Archive", href: "/leaks", icon: Archive, badge: "Secure" },
-      { title: "FOI Repository", href: "/foi", icon: Eye }
+      { title: "Manifesto", href: "/manifesto", icon: BookOpen, badge: "Core" }
     ]
   }
 ];
