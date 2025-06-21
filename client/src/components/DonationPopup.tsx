@@ -8,12 +8,16 @@ import { Heart, X, DollarSign, Server, Database, Zap } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { useMutation } from "@tanstack/react-query";
+import { loadStripe } from "@stripe/stripe-js";
 
 interface DonationPopupProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
 }
+
+// Initialize Stripe
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || 'pk_test_placeholder');
 
 export default function DonationPopup({ isOpen, onClose, onSuccess }: DonationPopupProps) {
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
@@ -27,19 +31,55 @@ export default function DonationPopup({ isOpen, onClose, onSuccess }: DonationPo
     mutationFn: async (amount: number) => {
       return apiRequest("/api/create-payment-intent", "POST", { amount });
     },
-    onSuccess: (data) => {
-      // In a real implementation, this would redirect to Stripe checkout
-      toast({
-        title: "Donation Initiated",
-        description: "Redirecting to secure payment...",
-      });
-      
-      // Simulate successful donation after 2 seconds
-      setTimeout(() => {
+    onSuccess: async (data) => {
+      if (data.isSimulated) {
+        // Demo mode - simulate success
+        toast({
+          title: "Demo Payment Complete",
+          description: `Thank you for your $${data.amount} CAD donation!`,
+        });
+        setTimeout(() => {
+          setIsProcessing(false);
+          onSuccess();
+          onClose();
+        }, 1500);
+        return;
+      }
+
+      // Real Stripe checkout
+      if (data.url) {
+        toast({
+          title: "Redirecting to Stripe",
+          description: "Opening secure payment checkout...",
+        });
+        
+        // Redirect to Stripe Checkout
+        window.location.href = data.url;
+      } else if (data.sessionId) {
+        // Alternative: use Stripe redirect
+        const stripe = await stripePromise;
+        if (stripe) {
+          const { error } = await stripe.redirectToCheckout({
+            sessionId: data.sessionId
+          });
+          
+          if (error) {
+            setIsProcessing(false);
+            toast({
+              title: "Payment Error",
+              description: error.message || "Failed to redirect to checkout",
+              variant: "destructive",
+            });
+          }
+        }
+      } else {
         setIsProcessing(false);
-        onSuccess();
-        onClose();
-      }, 2000);
+        toast({
+          title: "Configuration Error",
+          description: "Payment system is not properly configured",
+          variant: "destructive",
+        });
+      }
     },
     onError: (error: any) => {
       setIsProcessing(false);
@@ -60,7 +100,14 @@ export default function DonationPopup({ isOpen, onClose, onSuccess }: DonationPo
 
   const handleDonate = async () => {
     const amount = getDonationAmount();
-    if (amount <= 0) return;
+    if (amount <= 0) {
+      toast({
+        title: "Invalid Amount",
+        description: "Please select or enter a valid donation amount",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setIsProcessing(true);
     donationMutation.mutate(amount);

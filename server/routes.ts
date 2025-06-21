@@ -2908,46 +2908,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check if we have Stripe configured
       if (!process.env.STRIPE_SECRET_KEY) {
         // Fallback to simulation for development
-        const paymentIntent = {
-          id: `pi_${Math.random().toString(36).substr(2, 9)}`,
-          client_secret: `pi_${Math.random().toString(36).substr(2, 9)}_secret_${Math.random().toString(36).substr(2, 9)}`,
-          amount: Math.round(amount * 100),
-          currency: "cad",
-          status: "requires_payment_method"
-        };
-        
+        console.log(`Demo donation: $${amount} CAD`);
         return res.json({ 
-          clientSecret: paymentIntent.client_secret,
-          paymentIntentId: paymentIntent.id,
-          isSimulated: true
+          success: true,
+          isSimulated: true,
+          amount: amount,
+          message: "Demo payment completed successfully"
         });
       }
 
-      // Real Stripe integration
+      // Real Stripe integration - Create checkout session
       const Stripe = require('stripe');
       const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
         apiVersion: '2023-10-16',
       });
 
-      const paymentIntent = await stripe.paymentIntents.create({
-        amount: Math.round(amount * 100), // Convert to cents
-        currency: 'cad',
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        line_items: [
+          {
+            price_data: {
+              currency: 'cad',
+              product_data: {
+                name: 'CivicOS Platform Support',
+                description: 'Support independent Canadian political transparency platform',
+              },
+              unit_amount: Math.round(amount * 100), // Convert to cents
+            },
+            quantity: 1,
+          },
+        ],
+        mode: 'payment',
+        success_url: `${req.protocol}://${req.get('host')}/donation-success?amount=${amount}`,
+        cancel_url: `${req.protocol}://${req.get('host')}/`,
         metadata: {
           platform: 'CivicOS',
-          purpose: 'Platform Support Donation'
-        },
-        description: `CivicOS Platform Support - $${amount} CAD`,
+          purpose: 'Platform Support Donation',
+          amount: amount.toString()
+        }
       });
 
+      console.log(`Stripe checkout session created for $${amount} CAD: ${session.id}`);
       res.json({ 
-        clientSecret: paymentIntent.client_secret,
-        paymentIntentId: paymentIntent.id,
-        isSimulated: false
+        sessionId: session.id,
+        url: session.url,
+        isSimulated: false,
+        amount: amount
       });
     } catch (error: any) {
-      console.error("Payment intent creation error:", error);
+      console.error("Payment session creation error:", error);
       res.status(500).json({ 
-        message: "Error creating payment intent: " + error.message 
+        message: "Error creating payment session: " + error.message 
       });
     }
   });
