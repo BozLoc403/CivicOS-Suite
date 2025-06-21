@@ -10,6 +10,10 @@ import { LuxuryNavigation } from "@/components/layout/LuxuryNavigation";
 import { MobileNavigation } from "@/components/MobileNavigation";
 import Landing from "@/pages/landing";
 import About from "@/pages/about";
+import Privacy from "@/pages/privacy";
+import Terms from "@/pages/terms";
+import Contact from "@/pages/contact";
+import Accessibility from "@/pages/accessibility";
 import Dashboard from "@/pages/dashboard";
 import Voting from "@/pages/voting";
 import Ledger from "@/pages/ledger";
@@ -136,6 +140,10 @@ function Router() {
           <Switch>
             <Route path="/" component={Landing} />
             <Route path="/about" component={About} />
+            <Route path="/privacy" component={Privacy} />
+            <Route path="/terms" component={Terms} />
+            <Route path="/contact" component={Contact} />
+            <Route path="/accessibility" component={Accessibility} />
             <Route path="/auth" component={Auth} />
             <Route path="/login" component={Auth} />
             <Route path="/register" component={Auth} />
