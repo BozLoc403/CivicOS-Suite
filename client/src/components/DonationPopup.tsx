@@ -119,33 +119,33 @@ export default function DonationPopup({ isOpen, onClose, onSuccess }: DonationPo
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md max-h-[90vh] overflow-hidden p-0">
+      <DialogContent className="w-[95vw] max-w-md max-h-[90vh] overflow-hidden p-0 mx-auto">
         <div className="max-h-[90vh] overflow-y-auto">
-          <DialogHeader className="flex flex-row items-center justify-between p-4 pb-2 sticky top-0 bg-white z-10">
-            <DialogTitle className="text-lg font-bold text-gray-900 flex items-center">
-              <Heart className="w-5 h-5 text-red-600 mr-2" />
+          <DialogHeader className="flex flex-row items-center justify-between p-3 sm:p-4 pb-2 sticky top-0 bg-white z-10 border-b">
+            <DialogTitle className="text-base sm:text-lg font-bold text-gray-900 flex items-center">
+              <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 mr-2" />
               Support CivicOS
             </DialogTitle>
             <Button 
               variant="ghost" 
               size="sm" 
               onClick={onClose}
-              className="text-gray-500 hover:text-gray-700"
+              className="text-gray-500 hover:text-gray-700 h-8 w-8 p-0"
             >
               <X className="w-4 h-4" />
             </Button>
           </DialogHeader>
           
-          <div className="px-4 pb-4 space-y-4">
+          <div className="px-3 sm:px-4 pb-4 space-y-3 sm:space-y-4">
             {/* Support Message */}
             <div className="text-center">
-              <p className="text-lg font-bold text-gray-900 mb-2">
+              <p className="text-base sm:text-lg font-bold text-gray-900 mb-2">
                 Keep Democracy Transparent
               </p>
-              <p className="text-gray-700 mb-3 text-sm">
+              <p className="text-gray-700 mb-3 text-xs sm:text-sm">
                 Your support powers independent government accountability in Canada
               </p>
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-2 sm:p-3">
                 <p className="text-xs text-blue-800 font-medium">
                   Impact: Every dollar directly funds real-time government data access, 
                   server infrastructure, and the tools that keep 85,000+ politicians accountable to Canadians.
@@ -154,29 +154,29 @@ export default function DonationPopup({ isOpen, onClose, onSuccess }: DonationPo
             </div>
 
             {/* What Your Donation Supports */}
-            <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-3">
-              <h3 className="font-bold text-green-900 mb-2 text-center text-sm">Monthly Platform Costs</h3>
-              <div className="grid grid-cols-2 gap-2 text-xs">
+            <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-2 sm:p-3">
+              <h3 className="font-bold text-green-900 mb-2 text-center text-xs sm:text-sm">Monthly Platform Costs</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 sm:gap-2 text-xs">
                 <div className="flex items-center space-x-1">
-                  <Server className="w-3 h-3 text-green-600" />
+                  <Server className="w-3 h-3 text-green-600 flex-shrink-0" />
                   <span className="text-green-800">API Access: $890/mo</span>
                 </div>
                 <div className="flex items-center space-x-1">
-                  <Zap className="w-3 h-3 text-green-600" />
+                  <Zap className="w-3 h-3 text-green-600 flex-shrink-0" />
                   <span className="text-green-800">Servers: $340/mo</span>
                 </div>
                 <div className="flex items-center space-x-1">
-                  <Database className="w-3 h-3 text-green-600" />
+                  <Database className="w-3 h-3 text-green-600 flex-shrink-0" />
                   <span className="text-green-800">Database: $180/mo</span>
                 </div>
                 <div className="flex items-center space-x-1">
-                  <Heart className="w-3 h-3 text-green-600" />
+                  <Heart className="w-3 h-3 text-green-600 flex-shrink-0" />
                   <span className="text-green-800">Development: $1,200/mo</span>
                 </div>
               </div>
               <div className="mt-2 pt-2 border-t border-green-200">
-                <p className="text-center font-bold text-green-900 text-sm">
-                  Total Monthly: <span className="text-base">$2,610</span>
+                <p className="text-center font-bold text-green-900 text-xs sm:text-sm">
+                  Total Monthly: <span className="text-sm sm:text-base">$2,610</span>
                 </p>
                 <p className="text-center text-xs text-green-700">
                   100% goes to platform operations - no salaries or profit
@@ -186,7 +186,7 @@ export default function DonationPopup({ isOpen, onClose, onSuccess }: DonationPo
 
             {/* Preset Donation Amounts */}
             <div>
-              <Label className="text-sm font-bold text-gray-700 mb-2 block">
+              <Label className="text-xs sm:text-sm font-bold text-gray-700 mb-2 block">
                 Choose your contribution:
               </Label>
               <div className="grid grid-cols-2 gap-2 mb-3">
@@ -198,10 +198,10 @@ export default function DonationPopup({ isOpen, onClose, onSuccess }: DonationPo
                       setSelectedAmount(amount);
                       setCustomAmount("");
                     }}
-                    className="relative h-16 flex flex-col items-center justify-center border-2 hover:border-red-300 transition-all duration-200"
+                    className="relative h-14 sm:h-16 flex flex-col items-center justify-center border-2 hover:border-red-300 transition-all duration-200 text-center"
                   >
-                    <span className="text-lg font-black text-gray-900">${amount}</span>
-                    <span className="text-xs text-gray-600 mt-1 text-center leading-tight">
+                    <span className="text-base sm:text-lg font-black text-gray-900">${amount}</span>
+                    <span className="text-xs text-gray-600 mt-0.5 sm:mt-1 leading-tight">
                       {getImpactMessage(amount)}
                     </span>
                   </Button>
@@ -211,7 +211,7 @@ export default function DonationPopup({ isOpen, onClose, onSuccess }: DonationPo
 
             {/* Custom Amount Input */}
             <div>
-              <Label className="text-sm font-bold text-gray-700 mb-2 block">
+              <Label className="text-xs sm:text-sm font-bold text-gray-700 mb-2 block">
                 Or enter a custom amount:
               </Label>
               <div className="relative">
@@ -224,7 +224,7 @@ export default function DonationPopup({ isOpen, onClose, onSuccess }: DonationPo
                     setCustomAmount(e.target.value);
                     setSelectedAmount(null);
                   }}
-                  className="pl-8 text-sm font-bold text-center border-2 focus:border-red-400"
+                  className="pl-8 text-sm font-bold text-center border-2 focus:border-red-400 h-10 sm:h-11"
                   min="1"
                   step="0.01"
                 />

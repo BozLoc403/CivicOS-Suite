@@ -26,28 +26,28 @@ export default function Landing() {
       {/* Professional Platform Header */}
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-3">
+          <div className="flex flex-col sm:flex-row justify-between items-center py-4 sm:py-6 space-y-4 sm:space-y-0">
+            <div className="flex items-center space-x-3 sm:space-x-4">
+              <div className="flex items-center space-x-2 sm:space-x-3">
                 <img 
                   src={canadianCrest} 
                   alt="CivicOS Heraldic Crest" 
-                  className="w-12 h-12 object-contain"
+                  className="w-10 h-10 sm:w-12 sm:h-12 object-contain"
                 />
                 <div>
-                  <h1 className="text-4xl font-bold text-gray-900 tracking-tight">CivicOS</h1>
-                  <p className="text-sm text-gray-600 font-medium">Digital Democracy Platform</p>
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 tracking-tight">CivicOS</h1>
+                  <p className="text-xs sm:text-sm text-gray-600 font-medium">Digital Democracy Platform</p>
                 </div>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
-              <div className="text-right">
-                <div className="text-sm text-gray-600 font-medium">Canadian Government Accountability</div>
+            <div className="flex flex-col sm:flex-row items-center space-y-3 sm:space-y-0 sm:space-x-4">
+              <div className="text-center sm:text-right">
+                <div className="text-xs sm:text-sm text-gray-600 font-medium">Canadian Government Accountability</div>
                 <div className="text-xs text-gray-500">Independent • Transparent • Authentic</div>
               </div>
               <Button 
                 onClick={() => window.location.href = '/login'}
-                className="bg-red-600 text-white hover:bg-red-700 font-semibold px-8 py-3 rounded-lg text-lg"
+                className="bg-red-600 text-white hover:bg-red-700 font-semibold px-6 sm:px-8 py-2 sm:py-3 rounded-lg text-base sm:text-lg w-full sm:w-auto"
               >
                 Access Platform
                 <ArrowRight className="w-5 h-5 ml-2" />

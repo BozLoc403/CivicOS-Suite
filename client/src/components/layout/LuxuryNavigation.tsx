@@ -200,16 +200,16 @@ export function LuxuryNavigation() {
             
         {/* User Profile Section */}
         {user && !isCollapsed && (
-          <div className="bg-gray-50 border-t border-gray-200 px-4 py-3">
+          <div className="bg-gray-50 border-t border-gray-200 px-3 lg:px-4 py-2 lg:py-3">
             <Link href={`/users/${user.id || 'profile'}`}>
-              <div className="flex items-center space-x-3 hover:bg-gray-100 rounded p-2 transition-colors cursor-pointer">
-                <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center flex-shrink-0">
-                  <span className="text-sm font-bold text-white">
+              <div className="flex items-center space-x-2 lg:space-x-3 hover:bg-gray-100 rounded p-2 transition-colors cursor-pointer">
+                <div className="w-6 h-6 lg:w-8 lg:h-8 rounded-full bg-red-600 flex items-center justify-center flex-shrink-0">
+                  <span className="text-xs lg:text-sm font-bold text-white">
                     {user.firstName?.[0] || user.email?.[0] || "U"}
                   </span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-800 truncate">
+                  <p className="text-xs lg:text-sm font-medium text-gray-800 truncate">
                     {user.firstName || user.email}
                   </p>
                   <Badge className="text-xs bg-green-100 text-green-700 font-semibold mt-1">
@@ -222,7 +222,7 @@ export function LuxuryNavigation() {
         )}
       </div>
       {/* Navigation Content */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden px-3 py-4 bg-white">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden px-2 lg:px-3 py-3 lg:py-4 bg-white">
         {isCollapsed ? (
           // Collapsed view - show only icons
           (<div className="space-y-2">
@@ -232,12 +232,12 @@ export function LuxuryNavigation() {
                   variant="ghost"
                   size="icon"
                   className={cn(
-                    "w-10 h-10 text-gray-600 hover:bg-red-50 hover:text-red-600 border border-gray-200",
+                    "w-8 h-8 lg:w-10 lg:h-10 text-gray-600 hover:bg-red-50 hover:text-red-600 border border-gray-200",
                     isActive(item.href) && "bg-red-600 text-white hover:bg-red-700 hover:text-white"
                   )}
                   title={item.title}
                 >
-                  <item.icon className="w-5 h-5" />
+                  <item.icon className="w-4 h-4 lg:w-5 lg:h-5" />
                 </Button>
               </Link>
             ))}
