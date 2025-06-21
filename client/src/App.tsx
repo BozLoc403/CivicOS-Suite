@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { LuxuryNavigation } from "@/components/layout/LuxuryNavigation";
 import { MobileNavigation } from "@/components/MobileNavigation";
 import Landing from "@/pages/landing";
+import About from "@/pages/about";
 import Dashboard from "@/pages/dashboard";
 import Voting from "@/pages/voting";
 import Ledger from "@/pages/ledger";
@@ -134,6 +135,7 @@ function Router() {
         <main>
           <Switch>
             <Route path="/" component={Landing} />
+            <Route path="/about" component={About} />
             <Route path="/auth" component={Auth} />
             <Route path="/login" component={Auth} />
             <Route path="/register" component={Auth} />
