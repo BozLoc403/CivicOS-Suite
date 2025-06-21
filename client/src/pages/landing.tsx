@@ -23,56 +23,25 @@ import {
 export default function Landing() {
   return (
     <div className="min-h-screen bg-white">
-      {/* Official Government Header - Canadian Style */}
-      <header className="bg-white border-b-4 border-red-600 shadow-lg">
+      {/* Professional Platform Header */}
+      <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Government of Canada Banner */}
-          <div className="border-b border-gray-200 py-2 bg-gray-50">
-            <div className="flex items-center justify-between text-xs font-medium">
-              <div className="flex items-center space-x-8">
-                <span className="flex items-center space-x-1">
-                  <CanadianMapleLeaf size="sm" className="text-red-600" />
-                  <span className="font-semibold text-gray-800">Government of Canada</span>
-                </span>
-                <span className="text-gray-400">•</span>
-                <span className="flex items-center space-x-1">
-                  <CanadianMapleLeaf size="sm" className="text-red-600" />
-                  <span className="font-semibold text-gray-800">Gouvernement du Canada</span>
-                </span>
-              </div>
-              <div className="flex items-center space-x-3 text-xs">
-                <span className="text-red-600 font-bold bg-yellow-100 px-2 py-1 rounded">NOT OFFICIAL GOC SITE</span>
-                <button className="px-2 py-1 bg-red-600 rounded text-white font-medium">EN</button>
-                <button className="px-2 py-1 hover:bg-red-100 rounded text-red-600 hover:text-red-800 transition-colors">FR</button>
-              </div>
-            </div>
-          </div>
-          
-          {/* Main Header Section */}
-          <div className="flex justify-between items-center py-6">
-            <div className="flex items-center space-x-6">
+          <div className="flex justify-between items-center py-4">
+            <div className="flex items-center space-x-4">
               <img 
-                src={canadianCrest} 
-                alt="Canadian Heraldic Crest" 
-                className="w-16 h-16 object-contain"
+                src={civicOSLogo} 
+                alt="CivicOS - Canadian Digital Democracy Platform" 
+                className="h-16 w-auto"
               />
-              <div>
-                <img 
-                  src={civicOSLogo} 
-                  alt="CivicOS" 
-                  className="h-12 w-auto mb-2"
-                />
-                <p className="text-gray-600 text-sm font-medium">Canadian Digital Democracy Platform</p>
-                <p className="text-gray-500 text-xs">Plateforme Démocratique Numérique Canadienne</p>
-              </div>
             </div>
-            <div className="flex items-center space-x-3">
-              <div className="px-3 py-1 bg-yellow-100 text-red-600 rounded-md text-xs font-bold uppercase tracking-wide border border-yellow-300">
-                Independent Platform
+            <div className="flex items-center space-x-4">
+              <div className="text-right">
+                <div className="text-sm text-gray-600">Canadian Digital Democracy Platform</div>
+                <div className="text-xs text-gray-500">Independent Government Accountability</div>
               </div>
               <Button 
                 onClick={() => window.location.href = '/login'}
-                className="bg-red-600 text-white hover:bg-red-700 font-semibold px-6 py-2 rounded-md"
+                className="bg-red-600 text-white hover:bg-red-700 font-semibold px-6 py-3 rounded-lg"
               >
                 Access Platform
                 <ArrowRight className="w-4 h-4 ml-2" />
@@ -82,56 +51,35 @@ export default function Landing() {
         </div>
       </header>
 
-      {/* Hero Section - Canadian Style */}
-      <section className="bg-gray-50 py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
+      {/* Hero Section */}
+      <section className="relative bg-white py-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        {/* Background Coat of Arms */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-5">
+          <img 
+            src={canadianCrest} 
+            alt="Background emblem" 
+            className="w-96 h-96 object-contain"
+          />
+        </div>
+        
+        <div className="relative max-w-7xl mx-auto">
           <div className="text-center">
             <div className="flex justify-center mb-8">
-              <div className="inline-flex items-center px-6 py-3 bg-white border-2 border-red-600 text-red-600 rounded-lg text-sm font-bold uppercase tracking-wider shadow-lg">
+              <div className="inline-flex items-center px-6 py-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm font-semibold">
                 <Shield className="w-5 h-5 mr-3" />
-                Government Accountability & Transparency Platform
+                Independent Government Accountability Platform
               </div>
             </div>
             
-            {/* Canadian Heraldic Crest */}
-            <div className="flex justify-center mb-8">
-              <img 
-                src={canadianCrest} 
-                alt="Canadian Heraldic Crest - Sapientia et Luce (Wisdom and Light)" 
-                className="w-24 h-24 object-contain"
-              />
-            </div>
-            
-            {/* Important Disclaimer */}
-            <div className="max-w-4xl mx-auto mb-8">
-              <div className="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-6 mb-6 shadow-sm">
-                <div className="flex">
-                  <div className="flex-shrink-0">
-                    <CheckCircle className="h-6 w-6 text-yellow-500" />
-                  </div>
-                  <div className="ml-4">
-                    <p className="text-sm text-yellow-800 font-bold">
-                      <strong>Important Notice:</strong> This is NOT an official Government of Canada website. 
-                      CivicOS is an independent platform for government accountability and transparency.
-                    </p>
-                    <p className="text-xs text-yellow-700 mt-2 font-medium">
-                      <strong>Avis important:</strong> Ce n'est PAS un site officiel du gouvernement du Canada. 
-                      CivicOS est une plateforme indépendante pour la responsabilité gouvernementale.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 tracking-tight">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 tracking-tight">
               Canadian Digital Democracy
             </h1>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-red-600 mb-8 tracking-tight">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-red-600 mb-8">
               Démocratie Numérique Canadienne
             </h2>
             
-            <div className="max-w-4xl mx-auto mb-8">
-              <p className="text-lg text-gray-700 mb-4 leading-relaxed font-medium">
+            <div className="max-w-4xl mx-auto mb-12">
+              <p className="text-xl text-gray-700 mb-6 leading-relaxed">
                 Access real-time Canadian government data, track parliamentary proceedings, 
                 monitor your elected representatives, and engage with democratic processes 
                 across federal, provincial, and municipal levels.
@@ -144,47 +92,47 @@ export default function Landing() {
               </p>
             </div>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+            <div className="flex flex-col sm:flex-row gap-6 justify-center mb-16">
               <Button 
                 size="lg"
                 onClick={() => window.location.href = '/login'}
-                className="bg-red-600 hover:bg-red-700 text-white px-8 py-4 font-bold text-base uppercase tracking-wide rounded-sm"
+                className="bg-red-600 hover:bg-red-700 text-white px-10 py-4 font-bold text-lg rounded-lg shadow-lg hover:shadow-xl transition-all"
               >
                 Access Platform / Accéder à la Plateforme
-                <ArrowRight className="w-5 h-5 ml-2" />
+                <ArrowRight className="w-5 h-5 ml-3" />
               </Button>
               <Button 
                 size="lg" 
                 variant="outline"
-                className="border-2 border-red-600 text-red-600 hover:bg-red-50 px-8 py-4 font-semibold rounded-sm"
+                className="border-2 border-red-600 text-red-600 hover:bg-red-50 px-10 py-4 font-semibold text-lg rounded-lg"
               >
                 Learn More / En Savoir Plus
-                <FileText className="w-5 h-5 ml-2" />
+                <FileText className="w-5 h-5 ml-3" />
               </Button>
             </div>
 
-            {/* Government Statistics - GOC Style */}
+            {/* Canadian Government Statistics */}
             <div className="max-w-6xl mx-auto">
-              <div className="bg-gray-50 border-l-4 border-red-600 p-8 mb-8">
+              <div className="bg-gradient-to-r from-red-50 to-white border border-red-200 rounded-2xl p-8 shadow-lg">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                   <div className="text-center">
-                    <div className="text-4xl font-bold text-red-600 mb-2">338</div>
-                    <div className="text-sm text-gray-700 font-semibold uppercase tracking-wide">Federal MPs</div>
+                    <div className="text-5xl font-bold text-red-600 mb-3">338</div>
+                    <div className="text-sm text-gray-700 font-bold uppercase tracking-wide">Federal MPs</div>
                     <div className="text-xs text-gray-500 mt-1">Députés fédéraux</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-4xl font-bold text-red-600 mb-2">905</div>
-                    <div className="text-sm text-gray-700 font-semibold uppercase tracking-wide">Provincial MLAs</div>
+                    <div className="text-5xl font-bold text-red-600 mb-3">905</div>
+                    <div className="text-sm text-gray-700 font-bold uppercase tracking-wide">Provincial MLAs</div>
                     <div className="text-xs text-gray-500 mt-1">Députés provinciaux</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-4xl font-bold text-red-600 mb-2">3,600+</div>
-                    <div className="text-sm text-gray-700 font-semibold uppercase tracking-wide">Municipal Officials</div>
+                    <div className="text-5xl font-bold text-red-600 mb-3">3,600+</div>
+                    <div className="text-sm text-gray-700 font-bold uppercase tracking-wide">Municipal Officials</div>
                     <div className="text-xs text-gray-500 mt-1">Élus municipaux</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-4xl font-bold text-red-600 mb-2">24/7</div>
-                    <div className="text-sm text-gray-700 font-semibold uppercase tracking-wide">Real-time Updates</div>
+                    <div className="text-5xl font-bold text-red-600 mb-3">24/7</div>
+                    <div className="text-sm text-gray-700 font-bold uppercase tracking-wide">Real-time Updates</div>
                     <div className="text-xs text-gray-500 mt-1">Mises à jour</div>
                   </div>
                 </div>
