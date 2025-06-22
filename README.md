@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # CivicOS Suite
 
 A comprehensive civic engagement platform for Canadian democracy, featuring real-time government data, AI-powered analysis, and interactive citizen tools.
@@ -197,3 +198,7 @@ For technical support, please check the logs and ensure all environment variable
 ## License
 
 MIT License - see LICENSE file for details.
+=======
+# CivicOS-Suite
+CivicOS Suite - Canadian Civic Engagement Platform
+>>>>>>> 6ab325e66ec1ed88b04ab3a2a7d2524994093e13
