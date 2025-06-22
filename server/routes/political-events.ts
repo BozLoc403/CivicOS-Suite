@@ -2,66 +2,86 @@ import { Router } from 'express';
 
 const router = Router();
 
-// Real political events happening in Canada
+// Get political events
 router.get('/events', async (req, res) => {
   try {
-    // These are actual upcoming political events based on parliamentary calendar
     const events = [
       {
         id: '1',
-        title: 'House of Commons Sitting',
-        date: '2025-01-27',
-        time: '11:00',
-        location: 'Centre Block, Ottawa',
-        type: 'committee',
+        title: 'Question Period',
+        description: 'Daily parliamentary question period in the House of Commons',
+        date: new Date('2025-06-23T19:00:00Z'),
+        time: '2:00 PM',
+        location: 'House of Commons, Parliament Hill',
+        type: 'parliamentary',
         level: 'federal',
-        description: 'Parliament resumes after winter break - Question Period and government business',
-        organizer: 'House of Commons',
-        attendees: 338,
-        maxAttendees: 338,
-        isVirtual: false,
-        registrationRequired: false,
         cost: 'free',
-        importance: 'high'
+        importance: 'high',
+        attendees: 338,
+        organizer: 'Parliament of Canada'
       },
       {
         id: '2',
-        title: 'Federal Budget Pre-Consultation',
-        date: '2025-01-30',
-        time: '19:00',
-        location: 'Various locations across Canada',
-        type: 'town_hall',
+        title: 'Committee on Public Accounts',
+        description: 'Review of government spending and accountability measures',
+        date: new Date('2025-06-24T15:00:00Z'),
+        time: '10:00 AM',
+        location: 'Committee Room 256-S, Centre Block',
+        type: 'committee',
         level: 'federal',
-        description: 'Finance Minister holds pre-budget consultations with Canadians',
-        organizer: 'Department of Finance Canada',
-        isVirtual: true,
-        registrationRequired: true,
         cost: 'free',
-        importance: 'high'
+        importance: 'medium',
+        attendees: 12,
+        organizer: 'House of Commons'
       },
       {
         id: '3',
-        title: 'Standing Committee on Health',
-        date: '2025-02-03',
-        time: '11:00',
-        location: 'West Block, Room 025-B',
-        type: 'committee',
-        level: 'federal',
-        description: 'Study on mental health services in Canada',
-        organizer: 'House of Commons',
-        attendees: 12,
-        maxAttendees: 50,
-        isVirtual: true,
-        registrationRequired: false,
+        title: 'Toronto City Council Meeting',
+        description: 'Monthly city council meeting discussing local bylaws and budget',
+        date: new Date('2025-06-25T14:00:00Z'),
+        time: '9:30 AM',
+        location: 'Toronto City Hall',
+        type: 'council',
+        level: 'municipal',
         cost: 'free',
-        importance: 'medium'
+        importance: 'high',
+        attendees: 25,
+        organizer: 'City of Toronto'
+      },
+      {
+        id: '4',
+        title: 'Ontario Legislature Session',
+        description: 'Provincial legislative session discussing healthcare and education',
+        date: new Date('2025-06-26T18:00:00Z'),
+        time: '1:00 PM',
+        location: 'Queen\'s Park, Toronto',
+        type: 'legislative',
+        level: 'provincial',
+        cost: 'free',
+        importance: 'high',
+        attendees: 124,
+        organizer: 'Government of Ontario'
+      },
+      {
+        id: '5',
+        title: 'Public Consultation on Climate Policy',
+        description: 'Community input session on federal climate change initiatives',
+        date: new Date('2025-06-27T19:00:00Z'),
+        time: '7:00 PM',
+        location: 'Vancouver Convention Centre',
+        type: 'consultation',
+        level: 'federal',
+        cost: 'free',
+        importance: 'medium',
+        attendees: 200,
+        organizer: 'Environment and Climate Change Canada'
       }
     ];
-
+    
     res.json(events);
   } catch (error) {
     console.error('Error fetching political events:', error);
-    res.status(500).json({ error: 'Failed to fetch political events' });
+    res.status(500).json({ message: 'Failed to fetch political events' });
   }
 });
 

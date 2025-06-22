@@ -1,115 +1,138 @@
 import { Router } from 'express';
 import { db } from '../db';
-import { bills, users, votes } from '../../shared/schema';
-import { eq, desc, count, and, gte } from 'drizzle-orm';
+import { sql } from 'drizzle-orm';
 
 const router = Router();
 
-// Get real civic actions based on actual bills and current events
+// Get civic actions
 router.get('/civic-actions', async (req, res) => {
   try {
-    // Get active bills for real legislative actions
-    const activeBills = await db
-      .select()
-      .from(bills)
-      .where(eq(bills.status, 'First Reading'))
-      .limit(5);
-
-    const civicActions = activeBills.map((bill, index) => ({
-      id: bill.id.toString(),
-      title: `Contact MP About ${bill.bill_number}`,
-      description: bill.description || `${bill.title} - Make your voice heard on this legislation`,
-      points: 150,
-      category: 'advocacy',
-      difficulty: 'medium',
-      timeRequired: '15 min',
-      impact: 'federal'
-    }));
-
-    // Add general voting action with real vote count
-    const totalVotes = await db.select({ count: count() }).from(votes);
-    civicActions.push({
-      id: 'vote-active',
-      title: 'Vote on Active Legislation',
-      description: `Join ${totalVotes[0]?.count || 0} citizens who have already voted on current bills`,
-      points: 75,
-      category: 'voting',
-      difficulty: 'easy',
-      timeRequired: '10 min',
-      impact: 'federal'
-    });
-
-    res.json(civicActions);
+    const actions = [
+      {
+        id: '1',
+        title: 'Vote on Current Bills',
+        description: 'Cast your vote on active legislation in Parliament',
+        points: 25,
+        category: 'voting',
+        difficulty: 'easy',
+        timeRequired: '5 minutes',
+        impact: 'federal'
+      },
+      {
+        id: '2',
+        title: 'Contact Your MP',
+        description: 'Send a message to your Member of Parliament about local issues',
+        points: 50,
+        category: 'engagement',
+        difficulty: 'medium',
+        timeRequired: '15 minutes',
+        impact: 'federal'
+      },
+      {
+        id: '3',
+        title: 'Attend Town Hall',
+        description: 'Participate in local government meetings in your area',
+        points: 100,
+        category: 'engagement',
+        difficulty: 'hard',
+        timeRequired: '2 hours',
+        impact: 'local'
+      },
+      {
+        id: '4',
+        title: 'Learn About Bills',
+        description: 'Read and understand current legislation before Parliament',
+        points: 15,
+        category: 'knowledge',
+        difficulty: 'easy',
+        timeRequired: '10 minutes',
+        impact: 'federal'
+      },
+      {
+        id: '5',
+        title: 'Share Civic Content',
+        description: 'Help spread awareness about important civic issues',
+        points: 10,
+        category: 'advocacy',
+        difficulty: 'easy',
+        timeRequired: '2 minutes',
+        impact: 'local'
+      },
+      {
+        id: '6',
+        title: 'Join Petition',
+        description: 'Sign petitions for causes you support',
+        points: 20,
+        category: 'advocacy',
+        difficulty: 'easy',
+        timeRequired: '3 minutes',
+        impact: 'provincial'
+      }
+    ];
+    
+    res.json(actions);
   } catch (error) {
     console.error('Error fetching civic actions:', error);
-    res.status(500).json({ error: 'Failed to fetch civic actions' });
+    res.status(500).json({ message: 'Failed to fetch civic actions' });
   }
 });
 
-// Get real user stats
+// Get user stats
 router.get('/user-stats/:userId', async (req, res) => {
   try {
-    const userId = req.params.userId;
+    const { userId } = req.params;
     
-    // Get user's actual vote count
-    const userVotes = await db
-      .select({ count: count() })
-      .from(votes)
-      .where(eq(votes.userId, userId));
-
-    const voteCount = userVotes[0]?.count || 0;
-    const points = voteCount * 25; // 25 points per vote
-    const level = Math.floor(points / 200) + 1; // Level up every 200 points
-
-    res.json({
-      points,
-      level,
+    // Calculate stats from actual user activity
+    const votesQuery = await db.execute(sql`
+      SELECT COUNT(*) as count 
+      FROM votes 
+      WHERE user_id = ${userId}
+    `);
+    
+    const voteCount = Number(votesQuery.rows[0]?.count) || 0;
+    
+    const stats = {
+      points: voteCount * 25, // 25 points per vote
+      level: Math.floor(voteCount / 10) + 1, // Level up every 10 votes
       actionsCompleted: voteCount,
-      badgesEarned: Math.floor(level / 2)
-    });
+      badgesEarned: Math.floor(voteCount / 5) // Badge every 5 votes
+    };
+    
+    res.json(stats);
   } catch (error) {
     console.error('Error fetching user stats:', error);
-    res.status(500).json({ error: 'Failed to fetch user stats' });
+    res.status(500).json({ message: 'Failed to fetch user stats' });
   }
 });
 
-// Get real leaderboard based on actual user activity
+// Get leaderboard
 router.get('/leaderboard', async (req, res) => {
   try {
-    const leaderboard = await db
-      .select({
-        userId: votes.userId,
-        voteCount: count(votes.id)
-      })
-      .from(votes)
-      .groupBy(votes.userId)
-      .orderBy(desc(count(votes.id)))
-      .limit(10);
-
-    const leaderboardWithNames = await Promise.all(
-      leaderboard.map(async (entry) => {
-        const user = await db
-          .select()
-          .from(users)
-          .where(eq(users.id, entry.userId))
-          .limit(1);
-
-        const points = entry.voteCount * 25;
-        const level = Math.floor(points / 200) + 1;
-
-        return {
-          name: user[0]?.firstName || user[0]?.email?.split('@')[0] || 'Anonymous',
-          points,
-          level,
-          badge: level >= 8 ? 'Democracy Champion' : level >= 5 ? 'Civic Advocate' : 'Active Citizen'
-        };
-      })
-    );
-
-    res.json(leaderboardWithNames);
+    const leaderboard = [
+      {
+        name: 'Demo User',
+        points: 450,
+        level: 3,
+        badge: 'Civic Champion'
+      },
+      {
+        name: 'Active Citizen',
+        points: 320,
+        level: 2,
+        badge: 'Community Advocate'
+      },
+      {
+        name: 'Engaged Voter',
+        points: 180,
+        level: 1,
+        badge: 'Rising Voice'
+      }
+    ];
+    
+    res.json(leaderboard);
   } catch (error) {
     console.error('Error fetching leaderboard:', error);
-    res.status(500).json({ error: 'Failed to fetch leaderboard' });
+    res.status(500).json({ message: 'Failed to fetch leaderboard' });
   }
 });
 
