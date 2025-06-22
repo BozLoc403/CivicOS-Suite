@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import aiRouter from "./routes/ai";
 import analyticsRouter from "./routes/analytics";
+import trafficRouter from "./routes/traffic";
 import simpleNotificationsRouter from "./simpleNotifications";
 import { registerIdentityRoutes } from "./routes/identity";
 
@@ -50,6 +51,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Analytics routes
   app.use('/api/analytics', analyticsRouter);
+
+  // Traffic tracking routes
+  app.use('/api/traffic', trafficRouter);
 
   // Simple notifications routes (no auth required)
   app.use("/api/notifications", simpleNotificationsRouter);
