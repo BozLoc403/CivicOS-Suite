@@ -3,6 +3,8 @@ import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
+import DonationPopup from "@/components/DonationPopup";
+import DonationSuccess from "@/components/DonationSuccess";
 import { 
   Menu, 
   Home, 
@@ -287,6 +289,22 @@ export function MobileNavigation() {
         </Sheet>
       </div>
 
+      {/* Donation Popups */}
+      <DonationPopup
+        isOpen={showDonationPopup}
+        onClose={() => setShowDonationPopup(false)}
+        onSuccess={() => {
+          setShowDonationPopup(false);
+          setDonatedAmount(25);
+          setShowDonationSuccess(true);
+        }}
+      />
+
+      <DonationSuccess
+        isOpen={showDonationSuccess}
+        onClose={() => setShowDonationSuccess(false)}
+        amount={donatedAmount}
+      />
     </>
   );
 }
