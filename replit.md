@@ -85,6 +85,7 @@ The platform is designed for deployment on Replit with the following configurati
 
 ## Changelog
 
+- June 22, 2025: Updated mobile Support button to redirect to full donate page, matching desktop behavior for consistent user experience across all devices
 - June 22, 2025: Added comprehensive civic engagement features to increase user retention and platform value
   - Created Civic Engagement Hub with gamification system: points, levels, badges, and community challenges
   - Built Political Calendar for tracking town halls, debates, committee meetings, and civic events

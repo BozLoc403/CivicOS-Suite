@@ -50,7 +50,7 @@ export function MobileNavigation() {
   const [location] = useLocation();
   const { user, logout } = useAuth();
   const [expandedSections, setExpandedSections] = useState<string[]>(["Democratic Systems"]);
-  const [showDonationPopup, setShowDonationPopup] = useState(false);
+
 
   const toggleSection = (sectionTitle: string) => {
     setExpandedSections(prev => 
@@ -126,14 +126,15 @@ export function MobileNavigation() {
   return (
     <>
       <div className="flex items-center space-x-2">
-        <Button
-          onClick={() => setShowDonationPopup(true)}
-          className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200 px-3 py-1 text-sm h-8"
-          size="sm"
-        >
-          <Heart className="w-4 h-4 mr-1" />
-          Support
-        </Button>
+        <Link href="/donate">
+          <Button
+            className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200 px-3 py-1 text-sm h-8"
+            size="sm"
+          >
+            <Heart className="w-4 h-4 mr-1" />
+            Support
+          </Button>
+        </Link>
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" className="text-slate-700 dark:text-slate-300">
@@ -284,36 +285,7 @@ export function MobileNavigation() {
       </SheetContent>
         </Sheet>
       </div>
-      
-      {/* Donation Popup */}
-      {showDonationPopup && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-sm w-full">
-            <h3 className="text-lg font-bold mb-4">Support CivicOS</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
-              Help us build the most comprehensive political transparency platform Canada has ever seen!
-            </p>
-            <div className="flex space-x-2">
-              <Button
-                onClick={() => setShowDonationPopup(false)}
-                variant="outline"
-                className="flex-1"
-              >
-                Later
-              </Button>
-              <Button
-                onClick={() => {
-                  setShowDonationPopup(false);
-                  window.location.href = "/donate";
-                }}
-                className="flex-1 bg-red-600 hover:bg-red-700 text-white"
-              >
-                Donate Now
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+
     </>
   );
 }
