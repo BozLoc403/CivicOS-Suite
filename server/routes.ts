@@ -4,10 +4,10 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import civicEngagementRoutes from "./routes/civic-engagement";
 import politicalEventsRoutes from "./routes/political-events";
-import { aiRouter } from "./routes/ai";
-import { analyticsRouter } from "./routes/analytics";
-import { trafficRouter } from "./routes/traffic";
-import { simpleNotificationsRouter } from "./simpleNotifications";
+import aiRouter from "./routes/ai";
+import analyticsRouter from "./routes/analytics";
+import trafficRouter from "./routes/traffic";
+import simpleNotificationsRouter from "./simpleNotifications";
 import { registerIdentityRoutes } from "./routes/identity";
 
 import { authenticDataService } from "./authenticDataService";
@@ -2982,6 +2982,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
+
+  // Civic engagement routes
+  app.use('/api/civic', civicEngagementRoutes);
+  app.use('/api/political', politicalEventsRoutes);
+
+  // Analytics routes
+  app.use('/api/analytics', analyticsRouter);
+
+  // Traffic routes
+  app.use('/api/traffic', trafficRouter);
+
+  // AI routes
+  app.use('/api/ai', aiRouter);
+
+  // Notifications routes
+  app.use('/api/notifications', simpleNotificationsRouter);
+
+  // Identity verification routes
+  registerIdentityRoutes(app);
 
   const httpServer = createServer(app);
   return httpServer;
