@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import aiRouter from "./routes/ai";
+import analyticsRouter from "./routes/analytics";
 import simpleNotificationsRouter from "./simpleNotifications";
 import { registerIdentityRoutes } from "./routes/identity";
 
@@ -46,6 +47,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // AI routes
   app.use('/api/ai', aiRouter);
+
+  // Analytics routes
+  app.use('/api/analytics', analyticsRouter);
 
   // Simple notifications routes (no auth required)
   app.use("/api/notifications", simpleNotificationsRouter);
