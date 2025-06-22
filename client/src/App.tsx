@@ -93,7 +93,6 @@ function Router() {
                   <h1 className="text-lg font-bold font-serif text-slate-900 dark:text-slate-100">CivicOS</h1>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <ChatButton />
                   <MobileNavigation />
                 </div>
               </div>
