@@ -13,14 +13,14 @@ export default function Donate() {
       amount: 5,
       title: "Civic Supporter",
       icon: Heart,
-      benefits: ["Monthly transparency reports", "Access to basic analytics"],
+      benefits: ["Support platform operations", "Help maintain data integrity"],
       color: "bg-blue-500"
     },
     {
       amount: 15,
       title: "Democracy Advocate", 
       icon: Users,
-      benefits: ["Everything above", "Priority notification alerts", "Exclusive civic insights"],
+      benefits: ["Everything above", "Fund enhanced features", "Support real-time monitoring"],
       color: "bg-green-500",
       popular: true
     },
@@ -28,14 +28,14 @@ export default function Donate() {
       amount: 50,
       title: "Transparency Champion",
       icon: Shield,
-      benefits: ["Everything above", "Advanced data exports", "Direct developer feedback channel"],
+      benefits: ["Everything above", "Fund new data sources", "Support advanced analytics"],
       color: "bg-purple-500"
     },
     {
       amount: 100,
       title: "Democracy Patron",
       icon: Crown,
-      benefits: ["Everything above", "Custom research requests", "Platform governance voting rights"],
+      benefits: ["Everything above", "Major platform improvements", "Accelerate development"],
       color: "bg-gold-500"
     }
   ];
@@ -87,7 +87,7 @@ export default function Donate() {
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
             Help us build the most comprehensive political transparency platform Canada has ever seen. 
-            Every dollar brings us closer to true democratic accountability.
+            Every donation brings us closer to true democratic accountability.
           </p>
         </div>
 
@@ -137,7 +137,7 @@ export default function Donate() {
                 </div>
                 <CardTitle className="text-lg">{tier.title}</CardTitle>
                 <div className="text-3xl font-bold text-red-600">${tier.amount}</div>
-                <div className="text-sm text-gray-500">CAD / month</div>
+                <div className="text-sm text-gray-500">CAD</div>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2 text-sm">
@@ -203,7 +203,7 @@ export default function Donate() {
             <h3 className="text-2xl font-bold mb-4">Our Mission</h3>
             <p className="text-lg opacity-90">
               CivicOS exists to make Canadian democracy more transparent, accountable, and accessible to every citizen. 
-              Your support directly funds the development of tools that expose corruption, track political promises, 
+              Your donations directly fund the development of tools that expose corruption, track political promises, 
               and empower Canadians with the information they need to hold their representatives accountable.
             </p>
           </CardContent>
