@@ -102,6 +102,9 @@ export function MobileNavigation() {
     {
       title: "Engagement Tools",
       items: [
+        { title: "Civic Hub", href: "/civic-hub", icon: Target, badge: "New" },
+        { title: "Political Events", href: "/calendar", icon: Clock, badge: "5 This Week" },
+        { title: "My Representatives", href: "/representatives", icon: Megaphone, badge: "Find" },
         { title: "Discussion Forum", href: "/discussions", icon: MessageSquare, badge: "Active" },
         { title: "Petitions", href: "/petitions", icon: PenTool, badge: "Open" },
         { title: "Whistleblower", href: "/whistleblower", icon: AlertTriangle, badge: "Secure" },

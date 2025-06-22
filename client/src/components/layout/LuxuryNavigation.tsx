@@ -43,7 +43,10 @@ import {
   X,
   LogOut,
   BookOpen,
-  Heart
+  Heart,
+  Target,
+  Calendar,
+  MapPin
 } from "lucide-react";
 
 interface NavItem {
@@ -68,6 +71,9 @@ const navigationSections = [
   {
     title: "Civic Engagement Suite",
     items: [
+      { title: "Civic Hub", href: "/civic-hub", icon: Target, badge: "New" },
+      { title: "Political Events", href: "/calendar", icon: Calendar, badge: "5" },
+      { title: "My Representatives", href: "/representatives", icon: MapPin },
       { title: "Civic Ledger", href: "/ledger", icon: BookOpen, badge: "Personal" },
       { title: "Discussions", href: "/discussions", icon: MessageSquare, badge: "24" },
       { title: "Petitions", href: "/petitions", icon: FileText },
