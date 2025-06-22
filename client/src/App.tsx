@@ -52,9 +52,9 @@ import Manifesto from "@/pages/manifesto";
 import NotFound from "@/pages/not-found";
 import Donate from "@/pages/donate";
 import Analytics from "@/pages/analytics";
-import CivicHub from "@/components/CivicEngagementHub";
-import PoliticalCalendar from "@/components/PoliticalCalendar";
-import Representatives from "@/components/LocalRepresentativesFinder";
+import CivicHub from "@/pages/civic-hub";
+import PoliticalCalendar from "@/pages/political-calendar";
+import Representatives from "@/pages/representatives";
 import canadianCrest from "@assets/ChatGPT Image Jun 20, 2025, 06_03_54 PM_1750464244456.png";
 
 function Router() {
