@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import { registerTrendsRoutes } from "./routes/trends";
 import civicEngagementRoutes from "./routes/civic-engagement";
 import politicalEventsRoutes from "./routes/political-events";
 import aiRouter from "./routes/ai";
@@ -47,6 +48,9 @@ const upload = multer({
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
+
+  // Register trend routes
+  registerTrendsRoutes(app);
 
   // AI routes
   app.use('/api/ai', aiRouter);

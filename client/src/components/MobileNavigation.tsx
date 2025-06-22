@@ -116,6 +116,7 @@ export function MobileNavigation() {
     {
       title: "Intelligence Hub",
       items: [
+        { title: "Political Trends", href: "/trends", icon: TrendingUp, badge: "Live" },
         { title: "Maps & Data", href: "/maps", icon: Map, badge: "Interactive" },
         { title: "Leaks Portal", href: "/leaks", icon: Zap, badge: "Verified" },
         { title: "Manifesto", href: "/manifesto", icon: BookOpen, badge: "Core" }
