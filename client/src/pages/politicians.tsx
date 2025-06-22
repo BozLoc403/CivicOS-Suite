@@ -215,18 +215,18 @@ export default function Politicians() {
               Federal Party Leaders
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-              {/* Prime Minister Mark Carney */}
+              {/* Prime Minister Justin Trudeau */}
               <Card 
                 className="bg-red-50 border-red-200 hover:shadow-md transition-shadow cursor-pointer"
                 onClick={() => setSelectedPolitician({
                   id: 999001,
-                  name: "Mark Carney",
+                  name: "Justin Trudeau",
                   position: "Prime Minister of Canada",
-                  riding: "Central Nova",
+                  riding: "Papineau",
                   party: "Liberal",
                   level: "federal" as const,
-                  province: "Nova Scotia",
-                  email: "mark.carney@parl.gc.ca",
+                  province: "Quebec",
+                  email: "justin.trudeau@parl.gc.ca",
                   phone: "613-995-0253",
                   website: "https://pm.gc.ca",
                   office_address: "Office of the Prime Minister, Langevin Block, 80 Wellington Street, Ottawa, ON K1A 0A2",
@@ -236,7 +236,7 @@ export default function Politicians() {
                   verified: true,
                   data_sources: [
                     { name: "Prime Minister's Office", url: "https://pm.gc.ca", type: "official" as const, verified: true },
-                    { name: "Parliament of Canada", url: "https://www.ourcommons.ca/members/en/mark-carney", type: "parliamentary" as const, verified: true },
+                    { name: "Parliament of Canada", url: "https://www.ourcommons.ca/members/en/justin-trudeau(88849)", type: "parliamentary" as const, verified: true },
                     { name: "Elections Canada", url: "https://www.elections.ca", type: "financial" as const, verified: true }
                   ],
                   last_updated: new Date().toISOString()
@@ -245,14 +245,14 @@ export default function Politicians() {
                 <CardContent className="p-4 text-center">
                   <div className="mb-3">
                     <Avatar className="w-16 h-16 mx-auto">
-                      <AvatarImage src="https://ui-avatars.com/api/?name=Mark+Carney&background=dc2626&color=fff" alt="Mark Carney" />
-                      <AvatarFallback className="bg-red-600 text-white text-lg">MC</AvatarFallback>
+                      <AvatarImage src="https://ui-avatars.com/api/?name=Justin+Trudeau&background=dc2626&color=fff" alt="Justin Trudeau" />
+                      <AvatarFallback className="bg-red-600 text-white text-lg">JT</AvatarFallback>
                     </Avatar>
                     <Badge className="mt-2 bg-red-600 text-white">Prime Minister</Badge>
                   </div>
-                  <h3 className="font-bold text-gray-900">Mark Carney</h3>
+                  <h3 className="font-bold text-gray-900">Justin Trudeau</h3>
                   <p className="text-sm text-gray-600">Liberal Party of Canada</p>
-                  <p className="text-xs text-gray-500 mt-1">Central Nova</p>
+                  <p className="text-xs text-gray-500 mt-1">Papineau</p>
                   <div className="mt-2 flex items-center justify-center">
                     <Shield className="w-4 h-4 text-blue-600 mr-1" />
                     <span className="text-xs text-blue-600 font-medium">Verified Profile</span>

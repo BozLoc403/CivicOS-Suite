@@ -368,12 +368,12 @@ export default function Landing() {
             <div className="flex items-center space-x-4">
               <span className="flex items-center space-x-2">
                 <Flag className="w-4 h-4 text-red-600" />
-                <span>Government of Canada</span>
+                <span>Canadian Government Data</span>
               </span>
               <span>|</span>
               <span className="flex items-center space-x-2">
                 <Flag className="w-4 h-4 text-red-600" />
-                <span>Gouvernement du Canada</span>
+                <span>Données Gouvernementales Canadiennes</span>
               </span>
             </div>
             <div className="text-xs">
