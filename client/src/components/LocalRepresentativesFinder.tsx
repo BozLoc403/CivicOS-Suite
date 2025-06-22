@@ -34,30 +34,34 @@ interface Representative {
   keyIssues: string[];
 }
 
-// Fetch real representatives from database
-const { data: representatives = [], isLoading } = useQuery({
-  queryKey: ['/api/politicians'],
-  select: (data) => data.slice(0, 10).map((politician: any) => ({
-    id: politician.id.toString(),
-    name: politician.name,
-    party: politician.party,
-    position: politician.position,
-    level: politician.level,
-    riding: politician.riding || politician.constituency,
-    photo: politician.profileImageUrl || '/api/placeholder/150/150',
-    phone: politician.phone || 'Contact via website',
-    email: politician.email || `${politician.name.toLowerCase().replace(' ', '.')}@parl.gc.ca`,
-    website: politician.website || '#',
-    office: politician.office || 'Parliament Hill, Ottawa',
-    responsiveness: Math.floor(Math.random() * 2) + 4, // 4-5 stars for real politicians
-    recentActivity: politician.recentActivity || 'Active in Parliament',
-    keyIssues: politician.keyIssues || ['Governance', 'Public Service', 'Constituency Issues']
-  }))
-});
-
 export default function LocalRepresentativesFinder() {
   const [postalCode, setPostalCode] = useState('');
-  const [searchResults, setSearchResults] = useState<Representative[]>(representatives);
+  const [searchResults, setSearchResults] = useState<Representative[]>([]);
+
+  // Fetch real representatives from database
+  const { data: representatives = [], isLoading } = useQuery({
+    queryKey: ['/api/politicians'],
+    select: (data) => data.slice(0, 10).map((politician: any) => ({
+      id: politician.id.toString(),
+      name: politician.name,
+      party: politician.party,
+      position: politician.position,
+      level: politician.level,
+      riding: politician.riding || politician.constituency,
+      photo: politician.profileImageUrl || '/api/placeholder/150/150',
+      phone: politician.phone || 'Contact via website',
+      email: politician.email || `${politician.name.toLowerCase().replace(' ', '.')}@parl.gc.ca`,
+      website: politician.website || '#',
+      office: politician.office || 'Parliament Hill, Ottawa',
+      responsiveness: Math.floor(Math.random() * 2) + 4, // 4-5 stars for real politicians
+      recentActivity: politician.recentActivity || 'Active in Parliament',
+      keyIssues: politician.keyIssues || ['Governance', 'Public Service', 'Constituency Issues']
+    }))
+  });
+
+  useEffect(() => {
+    setSearchResults(representatives);
+  }, [representatives]);
   const [selectedRep, setSelectedRep] = useState<Representative | null>(null);
 
   const handleSearch = () => {
