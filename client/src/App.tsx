@@ -136,6 +136,9 @@ function Router() {
                 <Route path="/users/:userId" component={UserProfile} />
                 <Route path="/donate" component={Donate} />
                 <Route path="/analytics" component={Analytics} />
+                <Route path="/civic-hub" component={CivicHub} />
+                <Route path="/calendar" component={PoliticalCalendar} />
+                <Route path="/representatives" component={Representatives} />
                 <Route path="*">
                   {() => <NotFound />}
                 </Route>
@@ -161,6 +164,9 @@ function Router() {
             <Route path="/register" component={Auth} />
             <Route path="/manifesto" component={Manifesto} />
             <Route path="/donate" component={Donate} />
+            <Route path="/civic-hub" component={CivicHub} />
+            <Route path="/calendar" component={PoliticalCalendar} />
+            <Route path="/representatives" component={Representatives} />
             <Route path="*">
               {() => <NotFound />}
             </Route>
