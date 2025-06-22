@@ -27,58 +27,19 @@ interface CivicAction {
   impact: 'local' | 'provincial' | 'federal';
 }
 
-const civicActions: CivicAction[] = [
-  {
-    id: '1',
-    title: 'Contact Your MP About Bill C-27',
-    description: 'The Digital Charter Implementation Act is currently before Parliament - contact your MP about privacy concerns',
-    points: 150,
-    category: 'advocacy',
-    difficulty: 'medium',
-    timeRequired: '15 min',
-    impact: 'federal'
-  },
-  {
-    id: '2',
-    title: 'Attend December Budget Consultation',
-    description: 'Federal budget consultations are happening across Canada - find your local session',
-    points: 300,
-    category: 'engagement',
-    difficulty: 'hard',
-    timeRequired: '2 hours',
-    impact: 'federal'
-  },
-  {
-    id: '3',
-    title: 'Review Housing Accelerator Fund',
-    description: 'Learn about Canada\'s $4B Housing Accelerator Fund and how it affects your community',
-    points: 100,
-    category: 'knowledge',
-    difficulty: 'easy',
-    timeRequired: '20 min',
-    impact: 'federal'
-  },
-  {
-    id: '4',
-    title: 'Vote on Current Bills',
-    description: 'Cast your vote on active legislation including federal budget bills and environmental policies',
-    points: 75,
-    category: 'voting',
-    difficulty: 'easy',
-    timeRequired: '10 min',
-    impact: 'federal'
-  },
-  {
-    id: '5',
-    title: 'Share Climate Action Updates',
-    description: 'Share verified information about Canada\'s 2030 emissions reduction plan',
-    points: 50,
-    category: 'advocacy',
-    difficulty: 'easy',
-    timeRequired: '5 min',
-    impact: 'federal'
-  }
-];
+// Fetch real civic actions from API
+const { data: civicActions = [] } = useQuery({
+  queryKey: ['/api/civic/civic-actions'],
+});
+
+const { data: userStats } = useQuery({
+  queryKey: ['/api/civic/user-stats', user?.id],
+  enabled: !!user?.id
+});
+
+const { data: leaderboard = [] } = useQuery({
+  queryKey: ['/api/civic/leaderboard'],
+});
 
 export default function CivicEngagementHub() {
   const [userLevel] = useState(3);
@@ -278,11 +239,7 @@ export default function CivicEngagementHub() {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {[
-              { name: 'Jordan K.', points: 2150, level: 8, badge: 'Platform Creator' },
-              { name: 'Demo User', points: 450, level: 3, badge: 'Civic Advocate' },
-              { name: 'Anonymous', points: 125, level: 1, badge: 'New Citizen' }
-            ].map((leader, index) => (
+            {leaderboard.slice(0, 3).map((leader, index) => (
               <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <div className="flex items-center space-x-3">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold ${

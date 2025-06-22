@@ -22,92 +22,10 @@ interface PoliticalEvent {
   importance: 'low' | 'medium' | 'high';
 }
 
-const upcomingEvents: PoliticalEvent[] = [
-  {
-    id: '1',
-    title: 'Federal Budget 2026 Pre-Consultation',
-    date: '2025-01-15',
-    time: '19:00',
-    location: 'Toronto Reference Library',
-    type: 'town_hall',
-    level: 'federal',
-    description: 'Deputy Prime Minister Chrystia Freeland hosts pre-budget consultation on economic priorities.',
-    organizer: 'Department of Finance Canada',
-    attendees: 127,
-    maxAttendees: 200,
-    isVirtual: false,
-    registrationRequired: true,
-    cost: 'free',
-    importance: 'high'
-  },
-  {
-    id: '2',
-    title: 'Standing Committee on Environment',
-    date: '2025-01-18',
-    time: '11:00',
-    location: 'Centre Block, Room 112-N',
-    type: 'committee',
-    level: 'federal',
-    description: 'Review of Canada\'s 2030 Emissions Reduction Plan progress and next steps.',
-    organizer: 'House of Commons',
-    attendees: 15,
-    maxAttendees: 50,
-    isVirtual: true,
-    registrationRequired: false,
-    cost: 'free',
-    importance: 'high'
-  },
-  {
-    id: '3',
-    title: 'Toronto Housing Charter Review',
-    date: '2025-01-20',
-    time: '18:30',
-    location: 'Metro Hall, Committee Room 1',
-    type: 'meeting',
-    level: 'municipal',
-    description: 'Public consultation on proposed amendments to Toronto\'s Housing Charter.',
-    organizer: 'City of Toronto Planning Committee',
-    attendees: 89,
-    maxAttendees: 120,
-    isVirtual: false,
-    registrationRequired: true,
-    cost: 'free',
-    importance: 'medium'
-  },
-  {
-    id: '4',
-    title: 'Pierre Poilievre Leadership Address',
-    date: '2025-01-22',
-    time: '14:00',
-    location: 'Shaw Centre, Ottawa',
-    type: 'debate',
-    level: 'federal',
-    description: 'Conservative Party leader addresses housing affordability and economic policy.',
-    organizer: 'Conservative Party of Canada',
-    attendees: 850,
-    maxAttendees: 1200,
-    isVirtual: true,
-    registrationRequired: true,
-    cost: 'free',
-    importance: 'high'
-  },
-  {
-    id: '5',
-    title: 'Quebec Sovereignty Rally',
-    date: '2025-01-23',
-    time: '13:00',
-    location: 'Place Jacques-Cartier, Montreal',
-    type: 'protest',
-    level: 'provincial',
-    description: 'Parti Québécois organizes rally supporting Quebec independence referendum.',
-    organizer: 'Parti Québécois',
-    attendees: 2400,
-    isVirtual: false,
-    registrationRequired: false,
-    cost: 'free',
-    importance: 'high'
-  }
-];
+// Fetch real political events from API
+const { data: upcomingEvents = [], isLoading } = useQuery({
+  queryKey: ['/api/political/events'],
+});
 
 export default function PoliticalCalendar() {
   const [selectedEvent, setSelectedEvent] = useState<PoliticalEvent | null>(null);
