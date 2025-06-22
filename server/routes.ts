@@ -2,6 +2,8 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import civicEngagementRoutes from "./routes/civic-engagement";
+import politicalEventsRoutes from "./routes/political-events";
 import aiRouter from "./routes/ai";
 import analyticsRouter from "./routes/analytics";
 import trafficRouter from "./routes/traffic";
