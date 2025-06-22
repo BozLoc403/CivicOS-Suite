@@ -3,6 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useQuery } from '@tanstack/react-query';
+import { useAuth } from '@/hooks/useAuth';
 import { 
   Trophy, 
   Target, 
@@ -13,7 +16,9 @@ import {
   FileText, 
   Megaphone,
   Award,
-  TrendingUp
+  TrendingUp,
+  BookOpen,
+  Star
 } from 'lucide-react';
 
 interface CivicAction {
@@ -27,25 +32,23 @@ interface CivicAction {
   impact: 'local' | 'provincial' | 'federal';
 }
 
-// Fetch real civic actions from API
-const { data: civicActions = [] } = useQuery({
-  queryKey: ['/api/civic/civic-actions'],
-});
-
-const { data: userStats } = useQuery({
-  queryKey: ['/api/civic/user-stats', user?.id],
-  enabled: !!user?.id
-});
-
-const { data: leaderboard = [] } = useQuery({
-  queryKey: ['/api/civic/leaderboard'],
-});
-
 export default function CivicEngagementHub() {
-  const [userLevel] = useState(3);
-  const [currentXP] = useState(450);
-  const [nextLevelXP] = useState(600);
-  const [completedActions] = useState(['3', '4']);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const { user } = useAuth();
+
+  // Fetch real civic actions from API
+  const { data: civicActions = [] } = useQuery({
+    queryKey: ['/api/civic/civic-actions'],
+  });
+
+  const { data: userStats } = useQuery({
+    queryKey: ['/api/civic/user-stats', user?.id],
+    enabled: !!user?.id
+  });
+
+  const { data: leaderboard = [] } = useQuery({
+    queryKey: ['/api/civic/leaderboard'],
+  });
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
@@ -86,27 +89,35 @@ export default function CivicEngagementHub() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-primary">Level {userLevel}</div>
-              <div className="text-sm text-muted-foreground">Civic Advocate</div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <div className="text-2xl font-bold text-blue-600">{userStats?.points || 0}</div>
+              <div className="text-sm text-gray-600">Total Points</div>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">{currentXP} XP</div>
-              <div className="text-sm text-muted-foreground">Current Points</div>
+            <div className="bg-green-50 p-4 rounded-lg">
+              <div className="text-2xl font-bold text-green-600">Level {userStats?.level || 1}</div>
+              <div className="text-sm text-gray-600">Current Level</div>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">{nextLevelXP - currentXP}</div>
-              <div className="text-sm text-muted-foreground">To Next Level</div>
+            <div className="bg-purple-50 p-4 rounded-lg">
+              <div className="text-2xl font-bold text-purple-600">{userStats?.actionsCompleted || 0}</div>
+              <div className="text-sm text-gray-600">Actions Completed</div>
+            </div>
+            <div className="bg-orange-50 p-4 rounded-lg">
+              <div className="text-2xl font-bold text-orange-600">{userStats?.badgesEarned || 0}</div>
+              <div className="text-sm text-gray-600">Badges Earned</div>
             </div>
           </div>
           
-          <div className="space-y-2">
+          <div className="mt-4 space-y-2">
             <div className="flex justify-between text-sm">
-              <span>Progress to Level {userLevel + 1}</span>
-              <span>{Math.round((currentXP / nextLevelXP) * 100)}%</span>
+              <span>Progress to Level {(userStats?.level || 1) + 1}</span>
+              <span>{userStats ? Math.round(((userStats.points % 200) / 200) * 100) : 0}%</span>
             </div>
-            <Progress value={(currentXP / nextLevelXP) * 100} className="h-3" />
+            <Progress value={userStats ? ((userStats.points % 200) / 200) * 100 : 0} className="w-full" />
+            <div className="flex justify-between text-sm text-gray-600 mt-1">
+              <span>{userStats?.points || 0} points</span>
+              <span>Next level: {userStats ? (Math.floor(userStats.points / 200) + 1) * 200 : 200} points</span>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -152,52 +163,55 @@ export default function CivicEngagementHub() {
           </CardTitle>
         </CardHeader>
         <CardContent>
+          <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="mb-6">
+            <TabsList className="grid w-full grid-cols-5">
+              <TabsTrigger value="all">All</TabsTrigger>
+              <TabsTrigger value="voting">Voting</TabsTrigger>
+              <TabsTrigger value="advocacy">Advocacy</TabsTrigger>
+              <TabsTrigger value="engagement">Engagement</TabsTrigger>
+              <TabsTrigger value="knowledge">Knowledge</TabsTrigger>
+            </TabsList>
+          </Tabs>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {civicActions.map((action) => {
-              const isCompleted = completedActions.includes(action.id);
-              
-              return (
-                <Card key={action.id} className={`${isCompleted ? 'opacity-60 bg-gray-50' : 'hover:shadow-md'} transition-all`}>
-                  <CardContent className="p-4">
-                    <div className="flex justify-between items-start mb-3">
-                      <div className="flex items-center space-x-2">
-                        {getCategoryIcon(action.category)}
-                        <h3 className="font-semibold">{action.title}</h3>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <TrendingUp className="h-4 w-4 text-green-500" />
-                        <span className="text-sm font-medium text-green-600">+{action.points}</span>
-                      </div>
+            {(civicActions || []).filter((action: any) => 
+              selectedCategory === 'all' || action.category === selectedCategory
+            ).map((action: any) => (
+              <Card key={action.id} className="hover:shadow-md transition-all">
+                <CardContent className="p-4">
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex items-center space-x-2">
+                      {getCategoryIcon(action.category)}
+                      <h3 className="font-semibold">{action.title}</h3>
                     </div>
-                    
-                    <p className="text-sm text-muted-foreground mb-3">{action.description}</p>
-                    
-                    <div className="flex flex-wrap gap-2 mb-3">
-                      <Badge variant="outline" className={getImpactColor(action.impact)}>
-                        {action.impact}
-                      </Badge>
-                      <Badge variant="outline" className="flex items-center space-x-1">
-                        <div className={`w-2 h-2 rounded-full ${getDifficultyColor(action.difficulty)}`} />
-                        <span>{action.difficulty}</span>
-                      </Badge>
-                      <Badge variant="outline" className="flex items-center space-x-1">
-                        <Calendar className="h-3 w-3" />
-                        <span>{action.timeRequired}</span>
-                      </Badge>
+                    <div className="flex items-center space-x-1">
+                      <TrendingUp className="h-4 w-4 text-green-500" />
+                      <span className="text-sm font-medium text-green-600">+{action.points}</span>
                     </div>
-                    
-                    <Button 
-                      size="sm" 
-                      className="w-full" 
-                      disabled={isCompleted}
-                      variant={isCompleted ? "secondary" : "default"}
-                    >
-                      {isCompleted ? 'Completed ✓' : 'Start Action'}
-                    </Button>
-                  </CardContent>
-                </Card>
-              );
-            })}
+                  </div>
+                  
+                  <p className="text-sm text-muted-foreground mb-3">{action.description}</p>
+                  
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    <Badge variant="outline" className={getImpactColor(action.impact)}>
+                      {action.impact}
+                    </Badge>
+                    <Badge variant="outline" className="flex items-center space-x-1">
+                      <div className={`w-2 h-2 rounded-full ${getDifficultyColor(action.difficulty)}`} />
+                      <span>{action.difficulty}</span>
+                    </Badge>
+                    <Badge variant="outline" className="flex items-center space-x-1">
+                      <Calendar className="h-3 w-3" />
+                      <span>{action.timeRequired}</span>
+                    </Badge>
+                  </div>
+                  
+                  <Button size="sm" className="w-full">
+                    Start Action
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </CardContent>
       </Card>

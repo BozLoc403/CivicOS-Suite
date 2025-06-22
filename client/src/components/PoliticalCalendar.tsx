@@ -22,14 +22,14 @@ interface PoliticalEvent {
   importance: 'low' | 'medium' | 'high';
 }
 
-// Fetch real political events from API
-const { data: upcomingEvents = [], isLoading } = useQuery({
-  queryKey: ['/api/political/events'],
-});
-
 export default function PoliticalCalendar() {
   const [selectedEvent, setSelectedEvent] = useState<PoliticalEvent | null>(null);
   const [followedEvents, setFollowedEvents] = useState<string[]>(['1', '3']);
+
+  // Fetch real political events from API
+  const { data: upcomingEvents = [], isLoading } = useQuery({
+    queryKey: ['/api/political/events'],
+  });
 
   const getEventTypeIcon = (type: string) => {
     switch (type) {
