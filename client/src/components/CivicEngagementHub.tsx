@@ -30,8 +30,8 @@ interface CivicAction {
 const civicActions: CivicAction[] = [
   {
     id: '1',
-    title: 'Contact Your MP',
-    description: 'Send a message to your Member of Parliament about an issue you care about',
+    title: 'Contact Your MP About Bill C-27',
+    description: 'The Digital Charter Implementation Act is currently before Parliament - contact your MP about privacy concerns',
     points: 150,
     category: 'advocacy',
     difficulty: 'medium',
@@ -40,18 +40,18 @@ const civicActions: CivicAction[] = [
   },
   {
     id: '2',
-    title: 'Attend Town Hall',
-    description: 'Participate in a local town hall or council meeting',
+    title: 'Attend December Budget Consultation',
+    description: 'Federal budget consultations are happening across Canada - find your local session',
     points: 300,
     category: 'engagement',
     difficulty: 'hard',
     timeRequired: '2 hours',
-    impact: 'local'
+    impact: 'federal'
   },
   {
     id: '3',
-    title: 'Learn About Bill C-18',
-    description: 'Read and understand the Online News Act and its implications',
+    title: 'Review Housing Accelerator Fund',
+    description: 'Learn about Canada\'s $4B Housing Accelerator Fund and how it affects your community',
     points: 100,
     category: 'knowledge',
     difficulty: 'easy',
@@ -60,8 +60,8 @@ const civicActions: CivicAction[] = [
   },
   {
     id: '4',
-    title: 'Vote on Platform Issues',
-    description: 'Cast your vote on 5 different political issues or bills',
+    title: 'Vote on Current Bills',
+    description: 'Cast your vote on active legislation including federal budget bills and environmental policies',
     points: 75,
     category: 'voting',
     difficulty: 'easy',
@@ -70,13 +70,13 @@ const civicActions: CivicAction[] = [
   },
   {
     id: '5',
-    title: 'Share Political Content',
-    description: 'Share an important political article with proper fact-checking',
+    title: 'Share Climate Action Updates',
+    description: 'Share verified information about Canada\'s 2030 emissions reduction plan',
     points: 50,
     category: 'advocacy',
     difficulty: 'easy',
     timeRequired: '5 min',
-    impact: 'local'
+    impact: 'federal'
   }
 ];
 
@@ -279,9 +279,9 @@ export default function CivicEngagementHub() {
         <CardContent>
           <div className="space-y-3">
             {[
-              { name: 'Jordan I.', points: 2150, level: 8, badge: 'Democracy Champion' },
-              { name: 'Sarah M.', points: 1890, level: 7, badge: 'Civic Advocate' },
-              { name: 'Michael K.', points: 1650, level: 6, badge: 'Policy Expert' }
+              { name: 'Jordan K.', points: 2150, level: 8, badge: 'Platform Creator' },
+              { name: 'Demo User', points: 450, level: 3, badge: 'Civic Advocate' },
+              { name: 'Anonymous', points: 125, level: 1, badge: 'New Citizen' }
             ].map((leader, index) => (
               <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <div className="flex items-center space-x-3">
