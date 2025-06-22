@@ -52,6 +52,105 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register trend routes
   registerTrendsRoutes(app);
 
+  // Political events endpoint
+  app.get('/api/political/events', async (req, res) => {
+    try {
+      // Return sample political events data
+      const events = [
+        {
+          id: '1',
+          title: 'Federal Budget Consultation',
+          date: '2025-06-25',
+          time: '7:00 PM',
+          location: 'Ottawa Community Centre',
+          type: 'town_hall',
+          level: 'federal',
+          description: 'Public consultation on the upcoming federal budget priorities and spending allocations.',
+          organizer: 'Department of Finance Canada',
+          attendees: 45,
+          maxAttendees: 100,
+          isVirtual: false,
+          registrationRequired: true,
+          cost: 'free',
+          importance: 'high'
+        },
+        {
+          id: '2',
+          title: 'Climate Policy Debate',
+          date: '2025-06-27',
+          time: '2:00 PM',
+          location: 'Virtual Meeting',
+          type: 'debate',
+          level: 'federal',
+          description: 'Parliamentary debate on new climate legislation and carbon pricing mechanisms.',
+          organizer: 'House of Commons',
+          attendees: 0,
+          maxAttendees: 500,
+          isVirtual: true,
+          registrationRequired: false,
+          cost: 'free',
+          importance: 'high'
+        },
+        {
+          id: '3',
+          title: 'Municipal Planning Committee',
+          date: '2025-06-26',
+          time: '10:00 AM',
+          location: 'City Hall, Toronto',
+          type: 'committee',
+          level: 'municipal',
+          description: 'Monthly planning committee meeting to discuss new development proposals.',
+          organizer: 'City of Toronto',
+          attendees: 12,
+          maxAttendees: 50,
+          isVirtual: false,
+          registrationRequired: false,
+          cost: 'free',
+          importance: 'medium'
+        },
+        {
+          id: '4',
+          title: 'Provincial Healthcare Forum',
+          date: '2025-06-28',
+          time: '6:30 PM',
+          location: 'Ontario Legislature',
+          type: 'meeting',
+          level: 'provincial',
+          description: 'Public forum on healthcare system improvements and funding allocations.',
+          organizer: 'Ministry of Health Ontario',
+          attendees: 78,
+          maxAttendees: 200,
+          isVirtual: false,
+          registrationRequired: true,
+          cost: 'free',
+          importance: 'high'
+        },
+        {
+          id: '5',
+          title: 'Housing Policy Consultation',
+          date: '2025-06-29',
+          time: '1:00 PM',
+          location: 'Virtual Meeting',
+          type: 'town_hall',
+          level: 'provincial',
+          description: 'Consultation on new affordable housing initiatives and rent control policies.',
+          organizer: 'Ministry of Municipal Affairs',
+          attendees: 156,
+          maxAttendees: 300,
+          isVirtual: true,
+          registrationRequired: true,
+          cost: 'free',
+          importance: 'high'
+        }
+      ];
+
+      res.json(events);
+    } catch (error) {
+      console.error('Error fetching political events:', error);
+      res.status(500).json({ message: 'Failed to fetch political events' });
+    }
+  });
+
   // AI routes
   app.use('/api/ai', aiRouter);
 

@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Clock, MapPin, Users, ExternalLink, Bell, Star } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { Calendar, Clock, MapPin, Users, ExternalLink, Bell, Star, RefreshCw } from 'lucide-react';
 
 interface PoliticalEvent {
   id: string;
@@ -27,8 +28,10 @@ export default function PoliticalCalendar() {
   const [followedEvents, setFollowedEvents] = useState<string[]>(['1', '3']);
 
   // Fetch real political events from API
-  const { data: upcomingEvents = [], isLoading } = useQuery({
+  const { data: upcomingEvents = [], isLoading, error } = useQuery({
     queryKey: ['/api/political/events'],
+    retry: 2,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
   const getEventTypeIcon = (type: string) => {
@@ -88,6 +91,35 @@ export default function PoliticalCalendar() {
       day: 'numeric'
     });
   };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardContent className="p-8 text-center">
+            <RefreshCw className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
+            <p className="text-gray-600">Loading political events...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardContent className="p-8 text-center">
+            <Calendar className="w-8 h-8 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-600 mb-4">Unable to load political events</p>
+            <Button variant="outline" onClick={() => window.location.reload()}>
+              Try Again
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -152,7 +184,14 @@ export default function PoliticalCalendar() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {upcomingEvents.map((event) => (
+            {upcomingEvents.length === 0 ? (
+              <div className="text-center py-8">
+                <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-600">No upcoming political events found</p>
+                <p className="text-sm text-gray-500">Check back later for new events</p>
+              </div>
+            ) : (
+              upcomingEvents.map((event) => (
               <div 
                 key={event.id}
                 className={`border-l-4 ${getImportanceColor(event.importance)} bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer`}
@@ -245,7 +284,8 @@ export default function PoliticalCalendar() {
                   </div>
                 </div>
               </div>
-            ))}
+              ))
+            )}
           </div>
         </CardContent>
       </Card>
