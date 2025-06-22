@@ -48,10 +48,13 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import canadianCrest from "@assets/ChatGPT Image Jun 20, 2025, 06_03_54 PM_1750464244456.png";
 
-export function MobileNavigation() {
+export default function MobileNavigation() {
   const [location] = useLocation();
   const { user, logout } = useAuth();
   const [expandedSections, setExpandedSections] = useState<string[]>(["Democratic Systems"]);
+  const [showDonationPopup, setShowDonationPopup] = useState(false);
+  const [showDonationSuccess, setShowDonationSuccess] = useState(false);
+  const [donatedAmount, setDonatedAmount] = useState(0);
 
 
   const toggleSection = (sectionTitle: string) => {
@@ -129,15 +132,14 @@ export function MobileNavigation() {
   return (
     <>
       <div className="flex items-center space-x-2">
-        <Link href="/donate">
-          <Button
-            className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200 px-3 py-1 text-sm h-8"
-            size="sm"
-          >
-            <Heart className="w-4 h-4 mr-1" />
-            Support
-          </Button>
-        </Link>
+        <Button
+          onClick={() => setShowDonationPopup(true)}
+          className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200 px-3 py-1 text-sm h-8"
+          size="sm"
+        >
+          <Heart className="w-4 h-4 mr-1" />
+          Support
+        </Button>
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" className="text-slate-700 dark:text-slate-300">

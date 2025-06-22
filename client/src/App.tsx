@@ -8,7 +8,7 @@ import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 
 import { LuxuryNavigation } from "@/components/layout/LuxuryNavigation";
-import { MobileNavigation } from "@/components/MobileNavigation";
+import MobileNavigation from "@/components/MobileNavigation";
 import Landing from "@/pages/landing";
 import About from "@/pages/about";
 import Privacy from "@/pages/privacy";
